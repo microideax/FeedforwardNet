@@ -1,4 +1,3 @@
-// ConsoleApplication3.cpp : 定义控制台应用程序的入口点。
 //#include "stdafx.h"
 //LeNet-5 image recognition with std image
 //eliminating OpenCV lib dependency
@@ -16,12 +15,6 @@
 #include "../tiny_dnn/tiny_dnn.h"
 #include "../tiny_dnn/hls_lib/static_vector.h"
 #include "../tiny_dnn/util/image.h"
-//#include "hls_video.h"
-//#include "hls_opencv.h"
-
-//#include "../tiny_dnn/util/util.h"
-//#define _HAS_ITERATOR_DEBUGGING 0
-//#define _SECURE_SCL_ 0
 
 using namespace tiny_dnn;
 using namespace tiny_dnn::activation;
@@ -144,143 +137,12 @@ void nn_load_weight(const std::string& dic, network<sequential>& nn) {
 	nn.load(weights);
 }
 
-std::vector<tensor_t> forward(const std::vector<tensor_t>& in, network<sequential> nn) {
-	tensor_t in_data = in[0];//原本的输入一维表示
-	tensor_t in_data2D;//转换成二维表示
-	fill_tensor(in_data2D, float(0));
-	vec_t vec1;//输入的行向量
-	vec_t vec2;//输出的行向量
-	for (int i = 0; i < in_data[0].size(); i++)
-	{
-		//if (i==0||i % 32!=0) {这样不行，因为每行的第一个元素丢了
-		if(i==0||(i-1)/32==i/32){//将原本的一维输入按图片大小转换成二维
-			vec1.push_back(in_data[0][i]);//放入输入map每个像素的输入值构成输入行向量
-			if (i == in_data[0].size() - 1) {//最后一个输入行向量
-				in_data2D.push_back(vec1);//放入输入行向量构成二维输入tensor
-				vec1.clear();
-			}
-		}
-		else {
-			in_data2D.push_back(vec1);
-			vec1.clear();
-			vec1.push_back(in_data[0][i]);//放入输入行向量第一个元素
-		}
-	}
-	tensor_t out_data2D;
-	vector<tensor_t> out;
-	fill_tensor(out_data2D, float(0));
-	cout << "输入map数量" << in_data.size()<<endl;//1
-	cout << "输入map像素数" << in_data[0].size() << endl;//1024
-	/*for(int i=0;i< in_data.size(); i++) {
-		const vec_t& in = in_data[i];
-		vec_t& a = out_data[i];*/
-		int K = 5;//kernel长宽
-		int m = 32;//图片m×n
-		int n = 32;
-		ifstream ifs("LeNet-weights");
-		string str;
-		int count = 0;
-		int bias_num=0;
-		tensor_t weight2D;//权重&偏置矩阵：weight2D[0]存权重；weight2D[1]存偏置
-		vec_t vec3;//权重向量
-		vec_t vec4;//偏置向量
-		while (ifs >> str&&count<156)
-		{
-			if (count<150) {//前150个数据是weight
-				float f = atof(str.c_str());
-				vec3.push_back(f);//放入权重
-				cout << vec3[count] << " ";
-			}
-			else {//后6个是bias
-				float f = atof(str.c_str());
-				vec4.push_back(f);//放入偏置
-				cout << vec4[bias_num] << " ";
-				bias_num++;
-			}
-			count++;
-		}
-		weight2D.push_back(vec3);
-		weight2D.push_back(vec4);
-		cout << "权重总数为：" << count << endl;
-		ifs.close();
-		for (int a = 0; a < (*nn[0]->weights()[1]).size(); a++) {
-			for (int i = K / 2; i < m - K / 2; ++i) //遍历输入map
-			{
-				for (int j = K / 2; j < n - K / 2; ++j)
-				{
-					float sum = 0; //
-					for (int ii = -K / 2; ii <= K / 2; ++ii) //遍历kernel
-					{
-						for (int jj = -K / 2; jj <= K / 2; ++jj)
-						{
-							float data = in_data2D[i + ii][j + jj];
-							//float weight = (*nn[0]->weights()[0])[a*K*K+(ii + K / 2) * 5 + (jj + K / 2)];
-							float weight = weight2D[0][a*K*K+(ii + K / 2) * 5 + (jj + K / 2)];
-							sum += data * weight;// 输出map每个像素的输出值
-						}
-					}
-					//sum += (*nn[0]->weights()[1])[a];//加上偏置bias
-					sum += weight2D[1][a];
-					const float ep = exp(sum);
-					const float em = exp(-sum);
-					sum= (ep - em) / (ep + em);//tan_h激活
-					vec2.push_back(sum);//放入sum构成输出行向量
-				}
-				out_data2D.push_back(vec2);//放入输出行向量构成输出map
-				vec2.clear();
-			}
-			out.push_back(out_data2D);//放入输出map构成三维输出
-			out_data2D.clear();
-		}
-		//for (int i = 0; i < out.size(); i++) {//遍历全部输出map
-			for (int j = 0; j < out[0].size(); j++) {
-				for (int k = 0; k < out[0][j].size(); k++) {
-					cout << out[0][j][k]<<" ";
-				}
-				cout << endl;
-			}
-			cout << endl;
-				//if (!params.tbl.is_connected(o, inc)) continue;
-	return out;
-}
-
-std::vector<tensor_t> fprop(const std::vector<tensor_t>& in, network<sequential> nn) {
-	for (int i = 0; i < in.size(); i++) {
-		for (int j = 0; j < in[i].size(); j++) {
-			for (int k = 0; k < in[i][j].size(); k++) {
-				cout << in[i][j][k]<<" ";
-			}
-			cout << endl;
-		}
-		cout << endl;
-	}
-	return forward(in,nn);
-}
-
-std::vector<vec_t> fprop(const std::vector<vec_t>& in, network<sequential> nn) {
-	/*for (int i = 0; i < in.size(); i++) {
-		for (int j = 0; j < in[i].size(); j++) {
-				cout << in[i][j];
-		}
-		cout << endl;
-	}*/
-	return fprop(std::vector<tensor_t>{ in },nn)[0];
-}
-
-vec_t fprop(const vec_t& in, network<sequential> nn) {
-	//if (in.size() != (size_t)in_data_size())
-	//	data_mismatch(**net_.begin(), in);
-	return fprop(std::vector<vec_t>{ in },nn)[0];
-}
-
-vec_t predict(const vec_t& in, network<sequential> nn) { 
-	return fprop(in,nn); 
-}
 
 void recognize(network<sequential>& nn, vec_t& data, vec_t& res) {
 
 	// recognize
-	res = predict(data,nn);
+	// res = predict(data,nn);
+	res = nn.predict(data);
 	//return res;
 }
 
