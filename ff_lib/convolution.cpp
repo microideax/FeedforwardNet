@@ -1,6 +1,20 @@
 #include "convolution.h"
-#include "../tiny_dnn/activation.h"
 
+void convolution(vec_t& in_data, 
+				 std::vector<vec_t>& out_data,
+				 vec_t& channel_weight,
+				 cnn_size_t in_data_size,
+				 cnn_size_t out_data_size,
+				 cnn_size_t channel_size,
+				 cnn_size_t channel_number) {
+/*
+2d convolution function body
+in_data should be 1 32x32 data array
+out_data should be 6 28x28 data array
+please restruct the convolution function body here
+this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
+*/
+}
 
 std::vector<tensor_t> forward(const std::vector<tensor_t>& in, network<sequential> nn) {
 	tensor_t in_data = in[0];//Ô­±¾µÄÊäÈëÒ»Î¬±íÊ¾
