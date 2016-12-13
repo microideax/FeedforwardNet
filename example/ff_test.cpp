@@ -1,8 +1,7 @@
-// FeedforwardNet-master.cpp : 定义控制台应用程序的入口点。
-//
+//This is the main function of a LeNet-5 model based application.
+//Application description: LeNet-5 image recognition with std image.
+//Using stb_image instead of OpenCV to eliminate library dependency.
 #include "stdafx.h"
-//LeNet-5 image recognition with std image
-//eliminating OpenCV lib dependency
 #include <iostream>
 #include <vector>
 #include <string>
@@ -19,9 +18,11 @@
 #include "../tiny_dnn/util/image.h"
 #include "../ff_lib/convolution.h"
 #include "../ff_lib/average_pooling.h"
+
 using namespace tiny_dnn;
 using namespace tiny_dnn::activation;
 using namespace std;
+
 int nn_in_data_size_conv[3] = { 32,14,5 };
 int nn_out_data_size_conv[3] = { 28,10,1 };
 int nn_in_number_conv[4] = { 1,6,16,120 };
@@ -40,8 +41,10 @@ int nn_in_number_pooling[2] = { 6,16 };
 int nn_channel_number_pooling[2] = { 6,16 };
 int nn_channel_size_pooling = 2;
 int in_number_pooling = 0;//第几个池化输入层
+
 //int weight_bias_count_1_pooling = 0;//前n层池化层的权重偏置数
 //int weight_bias_count_2_pooling = 0;//前n-1层池化层的权重偏置数
+
 typedef s_vector<float, 16> hls_vec;
 typedef s_vector<hls_vec, 16> hls_tensor;
 
@@ -51,7 +54,6 @@ double rescale(double x) {
 	Activation a;
 	return 100.0 * (x - a.scale().first) / (a.scale().second - a.scale().first);
 }
-
 
 void convert_image(const std::string& imagefilename,
 	double minv,
