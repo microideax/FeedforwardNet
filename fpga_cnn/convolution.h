@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "../tiny_dnn/util/util.h"
-#include "../ff_lib/average_pooling.h"
+#include "average_pooling.h"
 #include <fstream>
 #include <algorithm>
 using namespace tiny_dnn;
