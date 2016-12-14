@@ -70,7 +70,7 @@ tensor_t convolution_kernel(int input_size, int kernel_size, tensor_t in_data, t
 	return out_data;
 }
 
-//卷积层操作
+//tensor to tensor convolutional layer 
 std::vector<tensor_t> convolution_layer(
 	int& input_size,
 	int& kernel_size,
@@ -96,8 +96,15 @@ std::vector<tensor_t> convolution_layer(
 
 	for (int b = 0; b < out_channel; b++) {//6个kernel
 		for (int a = 0; a < in_channel; a++) {//1个in
-			out_data=convolution_kernel(input_size, kernel_size, in_data2D[a], kernel_weights[b], kernel_bias[b], in_data2D[a], in_channel, out_channel);
-			out_data3D.push_back(out_data);////6*16行
+			out_data = convolution_kernel(input_size, 
+						      kernel_size, 
+						      in_data2D[a], 
+						      kernel_weights[b], 
+						      kernel_bias[b], 
+						      in_data2D[a], 
+						      in_channel, 
+						      out_channel);
+			out_data3D.push_back(out_data); ////6*16行
 		}
 	}
 
@@ -121,7 +128,6 @@ std::vector<tensor_t> convolution_layer(
 	//else {//第一个卷积层
 	//	out_2 = out_1;
 	//}
-	//for (int i = 0; i < out.size(); i++) {//遍历全部输出map
 	for (int i = 0; i < out_data3D.size(); i++) {
 		for (int j = 0; j < out_data3D[i].size(); j++) {//查看第一个输出map
 			for (int k = 0; k < out_data3D[i][j].size(); k++) {
@@ -134,6 +140,6 @@ std::vector<tensor_t> convolution_layer(
 	cout << endl;
 	getchar();
 	return out_data3D;
-	//方案1：权重存放顺序：6个in对应于kernel1的权重矩阵、6个in对应于kernel2的权重矩阵...
 }
+
 #endif

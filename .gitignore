@@ -1,1 +1,13 @@
+dependencies
+bin/*
+obj/*
+hls_proj/*
+*~
+*.html
+*.log
+.cproject
+.project
+.settings/
+eclipse_debug
 *.o
+*.swp
