@@ -1,0 +1,35 @@
+## This file is generated automatically by Vivado HLS.
+## Please DO NOT edit it.
+## Copyright (C) 2015 Xilinx Inc. All rights reserved.
+############################################################
+open_project hls_proj
+
+set_top convolution_layer
+
+add_files -tb stb_image/stb_image.h
+add_files -tb stb_image/stb_image_resize.h
+add_files -tb stb_image/stb_image_write.h
+
+add_files -tb ff_test.cpp
+
+add_files ../fpga_cnn/hls_lib/static_vector.h
+
+add_files ff_test.cpp
+
+add_files -cflags "-std=c++0x -fpermissive -pthread -pedantic -Wall -Wextra" -tb lenet.cpp
+add_files -tb 4.bmp
+add_files -tb LeNet-weights
+
+
+open_solution -reset "lenet-5"
+set_part {xc7vx690tffg1761-2}
+create_clock -period 10 -name default
+
+
+csim_design -clean -argv {LeNet-weights, 4.bmp}
+
+csynth_design
+
+#cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl systemc -tool xsim
+
+

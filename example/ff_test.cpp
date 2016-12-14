@@ -13,14 +13,13 @@
 #include "../stb_image/stb_image.h"
 #include "../stb_image/stb_image_resize.h"
 #include "../stb_image/stb_image_write.h"
-#include "../tiny_dnn/tiny_dnn.h"
-#include "../tiny_dnn/hls_lib/static_vector.h"
-//#include "../tiny_dnn/util/image.h"
+//#include "../tiny_dnn/tiny_dnn.h"
+#include "../fpga_cnn/hls_lib/static_vector.h"
 #include "../fpga_cnn/convolution.h"
 #include "../fpga_cnn/average_pooling.h"
 
-using namespace tiny_dnn;
-using namespace tiny_dnn::activation;
+//using namespace tiny_dnn;
+//using namespace tiny_dnn::activation;
 using namespace std;
 
 int nn_in_data_size_conv[3] = { 32,14,5 };
@@ -88,6 +87,7 @@ void convert_image(const std::string& imagefilename,
 
 }
 
+/*
 bool save_image(const std::string& imagefilename, const image<>& img) {
 	// no scaling, save at original size
 	int stride_bytes = img.width();
@@ -100,7 +100,8 @@ bool save_image(const std::string& imagefilename, const image<>& img) {
 		stride_bytes);
 	return (ret != 0);
 }
-
+*/
+/*
 //void construct_net(network<sequential>& nn) {
 void construct_net(network<sequential>& nn) {
 	// connection table [Y.Lecun, 1998 Table.1]
@@ -131,7 +132,7 @@ void nn_load_weight(const std::string& dic, network<sequential>& nn) {
 	ifstream weights(dic);
 	nn.load(weights);
 }
-
+*/
 //re-construct the array data of images into 3d
 tensor_t in_2_3D(vec_t& data_in) {
 	tensor_t data_out;
@@ -300,6 +301,7 @@ vec_t load_bias_pooling() {
 	return bias2D;
 }
 
+/*
 //输出结果：数字，概率
 void print_score(vec_t res)
 {
@@ -313,11 +315,12 @@ void print_score(vec_t res)
 		cout << scores[i].second << "," << scores[i].first << endl;
 	getchar();
 }
+*/
 
 int main(int argc, char** argv) {
 	
 	float c = 3;
-	network<sequential> nn;
+	//network<sequential> nn;
 	vec_t res;
 	vec_t data_in;  //image data storage
 	vec_t data_out;
@@ -330,8 +333,8 @@ int main(int argc, char** argv) {
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
 	//construct net and load weights to net
-	construct_net(nn);	
-	nn_load_weight("LeNet-weights", nn);
+	//construct_net(nn);	
+	//nn_load_weight("LeNet-weights", nn);
 
 	std::vector<tensor_t> conv_1_weight2D;//卷积层权重矩阵
 	vec_t 		      conv_1_bias2D;//偏置矩阵
