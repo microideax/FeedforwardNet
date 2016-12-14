@@ -15,7 +15,7 @@
 #include "../stb_image/stb_image_write.h"
 #include "../tiny_dnn/tiny_dnn.h"
 #include "../tiny_dnn/hls_lib/static_vector.h"
-#include "../tiny_dnn/util/image.h"
+//#include "../tiny_dnn/util/image.h"
 #include "../fpga_cnn/convolution.h"
 #include "../fpga_cnn/average_pooling.h"
 
@@ -27,7 +27,7 @@ int nn_in_data_size_conv[3] = { 32,14,5 };
 int nn_out_data_size_conv[3] = { 28,10,1 };
 int nn_in_number_conv[4] = { 1,6,16,120 };
 int nn_channel_size_conv = 5;
-int nn_channel_number_conv[3] = { 6,16,120 };
+int nn_channel_number_conv[4] = {1, 6,16,120 };
 bool has_connection_table[3] = {false,true,false};
 int in_number_conv = 0;//第几个卷积输入层
 int weight_bias_count_1 = 0;//前n层的权重偏置数
@@ -193,7 +193,7 @@ std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in) {
 }
 
 std::vector<tensor_t> load_weight_conv() {
-	ifstream ifs(".\\ff\\LeNet-weights");
+	ifstream ifs("LeNet-weights");
 	string str;
 	tensor_t weight_v;//权重矩阵
 	std::vector<tensor_t> weight2D;
@@ -227,13 +227,13 @@ std::vector<tensor_t> load_weight_conv() {
 		}
 		weight_bias_count_3_conv++;
 	}
-	cout << "权重总数为：" << weight_bias_count_1 << endl;
+	cout << "conv weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 	return weight2D;
 }
 
 vec_t load_weight_pooling() {
-	ifstream ifs(".\\ff\\LeNet-weights");
+	ifstream ifs("LeNet-weights");
 	string str;
 	vec_t weight_v;//权重向量
 	//前n-1层权重&偏置+第n层权重数
@@ -249,17 +249,17 @@ vec_t load_weight_pooling() {
 		}
 		weight_bias_count_3_pooling++;
 	}
-	cout << "权重总数为：" << weight_bias_count_1 << endl;
+	cout << "weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 	return weight_v;
 }
 
 vec_t load_bias_conv() {
-	ifstream ifs(".\\ff\\LeNet-weights");
+	ifstream ifs("LeNet-weights");
 	string str;
 	vec_t bias2D;
 	int weight_count = 0 + weight_bias_count_2 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv] * nn_in_number_conv[in_number_conv + 1] ;
-	int weight_bias_count = 0 + weight_bias_count_2 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv] * nn_in_number_conv[in_number_conv + 1] + nn_channel_number_conv[in_number_conv];
+	int weight_bias_count = 0 + weight_bias_count_2 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv] * nn_in_number_conv[in_number_conv + 1] + nn_channel_number_conv[in_number_conv + 1];
 	int weight_bias_count_3_conv = 0;
 	while (ifs >> str&&weight_bias_count_3_conv<weight_bias_count)
 	{
@@ -272,13 +272,13 @@ vec_t load_bias_conv() {
 		weight_bias_count_3_conv++;
 	}
 	weight_bias_count_2 = weight_bias_count_1;
-	cout << "权重总数为：" << weight_bias_count_1 << endl;
+	cout << "bias weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 	return bias2D;
 }
 
 vec_t load_bias_pooling() {
-	ifstream ifs(".\\ff\\LeNet-weights");
+	ifstream ifs("LeNet-weights");
 	string str;
 	vec_t bias2D;
 	int weight_count = 0 + weight_bias_count_2 + nn_channel_size_pooling*nn_channel_size_pooling*nn_in_number_pooling[in_number_pooling];
@@ -295,7 +295,7 @@ vec_t load_bias_pooling() {
 		weight_bias_count_3_pooling++;
 	}
 	weight_bias_count_2 = weight_bias_count_1;
-	cout << "权重总数为：" << weight_bias_count_1 << endl;
+	cout << "weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 	return bias2D;
 }
@@ -339,28 +339,36 @@ int main(int argc, char** argv) {
 	conv_1_bias2D   = load_bias_conv();
 	in_data = in_2_3D(data_in);//vector的输入图片转成tensor
 
+	cout << "testing point -------1" << endl;
+
 	std::vector<tensor_t> in_data2D;
 	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//in转换成二维表示
-	std::vector<tensor_t> nn_out_data;
+	std::vector<tensor_t> conv_1_out_data;
+
+	cout << "testing point -------2" << endl;
 
 	//convolution_1
-	nn_out_data = convolution_layer(nn_in_data_size_conv[0], 
-				        nn_channel_size_conv, 
-					in_data2D, 
-					//has_connection_table[0], 
-					conv_1_weight2D, 
-					conv_1_bias2D, 
-					nn_out_data, 
-					nn_in_number_conv[0], 
-					nn_channel_number_conv[0]);
+	convolution_layer(nn_in_data_size_conv[0], 
+			  nn_channel_size_conv, 
+			  in_data2D, 
+			  //has_connection_table[0], 
+			  conv_1_weight2D, 
+			  conv_1_bias2D, 
+			  conv_1_out_data,  
+			  nn_channel_number_conv[0], 
+			  nn_channel_number_conv[1]);
+
 	in_number_conv++;
-	
+
+/*	
 	//std::vector<tensor_t> weight2D_pooling;//池化层权重矩阵
 	vec_t pooling_1_weight; 
 	vec_t pooling_1_bias2D;//偏置矩阵
 	pooling_1_weight = load_weight_pooling();
 	pooling_1_bias2D = load_bias_pooling();
-
+*/
+/*
+	std::vector<tensor_t> pooling_1_out_data;
 	//pooling_1
 	nn_out_data = pooling_layer(nn_in_data_size_pooling[0], 
 				    nn_channel_size_pooling, 
@@ -376,6 +384,6 @@ int main(int argc, char** argv) {
 	vec_t                 conv_2_bias2D;//偏置矩阵
 	conv_2_weight2D = load_weight_conv();
 	conv_2_bias2D   = load_bias_conv();
-
+*/
 	return 0;
 }

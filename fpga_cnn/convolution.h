@@ -26,14 +26,14 @@ static const bool tbl[6][16] = {
 #undef X
 
 //convolution kernel
-tensor_t convolution_kernel(int input_size, 
+void convolution_kernel(int input_size, 
 			    int kernel_size, 
-			    tensor_t in_data, 
-			    tensor_t kernel_weights, 
+			    tensor_t& in_data, 
+			    tensor_t& kernel_weights, 
 			    float kernel_bias, 
-			    tensor_t out_data, 
-			    int& in_channel, 
-			    int& out_channel) {
+			    tensor_t& out_data, 
+			    int in_channel, 
+			    int out_channel) {
 	out_data.clear();
 	std::vector<tensor_t> out_1;
 	std::vector<tensor_t> out_2;
@@ -70,19 +70,19 @@ tensor_t convolution_kernel(int input_size,
 	}
 	out_data.push_back(vec2);//放入输出行向量构成输出map
 	vec2.clear();
-	return out_data;
+	//return out_data;
 }
 
 //tensor to tensor convolutional layer 
-std::vector<tensor_t> convolution_layer(
+void convolution_layer(
 	int& input_size,
 	int& kernel_size,
-	std::vector<tensor_t> in_data2D,
+	std::vector<tensor_t>& in_data2D,
 	std::vector<tensor_t>& kernel_weights,
-	vec_t kernel_bias,
-	tensor_t out_data,
-	int& in_channel, int& out_channel)
-{
+	vec_t& kernel_bias,
+	std::vector<tensor_t>& out_data3D,
+	int& in_channel, 
+	int& out_channel) {
 	/*
 	2d convolution function body
 	in_data should be 1 32x32 data array
@@ -90,26 +90,33 @@ std::vector<tensor_t> convolution_layer(
 	please restruct the convolution function body here
 	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
 	*/
-	out_data.clear();
+	
+	cout << "starting convolution ...." << endl;
+
+	tensor_t out_data;
+	//out_data.clear();
 	//std::vector<tensor_t> in_data2D;
 	//in_data2D = in_2_2D_conv(input_size, in_data);//in转换成二维表示
-	std::vector<tensor_t> out_data3D;
+	//std::vector<tensor_t> out_data3D;
 
 	//load_weight(kernel_weights, kernel_bias);
 
 	for (int b = 0; b < out_channel; b++) {//6个kernel
 		for (int a = 0; a < in_channel; a++) {//1个in
-			out_data = convolution_kernel(input_size, 
-						      kernel_size, 
-						      in_data2D[a], 
-						      kernel_weights[b], 
-						      kernel_bias[b], 
-						      in_data2D[a], 
-						      in_channel, 
-						      out_channel);
+			//tensor_t out_data;
+			convolution_kernel(input_size, 
+			   		      kernel_size, 
+					      in_data2D[a], 
+					      kernel_weights[b], 
+					      kernel_bias[b], 
+					      out_data, 
+					      in_channel, 
+					      out_channel);
 			out_data3D.push_back(out_data); ////6*16行
 		}
 	}
+
+	cout << "finished convolution ...." << endl;
 
 	//if (in_channel>1) {//对于有多个输入map的卷积层，整合累加得到输出map
 	//	for (int i = 0; i < out_channel; i++) {//每个输入map和kernel卷积后的结果累加得到每个输出map
@@ -142,7 +149,7 @@ std::vector<tensor_t> convolution_layer(
 	}
 	cout << endl;
 	getchar();
-	return out_data3D;
+	//return out_data3D;
 }
 
 #endif
