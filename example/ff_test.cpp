@@ -347,7 +347,7 @@ int main(int argc, char** argv) {
 	nn_out_data = convolution_layer(nn_in_data_size_conv[0], 
 				        nn_channel_size_conv, 
 					in_data2D, 
-					has_connection_table[0], 
+					//has_connection_table[0], 
 					conv_1_weight2D, 
 					conv_1_bias2D, 
 					nn_out_data, 

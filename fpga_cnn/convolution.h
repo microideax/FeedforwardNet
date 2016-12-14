@@ -25,8 +25,15 @@ static const bool tbl[6][16] = {
 #undef O
 #undef X
 
-//卷积核心计算操作
-tensor_t convolution_kernel(int input_size, int kernel_size, tensor_t in_data, tensor_t kernel_weights, float kernel_bias, tensor_t out_data, int& in_channel, int& out_channel) {
+//convolution kernel
+tensor_t convolution_kernel(int input_size, 
+			    int kernel_size, 
+			    tensor_t in_data, 
+			    tensor_t kernel_weights, 
+			    float kernel_bias, 
+			    tensor_t out_data, 
+			    int& in_channel, 
+			    int& out_channel) {
 	out_data.clear();
 	std::vector<tensor_t> out_1;
 	std::vector<tensor_t> out_2;
@@ -40,7 +47,7 @@ tensor_t convolution_kernel(int input_size, int kernel_size, tensor_t in_data, t
 		for (int j = kernel_size / 2; j < input_size - kernel_size / 2; ++j)
 		{
 			float sum = 0; //
-						   //if (tbl[a][b]) {//如果是连接的
+			//if (tbl[a][b]) {//如果是连接的
 			for (int ii = -kernel_size / 2; ii <= kernel_size / 2; ++ii) //遍历kernel
 			{
 				for (int jj = -kernel_size / 2; jj <= kernel_size / 2; ++jj)
@@ -58,10 +65,6 @@ tensor_t convolution_kernel(int input_size, int kernel_size, tensor_t in_data, t
 			const float ep = exp(sum);
 			const float em = exp(-sum);
 			sum = (ep - em) / (ep + em);//tan_h激活
-										//}
-										//else {
-										//如果是未连接的sum=0
-										//}
 			vec2.push_back(sum);//放入sum构成输出行向量
 		}
 	}
@@ -74,7 +77,7 @@ tensor_t convolution_kernel(int input_size, int kernel_size, tensor_t in_data, t
 std::vector<tensor_t> convolution_layer(
 	int& input_size,
 	int& kernel_size,
-	tensor_t in_data,
+	std::vector<tensor_t> in_data2D,
 	std::vector<tensor_t>& kernel_weights,
 	vec_t kernel_bias,
 	tensor_t out_data,
@@ -88,8 +91,8 @@ std::vector<tensor_t> convolution_layer(
 	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
 	*/
 	out_data.clear();
-	std::vector<tensor_t> in_data2D;
-	in_data2D=in_2_2D_conv(input_size, in_data);//in转换成二维表示
+	//std::vector<tensor_t> in_data2D;
+	//in_data2D = in_2_2D_conv(input_size, in_data);//in转换成二维表示
 	std::vector<tensor_t> out_data3D;
 
 	//load_weight(kernel_weights, kernel_bias);
