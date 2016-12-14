@@ -6,22 +6,25 @@ open_project hls_proj
 
 set_top convolution_layer
 
+add_files ../fpga_cnn/average_pooling.h
+add_files ../fpga_cnn/convolution.h
+
+add_files ../fpga_cnn/hls_lib/static_vector.h
+
 add_files -tb stb_image/stb_image.h
 add_files -tb stb_image/stb_image_resize.h
 add_files -tb stb_image/stb_image_write.h
 
-add_files -tb ff_test.cpp
-
-add_files ../fpga_cnn/hls_lib/static_vector.h
 
 add_files ff_test.cpp
-
-add_files -cflags "-std=c++0x -fpermissive -pthread -pedantic -Wall -Wextra" -tb lenet.cpp
 add_files -tb 4.bmp
 add_files -tb LeNet-weights
 
 
-open_solution -reset "lenet-5"
+add_files -cflags "-std=c++0x -pedantic -Wall -Wextra" -tb ff_test.cpp
+
+
+open_solution -reset "fpga_cnn"
 set_part {xc7vx690tffg1761-2}
 create_clock -period 10 -name default
 

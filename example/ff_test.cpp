@@ -81,9 +81,14 @@ void convert_image(const std::string& imagefilename,
 	}
 	stbi_image_free(input_pixels);
 	// mnist dataset is "white on black", so negate required
+/*
 	std::transform(resized.begin(), resized.end(), std::back_inserter(data),
 		[=](uint8_t c) { return (255 - c) * (maxv - minv) / 255.0 + minv; });
-	cout << data.size() << endl;
+*/	
+for (unsigned int i = 0; i < resized.size(); i++){
+	data.push_back((255 - resized[i]) * (maxv - minv) / 255.0 + minv);
+}
+cout << data.size() << endl;
 
 }
 

@@ -2,7 +2,7 @@
 #define _CONVOLUTION_H_
 
 #include <iostream>
-#include "../tiny_dnn/util/util.h"
+//#include "../tiny_dnn/util/util.h"
 #include "average_pooling.h"
 #include <fstream>
 #include <algorithm>
