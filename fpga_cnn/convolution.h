@@ -64,8 +64,8 @@ void convolution_layer_with_table(
 	vec_t& kernel_bias,
 	std::vector<tensor_t>& out_data,
 	int in_channel, 
-	int out_channel,
-	const bool& tbl)
+	int out_channel
+	/*const bool* tbl*/)
 {
 	/*
 	2d convolution function body
