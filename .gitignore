@@ -1,7 +1,7 @@
 dependencies
 bin/*
 obj/*
-hls_proj/*
+example/hls_proj/*
 *~
 *.html
 *.log
