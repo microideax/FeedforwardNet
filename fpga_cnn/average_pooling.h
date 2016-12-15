@@ -3,7 +3,8 @@
 //#include "../tiny_dnn/util/util.h"
 #include <fstream>
 #include <algorithm>
-using namespace tiny_dnn;
+#include "data_type.h"
+//using namespace tiny_dnn;
 using namespace std;
 
 tensor_t pooling_kernel(int input_size, int kernel_size, tensor_t in_data, float kernel_weights, float kernel_bias, tensor_t out_data, int& in_channel, int& out_channel) {

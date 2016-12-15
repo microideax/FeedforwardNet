@@ -6,7 +6,7 @@
 #include "average_pooling.h"
 #include <fstream>
 #include <algorithm>
-using namespace tiny_dnn;
+//using namespace tiny_dnn;
 using namespace std;
 
 std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in);
