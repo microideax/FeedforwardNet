@@ -2,10 +2,10 @@
 #define _CONVOLUTION_H_
 
 #include <iostream>
-#include "../tiny_dnn/util/util.h"
 #include <fstream>
 #include <algorithm>
-using namespace tiny_dnn;
+#include "data_type.h"
+
 using namespace std;
 
 #define O true
@@ -27,9 +27,7 @@ tensor_t convolution_kernel(int input_size,
 			tensor_t& in_data, 
 			tensor_t& kernel_weights, 
 			float kernel_bias, 
-			tensor_t& out_data, 
-			int in_channel, 
-			int out_channel) {
+			tensor_t& out_data) {
 	out_data.clear();
 	vec_t vec2;//output row vector
 	for (int i = kernel_size / 2; i < input_size - kernel_size / 2; ++i)
@@ -58,11 +56,11 @@ tensor_t convolution_kernel(int input_size,
 void convolution_layer_with_table(
 	int input_size,
 	int kernel_size,
-	std::vector<tensor_t>& in_data,
+	std::vector<tensor_t>& in_data3D,
 	bool has_connection_table,
 	std::vector<tensor_t>& kernel_weights,
 	vec_t& kernel_bias,
-	std::vector<tensor_t>& out_data,
+	std::vector<tensor_t>& out_data3D,
 	int in_channel, 
 	int out_channel
 	/*const bool* tbl*/)
@@ -75,24 +73,24 @@ void convolution_layer_with_table(
 	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
 	*/
 	cout << "starting convolution ...." << endl;
-	out_data.clear();
+	out_data3D.clear();
 	tensor_t out_data2D;//ÿһ???????????Ľ???
 	tensor_t out_data2D_plus;//ÿһ???˲???filter?????о????˾??????????????ۼӽ???
 	float out_data2D_final_f;//ÿ?????ؼ?ƫ?á?????????ֵ
 	vec_t out_data2D_final_v;//ÿ?????ؼ?ƫ?á?????????ֵ???ɵ?????��
 	tensor_t out_data2D_final;//???յ?????????
 
-	for (int b = 0; b < out_channel; b++) {//16??kernel
-		int connection_num = 0;//ÿ??in????ÿ??kernel?ǵڼ???��??
-		for (int a = 0; a < in_channel; a++) {//6??in
+	for (int b = 0; b < out_channel; b++) {//output kernel loop
+		int connection_num = 0;//
+		for (int a = 0; a < in_channel; a++) {//input kernel loop
 			if (has_connection_table) {//??????��?ӱ?
 				if (tbl[a][b]) {//??????��?ӵ?
 					out_data2D = convolution_kernel(input_size, 
 									kernel_size, 
-									in_data[a], 
+									in_data3D[a], 
 									kernel_weights[b*in_channel + a], 
 									kernel_bias[b], 
-									in_data[a], 
+									in_data3D[a], 
 									in_channel, 
 									out_channel);
 					for (int i = 0; i < out_data2D.size(); i++) {
@@ -130,10 +128,10 @@ void convolution_layer_with_table(
 			else if (!has_connection_table) {//????û??��?ӱ?
 				out_data2D = convolution_kernel(input_size, 
 								kernel_size, 
-								in_data[a], 
+								in_data3D[a], 
 								kernel_weights[b*in_channel + a], 
 								kernel_bias[b], 
-								in_data[a], 
+								in_data3D[a], 
 								in_channel, 
 								out_channel);
 				for (int i = 0; i < out_data2D.size(); i++) {
@@ -186,6 +184,8 @@ void convolution_layer_with_table(
 		out_data2D_final.clear();
 		out_data2D_plus.clear();
 	}
+
+	//debugging output
 	cout << "finished convolution ...." << endl;
 	for (int i = 0; i < out_data.size(); i++) {
 		for (int j = 0; j < out_data[i].size(); j++) {//?鿴??һ??????map
@@ -195,40 +195,12 @@ void convolution_layer_with_table(
 			}
 			cout << endl;
 		}
+		cout << endl;
 	}
 	cout << endl;
-	// return out_data;
 }
 
 //general convolution layer without connection table
-// void convolution_layer(
-// 	int& input_size,
-// 	int& kernel_size,
-// 	std::vector<tensor_t>& in_data2D,
-// 	std::vector<tensor_t>& kernel_weights,
-// 	vec_t& kernel_bias,
-// 	std::vector<tensor_t>& out_data3D,
-// 	int& in_channel, 
-// 	int& out_channel) {
-	
-// 	cout << "starting convolution ...." << endl;
-
-// 	tensor_t out_data;
-
-// 	for (int b = 0; b < out_channel; b++) {//6??kernel
-// 		for (int a = 0; a < in_channel; a++) {//1??in
-// 			//tensor_t out_data;
-// 			convolution_kernel(input_size, 
-// 			   		      kernel_size, 
-// 					      in_data2D[a], 
-// 					      kernel_weights[b], 
-// 					      kernel_bias[b], 
-// 					      out_data, 
-// 					      in_channel, 
-// 					      out_channel);
-// 			out_data3D.push_back(out_data); ////6*16??
-// 		}
-// 	}
-// }
+// 3D tensor to 3D tensor convertion
 
 #endif

@@ -1,6 +1,7 @@
 //This is the main function of a LeNet-5 model based application.
 //Application description: LeNet-5 image recognition with std image.
 //Using stb_image instead of OpenCV to eliminate library dependency.
+
 //#include "stdafx.h"
 #include <iostream>
 #include <vector>
@@ -13,13 +14,10 @@
 #include "../stb_image/stb_image.h"
 #include "../stb_image/stb_image_resize.h"
 #include "../stb_image/stb_image_write.h"
-//#include "../tiny_dnn/tiny_dnn.h"
 #include "../fpga_cnn/hls_lib/static_vector.h"
 #include "../fpga_cnn/convolution.h"
 #include "../fpga_cnn/average_pooling.h"
 
-//using namespace tiny_dnn;
-//using namespace tiny_dnn::activation;
 using namespace std;
 
 int nn_in_data_size_conv[3] = { 32,14,5 };
@@ -81,13 +79,15 @@ void convert_image(const std::string& imagefilename,
 	}
 	stbi_image_free(input_pixels);
 	// mnist dataset is "white on black", so negate required
-/*
+
 	std::transform(resized.begin(), resized.end(), std::back_inserter(data),
 		[=](uint8_t c) { return (255 - c) * (maxv - minv) / 255.0 + minv; });
-*/	
+	
+/*
 for (unsigned int i = 0; i < resized.size(); i++){
 	data.push_back((255 - resized[i]) * (maxv - minv) / 255.0 + minv);
 }
+*/
 cout << data.size() << endl;
 
 }
@@ -133,10 +133,6 @@ void construct_net(network<sequential>& nn) {
 	   << fully_connected_layer<tan_h>(120, 10);       // F6, 120-in, 10-out	
 }
 
-void nn_load_weight(const std::string& dic, network<sequential>& nn) {
-	ifstream weights(dic);
-	nn.load(weights);
-}
 */
 //re-construct the array data of images into 3d
 tensor_t in_2_3D(vec_t& data_in) {
