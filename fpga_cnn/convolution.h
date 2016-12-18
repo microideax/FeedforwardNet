@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include "data_type.h"
+#include "activation_functions.h"
 
 using namespace std;
 
@@ -22,12 +23,11 @@ static const bool tbl[6][16] = {
 #undef X
 
 //convolution kernel function
-tensor_t convolution_kernel(int input_size, 
-			int kernel_size, 
-			tensor_t& in_data, 
-			tensor_t& kernel_weights, 
-			float kernel_bias, 
-			tensor_t& out_data) {
+tensor_t convolution_kernel(int input_size,
+	int kernel_size,
+	tensor_t& in_data,
+	tensor_t& kernel_weights,
+	tensor_t& out_data) {
 	out_data.clear();
 	vec_t vec2;//output row vector
 	for (int i = kernel_size / 2; i < input_size - kernel_size / 2; ++i)
@@ -54,6 +54,7 @@ tensor_t convolution_kernel(int input_size,
 
 //tensor to tensor convolutional layer with connection table
 void convolution_layer_with_table(
+	string activation_type,
 	int input_size,
 	int kernel_size,
 	std::vector<tensor_t>& in_data3D,
@@ -61,9 +62,9 @@ void convolution_layer_with_table(
 	std::vector<tensor_t>& kernel_weights,
 	vec_t& kernel_bias,
 	std::vector<tensor_t>& out_data3D,
-	int in_channel, 
+	int in_channel,
 	int out_channel
-	/*const bool* tbl*/)
+/*const bool* tbl*/)
 {
 	/*
 	2d convolution function body
@@ -74,129 +75,130 @@ void convolution_layer_with_table(
 	*/
 	cout << "starting convolution ...." << endl;
 	out_data3D.clear();
-	tensor_t out_data2D;//Ã¿Ò»???????????Ä½???
-	tensor_t out_data2D_plus;//Ã¿Ò»???Ë²???filter?????Ğ¾????Ë¾??????????????Û¼Ó½???
-	float out_data2D_final_f;//Ã¿?????Ø¼?Æ«?Ã¡?????????Öµ
-	vec_t out_data2D_final_v;//Ã¿?????Ø¼?Æ«?Ã¡?????????Öµ???Éµ?????Á¿
-	tensor_t out_data2D_final;//???Õµ?????????
+
+	tensor_t out_data2D_plus;//Ã¿Ò»¸öÂË²¨Æ÷filterÖĞËùÓĞ¾í»ıºË¾í»ı¼ÆËã½á¹ûµÄÀÛ¼Ó½á¹û
+	float out_data2D_final_f;//Ã¿¸öÏñËØ¼ÓÆ«ÖÃ¡¢¼¤»îºóµÄÖµ
+	vec_t out_data2D_final_v;//Ã¿¸öÏñËØ¼ÓÆ«ÖÃ¡¢¼¤»îºóµÄÖµ×é³ÉµÄĞĞÏòÁ¿
+	tensor_t out_data2D_final;//×îÖÕµÄÊä³ö¾ØÕó
 
 	for (int b = 0; b < out_channel; b++) {//output kernel loop
-		int connection_num = 0;//
+		int connection_num = 0;//Ã¿¸öin¶ÔÓÚÃ¿¸ökernelÊÇµÚ¼¸¸öÁ¬½Ó
 		for (int a = 0; a < in_channel; a++) {//input kernel loop
-			if (has_connection_table) {//??????Á¬?Ó±?
-				if (tbl[a][b]) {//??????Á¬?Óµ?
-					out_data2D = convolution_kernel(input_size, 
-									kernel_size, 
-									in_data3D[a], 
-									kernel_weights[b*in_channel + a], 
-									kernel_bias[b], 
-									in_data3D[a], 
-									in_channel, 
-									out_channel);
+			if (has_connection_table) {//Èç¹ûÓĞÁ¬½Ó±í
+				if (tbl[a][b]) {//Èç¹ûÊÇÁ¬½ÓµÄ
+					tensor_t out_data2D;//Ã¿Ò»¸ö¾í»ı¼ÆËãµÄ½á¹û
+					out_data2D = convolution_kernel(input_size,
+						kernel_size,
+						in_data3D[a],
+						kernel_weights[b*in_channel + a],
+						out_data2D);
 					for (int i = 0; i < out_data2D.size(); i++) {
 						vector<float> result_1;
-						if (connection_num == 0) {//??Ò»??Á¬??
+						if (connection_num == 0) {//µÚÒ»¸öÁ¬½Ó
 							for (int j = 0; j < out_data2D[i].size(); j++) {
-								result_1.push_back(0);//????Á¿???Û¼ÓºÍ³?Ê¼??0
+								result_1.push_back(0);//ĞĞÏòÁ¿µÄÀÛ¼ÓºÍ³õÊ¼ÖÃ0
 							}
 						}
 						else if (connection_num != 0) {
 							for (int j = 0; j < out_data2D[i].size(); j++) {
-								result_1.push_back(out_data2D_plus[i][j]);//????Á¿???Û¼Óº?
+								result_1.push_back(out_data2D_plus[i][j]);//ĞĞÏòÁ¿µÄÀÛ¼ÓºÍ
 							}
 						}
-						transform(result_1.begin(), 
-								  result_1.end(), 
-								  out_data2D[i].begin(), 
-								  result_1.begin(), 
-								  plus<float>());//????Á¿?Û¼?
-						out_data2D_plus.push_back(result_1);//??Ã¿??????Á¿?Û¼Ó½???????out_data2D_plus??Ã¿?Î·?????????10??
+						transform(result_1.begin(),
+							result_1.end(),
+							out_data2D[i].begin(),
+							result_1.begin(),
+							plus<float>());//ĞĞÏòÁ¿ÀÛ¼Ó
+						out_data2D_plus.push_back(result_1);//°ÑÃ¿¸öĞĞÏòÁ¿ÀÛ¼Ó½á¹û·ÅÈëout_data2D_plus£¬Ã¿´Î·ÅÈë»áÔö¼Ó10ĞĞ
 					}
+					//½«ĞĞÏòÁ¿ÀÛ¼Ó·ÅÈëout_data2D_plusÖĞºó£¬É¾³ıÇ°10¸öĞĞÏòÁ¿
 					if (connection_num != 0) {
 						tensor_t::iterator it;
 						//vector<string>::iterator subIt = (*it).begin();
-						for (int i = 0; i < out_data2D.size(); i++)//???Û¼Óº?tensor??Ç°10??É¾????Ê£?Âµ?10????ÎªÃ¿???Û¼Óµ??Ğ¼?????
+						for (int i = 0; i < out_data2D.size(); i++)//°ÑÀÛ¼ÓºÍtensorµÄÇ°10ĞĞÉ¾³ı£¬Ê£ÏÂµÄ10ĞĞÔòÎªÃ¿´ÎÀÛ¼ÓµÄÖĞ¼ä½á¹û
 						{
 							it = out_data2D_plus.begin();
 							out_data2D_plus.erase(it);
-							//it++;//??????????????
+							//it++;//ÕâÀïµü´úÆ÷¸üĞÂ
 						}
 					}
 					connection_num++;
 				}
 			}
-			else if (!has_connection_table) {//????Ã»??Á¬?Ó±?
-				out_data2D = convolution_kernel(input_size, 
-								kernel_size, 
-								in_data3D[a], 
-								kernel_weights[b*in_channel + a], 
-								kernel_bias[b], 
-								in_data3D[a], 
-								in_channel, 
-								out_channel);
+			else if (!has_connection_table) {//Èç¹ûÃ»ÓĞÁ¬½Ó±í
+				tensor_t out_data2D;
+				out_data2D = convolution_kernel(input_size,
+					kernel_size,
+					in_data3D[a],
+					kernel_weights[b*in_channel + a],
+					out_data2D);
 				for (int i = 0; i < out_data2D.size(); i++) {
 					vector<float> result_1;
-					if (connection_num == 0) {//??Ò»??Á¬??
+					if (connection_num == 0) {
 						for (int j = 0; j < out_data2D[i].size(); j++) {
-							result_1.push_back(0);//????Á¿???Û¼ÓºÍ³?Ê¼??0
+							result_1.push_back(0);
 						}
 					}
 					else if (connection_num != 0) {
 						for (int j = 0; j < out_data2D[i].size(); j++) {
-							result_1.push_back(out_data2D_plus[i][j]);//????Á¿???Û¼Óº?
+							result_1.push_back(out_data2D_plus[i][j]);
 						}
 					}
-					transform(result_1.begin(), 
-							  result_1.end(), 
-							  out_data2D[i].begin(), 
-							  result_1.begin(), 
-							  plus<float>());//????Á¿?Û¼?
-					out_data2D_plus.push_back(result_1);//??Ã¿??????Á¿?Û¼Ó½???????out_data2D_plus??Ã¿?Î·?????????10??,??20??
+					transform(result_1.begin(),
+						result_1.end(),
+						out_data2D[i].begin(),
+						result_1.begin(),
+						plus<float>());
+					out_data2D_plus.push_back(result_1);
 				}
-				//??????Á¿?Û¼Ó·???out_data2D_plus?Ğº???É¾??Ç°10??????Á¿
 				if (connection_num != 0) {
 					tensor_t::iterator it;
 					//vector<string>::iterator subIt = (*it).begin();
-					for (int i = 0; i < out_data2D.size(); i++)//???Û¼Óº?out_data2D_plus??Ç°10??É¾????Ê£?Âµ?10????ÎªÃ¿???Û¼Óµ??Ğ¼?????
+					for (int i = 0; i < out_data2D.size(); i++)
 					{
 						it = out_data2D_plus.begin();
 						out_data2D_plus.erase(it);
-						//it++;//??????????????
+						//it++;
 					}
 				}
 				connection_num++;
 			}
 		}
-		//Ñ­??????out_data2D_plus??????Æ«?ÃºÍ¼???
-		for (int i = 0; i < out_data2D.size(); i++) {
-			for (int j = 0; j < out_data2D[i].size(); j++) {
+		//Ñ­»·±éÀúout_data2D_plus¾ØÕó¼ÓÆ«ÖÃºÍ¼¤»î
+		for (int i = 0; i < out_data2D_plus.size(); i++) {
+			for (int j = 0; j < out_data2D_plus[i].size(); j++) {
 				out_data2D_final_f = out_data2D_plus[i][j] + kernel_bias[b];
-				const float ep = exp(out_data2D_final_f);
-				const float em = exp(-out_data2D_final_f);
-				out_data2D_final_f = (ep - em) / (ep + em);//tan_h????
-				out_data2D_final_v.push_back(out_data2D_final_f);//????????Ã¿??????????Öµ
+				//const float ep = exp(out_data2D_final_f);
+				//const float em = exp(-out_data2D_final_f);
+				//out_data2D_final_f = (ep - em) / (ep + em);//tan_h????
+
+				out_data2D_final_f = f(activation_type, out_data2D_final_f);//¼¤»îº¯Êı¼¤»î
+
+				out_data2D_final_v.push_back(out_data2D_final_f);//·ÅÈëÃ¿¸öÏñËØ×îÖÕÊä³öÖµ
 			}
-			out_data2D_final.push_back(out_data2D_final_v);//??Ã¿??????Á¿?Û¼Ó½???????out_data2D_final
+			out_data2D_final.push_back(out_data2D_final_v);//°ÑÃ¿¸öĞĞÏòÁ¿ÀÛ¼Ó½á¹û·ÅÈëout_data2D_final
 			out_data2D_final_v.clear();
 		}
-		out_data.push_back(out_data2D_final);
-		out_data2D.clear();
+		out_data3D.push_back(out_data2D_final);
+		//out_data2D.clear();
 		out_data2D_final.clear();
 		out_data2D_plus.clear();
 	}
 
 	//debugging output
 	cout << "finished convolution ...." << endl;
-	for (int i = 0; i < out_data.size(); i++) {
-		for (int j = 0; j < out_data[i].size(); j++) {//?é¿´??Ò»??????map
-			for (int k = 0; k < out_data[i][j].size(); k++) {
-				freopen("out_conv.txt", "a+", stdout);
-				cout << out_data[i][j][k] << " ";
+	FILE *fp;
+	for (int i = 0; i < out_data3D.size(); i++) {
+		for (int j = 0; j < out_data3D[i].size(); j++) {
+			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+				cout << out_data3D[i][j][k] << " ";	
+				fp = freopen("out_conv.txt", "a+", stdout);
 			}
 			cout << endl;
 		}
 		cout << endl;
 	}
+	fclose(fp);
 	cout << endl;
 }
 
