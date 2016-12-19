@@ -1,3 +1,7 @@
+#ifndef _AVERAGE_POOLING_H_
+#define _AVERAGE_POOLING_H_
+
+
 #pragma once
 #include <iostream>
 //#include "../tiny_dnn/util/util.h"
@@ -8,7 +12,11 @@
 
 using namespace std;
 
-tensor_t pooling_kernel(int input_size, int kernel_size, tensor_t& in_data, float kernel_weights, tensor_t& out_data) {
+tensor_t pooling_kernel(int input_size,
+						int kernel_size,
+                        tensor_t& in_data,
+                        float kernel_weights,
+                        tensor_t& out_data) {
 	out_data.clear();
 	std::vector<tensor_t> out_1;
 	std::vector<tensor_t> out_2;
@@ -85,18 +93,20 @@ std::vector<tensor_t> pooling_layer(
 
 	//debugging output
 	cout << "finished average_pooling ...." << endl;
-	FILE *fp = NULL;
-	for (int i = 0; i < out_data3D.size(); i++) {
-		for (int j = 0; j < out_data3D[i].size(); j++) {
-			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-				fp = freopen("out_pool.txt", "a+", stdout);
-				cout << out_data3D[i][j][k] << " ";
-			}
-			cout << endl;
-		}
-	}
-	fclose(fp);
-	cout << endl;
-	//getchar();
+//	FILE *fp = NULL;
+//	for (int i = 0; i < out_data3D.size(); i++) {
+//		for (int j = 0; j < out_data3D[i].size(); j++) {
+//			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+//				fp = freopen("out_pool.txt", "a+", stdout);
+//				cout << out_data3D[i][j][k] << " ";
+//			}
+//			cout << endl;
+//		}
+//	}
+//	fclose(fp);
+//	cout << endl;
+//	//getchar();
 	return out_data3D;
 }
+
+#endif

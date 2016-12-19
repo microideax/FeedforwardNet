@@ -1,5 +1,50 @@
 //Move all the image pre-processing functions here to simplify the main function.
 //re-construct the array data of images into 3d
+
+#ifndef _CONVERTE_IMAGE_H_
+#define _CONVERTE_IMAGE_H_
+
+void convert_image(const std::string& imagefilename,
+                   double minv,
+                   double maxv,
+                   int w,
+                   int h,
+                   vec_t& data) {
+    // load
+    int input_w, input_h, comp;
+    stbi_uc* input_pixels = stbi_load(imagefilename.c_str(), &input_w, &input_h, &comp, 1);
+
+    if (!input_pixels) {
+        // cannot open, or it's not an image
+        cout << "stbi_load failed";
+        return;
+    }
+
+    // resize
+    std::vector<uint8_t> resized(w * h);
+    uint8_t* resized_pixels = &(resized[0]);
+    int input_stride_in_bytes = input_w;
+    if (!stbir_resize_uint8(input_pixels, input_w, input_h, input_stride_in_bytes, resized_pixels, w, h, w, 1)) {
+        cout << "stbir_resize_uint8 failed";
+        stbi_image_free(input_pixels);
+        return;
+    }
+    stbi_image_free(input_pixels);
+    // mnist dataset is "white on black", so negate required
+
+    std::transform(resized.begin(), resized.end(), std::back_inserter(data),
+                   [=](uint8_t c) { return (255 - c) * (maxv - minv) / 255.0 + minv; });
+
+    /*
+    for (unsigned int i = 0; i < resized.size(); i++){
+    data.push_back((255 - resized[i]) * (maxv - minv) / 255.0 + minv);
+    }
+    */
+    cout << data.size() << endl;
+
+}
+
+
 tensor_t in_2_3D(vec_t& data_in) {
 	tensor_t data_out;
 	data_out.push_back(data_in);
@@ -58,3 +103,20 @@ std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in) {
 	}
 	return in_data2D;
 }
+
+/*
+bool save_image(const std::string& imagefilename, const image<>& img) {
+// no scaling, save at original size
+int stride_bytes = img.width();
+int ret = stbi_write_png(
+imagefilename.c_str(),
+img.width(),
+img.height(),
+1,
+&(img.at(0, 0)),
+stride_bytes);
+return (ret != 0);
+}
+*/
+
+#endif

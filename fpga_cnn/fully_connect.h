@@ -1,3 +1,6 @@
+#ifndef _FULLY_CONNECTED_H_
+#define _FULLY_CONNECTED_H_
+
 #pragma once
 
 #include <iostream>
@@ -135,3 +138,5 @@ void fully_connected_layer(
 	fclose(fp);
 	cout << endl;
 }
+
+#endif
