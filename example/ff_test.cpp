@@ -10,14 +10,7 @@
 #include <algorithm>
 #include <iterator>
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../stb_image/stb_image.h"
-#include "../stb_image/stb_image_resize.h"
-#include "../stb_image/stb_image_write.h"
-
-#include "../fpga_cnn/hls_lib/static_vector.h"
+//#include "../fpga_cnn/hls_lib/static_vector.h"
 #include "../fpga_cnn/convolution.h"
 #include "../fpga_cnn/average_pooling.h"
 #include "../fpga_cnn/fully_connect.h"
@@ -50,8 +43,6 @@ int nn_in_number_fc[2] = { 120,10 };
 int nn_channel_size_fc = 1;
 int nn_channel_number_fc[2] = { 120,10 };
 int in_number_fc = 0;
-typedef s_vector<float, 16> hls_vec;
-typedef s_vector<hls_vec, 16> hls_tensor;
 
 
 std::vector<tensor_t> load_weight_conv() {
@@ -64,7 +55,7 @@ std::vector<tensor_t> load_weight_conv() {
                        + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
                        * nn_in_number_conv[in_number_conv + 1];
 	int weight_bias_count_3_conv = 0;
-	while (ifs >> str&&weight_bias_count_3_conv<weight_count)
+	while (ifs >> str && weight_bias_count_3_conv < weight_count)
 	{
 		if (weight_bias_count_3_conv >= weight_bias_count_2) {
 				if (weight_bias_count_1 == 0 || (weight_bias_count_1 - weight_bias_count_2 - 1) / nn_channel_size_conv
@@ -256,21 +247,6 @@ vec_t load_bias_fc() {
 	return bias2D;
 }
 
-/*
-//�����������֣�����
-void print_score(vec_t res)
-{
-vector<pair<double, int> > scores;
-// sort & print top-3
-for (int i = 0; i < 10; i++)
-scores.emplace_back(rescale<tan_h>(res[i]), i);
-//�����ʴӴ�С����
-sort(scores.begin(), scores.end(), greater<pair<double, int>>());
-for (int i = 0; i < 10; i++)
-cout << scores[i].second << "," << scores[i].first << endl;
-getchar();
-}
-*/
 
 int main(int argc, char** argv) {
 

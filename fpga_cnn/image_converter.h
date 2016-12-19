@@ -13,6 +13,12 @@
 #include <iterator>
 #include "data_type.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../stb_image/stb_image.h"
+#include "../stb_image/stb_image_resize.h"
+#include "../stb_image/stb_image_write.h"
 
 void convert_image(const std::string& imagefilename,
                    double minv,

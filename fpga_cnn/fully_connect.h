@@ -45,16 +45,8 @@ void fully_connected_layer(
 	vec_t& kernel_bias,
 	std::vector<tensor_t>& out_data3D,
 	int in_channel,
-	int out_channel
-/*const bool* tbl*/)
-{
-	/*
-	2d convolution function body
-	in_data should be 1 32x32 data array
-	out_data should be 6 28x28 data array
-	please restruct the convolution function body here
-	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
-	*/
+	int out_channel ) {
+
 	cout << "starting fully_connect ...." << endl;
 	out_data3D.clear();
 
