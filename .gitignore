@@ -11,3 +11,6 @@ example/hls_proj/*
 eclipse_debug
 *.o
 *.swp
+.idea/
+CMakeLists.txt
+main.cpp

@@ -1,4 +1,7 @@
 // Baseline data type define for the entire design
+#ifndef _DATA_TYPE_H_
+#define _DATA_TYPE_H_
+
 #include<vector>
 #include<string>
 
@@ -8,3 +11,4 @@ typedef std::vector<float, std::allocator<float> > vec_t;
 using namespace std;
 typedef std::vector<vec_t> tensor_t;
 
+#endif

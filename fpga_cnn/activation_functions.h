@@ -88,4 +88,5 @@ vec_t df(string type, const vec_t& y, int index) {
 		return v;
 	}
 }
+
 #endif

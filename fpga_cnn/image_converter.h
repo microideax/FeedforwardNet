@@ -1,8 +1,18 @@
 //Move all the image pre-processing functions here to simplify the main function.
 //re-construct the array data of images into 3d
+//TODO: Move all the image pre-processing functions into this header.
 
 #ifndef _CONVERTE_IMAGE_H_
 #define _CONVERTE_IMAGE_H_
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <algorithm>
+#include <iterator>
+#include "data_type.h"
+
 
 void convert_image(const std::string& imagefilename,
                    double minv,
@@ -108,13 +118,7 @@ std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in) {
 bool save_image(const std::string& imagefilename, const image<>& img) {
 // no scaling, save at original size
 int stride_bytes = img.width();
-int ret = stbi_write_png(
-imagefilename.c_str(),
-img.width(),
-img.height(),
-1,
-&(img.at(0, 0)),
-stride_bytes);
+int ret = stbi_write_png( imagefilename.c_str(), img.width(), img.height(), 1, &(img.at(0, 0)), stride_bytes);
 return (ret != 0);
 }
 */

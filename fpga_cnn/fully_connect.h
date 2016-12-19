@@ -1,3 +1,5 @@
+//Fully connected function in NNs
+
 #ifndef _FULLY_CONNECTED_H_
 #define _FULLY_CONNECTED_H_
 

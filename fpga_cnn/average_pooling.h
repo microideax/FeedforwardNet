@@ -1,10 +1,11 @@
+//average pooling layer with kernel weights and without kernel weights
+//TODO: Add average pooling without kernel weights functions.
+
 #ifndef _AVERAGE_POOLING_H_
 #define _AVERAGE_POOLING_H_
 
-
 #pragma once
 #include <iostream>
-//#include "../tiny_dnn/util/util.h"
 #include <fstream>
 #include <algorithm>
 #include "data_type.h"
@@ -17,10 +18,10 @@ tensor_t pooling_kernel(int input_size,
                         tensor_t& in_data,
                         float kernel_weights,
                         tensor_t& out_data) {
-	out_data.clear();
+    out_data.clear();
 	std::vector<tensor_t> out_1;
 	std::vector<tensor_t> out_2;
-	vec_t vec2;//输出的行向量
+	vec_t vec2;//output row vector
 	for (int i = 0; i < input_size - kernel_size / 2; i = i + kernel_size) //遍历输入map
 	{
 		for (int j = 0; j < input_size - kernel_size / 2; j = j + kernel_size)

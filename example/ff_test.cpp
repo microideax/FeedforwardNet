@@ -53,12 +53,6 @@ int in_number_fc = 0;
 typedef s_vector<float, 16> hls_vec;
 typedef s_vector<hls_vec, 16> hls_tensor;
 
-// rescale output to 0-100
-template <typename Activation>
-double rescale(double x) {
-	Activation a;
-	return 100.0 * (x - a.scale().first) / (a.scale().second - a.scale().first);
-}
 
 std::vector<tensor_t> load_weight_conv() {
 	ifstream ifs("LeNet-weights");
@@ -66,8 +60,9 @@ std::vector<tensor_t> load_weight_conv() {
 	tensor_t weight_v;
 	std::vector<tensor_t> weight2D;
 	vec_t vec3;
-	int weight_count = weight_bias_count_1 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
-                                             * nn_in_number_conv[in_number_conv + 1];
+	int weight_count = weight_bias_count_1
+                       + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
+                       * nn_in_number_conv[in_number_conv + 1];
 	int weight_bias_count_3_conv = 0;
 	while (ifs >> str&&weight_bias_count_3_conv<weight_count)
 	{
@@ -178,12 +173,19 @@ vec_t load_bias_conv() {
 	ifstream ifs("LeNet-weights");
 	string str;
 	vec_t bias2D;
-	int weight_count = weight_bias_count_2 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv] * nn_in_number_conv[in_number_conv + 1];
-	int weight_bias_count = weight_bias_count_2 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv] * nn_in_number_conv[in_number_conv + 1] + nn_channel_number_conv[in_number_conv + 1];
+	int weight_count = weight_bias_count_2
+                       + nn_channel_size_conv
+                       * nn_channel_size_conv*nn_in_number_conv[in_number_conv]
+                       * nn_in_number_conv[in_number_conv + 1];
+	int weight_bias_count = weight_bias_count_2
+                            + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
+                            * nn_in_number_conv[in_number_conv + 1]
+                            + nn_channel_number_conv[in_number_conv + 1];
 	int weight_bias_count_3_conv = 0;
 	while (ifs >> str&&weight_bias_count_3_conv<weight_bias_count)
 	{
-		if (weight_bias_count_3_conv >= weight_bias_count_1&&weight_bias_count_1 >= weight_count&&weight_bias_count_1 <= weight_bias_count) {
+		if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
+            && weight_bias_count_1 <= weight_bias_count) {
 			//����n��������bias
 			float f = atof(str.c_str());
 			bias2D.push_back(f);//����ƫ��
@@ -343,8 +345,8 @@ int main(int argc, char** argv) {
 	cout << "Finished pooling layer 1" << endl;
 	cout << "Starting convolution layer 2" << endl;
 
-	std::vector<tensor_t> conv_2_weight2D;//�����Ȩ�ؾ���
-	vec_t                 conv_2_bias2D;//ƫ�þ���
+	std::vector<tensor_t> conv_2_weight2D;
+	vec_t                 conv_2_bias2D;
 	conv_2_weight2D = load_weight_conv();
 	conv_2_bias2D = load_bias_conv();
 	std::vector<tensor_t> conv_2_out_data;
@@ -367,8 +369,8 @@ int main(int argc, char** argv) {
 	cout << "Finished convolution layer 2" << endl;
 	cout << "Starting pooling layer 2" << endl;
 
-	vec_t pooling_2_weight;//Ȩ�ؾ���
-	vec_t pooling_2_bias2D;//ƫ�þ���
+	vec_t pooling_2_weight;
+    vec_t pooling_2_bias2D;
 	pooling_2_weight = load_weight_pooling();
 	pooling_2_bias2D = load_bias_pooling();
 	std::vector<tensor_t> pooling_2_out_data;
@@ -390,8 +392,8 @@ int main(int argc, char** argv) {
 	cout << "Finished pooling layer 2" << endl;
 	cout << "Starting convolution layer 3" << endl;
 
-	std::vector<tensor_t> conv_3_weight2D;//�����Ȩ�ؾ���
-	vec_t                 conv_3_bias2D;//ƫ�þ���
+	std::vector<tensor_t> conv_3_weight2D;
+	vec_t                 conv_3_bias2D;
 	conv_3_weight2D = load_weight_conv();
 	conv_3_bias2D = load_bias_conv();
 	std::vector<tensor_t> conv_3_out_data;
@@ -414,8 +416,8 @@ int main(int argc, char** argv) {
 	cout << "Finished convolution layer 3" << endl;
 	cout << "Starting fully connected layer 1" << endl;
 
-	std::vector<tensor_t> fc_1_weight2D;//ȫ���Ӳ�Ȩ�ؾ���
-	vec_t                 fc_1_bias2D;//ƫ�þ���
+	std::vector<tensor_t> fc_1_weight2D;
+	vec_t                 fc_1_bias2D;
 	fc_1_weight2D = load_weight_fc();
 	fc_1_bias2D = load_bias_fc();
 	std::vector<tensor_t> fc_1_out_data;

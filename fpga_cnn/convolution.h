@@ -1,3 +1,7 @@
+//General convolution function in CNNs with the connection table as channel connection input.
+//TODO: Add convolution function without connection table.
+
+
 #ifndef _CONVOLUTION_H_
 #define _CONVOLUTION_H_
 
@@ -119,7 +123,6 @@ void convolution_layer_with_table(
 						{
 							it = out_data2D_plus.begin();
 							out_data2D_plus.erase(it);
-							//it++;//�������������
 						}
 					}
 					connection_num++;

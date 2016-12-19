@@ -1,4 +1,4 @@
-//
+//Network construction function, will be modified after all functional blocks are tested.
 // Created by yaochen on 19/12/16.
 //
 
