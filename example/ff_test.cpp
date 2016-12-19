@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <iterator>
 
-//#include "../fpga_cnn/hls_lib/static_vector.h"
 #include "../fpga_cnn/convolution.h"
 #include "../fpga_cnn/average_pooling.h"
 #include "../fpga_cnn/fully_connect.h"

@@ -32,6 +32,7 @@ tensor_t convolution_kernel(int input_size,
 	tensor_t& in_data,
 	tensor_t& kernel_weights,
 	tensor_t& out_data) {
+
 	out_data.clear();
 	vec_t vec2;//output row vector
 	for (int i = kernel_size / 2; i < input_size - kernel_size / 2; ++i)
@@ -67,16 +68,8 @@ void convolution_layer_with_table(
 	vec_t& kernel_bias,
 	std::vector<tensor_t>& out_data3D,
 	int in_channel,
-	int out_channel
-/*const bool* tbl*/)
+	int out_channel )
 {
-	/*
-	2d convolution function body
-	in_data should be 1 32x32 data array
-	out_data should be 6 28x28 data array
-	please restruct the convolution function body here
-	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
-	*/
 	cout << "starting convolution ...." << endl;
 	out_data3D.clear();
 
@@ -167,19 +160,16 @@ void convolution_layer_with_table(
 				connection_num++;
 			}
 		}
-		//ѭ������out_data2D_plus�����ƫ�úͼ���
+
 		for (int i = 0; i < out_data2D_plus.size(); i++) {
 			for (int j = 0; j < out_data2D_plus[i].size(); j++) {
 				out_data2D_final_f = out_data2D_plus[i][j] + kernel_bias[b];
-				//const float ep = exp(out_data2D_final_f);
-				//const float em = exp(-out_data2D_final_f);
-				//out_data2D_final_f = (ep - em) / (ep + em);//tan_h????
 
-				out_data2D_final_f = f(activation_type, out_data2D_final_f);//���������
+				out_data2D_final_f = f(activation_type, out_data2D_final_f);//
 
-				out_data2D_final_v.push_back(out_data2D_final_f);//����ÿ�������������ֵ
+				out_data2D_final_v.push_back(out_data2D_final_f);//
 			}
-			out_data2D_final.push_back(out_data2D_final_v);//��ÿ���������ۼӽ������out_data2D_final
+			out_data2D_final.push_back(out_data2D_final_v);//
 			out_data2D_final_v.clear();
 		}
 		out_data3D.push_back(out_data2D_final);
@@ -189,20 +179,20 @@ void convolution_layer_with_table(
 	}
 
 	//debugging output
-//	cout << "finished convolution ...." << endl;
-//	FILE *fp = NULL;
-//	for (int i = 0; i < out_data3D.size(); i++) {
-//		for (int j = 0; j < out_data3D[i].size(); j++) {
-//			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-//				fp = freopen("out_conv.txt", "a+", stdout);
-//				cout << out_data3D[i][j][k] << " ";
-//			}
-//			cout << endl;
-//		}
-//		cout << endl;
-//	}
-//	fclose(fp);
-//	cout << endl;
+	cout << "finished convolution ...." << endl;
+	ofstream out_conv;
+    out_conv.open("out_conv.txt", ios::app);
+	for (int i = 0; i < out_data3D.size(); i++) {
+		for (int j = 0; j < out_data3D[i].size(); j++) {
+			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+				out_conv << out_data3D[i][j][k] << " ";
+			}
+			out_conv << endl;
+		}
+		out_conv << endl;
+	}
+	out_conv.close();
+	cout << endl;
 }
 
 //general convolution layer without connection table
