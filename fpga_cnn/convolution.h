@@ -187,12 +187,12 @@ void convolution_layer_with_table(
 
 	//debugging output
 	cout << "finished convolution ...." << endl;
-	FILE *fp;
+	FILE *fp = NULL;
 	for (int i = 0; i < out_data3D.size(); i++) {
 		for (int j = 0; j < out_data3D[i].size(); j++) {
 			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-				cout << out_data3D[i][j][k] << " ";	
 				fp = freopen("out_conv.txt", "a+", stdout);
+				cout << out_data3D[i][j][k] << " ";
 			}
 			cout << endl;
 		}

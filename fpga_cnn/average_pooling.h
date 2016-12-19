@@ -85,15 +85,17 @@ std::vector<tensor_t> pooling_layer(
 
 	//debugging output
 	cout << "finished average_pooling ...." << endl;
+	FILE *fp = NULL;
 	for (int i = 0; i < out_data3D.size(); i++) {
 		for (int j = 0; j < out_data3D[i].size(); j++) {
 			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-				freopen("out_pool.txt", "a+", stdout);
+				fp = freopen("out_pool.txt", "a+", stdout);
 				cout << out_data3D[i][j][k] << " ";
 			}
 			cout << endl;
 		}
 	}
+	fclose(fp);
 	cout << endl;
 	//getchar();
 	return out_data3D;

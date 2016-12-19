@@ -121,15 +121,17 @@ void fully_connected_layer(
 
 	//debugging output
 	cout << "finished fully_connect ...." << endl;
+	FILE *fp = NULL;
 	for (int i = 0; i < out_data3D.size(); i++) {
 		for (int j = 0; j < out_data3D[i].size(); j++) {
 			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-				freopen("out_fc.txt", "a+", stdout);
+				fp = freopen("out_fc.txt", "a+", stdout);
 				cout << out_data3D[i][j][k] << " ";
 			}
 			cout << endl;
 		}
 		cout << endl;
 	}
+	fclose(fp);
 	cout << endl;
 }
