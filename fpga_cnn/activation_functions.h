@@ -10,7 +10,7 @@
 
 using namespace std;
 
-float f(string type, float data) {
+float f(string& type, float data) {
 	if (type == "identity")
 	{
 		return data;
@@ -39,7 +39,7 @@ float f(string type, float data) {
     else return false;
 }
 
-float f(string type, const vec_t& v, int i) {
+float f(string& type, const vec_t& v, int i) {
 	if (type == "softmax")
 	{
 		float alpha = *std::max_element(v.begin(), v.end());
@@ -53,7 +53,7 @@ float f(string type, const vec_t& v, int i) {
     else return false;
 }
 
-float df(string type, float data) {
+float df(string& type, float data) {
 	if (type == "identity")
 	{
 		return float(1);
@@ -82,7 +82,7 @@ float df(string type, float data) {
     else return false;
 }
 
-vec_t df(string type, const vec_t& y, uint index) {
+vec_t df(string& type, const vec_t& y, uint index) {
     vec_t v(0, 0);
 	if (type == "softmax")
 	{

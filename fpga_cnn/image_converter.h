@@ -48,14 +48,14 @@ void convert_image(const std::string& imagefilename,
     stbi_image_free(input_pixels);
     // mnist dataset is "white on black", so negate required
 
-    std::transform(resized.begin(), resized.end(), std::back_inserter(data),
-                   [=](uint8_t c) { return (255 - c) * (maxv - minv) / 255.0 + minv; });
+//    std::transform(resized.begin(), resized.end(), std::back_inserter(data),
+//                   [=](uint8_t c) { return (255 - c) * (maxv - minv) / 255.0 + minv; });
 
-    /*
+
     for (unsigned int i = 0; i < resized.size(); i++){
     data.push_back((255 - resized[i]) * (maxv - minv) / 255.0 + minv);
     }
-    */
+
     cout << data.size() << endl;
 
 }
@@ -73,11 +73,11 @@ std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in) {
 	vec_t vec1;    //input row vector
 	tensor_t vec2;
 	std::vector<tensor_t> in_data2D;
-	for (int j = 0; j < in.size(); j++) {
+	for (uint j = 0; j < in.size(); j++) {
 		in_data = in[j];
-		for (int i = 0; i < in_data.size(); i++)//输入一维转二维
+		for (uint i = 0; i < in_data.size(); i++)//输入一维转二维
 		{
-			if (in_data.size() < input_size*input_size) {//有多个输入
+			if (in_data.size() < uint (input_size * input_size)) {//有多个输入
 				if (i == 0 || (i - 1) / input_size == i / input_size) {//将原本的一维输入按图片大小转换成二维
 					vec1.push_back(in_data[i]);//放入输入map每个像素的输入值构成输入行向量
 					if (i == in_data.size() - 1) {//最后一个输入行向量

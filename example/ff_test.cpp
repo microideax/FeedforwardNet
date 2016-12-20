@@ -59,7 +59,7 @@ std::vector<tensor_t> load_weight_conv() {
 					weight_v.push_back(vec3);
 					vec3.clear();
 				}
-				if (weight_v.size() == nn_channel_size_conv) {
+				if (weight_v.size() == uint(nn_channel_size_conv)) {
 					weight2D.push_back(weight_v);
 					weight_v.clear();
 				}
@@ -82,17 +82,17 @@ std::vector<tensor_t> load_weight_conv() {
 vec_t load_weight_pooling() {
 	ifstream ifs("LeNet-weights");
 	string str;
-	vec_t weight_v;//Ȩ������
-				   //ǰn-1��Ȩ��&ƫ��+��n��Ȩ����
+	vec_t weight_v;//
+				   //
 	int weight_count = weight_bias_count_1 +
             nn_channel_size_pooling*nn_channel_size_pooling*nn_in_number_pooling[in_number_pooling];
 	int weight_bias_count_3_pooling = 0;
 	while (ifs >> str&&weight_bias_count_3_pooling<weight_count)
 	{
 		if (weight_bias_count_3_pooling >= weight_bias_count_2) {
-			//����n��������weight
+			//
 			float f = atof(str.c_str());
-			weight_v.push_back(f);//����kernelÿ�����ص�Ȩ��ֵ��������������
+			weight_v.push_back(f);
 			weight_bias_count_1++;
 		}
 		weight_bias_count_3_pooling++;
@@ -111,28 +111,28 @@ std::vector<tensor_t> load_weight_fc() {
 	int weight_count = weight_bias_count_1 + nn_channel_size_fc*nn_channel_size_fc*nn_in_number_fc[in_number_fc]
                                              * nn_in_number_fc[in_number_fc + 1];
 	int weight_bias_count_3_fc = 0;
-	while (ifs >> str&&weight_bias_count_3_fc<weight_count)
+	while (ifs >> str && weight_bias_count_3_fc < weight_count)
 	{
 		if (weight_bias_count_3_fc >= weight_bias_count_2) {
-			//����n��������weight
-			if (nn_channel_size_fc == 1) {//���ȫ����kernel��СΪ1
+			//
+			if (nn_channel_size_fc == 1) {
 				float f = atof(str.c_str());
-				vec3.push_back(f);//����kernelÿ�����ص�Ȩ��ֵ��������������
-				weight_v.push_back(vec3);//�����������������ɶ�ά����tensor
+				vec3.push_back(f);
+				weight_v.push_back(vec3);
 				weight2D.push_back(weight_v);
 				vec3.clear();
 				weight_v.clear();
 			}
 			else {
 				if (weight_bias_count_1 == 0 || (weight_bias_count_1 - weight_bias_count_2 - 1) / nn_channel_size_fc
-                                                == (weight_bias_count_1 - weight_bias_count_2) / nn_channel_size_fc) {//��ԭ����һάȨ�ذ�kernel��Сת���ɶ�ά
+                                                == (weight_bias_count_1 - weight_bias_count_2) / nn_channel_size_fc) {
 					float f = atof(str.c_str());
-					vec3.push_back(f);//����kernelÿ�����ص�Ȩ��ֵ��������������
-					if (weight_bias_count_1 == weight_count - 1) {//���һ������������
-						weight_v.push_back(vec3);//�����������������ɶ�ά����tensor
+					vec3.push_back(f);
+					if (weight_bias_count_1 == weight_count - 1) {
+						weight_v.push_back(vec3);
 						vec3.clear();
 					}
-					if (weight_v.size() == nn_channel_size_fc) {
+					if (weight_v.size() == uint(nn_channel_size_fc)) {
 						weight2D.push_back(weight_v);
 						weight_v.clear();
 					}
@@ -141,7 +141,7 @@ std::vector<tensor_t> load_weight_fc() {
 					weight_v.push_back(vec3);
 					vec3.clear();
 					float f = atof(str.c_str());
-					vec3.push_back(f);//����������������һ��Ԫ��
+					vec3.push_back(f);
 				}
 			}
 			weight_bias_count_1++;
@@ -198,9 +198,9 @@ vec_t load_bias_pooling() {
 		if (weight_bias_count_3_pooling >= weight_bias_count_1 &&
                 weight_bias_count_1 >= weight_count &&
                 weight_bias_count_1 <= weight_bias_count) {
-			//����n��������bias
+			//
 			float f = atof(str.c_str());
-			bias2D.push_back(f);//����ƫ��
+			bias2D.push_back(f);//
 			weight_bias_count_1++;
 		}
 		weight_bias_count_3_pooling++;
@@ -243,33 +243,32 @@ vec_t load_bias_fc() {
 
 int main(int argc, char** argv) {
 
-//	vec_t res;
 	vec_t data_in;  //image data storage
-//	vec_t data_out;
-//	vec_t data;
 	tensor_t in_data;
 
 	//convert image to data matrix
 	const std::string filename = "4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
-	std::vector<tensor_t>  conv_1_weight2D;//�����Ȩ�ؾ���
-	vec_t 		           conv_1_bias2D;//ƫ�þ���
+	std::vector<tensor_t>  conv_1_weight2D;//
+	vec_t 		           conv_1_bias2D;//
 	conv_1_weight2D    =   load_weight_conv();
 	conv_1_bias2D      =   load_bias_conv();
-	in_data            =   in_2_3D( data_in );//vector������ͼƬת��tensor
+	in_data            =   in_2_3D( data_in );//
 
 	std::vector<tensor_t> in_data2D;
-	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//inת���ɶ�ά��ʾ
+	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//
 	std::vector<tensor_t> conv_1_out_data;
 
 	cout << "Finished network weights and data space preparation" << endl;
     cout << endl;
 	cout << "starting convolution layer 1" << endl;
 
+    string tan_h = "tan_h";
+
 	//convolution_1
 	convolution_layer_with_table(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_conv[0],
 		nn_channel_size_conv,
 		in_data2D,
@@ -300,8 +299,7 @@ int main(int argc, char** argv) {
 		pooling_1_weight,
 		pooling_1_bias2D,
 		pooling_1_out_data,
-		nn_in_number_pooling[0],
-		nn_channel_number_pooling[0]);
+		nn_in_number_pooling[0]);
 
 	in_number_pooling++;
 
@@ -316,7 +314,7 @@ int main(int argc, char** argv) {
 
 	//convolution_2
 	convolution_layer_with_table(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_conv[1],
 		nn_channel_size_conv,
 		pooling_1_out_data,
@@ -347,8 +345,7 @@ int main(int argc, char** argv) {
 		pooling_2_weight,
 		pooling_2_bias2D,
 		pooling_2_out_data,
-		nn_in_number_pooling[1],
-		nn_channel_number_pooling[1]);
+		nn_in_number_pooling[1]);
 
 	in_number_pooling++;
 
@@ -363,7 +360,7 @@ int main(int argc, char** argv) {
 
 	//convolution_3
 	convolution_layer_with_table(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_conv[2],
 		nn_channel_size_conv,
 		pooling_2_out_data,

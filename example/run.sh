@@ -9,4 +9,4 @@ do
 done
 
 
-g++ -std=c++0x -Wall -Wextra -pedantic -I ../ -O1 ff_test.cpp -o fftest
+g++ -Wall -Wextra -pedantic -I ../ -O1 ff_test.cpp -o fftest

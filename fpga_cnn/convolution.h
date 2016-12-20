@@ -57,9 +57,9 @@ tensor_t convolution_kernel(int input_size,
 	return out_data;
 }
 
-//tensor to tensor convolutional layer with connection table
+//tensor to tensor convolution layer with connection table
 void convolution_layer_with_table(
-	string activation_type,
+	string& activation_type,
 	int input_size,
 	int kernel_size,
 	std::vector<tensor_t>& in_data3D,
@@ -73,17 +73,17 @@ void convolution_layer_with_table(
 	cout << "starting convolution ...." << endl;
 	out_data3D.clear();
 
-	tensor_t out_data2D_plus;//ÿһ���˲���filter�����о���˾�����������ۼӽ��
-	float out_data2D_final_f;//ÿ�����ؼ�ƫ�á�������ֵ
-	vec_t out_data2D_final_v;//ÿ�����ؼ�ƫ�á�������ֵ��ɵ�������
-	tensor_t out_data2D_final;//���յ��������
+	tensor_t out_data2D_plus;
+	float out_data2D_final_f;
+	vec_t out_data2D_final_v;
+	tensor_t out_data2D_final;
 
 	for (int b = 0; b < out_channel; b++) {//output kernel loop
-		int connection_num = 0;//ÿ��in����ÿ��kernel�ǵڼ�������
+		int connection_num = 0;
 		for (int a = 0; a < in_channel; a++) {//input kernel loop
-			if (has_connection_table) {//��������ӱ�
-				if (tbl[a][b]) {//��������ӵ�
-					tensor_t out_data2D;//ÿһ���������Ľ��
+			if (has_connection_table) {
+				if (tbl[a][b]) {
+					tensor_t out_data2D;
 					out_data2D = convolution_kernel(input_size,
 						kernel_size,
 						in_data3D[a],
@@ -91,24 +91,23 @@ void convolution_layer_with_table(
 						out_data2D);
 					for (uint i = 0; i < out_data2D.size(); i++) {
 						vector<float> result_1;
-						if (connection_num == 0) {//��һ������
+						if (connection_num == 0) {
 							for (uint j = 0; j < out_data2D[i].size(); j++) {
-								result_1.push_back(0);//���������ۼӺͳ�ʼ��0
+								result_1.push_back(0);
 							}
 						}
 						else if (connection_num != 0) {
 							for (uint j = 0; j < out_data2D[i].size(); j++) {
-								result_1.push_back(out_data2D_plus[i][j]);//���������ۼӺ�
+								result_1.push_back(out_data2D_plus[i][j]);
 							}
 						}
 						transform(result_1.begin(),
 							result_1.end(),
 							out_data2D[i].begin(),
 							result_1.begin(),
-							plus<float>());//�������ۼ�
-						out_data2D_plus.push_back(result_1);//��ÿ���������ۼӽ������out_data2D_plus��ÿ�η��������10��
+							plus<float>());//
+                            out_data2D_plus.push_back(result_1);
 					}
-					//���������ۼӷ���out_data2D_plus�к�ɾ��ǰ10��������
 					if (connection_num != 0) {
 						tensor_t::iterator it;
 						//vector<string>::iterator subIt = (*it).begin();
@@ -121,7 +120,7 @@ void convolution_layer_with_table(
 					connection_num++;
 				}
 			}
-			else if (!has_connection_table) {//���û�����ӱ�
+			else if (!has_connection_table) {
 				tensor_t out_data2D;
 				out_data2D = convolution_kernel(input_size,
 					kernel_size,

@@ -63,15 +63,15 @@ void fully_connected_layer(
 				in_data3D[a],
 				kernel_weights[a*out_channel + b],//weight的存放顺序跟convolution层的不同
 				out_data2D);
-			for (int i = 0; i < out_data2D.size(); i++) {
+			for (uint i = 0; i < out_data2D.size(); i++) {
 				vector<float> result_1;
 				if (connection_num == 0) {//第一个连接
-					for (int j = 0; j < out_data2D[i].size(); j++) {
+					for (uint j = 0; j < out_data2D[i].size(); j++) {
 						result_1.push_back(0);//行向量的累加和初始置0
 					}
 				}
 				else if (connection_num != 0) {
-					for (int j = 0; j < out_data2D[i].size(); j++) {
+					for (uint j = 0; j < out_data2D[i].size(); j++) {
 						result_1.push_back(out_data2D_plus[i][j]);//行向量的累加和
 					}
 				}
@@ -86,7 +86,7 @@ void fully_connected_layer(
 			if (connection_num != 0) {
 				tensor_t::iterator it;
 				//vector<string>::iterator subIt = (*it).begin();
-				for (int i = 0; i < out_data2D.size(); i++)//把累加和tensor的前10行删除，剩下的10行则为每次累加的中间结果
+				for (uint i = 0; i < out_data2D.size(); i++)//把累加和tensor的前10行删除，剩下的10行则为每次累加的中间结果
 				{
 					it = out_data2D_plus.begin();
 					out_data2D_plus.erase(it);
@@ -96,8 +96,8 @@ void fully_connected_layer(
 			connection_num++;
 		}
 		//循环遍历out_data2D_plus矩阵加偏置和激活
-		for (int i = 0; i < out_data2D_plus.size(); i++) {
-			for (int j = 0; j < out_data2D_plus[i].size(); j++) {
+		for (uint i = 0; i < out_data2D_plus.size(); i++) {
+			for (uint j = 0; j < out_data2D_plus[i].size(); j++) {
 				out_data2D_final_f = out_data2D_plus[i][j] + kernel_bias[b];
 				//const float ep = exp(out_data2D_final_f);
 				//const float em = exp(-out_data2D_final_f);
@@ -120,9 +120,9 @@ void fully_connected_layer(
 	cout << "finished fully_connect ...." << endl;
 	ofstream out_fc;
     out_fc.open("out_fc.txt", ios::app);
-	for (int i = 0; i < out_data3D.size(); i++) {
-		for (int j = 0; j < out_data3D[i].size(); j++) {
-			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+	for (uint i = 0; i < out_data3D.size(); i++) {
+		for (uint j = 0; j < out_data3D[i].size(); j++) {
+			for (uint k = 0; k < out_data3D[i][j].size(); k++) {
 				out_fc << out_data3D[i][j][k] << " ";
 			}
 			out_fc << endl;

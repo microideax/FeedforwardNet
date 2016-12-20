@@ -54,7 +54,7 @@ std::vector<tensor_t> pooling_layer(
 	vec_t& kernel_weights,
 	vec_t& kernel_bias,
 	std::vector<tensor_t>& out_data3D,
-	int& in_channel, int& out_channel)
+	int& in_channel)
 {
 
 	cout << "Starting average_pooling ...." << endl;
@@ -67,8 +67,8 @@ std::vector<tensor_t> pooling_layer(
 	for (int a = 0; a < in_channel; a++) {//6个in
 		out_data2D = pooling_kernel(input_size, kernel_size, in_data3D[a], kernel_weights[a], out_data2D);
 		//循环遍历out_data2D矩阵加偏置和激活
-		for (int i = 0; i < out_data2D.size(); i++) {
-			for (int j = 0; j < out_data2D[i].size(); j++) {
+		for (uint i = 0; i < out_data2D.size(); i++) {
+			for (uint j = 0; j < out_data2D[i].size(); j++) {
 				out_data2D_final_f = out_data2D[i][j] + kernel_bias[a];
 				//const float ep = exp(out_data2D_final_f);
 				//const float em = exp(-out_data2D_final_f);
@@ -90,9 +90,9 @@ std::vector<tensor_t> pooling_layer(
     //debugging output
     ofstream out_pool;
     out_pool.open("out_pool.txt", ios::app);
-	for (int i = 0; i < out_data3D.size(); i++) {
-		for (int j = 0; j < out_data3D[i].size(); j++) {
-			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+	for (uint i = 0; i < out_data3D.size(); i++) {
+		for (uint j = 0; j < out_data3D[i].size(); j++) {
+			for (uint k = 0; k < out_data3D[i][j].size(); k++) {
 				out_pool << out_data3D[i][j][k] << " ";
 			}
 			out_pool << endl;
