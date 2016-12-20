@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 #include "data_type.h"
 
 using namespace std;
@@ -35,6 +36,7 @@ float f(string type, float data) {
 		const float ep = exp(data);
 		return ep / (ep + exp(-data));
 	}
+    else return false;
 }
 
 float f(string type, const vec_t& v, int i) {
@@ -43,11 +45,12 @@ float f(string type, const vec_t& v, int i) {
 		float alpha = *std::max_element(v.begin(), v.end());
 		float numer = exp(v[i] - alpha);
 		float denom = float(0);
-		for (int i = 0; i < v.size(); i++) {
+		for (uint i = 0; i < v.size(); i++) {
 			denom += exp(v[i] - alpha);
 		}
 		return numer / denom;
 	}
+    else return false;
 }
 
 float df(string type, float data) {
@@ -76,17 +79,20 @@ float df(string type, float data) {
 	else if (type == "softmax") {
 		return data * (float(1) - data);
 	}
+    else return false;
 }
 
-vec_t df(string type, const vec_t& y, int index) {
+vec_t df(string type, const vec_t& y, uint index) {
+    vec_t v(0, 0);
 	if (type == "softmax")
 	{
 		vec_t v(y.size(), 0);
-		for (int i = 0; i < y.size(); i++)
+		for (uint i = 0; i < y.size(); i++)
 			v[i] = (i == index) ? y[index] * (float(1) - y[index]) : -y[i] * y[index];
 
 		return v;
 	}
+    else return v;
 }
 
 #endif

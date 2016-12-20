@@ -1,5 +1,6 @@
 // Baseline data type define for the entire design
 // TODO:
+
 #ifndef _DATA_TYPE_H_
 #define _DATA_TYPE_H_
 

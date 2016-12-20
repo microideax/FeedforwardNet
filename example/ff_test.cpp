@@ -166,7 +166,7 @@ vec_t load_bias_conv() {
                             * nn_in_number_conv[in_number_conv + 1]
                             + nn_channel_number_conv[in_number_conv + 1];
 	int weight_bias_count_3_conv = 0;
-	while (ifs >> str&&weight_bias_count_3_conv<weight_bias_count)
+	while (ifs >> str && weight_bias_count_3_conv < weight_bias_count)
 	{
 		if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
             && weight_bias_count_1 <= weight_bias_count) {
@@ -243,34 +243,28 @@ vec_t load_bias_fc() {
 
 int main(int argc, char** argv) {
 
-	float c = 3;
-	//network<sequential> nn;
-	vec_t res;
+//	vec_t res;
 	vec_t data_in;  //image data storage
-	vec_t data_out;
-	vec_t data;
+//	vec_t data_out;
+//	vec_t data;
 	tensor_t in_data;
-	tensor_t out_data;
 
 	//convert image to data matrix
 	const std::string filename = "4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
-	//construct net and load weights to net
-	//construct_net(nn);	
-	//nn_load_weight("LeNet-weights", nn);
-
-	std::vector<tensor_t> conv_1_weight2D;//�����Ȩ�ؾ���
-	vec_t 		      conv_1_bias2D;//ƫ�þ���
-	conv_1_weight2D = load_weight_conv();
-	conv_1_bias2D = load_bias_conv();
-	in_data = in_2_3D(data_in);//vector������ͼƬת��tensor
+	std::vector<tensor_t>  conv_1_weight2D;//�����Ȩ�ؾ���
+	vec_t 		           conv_1_bias2D;//ƫ�þ���
+	conv_1_weight2D    =   load_weight_conv();
+	conv_1_bias2D      =   load_bias_conv();
+	in_data            =   in_2_3D( data_in );//vector������ͼƬת��tensor
 
 	std::vector<tensor_t> in_data2D;
 	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//inת���ɶ�ά��ʾ
 	std::vector<tensor_t> conv_1_out_data;
 
 	cout << "Finished network weights and data space preparation" << endl;
+    cout << endl;
 	cout << "starting convolution layer 1" << endl;
 
 	//convolution_1

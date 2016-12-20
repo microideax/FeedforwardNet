@@ -4,16 +4,19 @@
 ############################################################
 open_project hls_proj
 
-set_top convolution_layer
+set_top convolution_layer_with_table
 
 add_files ../fpga_cnn/average_pooling.h
 add_files ../fpga_cnn/convolution.h
+add_files ../fpga_cnn/activation_functions.h
+add_files ../fpga_cnn/data_type.h
+add_files ../fully_connect.h
 
 add_files ../fpga_cnn/hls_lib/static_vector.h
 
-add_files -tb stb_image/stb_image.h
-add_files -tb stb_image/stb_image_resize.h
-add_files -tb stb_image/stb_image_write.h
+add_files -tb ../stb_image/stb_image.h
+add_files -tb ../stb_image/stb_image_resize.h
+add_files -tb ../stb_image/stb_image_write.h
 
 
 add_files ff_test.cpp
