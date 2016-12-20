@@ -243,7 +243,7 @@ vec_t load_bias_fc() {
 
 int main(int argc, char** argv) {
 
-	vec_t data_in;  //image data storage
+	std_vec_t data_in;  //image data storage
 	tensor_t in_data;
 
 	//convert image to data matrix

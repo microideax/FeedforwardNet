@@ -70,11 +70,11 @@ std_tensor_t in_2_3D(std_vec_t& data_in) {
 }
 
 //re-construct input array to 2d matrix
-std_tensor_t in_2_2D_conv(int& input_size, std_tensor_t in) {
+std_tensor_t_3d in_2_2D_conv(int& input_size, std_tensor_t in) {
 	std_vec_t in_data; //original input data
 	std_vec_t vec1;    //input row vector
     std_tensor_t vec2;
-	std_tensor_t in_data2D;
+	std_tensor_t_3d in_data2D;
 	for (uint j = 0; j < in.size(); j++) {
 		in_data = in[j];
 		for (uint i = 0; i < in_data.size(); i++)//输入一维转二维
