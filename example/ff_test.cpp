@@ -5,7 +5,6 @@
 //#include "stdafx.h"
 #include <iostream>
 #include <vector>
-#include <string>
 #include <fstream>
 #include <algorithm>
 #include <iterator>
@@ -19,25 +18,20 @@
 using namespace std;
 
 int nn_in_data_size_conv[3] = { 32,14,5 };
-int nn_out_data_size_conv[3] = { 28,10,1 };
 int nn_in_number_conv[4] = { 1,6,16,120 };
 int nn_channel_size_conv = 5;
 int nn_channel_number_conv[4] = { 1, 6,16,120 };
-bool has_connection_table[3] = { false,true,false };
+bool has_connection_table[3] = { false, true, false };
 int in_number_conv = 0;  // number of convolutional layer
 int weight_bias_count_1 = 0;//
 int weight_bias_count_2 = 0;//
-int weight_count = 0;
-int convolution_layer_count = 0;
 
 int nn_in_data_size_pooling[2] = { 28,10 };
-int nn_out_data_size_pooling[2] = { 14,5 };
 int nn_in_number_pooling[2] = { 6,16 };
 int nn_channel_number_pooling[2] = { 6,16 };
 int nn_channel_size_pooling = 2;
 int in_number_pooling = 0;
 int nn_in_data_size_fc[1] = { 1 };
-int nn_out_data_size_fc[1] = { 1 };
 int nn_in_number_fc[2] = { 120,10 };
 int nn_channel_size_fc = 1;
 int nn_channel_number_fc[2] = { 120,10 };

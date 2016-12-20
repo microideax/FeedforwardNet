@@ -9,10 +9,12 @@
 #include "hls_lib/static_unordered_map.h"
 #include "hls_lib/static_unordered_set.h"
 
+using namespace std;
+
 typedef unsigned int uint;
 typedef uint cnn_size_t;
 typedef std::vector<float, std::allocator<float> > vec_t;
-using namespace std;
+
 typedef std::vector<vec_t> tensor_t;
 typedef s_vector<float, 16> hls_vec;
 typedef s_vector<hls_vec, 16> hls_tensor;

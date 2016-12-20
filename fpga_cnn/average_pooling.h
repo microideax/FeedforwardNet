@@ -56,14 +56,8 @@ std::vector<tensor_t> pooling_layer(
 	std::vector<tensor_t>& out_data3D,
 	int& in_channel, int& out_channel)
 {
-	/*
-	2d convolution function body
-	in_data should be 1 32x32 data array
-	out_data should be 6 28x28 data array
-	please restruct the convolution function body here
-	this function will be used in layer_1/layer_3/layer_5 in LeNet-5 model
-	*/
-	cout << "starting average_pooling ...." << endl;
+
+	cout << "Starting average_pooling ...." << endl;
 	out_data3D.clear();
 	tensor_t out_data2D;
 	float out_data2D_final_f;
@@ -91,22 +85,22 @@ std::vector<tensor_t> pooling_layer(
 		out_data2D.clear();
 		out_data2D_final.clear();
 	}
+	cout << "Finished average_pooling ...." << endl;
 
-	//debugging output
-	cout << "finished average_pooling ...." << endl;
-//	FILE *fp = NULL;
-//	for (int i = 0; i < out_data3D.size(); i++) {
-//		for (int j = 0; j < out_data3D[i].size(); j++) {
-//			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-//				fp = freopen("out_pool.txt", "a+", stdout);
-//				cout << out_data3D[i][j][k] << " ";
-//			}
-//			cout << endl;
-//		}
-//	}
-//	fclose(fp);
-//	cout << endl;
-//	//getchar();
+    //debugging output
+    ofstream out_pool;
+    out_pool.open("out_pool.txt", ios::app);
+	for (int i = 0; i < out_data3D.size(); i++) {
+		for (int j = 0; j < out_data3D[i].size(); j++) {
+			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+				out_pool << out_data3D[i][j][k] << " ";
+			}
+			out_pool << endl;
+		}
+        out_pool << endl;
+	}
+	out_pool.close();
+	cout << endl;
 	return out_data3D;
 }
 
