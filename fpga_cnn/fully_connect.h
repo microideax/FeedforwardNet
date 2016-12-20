@@ -38,7 +38,7 @@ tensor_t fully_connect(int input_size,
 
 //tensor to tensor convolutional layer with connection table
 void fully_connected_layer(
-	string activation_type,
+	char activation_type,
 	int input_size,
 	std::vector<tensor_t>& in_data3D,
 	std::vector<tensor_t>& kernel_weights,

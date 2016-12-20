@@ -47,7 +47,7 @@ tensor_t pooling_kernel(int input_size,
 }
 
 std::vector<tensor_t> pooling_layer(
-	string activation_type,
+	char activation_type,
 	int& input_size,
 	int& kernel_size,
 	std::vector<tensor_t>& in_data3D,

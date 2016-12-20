@@ -264,7 +264,7 @@ int main(int argc, char** argv) {
     cout << endl;
 	cout << "starting convolution layer 1" << endl;
 
-    string tan_h = "tan_h";
+    char tan_h = 't';
 
 	//convolution_1
 	convolution_layer_with_table(
@@ -292,7 +292,7 @@ int main(int argc, char** argv) {
 
 	//pooling_1
 	pooling_layer(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_pooling[0],
 		nn_channel_size_pooling,
 		conv_1_out_data,
@@ -338,7 +338,7 @@ int main(int argc, char** argv) {
 
 	//pooling_2
 	pooling_layer(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_pooling[1],
 		nn_channel_size_pooling,
 		conv_2_out_data,
@@ -384,7 +384,7 @@ int main(int argc, char** argv) {
 
 	//fully_connect
 	fully_connected_layer(
-		"tan_h",
+		tan_h,
 		nn_in_data_size_fc[0],
 		conv_3_out_data,
 		fc_1_weight2D,

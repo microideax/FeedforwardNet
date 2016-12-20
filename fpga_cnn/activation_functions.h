@@ -9,30 +9,39 @@
 #include "data_type.h"
 
 using namespace std;
+/*
+identity = i;
+sigmod   = s;
+relu     = r;
+leaky_relu = l;
+elu      = e;
+tan_h    = t;
+tan_hp1m2 = h;
+*/
 
-float f(string& type, float data) {
-	if (type == "identity")
+float f(char type, float data) {
+	if (type == 'i')
 	{
 		return data;
 	}
-	else if (type == "sigmoid") {
+	else if (type == 's') {
 		return float(1) / (float(1) + exp(-data));
 	}
-	else if (type == "relu") {
+	else if (type == 'r') {
 		return std::max(float(0), data);
 	}
-	else if (type == "leaky_relu") {
+	else if (type == 'l') {
 		return (data > float(0)) ? data : float(0.01) * data;
 	}
-	else if (type == "elu") {
+	else if (type == 'e') {
 		return (data<float(0) ? (exp(data) - float(1)) : data);
 	}
-	else if (type == "tan_h") {
+	else if (type == 't') {
 		const float ep = exp(data);
 		const float em = exp(-data);
 		return (ep - em) / (ep + em);
 	}
-	else if (type == "tan_hp1m2") {
+	else if (type == 'h') {
 		const float ep = exp(data);
 		return ep / (ep + exp(-data));
 	}

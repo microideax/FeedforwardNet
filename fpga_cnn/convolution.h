@@ -59,7 +59,7 @@ tensor_t convolution_kernel(int input_size,
 
 //tensor to tensor convolution layer with connection table
 void convolution_layer_with_table(
-	string& activation_type,
+	char activation_type,
 	int input_size,
 	int kernel_size,
 	std::vector<tensor_t>& in_data3D,
