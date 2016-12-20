@@ -10,8 +10,8 @@
 #include <iterator>
 
 #include "../fpga_cnn/convolution.h"
-#include "../fpga_cnn/average_pooling.h"
-#include "../fpga_cnn/fully_connect.h"
+//#include "../fpga_cnn/average_pooling.h"
+//#include "../fpga_cnn/fully_connect.h"
 #include "../fpga_cnn/image_converter.h"
 
 
@@ -38,11 +38,11 @@ int nn_channel_number_fc[2] = { 120,10 };
 int in_number_fc = 0;
 
 
-std::vector<tensor_t> load_weight_conv() {
+tensor_t_3d load_weight_conv() {
 	ifstream ifs("LeNet-weights");
 	string str;
 	tensor_t weight_v;
-	std::vector<tensor_t> weight2D;
+	tensor_t_3d weight2D;
 	vec_t vec3;
 	int weight_count = weight_bias_count_1
                        + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
@@ -102,11 +102,11 @@ vec_t load_weight_pooling() {
 	return weight_v;
 }
 
-std::vector<tensor_t> load_weight_fc() {
+tensor_t_3d load_weight_fc() {
 	ifstream ifs("LeNet-weights");
 	string str;
 	tensor_t weight_v;
-	std::vector<tensor_t> weight2D;
+	tensor_t_3d weight2D;
 	vec_t vec3;
 	int weight_count = weight_bias_count_1 + nn_channel_size_fc*nn_channel_size_fc*nn_in_number_fc[in_number_fc]
                                              * nn_in_number_fc[in_number_fc + 1];
@@ -250,21 +250,38 @@ int main(int argc, char** argv) {
 	const std::string filename = "4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
-	std::vector<tensor_t>  conv_1_weight2D;//
+    for ( uint i = 0; i < data_in.size(); i++){cout << data_in[i] << " ";}
+
+	tensor_t_3d  conv_1_weight2D;//
 	vec_t 		           conv_1_bias2D;//
 	conv_1_weight2D    =   load_weight_conv();
 	conv_1_bias2D      =   load_bias_conv();
 	in_data            =   in_2_3D( data_in );//
 
-	std::vector<tensor_t> in_data2D;
+	tensor_t_3d in_data2D;
 	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//
-	std::vector<tensor_t> conv_1_out_data;
+	tensor_t_3d conv_1_out_data;
 
 	cout << "Finished network weights and data space preparation" << endl;
     cout << endl;
 	cout << "starting convolution layer 1" << endl;
 
     char tan_h = 't';
+
+
+    ofstream indata;
+    indata.open("in_data.txt", ios::app);
+    for (uint i = 0; i < in_data2D.size(); i++) {
+        for (uint j = 0; j < in_data2D[i].size(); j++) {
+            for (uint k = 0; k < in_data2D[i][j].size(); k++) {
+                indata << in_data2D[i][j][k] << " ";
+            }
+            indata << endl;
+        }
+        indata << endl;
+    }
+    indata.close();
+
 
 	//convolution_1
 	convolution_layer_with_table(
@@ -282,6 +299,7 @@ int main(int argc, char** argv) {
 	in_number_conv++;
 
 	cout << "Finished convolution layer 1" << endl;
+/*
 	cout << "Starting pooling layer 1" << endl;
 
 	vec_t pooling_1_weight;//Ȩ�ؾ���
@@ -396,6 +414,6 @@ int main(int argc, char** argv) {
 	in_number_fc++;
 
 	cout << "End of network" << endl;
-
+*/
 	return 0;
 }

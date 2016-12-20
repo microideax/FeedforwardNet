@@ -6,11 +6,11 @@ open_project hls_proj
 
 set_top convolution_layer_with_table
 
-add_files ../fpga_cnn/average_pooling.h
+#add_files ../fpga_cnn/average_pooling.h
 add_files ../fpga_cnn/convolution.h
 add_files ../fpga_cnn/activation_functions.h
 add_files ../fpga_cnn/data_type.h
-add_files ../fpga_cnn/fully_connect.h
+#add_files ../fpga_cnn/fully_connect.h
 
 add_files ../fpga_cnn/hls_lib/static_vector.h
 

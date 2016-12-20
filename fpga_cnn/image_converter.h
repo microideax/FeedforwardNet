@@ -20,12 +20,14 @@
 #include "../stb_image/stb_image_resize.h"
 #include "../stb_image/stb_image_write.h"
 
+using namespace std;
+
 void convert_image(const std::string& imagefilename,
                    double minv,
                    double maxv,
                    int w,
                    int h,
-                   vec_t& data) {
+                   std_vec_t& data) {
     // load
     int input_w, input_h, comp;
     stbi_uc* input_pixels = stbi_load(imagefilename.c_str(), &input_w, &input_h, &comp, 1);
@@ -61,18 +63,18 @@ void convert_image(const std::string& imagefilename,
 }
 
 
-tensor_t in_2_3D(vec_t& data_in) {
-	tensor_t data_out;
+std_tensor_t in_2_3D(std_vec_t& data_in) {
+    std_tensor_t data_out;
 	data_out.push_back(data_in);
 	return data_out;
 }
 
 //re-construct input array to 2d matrix
-std::vector<tensor_t> in_2_2D_conv(int& input_size, tensor_t in) {
-	vec_t in_data; //original input data
-	vec_t vec1;    //input row vector
-	tensor_t vec2;
-	std::vector<tensor_t> in_data2D;
+std_tensor_t in_2_2D_conv(int& input_size, std_tensor_t in) {
+	std_vec_t in_data; //original input data
+	std_vec_t vec1;    //input row vector
+    std_tensor_t vec2;
+	std_tensor_t in_data2D;
 	for (uint j = 0; j < in.size(); j++) {
 		in_data = in[j];
 		for (uint i = 0; i < in_data.size(); i++)//输入一维转二维

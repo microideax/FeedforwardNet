@@ -48,19 +48,19 @@ float f(char type, float data) {
     else return false;
 }
 
-float f(string& type, const vec_t& v, int i) {
-	if (type == "softmax")
-	{
-		float alpha = *std::max_element(v.begin(), v.end());
-		float numer = exp(v[i] - alpha);
-		float denom = float(0);
-		for (uint i = 0; i < v.size(); i++) {
-			denom += exp(v[i] - alpha);
-		}
-		return numer / denom;
-	}
-    else return false;
-}
+//float f(string& type, const vec_t& v, int i) {
+//	if (type == "softmax")
+//	{
+//		float alpha = *std::max_element(v.begin(), v.end());
+//		float numer = exp(v[i] - alpha);
+//		float denom = float(0);
+//		for (uint i = 0; i < v.size(); i++) {
+//			denom += exp(v[i] - alpha);
+//		}
+//		return numer / denom;
+//	}
+//    else return false;
+//}
 
 float df(string& type, float data) {
 	if (type == "identity")
@@ -85,23 +85,23 @@ float df(string& type, float data) {
 	else if (type == "tan_hp1m2") {
 		return 2 * data *(float(1) - data);
 	}
-	else if (type == "softmax") {
-		return data * (float(1) - data);
-	}
+//	else if (type == "softmax") {
+//		return data * (float(1) - data);
+//	}
     else return false;
 }
 
-vec_t df(string& type, const vec_t& y, uint index) {
-    vec_t v(0, 0);
-	if (type == "softmax")
-	{
-		vec_t v(y.size(), 0);
-		for (uint i = 0; i < y.size(); i++)
-			v[i] = (i == index) ? y[index] * (float(1) - y[index]) : -y[i] * y[index];
-
-		return v;
-	}
-    else return v;
-}
+//vec_t df(string& type, const vec_t& y, uint index) {
+//    vec_t v(0, 0);
+//    if (type == "softmax")
+//	{
+//		vec_t v(y.size(), 0);
+//		for (uint i = 0; i < y.size(); i++)
+//			v[i] = (i == index) ? y[index] * (float(1) - y[index]) : -y[i] * y[index];
+//
+//		return v;
+//	}
+//    else return v;
+//}
 
 #endif

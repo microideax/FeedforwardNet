@@ -14,10 +14,20 @@ using namespace std;
 
 typedef unsigned int uint;
 typedef uint cnn_size_t;
-typedef std::vector<float, std::allocator<float> > vec_t;
 
+typedef std::vector<float, std::allocator<float> > std_vec_t;
+typedef std::vector<std_vec_t> std_tensor_t;
+typedef std::vector<std_tensor_t> std_tensor_t_3d;
+
+/*
+typedef std::vector<float, std::allocator<float> > vec_t;
 typedef std::vector<vec_t> tensor_t;
-typedef s_vector<float, 16> hls_vec;
-typedef s_vector<hls_vec, 16> hls_tensor;
+typedef std::vector<tensor_t> tensor_t_3d;
+*/
+
+typedef s_vector<float, 32> vec_t;
+typedef s_vector<vec_t, 32> tensor_t;
+typedef s_vector<tensor_t, 32> tensor_t_3d;
+
 
 #endif
