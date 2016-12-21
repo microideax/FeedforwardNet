@@ -244,22 +244,24 @@ vec_t load_bias_fc() {
 int main(int argc, char** argv) {
 
 	std_vec_t data_in;  //image data storage
-	tensor_t in_data;
+	std_tensor_t in_data_temp;
+    tensor_t in_data;
 
 	//convert image to data matrix
 	const std::string filename = "4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
-    for ( uint i = 0; i < data_in.size(); i++){cout << data_in[i] << " ";}
+//    for ( uint i = 0; i < data_in.size(); i++){cout << data_in[i] << " ";}
 
 	tensor_t_3d  conv_1_weight2D;//
 	vec_t 		           conv_1_bias2D;//
 	conv_1_weight2D    =   load_weight_conv();
 	conv_1_bias2D      =   load_bias_conv();
-	in_data            =   in_2_3D( data_in );//
+	in_data_temp       =   in_2_3D( data_in );//
 
 	tensor_t_3d in_data2D;
-	in_data2D = in_2_2D_conv(nn_in_data_size_conv[0], in_data);//
+    std_tensor_t_3d in_data2D_temp;
+	in_data2D_temp = in_2_2D_conv(nn_in_data_size_conv[0], in_data_temp);//
 	tensor_t_3d conv_1_out_data;
 
 	cout << "Finished network weights and data space preparation" << endl;
@@ -268,6 +270,20 @@ int main(int argc, char** argv) {
 
     char tan_h = 't';
 
+    // convert std_tensor_3d to static_tensor_3d
+    //TODO: move this portion of codes into image_converter.h, the output of image_converter should be static
+    for (int i = 0; i < in_data2D_temp.size(); i++){
+        tensor_t tmp;
+        in_data2D.push_back(tmp);
+        for (int j = 0; j < in_data2D_temp[i].size(); j++){
+            vec_t tmp1;
+            in_data2D[i].push_back(tmp1);
+            for (int k = 0; k < in_data2D_temp[i][j].size(); k++){
+                in_data2D[i][j].push_back(in_data2D_temp[i][j][k]);
+            }
+
+        }
+    }
 
     ofstream indata;
     indata.open("in_data.txt", ios::app);
