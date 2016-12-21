@@ -1,6 +1,4 @@
 //General convolution function in CNNs with the connection table as channel connection input.
-//TODO: Add convolution function without connection table.
-
 
 #ifndef _CONVOLUTION_H_
 #define _CONVOLUTION_H_
@@ -102,7 +100,6 @@ void convolution_layer_with_table(
 								result_1.push_back(out_data2D_plus[i][j]);
 							}
 						}
-
                         // std lib vectors
 //						transform(result_1.begin(),
 //							result_1.end(),
@@ -224,5 +221,7 @@ void convolution_layer_with_table(
 
 //general convolution layer without connection table
 // 3D tensor to 3D tensor convertion
+//TODO: Add convolution function without connection table.
+
 
 #endif

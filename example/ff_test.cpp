@@ -37,7 +37,7 @@ int nn_channel_size_fc = 1;
 int nn_channel_number_fc[2] = { 120,10 };
 int in_number_fc = 0;
 
-
+//TODO: move this function into construct_net.h file
 tensor_t_3d load_weight_conv() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -79,6 +79,7 @@ tensor_t_3d load_weight_conv() {
 	return weight2D;
 }
 
+//TODO: move this function into construct_net.h
 vec_t load_weight_pooling() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -102,6 +103,7 @@ vec_t load_weight_pooling() {
 	return weight_v;
 }
 
+//TODO: move to construct_net.h
 tensor_t_3d load_weight_fc() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -153,6 +155,7 @@ tensor_t_3d load_weight_fc() {
 	return weight2D;
 }
 
+//TODO: move to construct_net.h
 vec_t load_bias_conv() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -183,6 +186,7 @@ vec_t load_bias_conv() {
 	return bias2D;
 }
 
+//TODO: move to construct_net.h
 vec_t load_bias_pooling() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -211,6 +215,7 @@ vec_t load_bias_pooling() {
 	return bias2D;
 }
 
+//TODO: move to construct_net.h
 vec_t load_bias_fc() {
 	ifstream ifs("LeNet-weights");
 	string str;
@@ -251,7 +256,6 @@ int main(int argc, char** argv) {
 	const std::string filename = "4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 
-//    for ( uint i = 0; i < data_in.size(); i++){cout << data_in[i] << " ";}
 
 	tensor_t_3d  conv_1_weight2D;//
 	vec_t 		           conv_1_bias2D;//
@@ -271,7 +275,8 @@ int main(int argc, char** argv) {
     char tan_h = 't';
 
     // convert std_tensor_3d to static_tensor_3d
-    //TODO: move this portion of codes into image_converter.h, the output of image_converter should be static
+    //TODO: move this portion of codes into image_converter.h,
+    // the output of image_converter should be static vector/tensor/tensor_3d
     for (int i = 0; i < in_data2D_temp.size(); i++){
         tensor_t tmp;
         in_data2D.push_back(tmp);
@@ -318,8 +323,8 @@ int main(int argc, char** argv) {
 /*
 	cout << "Starting pooling layer 1" << endl;
 
-	vec_t pooling_1_weight;//Ȩ�ؾ���
-	vec_t pooling_1_bias2D;//ƫ�þ���
+	vec_t pooling_1_weight;
+	vec_t pooling_1_bias2D;
 	pooling_1_weight = load_weight_pooling();
 	pooling_1_bias2D = load_bias_pooling();
 	std::vector<tensor_t> pooling_1_out_data;

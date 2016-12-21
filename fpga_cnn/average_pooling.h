@@ -1,5 +1,5 @@
 //average pooling layer with kernel weights and without kernel weights
-//TODO: Add average pooling without kernel weights functions.
+//TODO: Add average/max pooling without kernel weights functions.
 
 #ifndef _AVERAGE_POOLING_H_
 #define _AVERAGE_POOLING_H_
