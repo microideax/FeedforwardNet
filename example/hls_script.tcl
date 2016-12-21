@@ -37,6 +37,6 @@ csim_design -clean -argv {LeNet-weights, 4.bmp}
 
 csynth_design
 
-#cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl systemc -tool xsim
+cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl systemc -tool xsim
 
 

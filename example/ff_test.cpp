@@ -277,13 +277,13 @@ int main(int argc, char** argv) {
     // convert std_tensor_3d to static_tensor_3d
     //TODO: move this portion of codes into image_converter.h,
     // the output of image_converter should be static vector/tensor/tensor_3d
-    for (int i = 0; i < in_data2D_temp.size(); i++){
+    for (uint i = 0; i < in_data2D_temp.size(); i++){
         tensor_t tmp;
         in_data2D.push_back(tmp);
-        for (int j = 0; j < in_data2D_temp[i].size(); j++){
+        for (uint j = 0; j < in_data2D_temp[i].size(); j++){
             vec_t tmp1;
             in_data2D[i].push_back(tmp1);
-            for (int k = 0; k < in_data2D_temp[i][j].size(); k++){
+            for (uint k = 0; k < in_data2D_temp[i][j].size(); k++){
                 in_data2D[i][j].push_back(in_data2D_temp[i][j][k]);
             }
 
@@ -292,9 +292,9 @@ int main(int argc, char** argv) {
 
     ofstream indata;
     indata.open("in_data.txt", ios::app);
-    for (uint i = 0; i < in_data2D.size(); i++) {
-        for (uint j = 0; j < in_data2D[i].size(); j++) {
-            for (uint k = 0; k < in_data2D[i][j].size(); k++) {
+    for (int i = 0; i < in_data2D.size(); i++) {
+        for (int j = 0; j < in_data2D[i].size(); j++) {
+            for (int k = 0; k < in_data2D[i][j].size(); k++) {
                 indata << in_data2D[i][j][k] << " ";
             }
             indata << endl;
@@ -320,6 +320,23 @@ int main(int argc, char** argv) {
 	in_number_conv++;
 
 	cout << "Finished convolution layer 1" << endl;
+
+    //debugging output
+	cout << "finished convolution ...." << endl;
+	ofstream out_conv;
+    out_conv.open("out_conv.txt", ios::app);
+	for (int i = 0; i < conv_1_out_data.size(); i++) {
+		for (int j = 0; j < conv_1_out_data[i].size(); j++) {
+			for (int k = 0; k < conv_1_out_data[i][j].size(); k++) {
+				out_conv << conv_1_out_data[i][j][k] << " ";
+			}
+			out_conv << endl;
+		}
+		out_conv << endl;
+	}
+	out_conv.close();
+	cout << endl;
+
 /*
 	cout << "Starting pooling layer 1" << endl;
 
