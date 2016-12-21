@@ -29,7 +29,7 @@ typedef s_vector<float, 32> vec_t;
 typedef s_vector<vec_t, 32> tensor_t;
 typedef s_vector<tensor_t, 32> tensor_t_3d;
 
-
+/*
 typedef s_vector<float, 32> vec_t_32;
 typedef s_vector<vec_t_32, 32> tensor_t_32;
 typedef s_vector<tensor_t_32, 1> tensor_3d_32_1;
@@ -53,5 +53,6 @@ typedef s_vector<tensor_t_5, 16>  tensor_3d_5_16;
 typedef s_vector<float, 1> vec_t_1;
 typedef s_vector<vec_t_1, 1> tensor_t_1;
 typedef s_vector<tensor_t_1, 120> tensor_3d_1_120;
+*/
 
 #endif
