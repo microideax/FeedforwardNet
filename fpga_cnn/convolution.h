@@ -206,20 +206,20 @@ void convolution_layer_with_table(
 	}
 
 	//debugging output
-	cout << "finished convolution ...." << endl;
-	ofstream out_conv;
-    out_conv.open("out_conv.txt", ios::app);
-	for (int i = 0; i < out_data3D.size(); i++) {
-		for (int j = 0; j < out_data3D[i].size(); j++) {
-			for (int k = 0; k < out_data3D[i][j].size(); k++) {
-				out_conv << out_data3D[i][j][k] << " ";
-			}
-			out_conv << endl;
-		}
-		out_conv << endl;
-	}
-	out_conv.close();
-	cout << endl;
+//	cout << "finished convolution ...." << endl;
+//	ofstream out_conv;
+//    out_conv.open("out_conv.txt", ios::app);
+//	for (int i = 0; i < out_data3D.size(); i++) {
+//		for (int j = 0; j < out_data3D[i].size(); j++) {
+//			for (int k = 0; k < out_data3D[i][j].size(); k++) {
+//				out_conv << out_data3D[i][j][k] << " ";
+//			}
+//			out_conv << endl;
+//		}
+//		out_conv << endl;
+//	}
+//	out_conv.close();
+//	cout << endl;
 }
 
 //general convolution layer without connection table

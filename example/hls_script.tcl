@@ -15,7 +15,6 @@ add_files ../fpga_cnn/data_type.h
 add_files ../fpga_cnn/hls_lib/static_vector.h
 
 add_files -tb ../fpga_cnn/image_converter.h
-
 add_files -tb ../stb_image/stb_image.h
 add_files -tb ../stb_image/stb_image_resize.h
 add_files -tb ../stb_image/stb_image_write.h
@@ -26,7 +25,7 @@ add_files -tb 4.bmp
 add_files -tb LeNet-weights
 
 
-add_files -cflags "-std=c++0x -pedantic -Wall -Wextra" -tb ff_test.cpp
+add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ff_test.cpp
 
 
 open_solution -reset "fpga_cnn"

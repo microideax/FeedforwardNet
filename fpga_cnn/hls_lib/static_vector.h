@@ -15,7 +15,8 @@ class s_vector {
   public:
     s_vector():cur(0), capacity(L){};
 
-    s_vector(const s_vector& e) {
+    s_vector(const s_vector& e, const int cap) {
+      capacity = cap;
       cur = e.cur;
       for(int i = 0; i < e.cur; i++) {
         elems[i] = e[i];
