@@ -302,9 +302,30 @@ int main(int argc, char** argv) {
         indata << endl;
     }
     indata.close();
+/*
+    tensor_t out_data;
+    convolution_kernel(nn_in_data_size_conv[0],
+                                nn_channel_size_conv,
+                                in_data2D[0],
+                                conv_1_weight2D[0],
+                                out_data);
 
+    ofstream out_conv;
+    out_conv.open("kernel_out.txt", ios::app);
+    for (int i = 0; i < out_data.size(); i++) {
+        for (int j = 0; j < out_data[i].size(); j++) {
+//            for (int k = 0; k < conv_1_out_data[i][j].size(); k++) {
+                out_conv << out_data[i][j] << " ";
+            }
+            out_conv << endl;
+        }
+        out_conv << endl;
+//    }
+    out_conv.close();
+    cout << endl;
+*/
 
-	//convolution_1
+    //convolution_1
 	convolution_layer_with_table(
 		tan_h,
 		nn_in_data_size_conv[0],

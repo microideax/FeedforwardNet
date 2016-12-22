@@ -4,7 +4,8 @@
 ############################################################
 open_project hls_proj
 
-set_top convolution_layer_with_table
+#set_top convolution_layer_with_table
+set_top convolution_kernel
 
 #add_files ../fpga_cnn/average_pooling.h
 add_files ../fpga_cnn/convolution.h
@@ -37,6 +38,6 @@ csim_design -clean -argv {LeNet-weights, 4.bmp}
 
 csynth_design
 
-cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl systemc -tool xsim
+cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl verilog -tool xsim
 
 

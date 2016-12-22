@@ -11,12 +11,12 @@ class s_vector {
   private:
     T elems[L];
     int cur;
-    const int capacity;
+//    const int capacity;
   public:
-    s_vector():cur(0), capacity(L){};
+    s_vector():cur(0){};
 
-    s_vector(const s_vector& e, const int cap) {
-      capacity = cap;
+    s_vector(const s_vector& e) {
+//      capacity = cap;
       cur = e.cur;
       for(int i = 0; i < e.cur; i++) {
         elems[i] = e[i];

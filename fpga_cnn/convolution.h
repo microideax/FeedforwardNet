@@ -24,12 +24,11 @@ static const bool tbl[6][16] = {
 #undef X
 
 //convolution kernel function
-tensor_t convolution_kernel(int input_size,
-	int kernel_size,
-	tensor_t& in_data,
-	tensor_t& kernel_weights,
-	tensor_t& out_data) {
-
+void convolution_kernel(int input_size,
+                    	int kernel_size,
+                    	tensor_t& in_data,
+                    	tensor_t& kernel_weights,
+                    	tensor_t& out_data) {
 	out_data.clear();
 	vec_t vec2;//output row vector
 	for (int i = kernel_size / 2; i < input_size - kernel_size / 2; ++i)
@@ -51,8 +50,10 @@ tensor_t convolution_kernel(int input_size,
 		out_data.push_back(vec2);
 		vec2.clear();
 	}
-	return out_data;
+//	return out_data;
+//    return input_size + kernel_size;
 }
+
 
 //tensor to tensor convolution layer with connection table
 void convolution_layer_with_table(
@@ -81,11 +82,11 @@ void convolution_layer_with_table(
 			if (has_connection_table) {
 				if (tbl[a][b]) {
 					tensor_t out_data2D;
-					out_data2D = convolution_kernel(input_size,
-						                            kernel_size,
-						                            in_data3D[a],
-                                                    kernel_weights[b*in_channel + a],
-						                            out_data2D);
+					convolution_kernel(input_size,
+					                   kernel_size,
+					                   in_data3D[a],
+                                       kernel_weights[b*in_channel + a],
+					                   out_data2D);
 					for (int i = 0; i < out_data2D.size(); i++) {
 //						vector<float> result_1;
                         vec_t result_1;
@@ -134,7 +135,7 @@ void convolution_layer_with_table(
 			}
 			else if (!has_connection_table) {
 				tensor_t out_data2D;
-				out_data2D = convolution_kernel(input_size,
+				convolution_kernel(input_size,
 					kernel_size,
 					in_data3D[a],
 					kernel_weights[b*in_channel + a],
