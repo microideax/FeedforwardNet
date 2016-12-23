@@ -203,6 +203,7 @@ void convolution_layer_with_table(
 		out_data2D_plus.clear();
 	}
 
+/*
 	//debugging output
 	cout << "finished convolution ...." << endl;
 	ofstream out_conv;
@@ -218,6 +219,7 @@ void convolution_layer_with_table(
 	}
 	out_conv.close();
 	cout << endl;
+*/
 }
 
 //general convolution layer without connection table

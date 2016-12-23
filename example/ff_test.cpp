@@ -106,6 +106,8 @@ int main(int argc, char** argv) {
 	in_number_conv++;
 
 	cout << "Finished convolution layer 1" << endl;
+
+/*
 	cout << "Starting pooling layer 1" << endl;
 
 	vec_t pooling_1_weight;
@@ -272,7 +274,7 @@ int main(int argc, char** argv) {
 	cout << "Finished fully connected layer 1" << endl;
 
 	cout << "End of network" << endl;
-
+*/
 	return 0;
 }
 
