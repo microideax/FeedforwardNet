@@ -4,8 +4,8 @@
 ############################################################
 open_project hls_proj
 
-#set_top convolution_layer_with_table
-set_top convolution_kernel
+set_top convolution_layer_with_table
+#set_top convolution_kernel
 
 #add_files ../fpga_cnn/average_pooling.h
 add_files ../fpga_cnn/convolution.h
