@@ -122,6 +122,23 @@ std_tensor_t_3d in_2_2D_conv(int& input_size, std_tensor_t in) {
 	return in_data2D;
 }
 
+
+// convert std_tensor_3d to static_tensor_3d
+// the output of image_converter should be static vector/tensor/tensor_3d
+void std_2_static(tensor_t_3d& in_data2D, std_tensor_t_3d& in_data2D_temp) {
+	for (int i = 0; i < in_data2D_temp.size(); i++) {
+		tensor_t tmp;
+		in_data2D.push_back(tmp);
+		for (int j = 0; j < in_data2D_temp[i].size(); j++) {
+			vec_t tmp1;
+			in_data2D[i].push_back(tmp1);
+			for (int k = 0; k < in_data2D_temp[i][j].size(); k++) {
+				in_data2D[i][j].push_back(in_data2D_temp[i][j][k]);
+			}
+		}
+	}
+}
+
 /*
 bool save_image(const std::string& imagefilename, const image<>& img) {
 // no scaling, save at original size

@@ -19,15 +19,16 @@ typedef std::vector<float, std::allocator<float> > std_vec_t;
 typedef std::vector<std_vec_t> std_tensor_t;
 typedef std::vector<std_tensor_t> std_tensor_t_3d;
 
+
 /*
 typedef std::vector<float, std::allocator<float> > vec_t;
 typedef std::vector<vec_t> tensor_t;
 typedef std::vector<tensor_t> tensor_t_3d;
 */
 
-typedef s_vector<float, 32> vec_t;
+typedef s_vector<float, 120> vec_t;//avg_pooling_2要存2*2*16个weight,convolution_3要存120个bias
 typedef s_vector<vec_t, 32> tensor_t;
-typedef s_vector<tensor_t, 32> tensor_t_3d;
+typedef s_vector<tensor_t, 1920> tensor_t_3d;//convolution_3要存16*120个权重矩阵
 
 /*
 typedef s_vector<float, 32> vec_t_32;

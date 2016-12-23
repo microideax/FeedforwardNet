@@ -3,7 +3,7 @@
 #ifndef _FULLY_CONNECTED_H_
 #define _FULLY_CONNECTED_H_
 
-#pragma once
+//#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -14,7 +14,7 @@
 using namespace std;
 
 //convolution kernel function
-tensor_t fully_connect(int input_size,
+void fully_connect(int input_size,
 	tensor_t& in_data,
 	tensor_t& kernel_weights,
 	tensor_t& out_data) {
@@ -33,17 +33,16 @@ tensor_t fully_connect(int input_size,
 		out_data.push_back(vec2);
 		vec2.clear();
 	}
-	return out_data;
 }
 
 //tensor to tensor convolutional layer with connection table
 void fully_connected_layer(
 	char activation_type,
 	int input_size,
-	std::vector<tensor_t>& in_data3D,
-	std::vector<tensor_t>& kernel_weights,
+	tensor_t_3d& in_data3D,
+	tensor_t_3d& kernel_weights,
 	vec_t& kernel_bias,
-	std::vector<tensor_t>& out_data3D,
+	tensor_t_3d& out_data3D,
 	int in_channel,
 	int out_channel ) {
 
@@ -59,49 +58,48 @@ void fully_connected_layer(
 		int connection_num = 0;
 		for (int a = 0; a < in_channel; a++) {//input kernel loop
 			tensor_t out_data2D;//每一个卷积计算的结果
-			out_data2D = fully_connect(input_size,
+			fully_connect(input_size,
 				in_data3D[a],
 				kernel_weights[a*out_channel + b],//weight的存放顺序跟convolution层的不同
 				out_data2D);
-			for (uint i = 0; i < out_data2D.size(); i++) {
-				vector<float> result_1;
+			for (int i = 0; i < out_data2D.size(); i++) {
+				vec_t result_1;
 				if (connection_num == 0) {//第一个连接
-					for (uint j = 0; j < out_data2D[i].size(); j++) {
+					for (int j = 0; j < out_data2D[i].size(); j++) {
 						result_1.push_back(0);//行向量的累加和初始置0
 					}
 				}
 				else if (connection_num != 0) {
-					for (uint j = 0; j < out_data2D[i].size(); j++) {
+					for (int j = 0; j < out_data2D[i].size(); j++) {
 						result_1.push_back(out_data2D_plus[i][j]);//行向量的累加和
 					}
 				}
-				transform(result_1.begin(),
-					result_1.end(),
-					out_data2D[i].begin(),
-					result_1.begin(),
-					plus<float>());//行向量累加
+				for (int r = 0; r < result_1.size(); r++) {
+					result_1[r] = result_1[r] + out_data2D[i][r];
+				}//行向量累加
+
 				out_data2D_plus.push_back(result_1);//把每个行向量累加结果放入out_data2D_plus，每次放入会增加10行
 			}
 			//将行向量累加放入out_data2D_plus中后，删除前10个行向量
 			if (connection_num != 0) {
-				tensor_t::iterator it;
-				//vector<string>::iterator subIt = (*it).begin();
-				for (uint i = 0; i < out_data2D.size(); i++)//把累加和tensor的前10行删除，剩下的10行则为每次累加的中间结果
-				{
-					it = out_data2D_plus.begin();
-					out_data2D_plus.erase(it);
-					//it++;//这里迭代器更新
+				//						tensor_t::iterator it;
+				//						for (uint i = 0; i < out_data2D.size(); i++)
+				//						{
+				//                            // std vectors
+				//							it = out_data2D_plus.begin();
+				//							out_data2D_plus.erase(it);
+				//						}
+				//static vectors
+				for (int i = 0; i < out_data2D.size(); i++) {
+					out_data2D_plus.erase(0);
 				}
 			}
 			connection_num++;
 		}
 		//循环遍历out_data2D_plus矩阵加偏置和激活
-		for (uint i = 0; i < out_data2D_plus.size(); i++) {
-			for (uint j = 0; j < out_data2D_plus[i].size(); j++) {
+		for (int i = 0; i < out_data2D_plus.size(); i++) {
+			for (int j = 0; j < out_data2D_plus[i].size(); j++) {
 				out_data2D_final_f = out_data2D_plus[i][j] + kernel_bias[b];
-				//const float ep = exp(out_data2D_final_f);
-				//const float em = exp(-out_data2D_final_f);
-				//out_data2D_final_f = (ep - em) / (ep + em);//tan_h????
 
 				out_data2D_final_f = f(activation_type, out_data2D_final_f);//激活函数激活
 
@@ -120,9 +118,9 @@ void fully_connected_layer(
 	cout << "finished fully_connect ...." << endl;
 	ofstream out_fc;
     out_fc.open("out_fc.txt", ios::app);
-	for (uint i = 0; i < out_data3D.size(); i++) {
-		for (uint j = 0; j < out_data3D[i].size(); j++) {
-			for (uint k = 0; k < out_data3D[i][j].size(); k++) {
+	for (int i = 0; i < out_data3D.size(); i++) {
+		for (int j = 0; j < out_data3D[i].size(); j++) {
+			for (int k = 0; k < out_data3D[i][j].size(); k++) {
 				out_fc << out_data3D[i][j][k] << " ";
 			}
 			out_fc << endl;
