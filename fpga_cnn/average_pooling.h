@@ -10,14 +10,15 @@
 #include <algorithm>
 #include "data_type.h"
 #include "activation_functions.h"
+#include "config.h"
 
 using namespace std;
 
 void pooling_kernel(int input_size,
-						int kernel_size,
-                        tensor_t& in_data,
-                        float kernel_weights,
-                        tensor_t& out_data) {
+                    int kernel_size,
+                    tensor_t& in_data,
+                    float kernel_weights,
+                    tensor_t& out_data) {
     out_data.clear();
 	vec_t vec2;//output row vector
 	for (int i = 0; i < input_size - kernel_size / 2; i = i + kernel_size) //±éÀúÊäÈëmap
@@ -82,6 +83,7 @@ void pooling_layer(
 	cout << "Finished average_pooling ...." << endl;
 
     //debugging output
+#if _C_DEBUG_MODE_
     ofstream out_pool;
     out_pool.open("out_pool.txt", ios::app);
 	for (int i = 0; i < out_data3D.size(); i++) {
@@ -95,5 +97,7 @@ void pooling_layer(
 	}
 	out_pool.close();
 	cout << endl;
+#endif
+
 }
 #endif

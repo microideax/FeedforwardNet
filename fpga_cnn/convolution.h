@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "data_type.h"
 #include "activation_functions.h"
+#include "config.h"
 
 using namespace std;
 
@@ -203,8 +204,9 @@ void convolution_layer_with_table(
 		out_data2D_plus.clear();
 	}
 
-/*
+
 	//debugging output
+#if _C_DEBUG_MODE_
 	cout << "finished convolution ...." << endl;
 	ofstream out_conv;
     out_conv.open("out_conv.txt", ios::app);
@@ -219,7 +221,8 @@ void convolution_layer_with_table(
 	}
 	out_conv.close();
 	cout << endl;
-*/
+#endif
+
 }
 
 //general convolution layer without connection table

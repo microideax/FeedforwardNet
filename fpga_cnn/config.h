@@ -7,7 +7,10 @@
 
 // C++ compilation debug mode
 // HLS mode
-//
+/*
+#define _C_DEBUG_MODE_  1
+*/
+#define _HLS_MODE_      0
 
 
 #endif //FFNET_CONFIG_H

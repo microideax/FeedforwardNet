@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 
 	cout << "Finished convolution layer 1" << endl;
 
-/*
+
 	cout << "Starting pooling layer 1" << endl;
 
 	vec_t pooling_1_weight;
@@ -139,6 +139,7 @@ int main(int argc, char** argv) {
 	in_number_pooling++;
 
 	cout << "Finished pooling layer 1" << endl;
+/*
 	cout << "Starting convolution layer 2" << endl;
 
 	tensor_t_3d conv_2_weight2D;
