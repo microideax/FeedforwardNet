@@ -12,7 +12,7 @@
 #include "../fpga_cnn/average_pooling.h"
 #include "../fpga_cnn/fully_connect.h"
 #include "../fpga_cnn/image_converter.h"
-#include "../fpga_cnn/construct_net.h"
+#include "../fpga_cnn/weight_bias.h"
 
 using namespace std;
 

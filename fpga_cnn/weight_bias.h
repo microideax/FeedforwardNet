@@ -2,8 +2,8 @@
 // Created by yaochen on 19/12/16.
 //
 
-#ifndef _CONSTRUCT_NET_H
-#define _CONSTRUCT_NET_H
+#ifndef _WEIGHT_BIAS_H_
+#define _WEIGHT_BIAS_H_
 
 #include <iostream>
 #include <vector>
@@ -262,4 +262,4 @@ vec_t load_bias_fc(int& weight_bias_count_1,
 	return bias2D;
 }
 
-#endif //FFNET_CONSTRUCT_NET_H
+#endif //
