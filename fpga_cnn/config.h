@@ -7,10 +7,21 @@
 
 // C++ compilation debug mode
 // HLS mode
-/*
+
 #define _C_DEBUG_MODE_  1
-*/
+
 #define _HLS_MODE_      0
 
+#define O true
+#define X false
+const bool tbl[6][16] = {
+        O, X, X, X, O, O, O, X, X, O, O, O, O, X, O, O,
+        O, O, X, X, X, O, O, O, X, X, O, O, O, O, X, O,
+        O, O, O, X, X, X, O, O, O, X, X, O, X, O, O, O,
+        X, O, O, O, X, X, O, O, O, O, X, X, O, X, O, O,
+        X, X, O, O, O, X, X, O, O, O, O, X, O, O, X, O,
+        X, X, X, O, O, O, X, X, O, O, O, O, X, O, O, O };
+#undef O
+#undef X
 
 #endif //FFNET_CONFIG_H

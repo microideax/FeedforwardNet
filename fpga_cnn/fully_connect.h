@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "data_type.h"
 #include "activation_functions.h"
+#include "config.h"
 
 using namespace std;
 
@@ -115,6 +116,7 @@ void fully_connected_layer(
 	}
 
 	//debugging output
+#if _C_DEBUG_MODE_
 	cout << "finished fully_connect ...." << endl;
 	ofstream out_fc;
     out_fc.open("out_fc.txt", ios::app);
@@ -129,6 +131,7 @@ void fully_connected_layer(
 	}
 	out_fc.close();
 	cout << endl;
+#endif
 }
 
 #endif

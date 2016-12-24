@@ -12,18 +12,7 @@
 
 using namespace std;
 
-#define O true
-#define X false
-static const bool tbl[6][16] = {
-	O, X, X, X, O, O, O, X, X, O, O, O, O, X, O, O,
-	O, O, X, X, X, O, O, O, X, X, O, O, O, O, X, O,
-	O, O, O, X, X, X, O, O, O, X, X, O, X, O, O, O,
-	X, O, O, O, X, X, O, O, O, O, X, X, O, X, O, O,
-	X, X, O, O, O, X, X, O, O, O, O, X, O, O, X, O,
-	X, X, X, O, O, O, X, X, O, O, O, O, X, O, O, O };
-#undef O
-#undef X
-
+extern const bool tbl[6][16];
 //convolution kernel function
 void convolution_kernel(int input_size,
 	int kernel_size,
@@ -65,8 +54,8 @@ void convolution_layer_with_table(
 	vec_t& kernel_bias,
 	tensor_t_3d& out_data3D,
 	int in_channel,
-	int out_channel )
-{
+	int out_channel) {
+
 	cout << "starting convolution ...." << endl;
 	out_data3D.clear();
 
