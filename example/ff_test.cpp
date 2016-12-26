@@ -27,6 +27,9 @@ int weight_bias_count_2 = 0;
 
 int main(int argc, char** argv) {
 
+    int in_number_conv = 0;  // number of convolutional layer
+    int in_number_fc = 0;// number of fully_connected layer
+    int in_number_pooling = 0;
 	std_vec_t data_in;  //image data storage
 	std_tensor_t in_data_temp;
 	tensor_t in_data;
@@ -77,6 +80,7 @@ int main(int argc, char** argv) {
 		                           nn_in_number_conv,
 		                           nn_channel_number_conv,
 		                           in_number_conv);
+    in_number_conv++;
 
     //Prepare weights and bias for pooling layer 1
     vec_t pooling_1_weight;
@@ -92,6 +96,7 @@ int main(int argc, char** argv) {
                                          nn_in_number_pooling,
                                          nn_channel_number_pooling,
                                          in_number_pooling);
+    in_number_pooling++;
 
     // Prepare weights and bias for convolution layer 2
     tensor_t_3d conv_2_weight2D;
@@ -108,6 +113,7 @@ int main(int argc, char** argv) {
                                    nn_in_number_conv,
                                    nn_channel_number_conv,
                                    in_number_conv);
+    in_number_conv++;
 
     // Prepare weights and bias for pooling layer 2
     vec_t pooling_2_weight;
@@ -123,6 +129,7 @@ int main(int argc, char** argv) {
                                          nn_in_number_pooling,
                                          nn_channel_number_pooling,
                                          in_number_pooling);
+    in_number_pooling++;
 
     // Prepare weights and bias for convolution layer 3
     tensor_t_3d conv_3_weight2D;
@@ -139,6 +146,7 @@ int main(int argc, char** argv) {
                                    nn_in_number_conv,
                                    nn_channel_number_conv,
                                    in_number_conv);
+    in_number_conv++;
 
     // Prepare weights and bias for fully connected layer 1
     tensor_t_3d fc_1_weight2D;
@@ -155,6 +163,7 @@ int main(int argc, char** argv) {
                                nn_in_number_fc,
                                nn_channel_number_fc,
                                in_number_fc);
+    in_number_fc++;
 
     tensor_t_3d fc_1_out_data;
 

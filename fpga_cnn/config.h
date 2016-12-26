@@ -6,11 +6,17 @@
 #define _CONFIG_H_
 
 // C++ compilation debug mode
-// HLS mode
+#define _HLS_MODE_  1
 
-#define _C_DEBUG_MODE_  1
+#ifdef _HLS_MODE_
+#define _C_DEBUG_MODE_ 0
+#else
+#define _C_DEBUG_MODE_ 1
+#endif
 
-#define _HLS_MODE_      0
+
+int nn_in_data_size_conv[3] = { 32,14,5 };
+
 
 #define O true
 #define X false

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-extern const bool tbl[6][16];
+extern const bool tbl[6][];
 //convolution kernel function
 void convolution_kernel(int input_size,
 	int kernel_size,
@@ -88,32 +88,12 @@ void convolution_layer_with_table(
 								result_1.push_back(out_data2D_plus[i][j]);
 							}
 						}
-                        // std lib vectors
-//						transform(result_1.begin(),
-//							result_1.end(),
-//							out_data2D[i].begin(),
-//							result_1.begin(),
-//							plus<float>());
-
-                        //static lib vectors
-//                        transform(result_1.front(),
-//                                  result_1.back(),
-//                                  out_data2D[i].front(),
-//                                  result_1.front(),
-//                                  plus<float>());
                         for (int r = 0; r < result_1.size(); r++){
                             result_1[r] = result_1[r] + out_data2D[i][r];
                         }
                         out_data2D_plus.push_back(result_1);
 					}
 					if (connection_num != 0) {
-//						tensor_t::iterator it;
-//						for (uint i = 0; i < out_data2D.size(); i++)
-//						{
-//                            // std vectors
-//							it = out_data2D_plus.begin();
-//							out_data2D_plus.erase(it);
-//						}
                         //static vectors
 						for (int i = 0; i < out_data2D.size(); i++) {
 							out_data2D_plus.erase(0);
@@ -142,32 +122,12 @@ void convolution_layer_with_table(
 							result_1.push_back(out_data2D_plus[i][j]);
 						}
 					}
-                    // std vectors
-//					transform(result_1.begin(),
-//						result_1.end(),
-//						out_data2D[i].begin(),
-//						result_1.begin(),
-//						plus<float>());
-                    // static vectors
-//                    transform(result_1.front(),
-//                              result_1.back(),
-//                              out_data2D[i].front(),
-//                              result_1.front(),
-//                              plus<float>());
                     for (int r = 0; r < result_1.size(); r++){
                         result_1[r] = result_1[r] + out_data2D[i][r];
                     }
 					out_data2D_plus.push_back(result_1);
 				}
 				if (connection_num != 0) {
-//					tensor_t::iterator it;
-//					//vector<string>::iterator subIt = (*it).begin();
-//					for (uint i = 0; i < out_data2D.size(); i++)
-//					{
-//						it = out_data2D_plus.begin();
-//						out_data2D_plus.erase(it);
-//						//it++;
-//					}
 					for (int i = 0; i < out_data2D.size(); i++) {
 						out_data2D_plus.erase(0);
 					}
@@ -188,7 +148,6 @@ void convolution_layer_with_table(
 			out_data2D_final_v.clear();
 		}
 		out_data3D.push_back(out_data2D_final);
-		//out_data2D.clear();
 		out_data2D_final.clear();
 		out_data2D_plus.clear();
 	}
