@@ -12,7 +12,7 @@
 
 using namespace std;
 
-extern const bool tbl[6][];
+extern const bool tbl[6][16];
 //convolution kernel function
 void convolution_kernel(int input_size,
 	int kernel_size,
@@ -44,15 +44,17 @@ void convolution_kernel(int input_size,
 }
 
 //tensor to tensor convolution layer with connection table
+template<typename T>
 void convolution_layer_with_table(
 	char activation_type,
 	int input_size,
 	int kernel_size,
-	tensor_t_3d& in_data3D,
+//	tensor_t_3d& in_data3D,
+    T& in_data3D,
 	bool has_connection_table,
 	tensor_t_3d& kernel_weights,
 	vec_t& kernel_bias,
-	tensor_t_3d& out_data3D,
+	T& out_data3D,
 	int in_channel,
 	int out_channel) {
 

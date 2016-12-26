@@ -56,7 +56,8 @@ void inference_net(
         int nn_channel_number_conv[3],
 
         // input pic data
-        tensor_t_3d& in_data3D,
+//        tensor_t_3d& in_data3D,
+        tensor_3d_32_1 in_data3D,
         // output fc data
         tensor_t_3d& fc_1_out_data,
 

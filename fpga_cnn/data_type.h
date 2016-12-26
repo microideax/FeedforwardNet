@@ -30,11 +30,12 @@ typedef s_vector<float, 120> vec_t;//avg_pooling_2要存2*2*16个weight,convolution
 typedef s_vector<vec_t, 32> tensor_t;
 typedef s_vector<tensor_t, 1920> tensor_t_3d;//convolution_3要存16*120个权重矩阵
 
-/*
+
 typedef s_vector<float, 32> vec_t_32;
 typedef s_vector<vec_t_32, 32> tensor_t_32;
 typedef s_vector<tensor_t_32, 1> tensor_3d_32_1;
 
+/*
 typedef s_vector<float, 28> vec_t_28;
 typedef s_vector<vec_t_28, 28> tensor_t_28;
 typedef s_vector<tensor_t_28, 6> tensor_3d_28_6;

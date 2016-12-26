@@ -83,14 +83,6 @@ void fully_connected_layer(
 			}
 			//将行向量累加放入out_data2D_plus中后，删除前10个行向量
 			if (connection_num != 0) {
-				//						tensor_t::iterator it;
-				//						for (uint i = 0; i < out_data2D.size(); i++)
-				//						{
-				//                            // std vectors
-				//							it = out_data2D_plus.begin();
-				//							out_data2D_plus.erase(it);
-				//						}
-				//static vectors
 				for (int i = 0; i < out_data2D.size(); i++) {
 					out_data2D_plus.erase(0);
 				}
