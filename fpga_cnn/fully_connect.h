@@ -23,8 +23,10 @@ void fully_connect(int input_size,
 	vec_t vec2;//output row vector
 	for (int i = 0; i < input_size; i++)
 	{
+#pragma HLS PIPELINE
 		for (int j = 0; j < input_size; j++)
 		{
+#pragma HLS UNROLL
 			float sum = 0;
 			float data = in_data[i][j];
 			float weight = kernel_weights[i][j];
@@ -47,7 +49,8 @@ void fully_connected_layer(
 	int in_channel,
 	int out_channel ) {
 
-	cout << "starting fully_connect ...." << endl;
+
+    cout << "starting fully_connect ...." << endl;
 	out_data3D.clear();
 
 	tensor_t out_data2D_plus;//每一个滤波器filter中所有卷积核卷积计算结果的累加结果

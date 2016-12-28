@@ -15,6 +15,10 @@
 #endif
 
 
+
+
+//network configuration PARAMETERS
+#define KERNEL_SIZE 5
 int nn_in_data_size_conv[3] = { 32,14,5 };
 
 

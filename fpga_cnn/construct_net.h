@@ -48,6 +48,7 @@ connection_table(tbl, 6, 16))              // C3, 6@14x14-in, 16@10x10-out
 */
 
 void inference_net(
+
         char activation_type,
         int nn_in_data_size_conv[3],
         int nn_channel_size_conv,
@@ -62,21 +63,72 @@ void inference_net(
         tensor_t_3d& fc_1_out_data,
 
         // layer weights and bias inputs
-        tensor_t_3d conv_1_weight2D,
-        vec_t       conv_1_bias2D,
-        vec_t       pooling_1_weight,
-        vec_t       pooling_1_bias2D,
-        tensor_t_3d conv_2_weight2D,
-        vec_t       conv_2_bias2D,
-        vec_t       pooling_2_weight,
-        vec_t       pooling_2_bias2D,
-        tensor_t_3d conv_3_weight2D,
-        vec_t       conv_3_bias2D,
-        tensor_t_3d fc_1_weight2D,
-        vec_t       fc_1_bias2D ) {
+        tensor_t_3d& conv_1_weight2D,
+        vec_t&       conv_1_bias2D,
+        vec_t&       pooling_1_weight,
+        vec_t&       pooling_1_bias2D,
+        tensor_t_3d& conv_2_weight2D,
+        vec_t&       conv_2_bias2D,
+        vec_t&       pooling_2_weight,
+        vec_t&       pooling_2_bias2D,
+        tensor_t_3d& conv_3_weight2D,
+        vec_t&       conv_3_bias2D,
+        tensor_t_3d& fc_1_weight2D,
+        vec_t&       fc_1_bias2D,
 
+        //temporary data storage with AXI bus interface
+        tensor_t_3d& conv_1_out_data,
+        tensor_t_3d& pooling_1_out_data,
+        tensor_t_3d& conv_2_out_data,
+        tensor_t_3d& pooling_2_out_data,
+        tensor_t_3d& conv_3_out_data
+) {
+
+#if _HLS_MODE_
+
+//#pragma HLS RESOURCE core=AXI4LiteS variable=return
+
+#pragma HLS INTERFACE ap_bus port=in_data3D
+#pragma HLS RESOURCE core=AXI4M variable=in_data3D
+
+#pragma HLS INTERFACE ap_bus port=conv_1_weight2D
+#pragma HLS RESOURCE core=AXI4M variable=conv_1_weight2D
+
+#pragma HLS INTERFACE ap_bus port=conv_2_weight2D
+#pragma HLS RESOURCE core=AXI4M variable=conv_2_weight2D
+
+#pragma HLS INTERFACE ap_bus port=conv_3_weight2D
+#pragma HLS RESOURCE core=AXI4M variable=conv_3_weight2D
+
+#pragma HLS INTERFACE ap_bus port=fc_1_weight2D
+#pragma HLS RESOURCE core=AXI4M variable=fc_1_weight2D
+
+#pragma HLS INTERFACE ap_bus port=conv_1_out_data
+#pragma HLS RESOURCE core=AXI4M variable=conv_1_out_data
+
+#pragma HLS INTERFACE ap_bus port=pooling_1_out_data
+#pragma HLS RESOURCE core=AXI4M variable=pooling_1_out_data
+
+#pragma HLS INTERFACE ap_bus port=conv_2_out_data
+#pragma HLS RESOURCE core=AXI4M variable=conv_2_out_data
+
+#pragma HLS INTERFACE ap_bus port=pooling_2_out_data
+#pragma HLS RESOURCE core=AXI4M variable=pooling_2_out_data
+
+#pragma HLS INTERFACE ap_bus port=conv_3_out_data
+#pragma HLS RESOURCE core=AXI4M variable=conv_3_out_data
+
+#endif
+
+/*
+#if _HLS_MODE_
+#pragma HLS ARRAY_PARTITION variable=nn_in_data_size_conv dim=1 complete
+#pragma HLS ARRAY_PARTITION variable=has_connection_table dim=1 complete
+#pragma HLS ARRAY_PARTITION variable=nn_in_number_conv dim=1 complete
+#pragma HLS ARRAY_PARTITION variable=nn_channel_number_conv dim=1 complete
+#endif
+*/
 //convolution_1
-    tensor_t_3d conv_1_out_data;
     convolution_layer_with_table(
             activation_type,
             nn_in_data_size_conv[0],
@@ -95,7 +147,6 @@ void inference_net(
 #endif
 
 //pooling_1
-    tensor_t_3d pooling_1_out_data;
     pooling_layer(
             activation_type,
             nn_in_data_size_pooling[0],
@@ -112,7 +163,6 @@ void inference_net(
 #endif
 
     //convolution_2
-    tensor_t_3d conv_2_out_data;
     convolution_layer_with_table(
             activation_type,
             nn_in_data_size_conv[1],
@@ -131,7 +181,6 @@ void inference_net(
 #endif
 
     //pooling_2
-    tensor_t_3d pooling_2_out_data;
     pooling_layer(
             activation_type,
             nn_in_data_size_pooling[1],
@@ -148,7 +197,6 @@ void inference_net(
 #endif
 
     //convolution_3
-    tensor_t_3d conv_3_out_data;
     convolution_layer_with_table(
             activation_type,
             nn_in_data_size_conv[2],

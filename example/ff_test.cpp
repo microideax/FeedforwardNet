@@ -11,9 +11,6 @@
 
 #include "../fpga_cnn/config.h"
 #include "../fpga_cnn/data_type.h"
-#include "../fpga_cnn/convolution.h"
-#include "../fpga_cnn/average_pooling.h"
-#include "../fpga_cnn/fully_connect.h"
 #include "../fpga_cnn/image_converter.h"
 #include "../fpga_cnn/weight_bias.h"
 #include "../fpga_cnn/construct_net.h"
@@ -42,7 +39,6 @@ int main(int argc, char** argv) {
 	tensor_t_3d in_data2D;
 	std_tensor_t_3d in_data2D_temp;
 	in_data2D_temp = in_2_2D_conv(nn_in_data_size_conv[0], in_data_temp);//
-	tensor_t_3d conv_1_out_data;
 
 	cout << "Finished network weights and data space preparation" << endl;
 	cout << endl;
@@ -167,6 +163,14 @@ int main(int argc, char** argv) {
 
     tensor_t_3d fc_1_out_data;
 
+    //temporary data storage with AXI bus interface
+    tensor_t_3d conv_1_out_data;
+    tensor_t_3d pooling_1_out_data;
+    tensor_t_3d conv_2_out_data;
+    tensor_t_3d pooling_2_out_data;
+    tensor_t_3d conv_3_out_data;
+
+
     // Inference network process
     inference_net(
             tan_h,
@@ -193,7 +197,14 @@ int main(int argc, char** argv) {
             conv_3_weight2D,
             conv_3_bias2D,
             fc_1_weight2D,
-            fc_1_bias2D );
+            fc_1_bias2D,
+
+            //temporary data storage with AXI bus interface
+             conv_1_out_data,
+             pooling_1_out_data,
+             conv_2_out_data,
+             pooling_2_out_data,
+             conv_3_out_data);
 
 	return 0;
 }

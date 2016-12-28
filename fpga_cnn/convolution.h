@@ -26,11 +26,14 @@ void convolution_kernel(int input_size,
 	{
 		for (int j = kernel_size / 2; j < input_size - kernel_size / 2; ++j)
 		{
+#pragma HLS PIPELINE
 			float sum = 0;
 			for (int ii = -kernel_size / 2; ii <= kernel_size / 2; ++ii)
 			{
+#pragma HLS UNROLL
 				for (int jj = -kernel_size / 2; jj <= kernel_size / 2; ++jj)
 				{
+#pragma HLS UNROLL
 					float data = in_data[i + ii][j + jj];
 					float weight = kernel_weights[ii + kernel_size / 2][jj + kernel_size / 2];
 					sum += data * weight;
@@ -39,6 +42,7 @@ void convolution_kernel(int input_size,
 			vec2.push_back(sum);
 		}
 		out_data.push_back(vec2);
+//        in_data.push_back(vec2);
 		vec2.clear();
 	}
 }
@@ -49,7 +53,6 @@ void convolution_layer_with_table(
 	int input_size,
 	int kernel_size,
 	tensor_t_3d& in_data3D,
-//    T& in_data3D,
 	bool has_connection_table,
 	tensor_t_3d& kernel_weights,
 	vec_t& kernel_bias,
@@ -57,7 +60,7 @@ void convolution_layer_with_table(
 	int in_channel,
 	int out_channel) {
 
-	cout << "starting convolution ...." << endl;
+    cout << "starting convolution ...." << endl;
 	out_data3D.clear();
 
 	tensor_t out_data2D_plus;

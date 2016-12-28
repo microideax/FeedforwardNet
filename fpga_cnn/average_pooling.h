@@ -25,11 +25,14 @@ void pooling_kernel(int input_size,
 	{
 		for (int j = 0; j < input_size - kernel_size / 2; j = j + kernel_size)
 		{
+#pragma HLS PIPELINE
 			float sum = 0;
 			for (int ii = 0; ii < kernel_size; ++ii) //±éÀúkernel
 			{
+#pragma HLS UNROLL
 				for (int jj = 0; jj < kernel_size; ++jj)
 				{
+#pragma HLS UNROLL
 					float data = in_data[i + ii][j + jj];
 					sum += data;
 				}
@@ -52,8 +55,8 @@ void pooling_layer(
 	vec_t& kernel_weights,
 	vec_t& kernel_bias,
 	tensor_t_3d& out_data3D,
-	int& in_channel)
-{
+	int& in_channel) {
+
 	cout << "Starting average_pooling ...." << endl;
 	out_data3D.clear();
 
