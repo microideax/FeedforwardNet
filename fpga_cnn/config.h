@@ -19,8 +19,13 @@
 
 //network configuration PARAMETERS
 #define KERNEL_SIZE 5
-int nn_in_data_size_conv[3] = { 32,14,5 };
+#define INPUT_SIZE 32
+#define IN_CHANNEL_NUM 1
+#define OUT_CHANNEL_NUM 6
 
+
+//const int nn_in_data_size_conv[3] = { 32,14,5 };
+//const int nn_channel_size_conv = 5;
 
 #define O true
 #define X false

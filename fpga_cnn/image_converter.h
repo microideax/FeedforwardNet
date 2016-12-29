@@ -70,7 +70,7 @@ std_tensor_t in_2_3D(std_vec_t& data_in) {
 }
 
 //re-construct input array to 2d matrix
-std_tensor_t_3d in_2_2D_conv(int& input_size, std_tensor_t in) {
+std_tensor_t_3d in_2_2D_conv(const int input_size, std_tensor_t in) {
 	std_vec_t in_data; //original input data
 	std_vec_t vec1;    //input row vector
     std_tensor_t vec2;

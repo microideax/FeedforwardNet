@@ -4,18 +4,19 @@
 #define _FULLY_CONNECTED_H_
 
 //#pragma once
-
+#include "config.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include "data_type.h"
 #include "activation_functions.h"
-#include "config.h"
+
 
 using namespace std;
 
 //convolution kernel function
-void fully_connect(int input_size,
+void fully_connect(
+    int input_size,
 	tensor_t& in_data,
 	tensor_t& kernel_weights,
 	tensor_t& out_data) {

@@ -16,12 +16,13 @@
 #include "activation_functions.h"
 #include "average_pooling.h"
 #include "convolution.h"
+#include "conv_layer.h"
 #include "fully_connect.h"
 #include "weight_bias.h"
 
-extern int nn_in_data_size_conv[3];
+const int nn_in_data_size_conv[3] = { 32,14,5 };
 int nn_in_number_conv[3] = { 1,6,16 };
-int nn_channel_size_conv = 5;
+const int nn_channel_size_conv = 5;
 int nn_channel_number_conv[3] = { 6,16,120 };
 bool has_connection_table[3] = { false, true, false };
 
@@ -50,8 +51,8 @@ connection_table(tbl, 6, 16))              // C3, 6@14x14-in, 16@10x10-out
 void inference_net(
 
         char activation_type,
-        int nn_in_data_size_conv[3],
-        int nn_channel_size_conv,
+        const int nn_in_data_size_conv[3],
+        const int nn_channel_size_conv,
         bool has_connection_table[3],
         int nn_in_number_conv[3],
         int nn_channel_number_conv[3],
@@ -128,6 +129,8 @@ void inference_net(
 #pragma HLS ARRAY_PARTITION variable=nn_channel_number_conv dim=1 complete
 #endif
 */
+
+/*
 //convolution_1
     convolution_layer_with_table(
             activation_type,
@@ -145,7 +148,23 @@ void inference_net(
     cout << "Finished convolution layer 1" << endl;
     cout << "Starting pooling layer 1" << endl;
 #endif
+*/
 
+    conv_layer<INPUT_SIZE, KERNEL_SIZE, IN_CHANNEL_NUM, OUT_CHANNEL_NUM> conv_layer_1;
+    conv_layer_1.convolution_layer_with_table(
+            activation_type,
+            in_data3D,
+            has_connection_table[0],
+            conv_1_weight2D,
+            conv_1_bias2D,
+            conv_1_out_data);
+
+#if _C_DEBUG_MODE_
+    cout << "Finished conv_layer 1" << endl;
+    cout << "..........................................................." << endl;
+#endif
+
+/*
 //pooling_1
     pooling_layer(
             activation_type,
@@ -229,7 +248,7 @@ void inference_net(
     cout << "Finished fully connected layer 1" << endl;
     cout << "End of network" << endl;
 #endif
-
+*/
 }
 
 #endif //FFNET_CONSTRUCT_NET_H
