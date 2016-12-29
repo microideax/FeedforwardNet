@@ -13,11 +13,12 @@
 #include "config.h"
 #include "data_type.h"
 
+#include "weight_bias.h"
+
 #include "activation_functions.h"
 #include "conv_layer.h"
 #include "pool_layer.h"
-#include "fully_connect.h"
-#include "weight_bias.h"
+#include "fc_layer.h"
 
 const int nn_in_data_size_conv[3] = { 32,14,5 };
 int nn_in_number_conv[3] = { 1,6,16 };
@@ -169,7 +170,7 @@ void inference_net(
             conv_2_out_data,
             pooling_2_weight,
             pooling_2_bias2D,
-            pooling_2_out_data    );
+            pooling_2_out_data);
 
 #if _C_DEBUG_MODE_
     cout << "Finished pool_layer 2" << endl;
@@ -189,6 +190,19 @@ void inference_net(
 
 #if _C_DEBUG_MODE_
     cout << "Finished conv_layer 3" << endl;
+    cout << "..........................................................." << endl;
+#endif
+
+    fc_layer<1, 120, 10> fc_layer_1;
+    fc_layer_1.fully_connected_layer(
+            activation_type,
+            conv_3_out_data,
+            fc_1_weight2D,
+            fc_1_bias2D,
+            fc_1_out_data);
+
+#if _C_DEBUG_MODE_
+    cout << "Finished fc_layer 1" << endl;
     cout << "..........................................................." << endl;
 #endif
 /*
@@ -260,6 +274,7 @@ void inference_net(
     cout << "End of network" << endl;
 #endif
 */
+
 }
 
 #endif //FFNET_CONSTRUCT_NET_H
