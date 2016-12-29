@@ -12,11 +12,11 @@
 
 #include "config.h"
 #include "data_type.h"
-#include "image_converter.h"
+
 #include "activation_functions.h"
 #include "average_pooling.h"
-#include "convolution.h"
 #include "conv_layer.h"
+#include "pool_layer.h"
 #include "fully_connect.h"
 #include "weight_bias.h"
 
@@ -164,7 +164,7 @@ void inference_net(
     cout << "..........................................................." << endl;
 #endif
 
-/*
+
 //pooling_1
     pooling_layer(
             activation_type,
@@ -180,7 +180,16 @@ void inference_net(
     cout << "Finished pooling layer 1" << endl;
     cout << "Starting convolution layer 2" << endl;
 #endif
+    pool_layer< 28, 2, 6 > pooling_layer_1;
+    pooling_layer_1.pooling_layer(
+            activation_type,
+            conv_1_out_data,
+            pooling_1_weight,
+            pooling_1_bias2D,
+            pooling_1_out_data);
 
+
+/*
     //convolution_2
     convolution_layer_with_table(
             activation_type,
