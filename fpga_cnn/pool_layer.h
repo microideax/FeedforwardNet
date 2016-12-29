@@ -17,7 +17,7 @@
 
 using namespace std;
 
-template < int _INPUT_SIZE_, int _KERNEL_SIZE_, int _IN_CHANNEL_NUM_ >
+template < int _INPUT_SIZE_, int _KERNEL_SIZE_, int _IN_CHANNEL_NUM_, char _METHOD_ >
 class pool_layer {
 
 private:
@@ -30,31 +30,37 @@ public:
             tensor_t& in_data,
             float kernel_weights,
             tensor_t& out_data) {
+
         out_data.clear();
         vec_t vec2;//output row vector
         for (int i = 0; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; i = i + _KERNEL_SIZE_) //遍历输入map
         {
             for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; j = j + _KERNEL_SIZE_)
             {
-#if _HLS_MODE_
+            #if _HLS_MODE_
             #pragma HLS PIPELINE
-#endif
+            #endif
                 float sum = 0;
                 for (int ii = 0; ii < _KERNEL_SIZE_; ++ii) //遍历kernel
                 {
-#if _HLS_MODE_
-#pragma HLS UNROLL
-#endif
+                #if _HLS_MODE_
+                #pragma HLS UNROLL
+                #endif
                     for (int jj = 0; jj < _KERNEL_SIZE_; ++jj)
                     {
-#if _HLS_MODE_
-#pragma HLS UNROLL
-#endif
+                    #if _HLS_MODE_
+                    #pragma HLS UNROLL
+                    #endif
                         float data = in_data[i + ii][j + jj];
                         sum += data;
                     }
                 }
-                sum = (float)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+                switch (_METHOD_){
+                    case 'a':
+                        sum = (float)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+                    case 'm':
+                        sum =
+                }
                 sum = sum*kernel_weights;//每个输入乘同一个weight
                 //sum += kernel_bias;
                 vec2.push_back(sum);//放入sum构成输出行向量

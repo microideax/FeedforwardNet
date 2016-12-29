@@ -59,7 +59,7 @@ void inference_net(
 
         // input pic data
         tensor_t_3d& in_data3D,
-//        tensor_3d_32_1 in_data3D,
+
         // output fc data
         tensor_t_3d& fc_1_out_data,
 
@@ -119,8 +119,17 @@ void inference_net(
 #pragma HLS RESOURCE core=AXI4M variable=conv_3_out_data
 #endif
 
+    //construct network --------------LeNet-5
+    conv_layer<32, 5, 1, 6> conv_layer_1;
+    pool_layer< 28, 2, 6 > pooling_layer_1;
+    conv_layer<14, 5, 6, 16> conv_layer_2;
+    pool_layer<10, 2, 16> pooling_layer_2;
+    conv_layer<5, 5, 16, 120> conv_layer_3;
+    fc_layer<1, 120, 10> fc_layer_1;
+
+
+    //Forward propagation process
     //convolution layer 1
-    conv_layer<INPUT_SIZE, KERNEL_SIZE, IN_CHANNEL_NUM, OUT_CHANNEL_NUM> conv_layer_1;
     conv_layer_1.convolution_layer_with_table(
             activation_type,
             in_data3D,
@@ -135,7 +144,6 @@ void inference_net(
 #endif
 
     //pooling layer 1
-    pool_layer< 28, 2, 6 > pooling_layer_1;
     pooling_layer_1.pooling_layer(
             activation_type,
             conv_1_out_data,
@@ -149,7 +157,6 @@ void inference_net(
 #endif
 
     //convolution layer 2
-    conv_layer<14, 5, 6, 16> conv_layer_2;
     conv_layer_2.convolution_layer_with_table(
             activation_type,
             pooling_1_out_data,
@@ -164,7 +171,7 @@ void inference_net(
 #endif
 
     //pooling layer 2
-    pool_layer<10, 2, 16> pooling_layer_2;
+
     pooling_layer_2.pooling_layer(
             activation_type,
             conv_2_out_data,
@@ -179,7 +186,6 @@ void inference_net(
 
 
     //convolution layer 3
-    conv_layer<5, 5, 16, 120> conv_layer_3;
     conv_layer_3.convolution_layer_with_table(
             activation_type,
             pooling_2_out_data,
@@ -193,7 +199,7 @@ void inference_net(
     cout << "..........................................................." << endl;
 #endif
 
-    fc_layer<1, 120, 10> fc_layer_1;
+    //fully connected layer 1
     fc_layer_1.fully_connected_layer(
             activation_type,
             conv_3_out_data,
@@ -205,75 +211,6 @@ void inference_net(
     cout << "Finished fc_layer 1" << endl;
     cout << "..........................................................." << endl;
 #endif
-/*
-    //convolution_2
-    convolution_layer_with_table(
-            activation_type,
-            nn_in_data_size_conv[1],
-            nn_channel_size_conv,
-            pooling_1_out_data,
-            has_connection_table[1],
-            conv_2_weight2D,
-            conv_2_bias2D,
-            conv_2_out_data,
-            nn_in_number_conv[1],
-            nn_channel_number_conv[1]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished convolution layer 2" << endl;
-    cout << "Starting pooling layer 2" << endl;
-#endif
-
-    //pooling_2
-    pooling_layer(
-            activation_type,
-            nn_in_data_size_pooling[1],
-            nn_channel_size_pooling,
-            conv_2_out_data,
-            pooling_2_weight,
-            pooling_2_bias2D,
-            pooling_2_out_data,
-            nn_in_number_pooling[1]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished pooling layer 2" << endl;
-    cout << "Starting convolution layer 3" << endl;
-#endif
-
-    //convolution_3
-    convolution_layer_with_table(
-            activation_type,
-            nn_in_data_size_conv[2],
-            nn_channel_size_conv,
-            pooling_2_out_data,
-            has_connection_table[2],
-            conv_3_weight2D,
-            conv_3_bias2D,
-            conv_3_out_data,
-            nn_in_number_conv[2],
-            nn_channel_number_conv[2]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished convolution layer 3" << endl;
-    cout << "Starting fully connected layer 1" << endl;
-#endif
-
-    //fully_connect
-    fully_connected_layer(
-            activation_type,
-            nn_in_data_size_fc[0],
-            conv_3_out_data,
-            fc_1_weight2D,
-            fc_1_bias2D,
-            fc_1_out_data,
-            nn_in_number_fc[0],
-            nn_channel_number_fc[0]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished fully connected layer 1" << endl;
-    cout << "End of network" << endl;
-#endif
-*/
 
 }
 
