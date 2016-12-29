@@ -14,7 +14,6 @@
 #include "data_type.h"
 
 #include "activation_functions.h"
-#include "average_pooling.h"
 #include "conv_layer.h"
 #include "pool_layer.h"
 #include "fully_connect.h"
@@ -86,7 +85,6 @@ void inference_net(
 ) {
 
 #if _HLS_MODE_
-
 //#pragma HLS RESOURCE core=AXI4LiteS variable=return
 
 #pragma HLS INTERFACE ap_bus port=in_data3D
@@ -118,38 +116,9 @@ void inference_net(
 
 #pragma HLS INTERFACE ap_bus port=conv_3_out_data
 #pragma HLS RESOURCE core=AXI4M variable=conv_3_out_data
-
 #endif
 
-/*
-#if _HLS_MODE_
-#pragma HLS ARRAY_PARTITION variable=nn_in_data_size_conv dim=1 complete
-#pragma HLS ARRAY_PARTITION variable=has_connection_table dim=1 complete
-#pragma HLS ARRAY_PARTITION variable=nn_in_number_conv dim=1 complete
-#pragma HLS ARRAY_PARTITION variable=nn_channel_number_conv dim=1 complete
-#endif
-*/
-
-/*
-//convolution_1
-    convolution_layer_with_table(
-            activation_type,
-            nn_in_data_size_conv[0],
-            nn_channel_size_conv,
-            in_data3D,
-            has_connection_table[0],
-            conv_1_weight2D,
-            conv_1_bias2D,
-            conv_1_out_data,
-            nn_in_number_conv[0],
-            nn_channel_number_conv[0]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished convolution layer 1" << endl;
-    cout << "Starting pooling layer 1" << endl;
-#endif
-*/
-
+    //convolution layer 1
     conv_layer<INPUT_SIZE, KERNEL_SIZE, IN_CHANNEL_NUM, OUT_CHANNEL_NUM> conv_layer_1;
     conv_layer_1.convolution_layer_with_table(
             activation_type,
@@ -164,22 +133,7 @@ void inference_net(
     cout << "..........................................................." << endl;
 #endif
 
-
-//pooling_1
-    pooling_layer(
-            activation_type,
-            nn_in_data_size_pooling[0],
-            nn_channel_size_pooling,
-            conv_1_out_data,
-            pooling_1_weight,
-            pooling_1_bias2D,
-            pooling_1_out_data,
-            nn_in_number_pooling[0]);
-
-#if _C_DEBUG_MODE_
-    cout << "Finished pooling layer 1" << endl;
-    cout << "Starting convolution layer 2" << endl;
-#endif
+    //pooling layer 1
     pool_layer< 28, 2, 6 > pooling_layer_1;
     pooling_layer_1.pooling_layer(
             activation_type,
@@ -188,7 +142,55 @@ void inference_net(
             pooling_1_bias2D,
             pooling_1_out_data);
 
+#if _C_DEBUG_MODE_
+    cout << "Finished pool_layer 1" << endl;
+    cout << "..........................................................." << endl;
+#endif
 
+    //convolution layer 2
+    conv_layer<14, 5, 6, 16> conv_layer_2;
+    conv_layer_2.convolution_layer_with_table(
+            activation_type,
+            pooling_1_out_data,
+            has_connection_table[1],
+            conv_2_weight2D,
+            conv_2_bias2D,
+            conv_2_out_data);
+
+#if _C_DEBUG_MODE_
+    cout << "Finished conv_layer 2" << endl;
+    cout << "..........................................................." << endl;
+#endif
+
+    //pooling layer 2
+    pool_layer<10, 2, 16> pooling_layer_2;
+    pooling_layer_2.pooling_layer(
+            activation_type,
+            conv_2_out_data,
+            pooling_2_weight,
+            pooling_2_bias2D,
+            pooling_2_out_data    );
+
+#if _C_DEBUG_MODE_
+    cout << "Finished pool_layer 2" << endl;
+    cout << "..........................................................." << endl;
+#endif
+
+
+    //convolution layer 3
+    conv_layer<5, 5, 16, 120> conv_layer_3;
+    conv_layer_3.convolution_layer_with_table(
+            activation_type,
+            pooling_2_out_data,
+            has_connection_table[2],
+            conv_3_weight2D,
+            conv_3_bias2D,
+            conv_3_out_data    );
+
+#if _C_DEBUG_MODE_
+    cout << "Finished conv_layer 3" << endl;
+    cout << "..........................................................." << endl;
+#endif
 /*
     //convolution_2
     convolution_layer_with_table(
