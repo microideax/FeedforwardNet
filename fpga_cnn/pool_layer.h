@@ -58,8 +58,8 @@ public:
                 switch (_METHOD_){
                     case 'a':
                         sum = (float)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
-                    case 'm':
-                        sum =
+//                    case 'm':
+//                        sum =
                 }
                 sum = sum*kernel_weights;//每个输入乘同一个weight
                 //sum += kernel_bias;

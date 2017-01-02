@@ -1,5 +1,6 @@
 //This file contains the popular activation functions used in CNNs
 //TODO: modify the commented function to be compatible with gcc compilation.
+//TODO: change the functions into class based expression.
 #ifndef _ACTIVATION_FUNCTIONS_H_
 #define _ACTIVATION_FUNCTIONS_H_
 
@@ -20,28 +21,28 @@ tan_hp1m2 = h;
 */
 
 float f(char type, float data) {
-	if (type == 'i')
+	if (type == 'i') // identity
 	{
 		return data;
 	}
-	else if (type == 's') {
+	else if (type == 's') { // sigmod
 		return float(1) / (float(1) + exp(-data));
 	}
-	else if (type == 'r') {
+	else if (type == 'r') { //relu
 		return std::max(float(0), data);
 	}
-	else if (type == 'l') {
+	else if (type == 'l') { //leak_relu
 		return (data > float(0)) ? data : float(0.01) * data;
 	}
-	else if (type == 'e') {
+	else if (type == 'e') { // elu
 		return (data<float(0) ? (exp(data) - float(1)) : data);
 	}
-	else if (type == 't') {
+	else if (type == 't') { // tanh
 		const float ep = exp(data);
 		const float em = exp(-data);
 		return (ep - em) / (ep + em);
 	}
-	else if (type == 'h') {
+	else if (type == 'h') { // tan_hp1m2
 		const float ep = exp(data);
 		return ep / (ep + exp(-data));
 	}

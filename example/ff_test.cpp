@@ -14,6 +14,7 @@
 #include "../fpga_cnn/image_converter.h"
 #include "../fpga_cnn/weight_bias.h"
 #include "../fpga_cnn/construct_net.h"
+#include "../fpga_cnn/conv_layer.h"
 
 using namespace std;
 
@@ -48,12 +49,15 @@ int main(int argc, char** argv) {
 
 	std_2_static(in_data2D, in_data2D_temp);
 
+    //convert input data into 3D array
 	ofstream indata;
+    float indata_array[1][32][32];
 	indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < in_data2D.size(); i++) {
 		for (int j = 0; j < in_data2D[i].size(); j++) {
 			for (int k = 0; k < in_data2D[i][j].size(); k++) {
 				indata << in_data2D[i][j][k] << " ";
+                indata_array[i][j][k] = in_data2D[i][j][k];
 			}
 			indata << endl;
 		}
@@ -77,6 +81,63 @@ int main(int argc, char** argv) {
 		                           nn_channel_number_conv,
 		                           in_number_conv);
     in_number_conv++;
+
+    //convert conv_1 weight into 3D array
+    float conv_1_weight_array[6][5][5];
+    ofstream conv_1_weight_a;
+    conv_1_weight_a.open("conv_1_weight.txt", ios::app);
+    for (int i = 0; i < conv_1_weight2D.size(); i++){
+        for (int j = 0; j < conv_1_weight2D[i].size(); j++){
+            for (int k = 0; k < conv_1_weight2D[i][j].size(); k++){
+                conv_1_weight_array[i][j][k] = conv_1_weight2D[i][j][k];
+                conv_1_weight_a << conv_1_weight2D[i][j][k] << " ";
+            }
+            conv_1_weight_a << endl;
+        }
+        conv_1_weight_a << endl;
+    }
+    conv_1_weight_a.close();
+
+    //convert conv_1 bias into 1D array
+    float conv_1_bias_array[6];
+    ofstream conv_1_bias;
+    conv_1_bias.open("conv_1_bias.txt", ios::app);
+    for (int i = 0; i < conv_1_bias2D.size(); i++){
+        conv_1_bias << conv_1_bias2D[i]<< " ";
+        conv_1_bias_array[i] = conv_1_bias2D[i];
+    }
+      conv_1_bias << endl;
+
+    /* conv kernel testing */
+    float kernel_out[28][28];
+    float conv_1_out[6][28][28];
+    tensor_t kernel_out_tensor;
+    tensor_t_3d conv_1_out_test;
+    conv_layer<32, 5, 1, 6> conv_layer_test;
+    conv_layer_test.conv_kernel_array(indata_array[0], conv_1_weight_array[0], kernel_out);
+    conv_layer_test.convolution_kernel(in_data2D[0], conv_1_weight2D[0], kernel_out_tensor);
+    conv_layer_test.conv_layer_array(tan_h, indata_array, has_connection_table[0], conv_1_weight_array, conv_1_bias_array, conv_1_out);
+    conv_layer_test.convolution_layer_with_table(tan_h, in_data2D, has_connection_table[0], conv_1_weight2D, conv_1_bias2D, conv_1_out_test);
+
+    ofstream kernel_out_a;
+    kernel_out_a.open("kernel_out.txt", ios::app);
+    for (int i = 0; i < 28; i++) {
+        for (int j = 0; j < 28; j++) {
+            kernel_out_a << kernel_out[i][j] << " ";
+        }
+        kernel_out_a << endl;
+    }
+    kernel_out_a.close();
+
+    ofstream kernel_out_t;
+    kernel_out_t.open("kernel_out_gold.txt", ios::app);
+    for (int i = 0; i < kernel_out_tensor.size(); i++) {
+        for (int j = 0; j < kernel_out_tensor.size(); j++) {
+            kernel_out_t << kernel_out_tensor[i][j] << " ";
+        }
+        kernel_out_t << endl;
+    }
+    kernel_out_t.close();
 
     //Prepare weights and bias for pooling layer 1
     vec_t pooling_1_weight;
@@ -170,7 +231,7 @@ int main(int argc, char** argv) {
     tensor_t_3d pooling_2_out_data;
     tensor_t_3d conv_3_out_data;
 
-
+/*
     // Inference network process
     inference_net(
             tan_h,
@@ -205,7 +266,7 @@ int main(int argc, char** argv) {
              conv_2_out_data,
              pooling_2_out_data,
              conv_3_out_data);
-
+*/
 	return 0;
 }
 

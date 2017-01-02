@@ -121,9 +121,9 @@ void inference_net(
 
     //construct network --------------LeNet-5
     conv_layer<32, 5, 1, 6> conv_layer_1;
-    pool_layer< 28, 2, 6 > pooling_layer_1;
+    pool_layer< 28, 2, 6, 'a'> pooling_layer_1;
     conv_layer<14, 5, 6, 16> conv_layer_2;
-    pool_layer<10, 2, 16> pooling_layer_2;
+    pool_layer<10, 2, 16, 'a'> pooling_layer_2;
     conv_layer<5, 5, 16, 120> conv_layer_3;
     fc_layer<1, 120, 10> fc_layer_1;
 
