@@ -61,6 +61,34 @@ public:
             out_data.push_back(vec2);
             vec2.clear();
         }
+
+        #if _C_DEBUG_MODE_
+        cout << "tensor conv kernel output ...." << endl;
+        ofstream conv_kernel_t;
+        conv_kernel_t.open("conv_kernel_t.txt", ios::app);
+        for (int i = 0; i < in_data.size(); i++) {
+            for (int j = 0; j < in_data[i].size(); j++) {
+                conv_kernel_t << in_data[i][j] << " ";
+            }
+            conv_kernel_t << endl;
+        }
+        conv_kernel_t << endl;
+        for (int i = 0; i < kernel_weights.size(); i++) {
+            for (int j = 0; j < kernel_weights[i].size(); j++) {
+                conv_kernel_t << kernel_weights[i][j] << " ";
+            }
+            conv_kernel_t << endl;
+        }
+        conv_kernel_t << endl;
+        for (int i = 0; i < out_data.size(); i++) {
+            for (int j = 0; j < out_data[i].size(); j++) {
+                conv_kernel_t << out_data[i][j] << " ";
+            }
+            conv_kernel_t << endl;
+        }
+        conv_kernel_t.close();
+        cout << endl;
+        #endif
     }
 
     //tensor to tensor convolution layer with connection table
@@ -188,14 +216,10 @@ public:
             float kernel_weights[][_KERNEL_SIZE_],
             float out_data[][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1]) {
 
-        for (int i = _KERNEL_SIZE_ / 2; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; ++i)
-        {
-            for (int j = _KERNEL_SIZE_ / 2; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; ++j)
-            {
-                for (int ii = - _KERNEL_SIZE_ / 2; ii <= _KERNEL_SIZE_ / 2; ++ii)
-                {
-                    for (int jj = -_KERNEL_SIZE_ / 2; jj <= _KERNEL_SIZE_ / 2; ++jj)
-                    {
+        for (int i = _KERNEL_SIZE_ / 2; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; ++i) {
+            for (int j = _KERNEL_SIZE_ / 2; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; ++j) {
+                for (int ii = - _KERNEL_SIZE_ / 2; ii <= _KERNEL_SIZE_ / 2; ++ii) {
+                    for (int jj = -_KERNEL_SIZE_ / 2; jj <= _KERNEL_SIZE_ / 2; ++jj) {
                         float data = in_data[i + ii][j + jj];
                         float weight = kernel_weights[ii + _KERNEL_SIZE_ / 2][jj + _KERNEL_SIZE_ / 2];
                         out_data[i - _KERNEL_SIZE_ / 2 ][j - _KERNEL_SIZE_ / 2] += data * weight;
@@ -203,6 +227,36 @@ public:
                 }
             }
         }
+
+        #if _C_DEBUG_MODE_
+        int conv_layer_count = 0;
+        cout << "array conv kernel output ...." << endl;
+        ofstream conv_kernel_a;
+        conv_kernel_a.open("conv_kernel_a.txt", ios::app);
+        cout << "i is " << i <<endl;
+        for (int j = 0; j < _INPUT_SIZE_ ; j++) {
+            for (int k = 0; k < _INPUT_SIZE_ ; k++) {
+                conv_kernel_a << in_data[j][k] << " "; // i?
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a << endl;
+        for (int j = 0; j < _KERNEL_SIZE_ ; j++) {
+            for (int k = 0; k < _KERNEL_SIZE_ ; k++) {
+                conv_kernel_a << kernel_weights[j][k] << " "; // i?
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a << endl;
+        for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ +1 ; j++) {
+            for (int k = 0; k < _INPUT_SIZE_ - _KERNEL_SIZE_ +1; k++) {
+                conv_kernel_a << out_data[j][k] << " "; //
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a.close();
+        cout << endl;
+        #endif
     }
 
     //3D array to 3D array convolution layer with connection table
@@ -218,29 +272,26 @@ public:
 
         for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
             for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
-                float out_data2D[_INPUT_SIZE_ - _KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1];
+                float out_data2D[_INPUT_SIZE_ - _KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1] = {0};
                 conv_kernel_array(in_data3D[a],
-                                   kernel_weights[a * b + a],
+                                   kernel_weights[b * _IN_CHANNEL_NUM_ + a],
                                    out_data2D);
-//                out_data3D[b] += out_data2D;
+
                 for (int i = 0; i < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; i++){
                     for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; j++){
                         out_data3D[b][i][j] += out_data2D[i][j];
                     }
                 }
             }
-            for (int i = 0; i < _OUT_CHANNEL_NUM_; i++){
-                for(int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; j++){
-                    for (int k = 0; k < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; k++){
-                        out_data3D[i][j][k] = f(activation_type, (out_data3D[i][j][k] + kernel_bias[i]));
-                    }
+            for(int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; j++){
+                for (int k = 0; k < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; k++){
+                    out_data3D[b][j][k] = f(activation_type, (out_data3D[b][j][k] + kernel_bias[b]));
                 }
             }
-
     }
 
-    //debugging output
-#if _C_DEBUG_MODE_
+        //debugging output
+        #if _C_DEBUG_MODE_
         cout << "finished convolution ...." << endl;
         ofstream out_conv_a;
         out_conv_a.open("out_conv_a.txt", ios::app);
@@ -255,7 +306,7 @@ public:
         }
         out_conv_a.close();
         cout << endl;
-#endif
+        #endif
 
     }
 };

@@ -110,15 +110,29 @@ int main(int argc, char** argv) {
 
     /* conv kernel testing */
     float kernel_out[28][28];
-    float conv_1_out[6][28][28];
+    float conv_1_out[6][28][28] = {0};
+/*
+    cout << "print input conv_1 out array" << endl;
+    for ( int i = 0;  i < 6; i++){
+        for ( int j = 0; j < 28; j++){
+            for (int k = 0; k < 28; k++){
+                cout << conv_1_out[i][j][k] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+*/
+
     tensor_t kernel_out_tensor;
     tensor_t_3d conv_1_out_test;
     conv_layer<32, 5, 1, 6> conv_layer_test;
-    conv_layer_test.conv_kernel_array(indata_array[0], conv_1_weight_array[0], kernel_out);
-    conv_layer_test.convolution_kernel(in_data2D[0], conv_1_weight2D[0], kernel_out_tensor);
+    //conv_layer_test.conv_kernel_array(indata_array[0], conv_1_weight_array[0], kernel_out);
+    //conv_layer_test.convolution_kernel(in_data2D[0], conv_1_weight2D[0], kernel_out_tensor);
     conv_layer_test.conv_layer_array(tan_h, indata_array, has_connection_table[0], conv_1_weight_array, conv_1_bias_array, conv_1_out);
     conv_layer_test.convolution_layer_with_table(tan_h, in_data2D, has_connection_table[0], conv_1_weight2D, conv_1_bias2D, conv_1_out_test);
 
+    /*
     ofstream kernel_out_a;
     kernel_out_a.open("kernel_out.txt", ios::app);
     for (int i = 0; i < 28; i++) {
@@ -138,7 +152,7 @@ int main(int argc, char** argv) {
         kernel_out_t << endl;
     }
     kernel_out_t.close();
-
+*/
     //Prepare weights and bias for pooling layer 1
     vec_t pooling_1_weight;
     vec_t pooling_1_bias2D;
