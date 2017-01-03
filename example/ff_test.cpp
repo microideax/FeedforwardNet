@@ -107,6 +107,7 @@ int main(int argc, char** argv) {
         conv_1_bias_array[i] = conv_1_bias2D[i];
     }
       conv_1_bias << endl;
+    conv_1_bias.close();
 
     /* conv kernel testing */
     float kernel_out[28][28];
@@ -131,6 +132,7 @@ int main(int argc, char** argv) {
     //conv_layer_test.convolution_kernel(in_data2D[0], conv_1_weight2D[0], kernel_out_tensor);
     conv_layer_test.conv_layer_array(tan_h, indata_array, has_connection_table[0], conv_1_weight_array, conv_1_bias_array, conv_1_out);
     conv_layer_test.convolution_layer_with_table(tan_h, in_data2D, has_connection_table[0], conv_1_weight2D, conv_1_bias2D, conv_1_out_test);
+//    pool_layer_test.pool_kernel_w_array(conv_1_out[0], )
 
     /*
     ofstream kernel_out_a;
@@ -168,6 +170,34 @@ int main(int argc, char** argv) {
                                          nn_channel_number_pooling,
                                          in_number_pooling);
     in_number_pooling++;
+
+    pool_layer<28, 2, 6, 'a'> pool_layer_test;
+
+    float pool_1_weight_array[6];
+    ofstream pool_1_weight_a;
+    pool_1_weight_a.open("pool_1_weight.txt", ios::app);
+    for (int i = 0; i < pooling_1_weight.size(); i++){
+        pool_1_weight_array[i] = pooling_1_weight[i];
+        pool_1_weight_a << pooling_1_weight[i] << " ";
+    }
+    pool_1_weight_a << endl;
+    pool_1_weight_a.close();
+
+    //convert conv_1 bias into 1D array
+    float pool_1_bias_array[6];
+    ofstream pool_1_bias;
+    pool_1_bias.open("pool_1_bias.txt", ios::app);
+    for (int i = 0; i < pooling_1_bias2D.size(); i++){
+        pool_1_bias_array[i] = pooling_1_bias2D[i];
+        pool_1_bias << pool_1_bias_array[i] << " ";
+    }
+    pool_1_bias << endl;
+    pool_1_bias.close();
+
+    tensor_t_3d pool_1_test_t;
+    float pool_1_test_a[6][14][14];
+    pool_layer_test.pooling_layer(tan_h, conv_1_out_test, pooling_1_weight, pooling_1_bias2D, pool_1_test_t);
+    pool_layer_test.pooling_layer_w_array(tan_h, conv_1_out, pool_1_weight_array, pool_1_bias_array, pool_1_test_a);
 
     // Prepare weights and bias for convolution layer 2
     tensor_t_3d conv_2_weight2D;

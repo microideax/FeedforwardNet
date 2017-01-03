@@ -57,7 +57,8 @@ tensor_t_3d load_weight_conv(int& weight_bias_count_1,
 	return weight2D;
 }
 
-vec_t load_weight_pooling(int& weight_bias_count_1,
+vec_t load_weight_pooling(
+        int& weight_bias_count_1,
 	int& weight_bias_count_2,
 	int nn_channel_size_pooling,
 	int nn_in_number_pooling[],
