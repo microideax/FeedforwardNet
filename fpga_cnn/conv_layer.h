@@ -25,8 +25,9 @@ private:
 public:
     conv_layer():conv_layer_number(0){ out_data_size = _INPUT_SIZE_ - _KERNEL_SIZE_ + 1;};
 
+    /************************************************************************************************/
     //convolution kernel function
-    void convolution_kernel(
+    void conv_kernel_t(
             tensor_t& in_data,
             tensor_t& kernel_weights,
             tensor_t& out_data) {
@@ -91,8 +92,9 @@ public:
         #endif
     }
 
+    /************************************************************************************************/
     //tensor to tensor convolution layer with connection table
-    void convolution_layer_with_table(
+    void conv_layer_t(
             char activation_type,
             tensor_t_3d& in_data3D,  //in_data[6][
             bool has_connection_table,
@@ -113,7 +115,7 @@ public:
                 if (has_connection_table) {
                     if (tbl[a][b]) {
                         tensor_t out_data2D;
-                        convolution_kernel(in_data3D[a],
+                        conv_kernel_t(in_data3D[a],
                                            kernel_weights[b * _IN_CHANNEL_NUM_ + a],
                                            out_data2D);
                         for (int i = 0; i < out_data2D.size(); i++) {
@@ -145,7 +147,7 @@ public:
                 }
                 else if (!has_connection_table) {
                     tensor_t out_data2D;
-                    convolution_kernel(in_data3D[a],
+                    conv_kernel_t(in_data3D[a],
                                        kernel_weights[b * _IN_CHANNEL_NUM_ + a],
                                        out_data2D);
                     for (int i = 0; i < out_data2D.size(); i++) {
@@ -195,7 +197,7 @@ public:
         #if _C_DEBUG_MODE_
         cout << "finished convolution ...." << endl;
 	    ofstream out_conv_class;
-        out_conv_class.open("out_conv_class.txt", ios::app);
+        out_conv_class.open("conv_layer_t.txt", ios::app);
 	    for (int i = 0; i < out_data3D.size(); i++) {
 		    for (int j = 0; j < out_data3D[i].size(); j++) {
 			    for (int k = 0; k < out_data3D[i][j].size(); k++) {
@@ -211,7 +213,8 @@ public:
 
     }
 
-    void conv_kernel_array(
+    /************************************************************************************************/
+    void conv_kernel_a(
             float in_data[][_INPUT_SIZE_],
             float kernel_weights[][_KERNEL_SIZE_],
             float out_data[][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1]) {
@@ -233,7 +236,6 @@ public:
         cout << "array conv kernel output ...." << endl;
         ofstream conv_kernel_a;
         conv_kernel_a.open("conv_kernel_a.txt", ios::app);
-        cout << "i is " << i <<endl;
         for (int j = 0; j < _INPUT_SIZE_ ; j++) {
             for (int k = 0; k < _INPUT_SIZE_ ; k++) {
                 conv_kernel_a << in_data[j][k] << " "; // i?
@@ -259,8 +261,9 @@ public:
         #endif
     }
 
+    /************************************************************************************************/
     //3D array to 3D array convolution layer with connection table
-    void conv_layer_array(
+    void conv_layer_a(
             char activation_type,
             float in_data3D[][_INPUT_SIZE_][_INPUT_SIZE_],  //in_data[6][
             bool has_connection_table,
@@ -273,7 +276,7 @@ public:
         for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
             for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
                 float out_data2D[_INPUT_SIZE_ - _KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1] = {0};
-                conv_kernel_array(in_data3D[a],
+                conv_kernel_a(in_data3D[a],
                                    kernel_weights[b * _IN_CHANNEL_NUM_ + a],
                                    out_data2D);
 
@@ -294,7 +297,7 @@ public:
         #if _C_DEBUG_MODE_
         cout << "finished convolution ...." << endl;
         ofstream out_conv_a;
-        out_conv_a.open("out_conv_a.txt", ios::app);
+        out_conv_a.open("conv_layer_a.txt", ios::app);
         for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
             for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; j++) {
                 for (int k = 0; k < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; k++) {

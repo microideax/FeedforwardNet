@@ -47,7 +47,7 @@ connection_table(tbl, 6, 16))              // C3, 6@14x14-in, 16@10x10-out
 << fully_connected_layer<tan_h>(120, 10);       // F6, 120-in, 10-out
 }
 */
-
+/*
 void inference_net(
 
         char activation_type,
@@ -130,7 +130,7 @@ void inference_net(
 
     //Forward propagation process
     //convolution layer 1
-    conv_layer_1.convolution_layer_with_table(
+    conv_layer_1.conv_layer_with_table(
             activation_type,
             in_data3D,
             has_connection_table[0],
@@ -213,5 +213,5 @@ void inference_net(
 #endif
 
 }
-
+*/
 #endif //FFNET_CONSTRUCT_NET_H
