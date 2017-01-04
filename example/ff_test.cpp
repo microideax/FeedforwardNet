@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 	tensor_t in_data;
 
 	//convert image to data matrix
-	const std::string filename = "4.bmp";
+	const std::string filename = "./4.bmp";
 	convert_image(filename, -1.0, 1.0, 32, 32, data_in);
 	in_data_temp = in_2_3D(data_in);
 
@@ -111,14 +111,15 @@ int main(int argc, char** argv) {
 
     /* conv kernel testing */
     float kernel_out[28][28];
-    float conv_1_out_a[6][28][28] = {0};
+    float conv_1_out_a[6][28][28];
 
 
     tensor_t kernel_out_tensor;
     tensor_t_3d conv_1_out_t;
     conv_layer<32, 5, 1, 6> conv_layer_test;
     conv_layer_test.conv_layer_t(tan_h, in_data2D, has_connection_table[0], conv_1_weight2D, conv_1_bias2D, conv_1_out_t);
-    conv_layer_test.conv_layer_a(tan_h, indata_array, has_connection_table[0], conv_1_weight_array, conv_1_bias_array, conv_1_out_a);
+    conv_layer_test.conv_layer_a(tan_h, indata_array, conv_1_weight_array, conv_1_bias_array, conv_1_out_a);
+
 
     //Prepare weights and bias for pooling layer 1
     vec_t pooling_1_weight;
@@ -136,9 +137,12 @@ int main(int argc, char** argv) {
                                          in_number_pooling);
     in_number_pooling++;
 
+
     pool_layer<28, 2, 6> pool_layer_test;
 
-    float pool_1_weight_array[6];
+
+    float pool_1_weight_array[24];
+
     ofstream pool_1_weight_a;
     pool_1_weight_a.open("pool_1_weight.txt", ios::app);
     for (int i = 0; i < pooling_1_weight.size(); i++){
@@ -161,23 +165,32 @@ int main(int argc, char** argv) {
 
     tensor_t_3d pool_1_test_t;
     float pool_1_test_a[6][14][14];
-//    pool_layer_test.pooling_layer(tan_h, conv_1_out_test, pooling_1_weight, pooling_1_bias2D, pool_1_test_t);
-//    pool_layer_test.pooling_layer_w_array(tan_h, conv_1_out, pool_1_weight_array, pool_1_bias_array, pool_1_test_a);
     pool_layer_test.pooling_layer_t(tan_h, conv_1_out_t, pooling_1_weight, pooling_1_bias2D, pool_1_test_t);
     pool_layer_test.pooling_layer_a(tan_h, conv_1_out_a, pool_1_weight_array, pool_1_bias_array, pool_1_test_a);
 
-    /*
-    ofstream pool_1_kernel_a;
-    pool_1_kernel_a.open("pool_1_kernel_a.txt", ios::app);
-    for (int i = 0; i < 14; i++){
+    //print
+    ofstream li_file;
+    ofstream li_file_a;
+    li_file.open("pool1t.txt", ios::app);
+    li_file_a.open("pool1a.txt", ios::app);
+    for (int i =0; i < 6; i++) {
         for(int j = 0; j < 14; j++) {
-            pool_1_kernel_a << pool_1_test_t[0][i][j] << " ";
+            for (int k =0; k < 14; k++) {
+                li_file << pool_1_test_t[i][j][k];
+                li_file_a << pool_1_test_a[i][j][k];
+            }
+            li_file << endl;
+            li_file_a << endl;
         }
-        pool_1_kernel_a << endl;
+        li_file << endl;
+        li_file_a << endl;
     }
-    pool_1_kernel_a << endl;
-    pool_1_kernel_a.close();
-*/
+    li_file << endl;
+    li_file_a << endl;
+    li_file.close();
+    li_file_a.close();
+
+
     // Prepare weights and bias for convolution layer 2
     tensor_t_3d conv_2_weight2D;
     vec_t conv_2_bias2D;
@@ -195,6 +208,67 @@ int main(int argc, char** argv) {
                                    in_number_conv);
     in_number_conv++;
 
+
+    //convert conv_1 weight into 3D array
+    float conv_2_weight_a[6][5][5];
+    ofstream conv_2_weight_array;
+    conv_2_weight_array.open("conv_2_weight.txt", ios::app);
+    for (int i = 0; i < conv_2_weight2D.size(); i++){
+        for (int j = 0; j < conv_2_weight2D[i].size(); j++){
+            for (int k = 0; k < conv_2_weight2D[i][j].size(); k++){
+                conv_2_weight_a[i][j][k] = conv_2_weight2D[i][j][k];
+                conv_2_weight_array << conv_2_weight2D[i][j][k] << " ";
+            }
+            conv_2_weight_array << endl;
+        }
+        conv_2_weight_array << endl;
+    }
+    conv_2_weight_array.close();
+
+
+    //convert conv_1 bias into 1D array
+    float conv_2_bias_a[16];
+    ofstream conv_2_bias_array;
+    conv_2_bias_array.open("conv_2_bias.txt", ios::app);
+    for (int i = 0; i < conv_2_bias2D.size(); i++){
+        conv_2_bias_array << conv_2_bias2D[i]<< " ";
+        conv_2_bias_a[i] = conv_2_bias2D[i];
+    }
+    conv_2_bias_array << endl;
+    conv_2_bias_array.close();
+
+    tensor_t_3d conv_2_out_t;
+    float conv_2_out_a[16][10][10];
+    conv_layer<14, 5, 6, 16> conv_layer_test_1;
+
+    //print
+    ofstream t_file;
+    ofstream t_file_a;
+    t_file.open("input.txt", ios::app);
+    t_file_a.open("input_a.txt", ios::app);
+    for (int i =0; i < 6; i++){
+        for(int j = 0; j < 14; j++){
+            for (int k =0; k < 14; k++){
+                t_file << pool_1_test_t[i][j][k];
+                t_file_a << pool_1_test_a[i][j][k];
+            }
+            t_file << endl;
+            t_file_a << endl;
+        }
+        t_file << endl;
+        t_file_a << endl;
+    }
+    t_file << endl;
+    t_file_a << endl;
+    t_file.close();
+    t_file_a.close();
+
+
+    conv_layer_test_1.conv_layer_t(tan_h, pool_1_test_t, has_connection_table[1], conv_2_weight2D, conv_2_bias2D, conv_2_out_t);
+    conv_layer_test_1.conv_layer_a_table(tan_h, has_connection_table[1], pool_1_test_a, conv_2_weight_a, conv_2_bias_a, conv_2_out_a);
+
+
+    /*
     // Prepare weights and bias for pooling layer 2
     vec_t pooling_2_weight;
     vec_t pooling_2_bias2D;
@@ -253,7 +327,7 @@ int main(int argc, char** argv) {
     tensor_t_3d conv_2_out_data;
     tensor_t_3d pooling_2_out_data;
     tensor_t_3d conv_3_out_data;
-
+*/
 /*
     // Inference network process
     inference_net(

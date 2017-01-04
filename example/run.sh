@@ -9,4 +9,4 @@ do
 done
 
 
-g++ -Wall -Wextra -pedantic -fpermissive -I ../ -O1 ff_test.cpp -o fftest
+g++ -g -Wall -Wextra -pedantic -fpermissive -I ../ -O0 ff_test.cpp -o fftest

@@ -83,7 +83,7 @@ public:
     /************************************************************************************/
     // pooling kernel function with array input
     void pooling_kernel_a(
-            float in_data[][_INPUT_SIZE_],
+            float in_data[_INPUT_SIZE_][_INPUT_SIZE_],
             float kernel_weight,
             float out_data[][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
@@ -190,10 +190,10 @@ public:
     //pooling layer function with array input
     void pooling_layer_a(
             char activation_type,
-            float in_data3D[][_INPUT_SIZE_][_INPUT_SIZE_],
+            float in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
             float kernel_weights[],
             float kernel_bias[],
-            float out_data3D[][_INPUT_SIZE_/_KERNEL_SIZE_][_INPUT_SIZE_/_KERNEL_SIZE_] ) {
+            float out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_/_KERNEL_SIZE_][_INPUT_SIZE_/_KERNEL_SIZE_] ) {
 
         cout << "Starting average_pooling ...." << endl;
 
