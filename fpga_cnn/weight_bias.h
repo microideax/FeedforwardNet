@@ -1,5 +1,6 @@
 //Network construction function, will be modified after all functional blocks are tested.
 // Created by yaochen on 19/12/16.
+//TODO: change all functions to store data in array, array dimensions are defined by network model
 //
 
 #ifndef _WEIGHT_BIAS_H_

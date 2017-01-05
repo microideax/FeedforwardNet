@@ -12,14 +12,12 @@ double rescale(double x) {
 }
 
 /*
-//�����������֣�����
 void print_score(vec_t res)
 {
 vector<pair<double, int> > scores;
 // sort & print top-3
 for (int i = 0; i < 10; i++)
 scores.emplace_back(rescale<tan_h>(res[i]), i);
-//�����ʴӴ�С����
 sort(scores.begin(), scores.end(), greater<pair<double, int>>());
 for (int i = 0; i < 10; i++)
 cout << scores[i].second << "," << scores[i].first << endl;
