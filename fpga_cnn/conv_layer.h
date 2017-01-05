@@ -267,7 +267,7 @@ public:
     //3D array to 3D array convolution layer with connection table
     void conv_layer_a(
             char activation_type,
-            float in_data3D[][_INPUT_SIZE_][_INPUT_SIZE_],
+            float in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
             float kernel_weights[][_KERNEL_SIZE_][_KERNEL_SIZE_],
             float kernel_bias[],
             float out_data3D[][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1] ) {
