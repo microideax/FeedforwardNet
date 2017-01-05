@@ -308,10 +308,12 @@ int main(int argc, char** argv) {
     pool_layer<10, 2, 16> pool_layer_test_1;
     pool_layer_test_1.pooling_layer_t(tan_h, conv_2_out_t, pooling_2_weight, pooling_2_bias2D, pool_2_out_t);
     pool_layer_test_1.pooling_layer_a(tan_h, conv_2_out_a, pooling_2_weight_a, pooling_2_bias_a, pool_2_out_a);
-/*
+
     // Prepare weights and bias for convolution layer 3
     tensor_t_3d conv_3_weight2D;
+    float conv_3_weight_a[1920][5][5];
     vec_t conv_3_bias2D;
+    float conv_3_bias_a[120];
     conv_3_weight2D = load_weight_conv(weight_bias_count_1,
                                        weight_bias_count_2,
                                        nn_channel_size_conv,
@@ -326,9 +328,31 @@ int main(int argc, char** argv) {
                                    in_number_conv);
     in_number_conv++;
 
+
+    for (int i = 0; i < conv_3_weight2D.size(); i++){
+        for (int j = 0; j < conv_3_weight2D[i].size(); j++){
+            for (int k = 0; k < conv_3_weight2D[i][j].size(); k++){
+                conv_3_weight_a[i][j][k] = conv_3_weight2D[i][j][k];
+            }
+        }
+    }
+    for (int i = 0; i < conv_3_bias2D.size(); i++){
+        conv_3_bias_a[i] = conv_3_bias2D[i];
+    }
+
+
+    tensor_t_3d conv_3_out_t;
+    float conv_3_out_a[120][1][1];
+    conv_layer<5, 5, 16, 120> conv_layer_test_2;
+    conv_layer_test_2.conv_layer_t(tan_h, pool_2_out_t, has_connection_table[2], conv_3_weight2D, conv_3_bias2D, conv_3_out_t);
+    conv_layer_test_2.conv_layer_a(tan_h, pool_2_out_a, conv_3_weight_a, conv_3_bias_a, conv_3_out_a);
+
+
     // Prepare weights and bias for fully connected layer 1
     tensor_t_3d fc_1_weight2D;
+    float fc_1_weight_a[1200][1][1];
     vec_t fc_1_bias2D;
+    float fc_1_bias_a[10];
     fc_1_weight2D = load_weight_fc(weight_bias_count_1,
                                    weight_bias_count_2,
                                    nn_channel_size_fc,
@@ -343,16 +367,34 @@ int main(int argc, char** argv) {
                                in_number_fc);
     in_number_fc++;
 
-    tensor_t_3d fc_1_out_data;
+    for (int i = 0; i < fc_1_weight2D.size(); i++){
+        for (int j = 0; j < fc_1_weight2D[i].size(); j++){
+            for (int k = 0; k < fc_1_weight2D[i][j].size(); k++){
+                fc_1_weight_a[i][j][k] = fc_1_weight2D[i][j][k];
+            }
+        }
+    }
+    for (int i = 0; i < fc_1_bias2D.size(); i++){
+        fc_1_bias_a[i] = fc_1_bias2D[i];
+    }
 
+    tensor_t_3d fc_1_out_t;
+    float fc_1_out_a[10][1][1];
+    fc_layer<120, 1, 10> fc_layer_test;
+    fc_layer_test.fc_layer_t(tan_h, conv_3_out_t, fc_1_weight2D, fc_1_bias2D, fc_1_out_t);
+    fc_layer_test.fc_layer_a(tan_h, conv_3_out_a, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
+
+
+
+/*
     //temporary data storage with AXI bus interface
     tensor_t_3d conv_1_out_data;
     tensor_t_3d pooling_1_out_data;
     tensor_t_3d conv_2_out_data;
     tensor_t_3d pooling_2_out_data;
     tensor_t_3d conv_3_out_data;
-*/
-/*
+
+
     // Inference network process
     inference_net(
             tan_h,
