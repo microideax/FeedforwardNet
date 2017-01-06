@@ -20,22 +20,7 @@
 #include "pool_layer.h"
 #include "fc_layer.h"
 
-const int nn_in_data_size_conv[3] = { 32,14,5 };
-int nn_in_number_conv[3] = { 1,6,16 };
-const int nn_channel_size_conv = 5;
-int nn_channel_number_conv[3] = { 6,16,120 };
 bool has_connection_table[3] = { false, true, false };
-
-int nn_in_data_size_pooling[2] = { 28,10 };
-int nn_in_number_pooling[2] = { 6,16 };
-int nn_channel_number_pooling[2] = { 6,16 };
-int nn_channel_size_pooling = 2;
-
-int nn_in_data_size_fc[1] = { 1 };
-int nn_in_number_fc[1] = { 120 };
-int nn_channel_size_fc = 1;
-int nn_channel_number_fc[1] = { 10 };
-
 
 void inference_net(
 
@@ -68,6 +53,7 @@ void inference_net(
     cout << "..........................................................." << endl;
 #endif
 
+
     //construct network --------------LeNet-5
     conv_layer<32, 5, 1, 6> C1;      //1@32x32-in, 6@28x28-out
     pool_layer<28, 2, 6> P2;         //6@28x28-in, 6@14x14-out
@@ -77,11 +63,12 @@ void inference_net(
     fc_layer<120, 1, 10> F6;         //120@1x1-in, 10@1x1-out
 
     //temp storage space
-    float  conv_1_out_a[6][28][28];
-    float  pool_1_out_a[6][14][14];
-    float  conv_2_out_a[16][10][10];
-    float  pool_2_out_a[16][5][5];
-    float  conv_3_out_a[120][1][1];
+    float  conv_1_out_a[6][28][28] = {0};
+    float  pool_1_out_a[6][14][14] = {0};
+    float  conv_2_out_a[16][10][10] = {0};
+    float  pool_2_out_a[16][5][5] = {0};
+    float  conv_3_out_a[120][1][1] = {0};
+
 
     //Forward propagation process
     C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out_a);

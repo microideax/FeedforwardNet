@@ -18,12 +18,25 @@
 
 using namespace std;
 
-
-
 int weight_bias_count_1 = 0;
 int weight_bias_count_2 = 0;
 
-int main(int argc, char** argv) {
+const int nn_in_data_size_conv[3] = { 32,14,5 };
+int nn_in_number_conv[3] = { 1,6,16 };
+const int nn_channel_size_conv = 5;
+int nn_channel_number_conv[3] = { 6,16,120 };
+
+int nn_in_data_size_pooling[2] = { 28,10 };
+int nn_in_number_pooling[2] = { 6,16 };
+int nn_channel_number_pooling[2] = { 6,16 };
+int nn_channel_size_pooling = 2;
+
+int nn_in_data_size_fc[1] = { 1 };
+int nn_in_number_fc[1] = { 120 };
+int nn_channel_size_fc = 1;
+int nn_channel_number_fc[1] = { 10 };
+
+int main() {
 
     int in_number_conv = 0;  // number of convolutional layer
     int in_number_fc = 0;// number of fully_connected layer
@@ -50,6 +63,7 @@ int main(int argc, char** argv) {
 	std_2_static(in_data2D, in_data2D_temp);
 
     //convert input data into 3D array
+    cout << "input data size = " << in_data2D.size()<< "  " << in_data2D[0].size() << "  " << in_data2D[0][0].size() << endl;
 	ofstream indata;
     float in_data_3D[1][32][32];
 	indata.open("in_data.txt", ios::app);
@@ -81,6 +95,9 @@ int main(int argc, char** argv) {
 		                           nn_channel_number_conv,
 		                           in_number_conv);
     in_number_conv++;
+
+    cout << "conv 1 weight size = " << conv_1_weight2D.size()<< "  " << conv_1_weight2D[0].size() << "  " << conv_1_weight2D[0][0].size() << endl;
+    cout << "conv 1 bias size = " << conv_1_bias2D.size() << endl;
 
     //convert conv_1 weight into 3D array
     float conv_1_weight_a[6][5][5];
@@ -128,6 +145,9 @@ int main(int argc, char** argv) {
 
     float pool_1_weight_a[24];
 
+    cout << "pool 1 weight size = " << pooling_1_weight.size()<< endl;
+    cout << "pool 1 bias size = " << pooling_1_bias2D.size() << endl;
+
     ofstream pool_1_weight_array;
     pool_1_weight_array.open("pool_1_weight.txt", ios::app);
     for (int i = 0; i < pooling_1_weight.size(); i++){
@@ -148,7 +168,6 @@ int main(int argc, char** argv) {
     pool_1_bias << endl;
     pool_1_bias.close();
 
-
     // Prepare weights and bias for convolution layer 2
     tensor_t_3d conv_2_weight2D;
     vec_t conv_2_bias2D;
@@ -166,6 +185,8 @@ int main(int argc, char** argv) {
                                    in_number_conv);
     in_number_conv++;
 
+    cout << "conv 2 weight size = " << conv_2_weight2D.size()<< "  " << conv_2_weight2D[0].size() << "  " << conv_2_weight2D[0][0].size() << endl;
+    cout << "conv 2 bias size = " << conv_2_bias2D.size() << endl;
 
     //convert conv_2 weight into 3D array
     float conv_2_weight_a[96][5][5];
@@ -215,6 +236,9 @@ int main(int argc, char** argv) {
                                          in_number_pooling);
     in_number_pooling++;
 
+    cout << "pool 2 weight size = " << pooling_2_weight.size() << endl;
+    cout << "pool 2 bias size = " << pooling_2_bias2D.size() << endl;
+
     cout << "pooling 2 weight" << endl;
     for (int i = 0; i < pooling_2_weight.size(); i++){
         pool_2_weight_a[i] = pooling_2_weight[i];
@@ -247,6 +271,8 @@ int main(int argc, char** argv) {
                                    in_number_conv);
     in_number_conv++;
 
+    cout << "conv 3 weight size = " << conv_3_weight2D.size()<< "  " << conv_3_weight2D[0].size() << "  " << conv_3_weight2D[0][0].size() << endl;
+    cout << "conv 3 bias size = " << conv_3_bias2D.size() << endl;
 
     for (int i = 0; i < conv_3_weight2D.size(); i++){
         for (int j = 0; j < conv_3_weight2D[i].size(); j++){
@@ -259,9 +285,6 @@ int main(int argc, char** argv) {
         conv_3_bias_a[i] = conv_3_bias2D[i];
     }
 
-
-    tensor_t_3d conv_3_out_t;
-    float conv_3_out_a[120][1][1];
 
     // Prepare weights and bias for fully connected layer 1
     tensor_t_3d fc_1_weight2D;
@@ -282,6 +305,9 @@ int main(int argc, char** argv) {
                                in_number_fc);
     in_number_fc++;
 
+    cout << "fc weight size = " << fc_1_weight2D.size()<< "  " << fc_1_weight2D[0].size() << "  " << fc_1_weight2D[0][0].size() << endl;
+    cout << "fc bias size = " << fc_1_bias2D.size() << endl;
+
     for (int i = 0; i < fc_1_weight2D.size(); i++){
         for (int j = 0; j < fc_1_weight2D[i].size(); j++){
             for (int k = 0; k < fc_1_weight2D[i][j].size(); k++){
@@ -296,12 +322,14 @@ int main(int argc, char** argv) {
     float fc_1_out_a[10][1][1];
 
 
-
     // Inference network process
    inference_net(
+
         tan_h,
+
         // input pic data
         in_data_3D,
+
         // layer weights and bias inputs
         conv_1_weight_a,
         conv_1_bias_a,
@@ -319,6 +347,7 @@ int main(int argc, char** argv) {
         // output fc data
         fc_1_out_a
 );
+
 	return 0;
 }
 
