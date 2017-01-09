@@ -47,6 +47,13 @@ void inference_net(
         float fc_1_out_a[10][1][1]
 ) {
 
+#if _HLS_MODE_
+#pragma HLS INTERFACE ap_bus port=in_data_3D
+#pragma HLS RESOURCE core=AXI4M variable=in_data_3D
+
+#pragma HLS INTERFACE ap_bus port=fc_1_out_a
+#pragma HLS RESOURCE coer=AXI4M variable=fc_1_out_a
+#endif
 
 #if _C_DEBUG_MODE_
     cout << "starting forward network process..........................." << endl;
@@ -56,11 +63,11 @@ void inference_net(
 
     /*****************************************************************************************/
     //construct network --------------LeNet-5
-    conv_layer<32, 5, 1, 6> C1;      //1@32x32-in, 6@28x28-out
-    pool_layer<28, 2, 6> P2;         //6@28x28-in, 6@14x14-out
-    conv_layer<14, 5, 6, 16> C3;     //6@14x14-in, 16@10x10-out
-    pool_layer<10, 2, 16> P4;        //16@10x10-in, 16@5x5-out
-    conv_layer<5, 5, 16, 120> C5;    //16@5x5-in, 120@1x1-out
+    conv_layer<float, 32, 5, 1, 6> C1;      //1@32x32-in, 6@28x28-out
+    pool_layer<float, 28, 2, 6> P2;         //6@28x28-in, 6@14x14-out
+    conv_layer<float, 14, 5, 6, 16> C3;     //6@14x14-in, 16@10x10-out
+    pool_layer<float, 10, 2, 16> P4;        //16@10x10-in, 16@5x5-out
+    conv_layer<float, 5, 5, 16, 120> C5;    //16@5x5-in, 120@1x1-out
     fc_layer<float, 120, 1, 10> F6;         //120@1x1-in, 10@1x1-out
 
     //temp storage space for LeNet-5

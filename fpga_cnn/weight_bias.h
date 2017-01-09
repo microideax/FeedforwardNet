@@ -13,12 +13,14 @@
 #include "data_type.h"
 
 
-tensor_t_3d load_weight_conv(int& weight_bias_count_1,
-	int& weight_bias_count_2,
-	int nn_channel_size_conv,
-	int nn_in_number_conv[],
-	int nn_channel_number_conv[],
-	int in_number_conv) {
+tensor_t_3d load_weight_conv(
+		int& weight_bias_count_1,
+	    int& weight_bias_count_2,
+	    int nn_channel_size_conv,
+	    int nn_in_number_conv[],
+	    int nn_channel_number_conv[],
+	    int in_number_conv) {
+
 	ifstream ifs("LeNet-weights");
 	string str;
 	tensor_t weight_v;
@@ -85,7 +87,8 @@ vec_t load_weight_pooling(
 	return weight_v;
 }
 
-tensor_t_3d load_weight_fc(int& weight_bias_count_1,
+tensor_t_3d load_weight_fc(
+        int& weight_bias_count_1,
 	int& weight_bias_count_2,
 	int nn_channel_size_fc,
 	int nn_in_number_fc[],
@@ -141,7 +144,8 @@ tensor_t_3d load_weight_fc(int& weight_bias_count_1,
 	return weight2D;
 }
 
-vec_t load_bias_conv(int& weight_bias_count_1,
+vec_t load_bias_conv(
+        int& weight_bias_count_1,
 	int& weight_bias_count_2,
 	int nn_channel_size_conv,
 	int nn_in_number_conv[],
@@ -160,7 +164,6 @@ vec_t load_bias_conv(int& weight_bias_count_1,
 	{
 		if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
 			&& weight_bias_count_1 <= weight_bias_count) {
-			//����n��������bias
 			float f = atof(str.c_str());
 			bias2D.push_back(f);//����ƫ��
 			weight_bias_count_1++;
