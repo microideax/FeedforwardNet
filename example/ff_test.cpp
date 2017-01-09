@@ -242,13 +242,11 @@ int main() {
     cout << "pooling 2 weight" << endl;
     for (int i = 0; i < pooling_2_weight.size(); i++){
         pool_2_weight_a[i] = pooling_2_weight[i];
-//        cout << pooling_2_weight[i] << " ";
     }
     cout << endl;
     cout << "pooling 2 bias" << endl;
     for (int j = 0; j < pooling_2_bias2D.size(); j++){
         pool_2_bias_a[j] = pooling_2_bias2D[j];
-//        cout << pooling_2_bias2D[j] << " ";
     }
     cout << endl;
 

@@ -16,7 +16,7 @@
 
 using namespace std;
 
-template <int _IN_CHANNEL_NUM_, int _INPUT_SIZE_, int _OUT_CHANNEL_NUM_>
+template <typename T, int _IN_CHANNEL_NUM_, int _INPUT_SIZE_, int _OUT_CHANNEL_NUM_>
 class fc_layer{
 
 private:
@@ -28,17 +28,17 @@ public:
     /************************************************************************************************/
     //fc kernel function with array input
     void fc_kernel_a(
-            float in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-            float kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
-            float out_data[_INPUT_SIZE_][_INPUT_SIZE_]) {
+            T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
+            T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
+            T out_data[_INPUT_SIZE_][_INPUT_SIZE_]) {
 
-        for (int i = 0; i < _INPUT_SIZE_; i++)
+        for (uint i = 0; i < _INPUT_SIZE_; i++)
         {
-            for (int j = 0; j < _INPUT_SIZE_; j++)
+            for (uint j = 0; j < _INPUT_SIZE_; j++)
             {
-                float sum = 0;
-                float data = in_data[i][j];
-                float weight = kernel_weights[i][j];
+                T sum = 0;
+                T data = in_data[i][j];
+                T weight = kernel_weights[i][j];
                 out_data[i][j] += data * weight;
             }
         }
@@ -80,15 +80,15 @@ public:
     //fc layer function with with tensor input
     void fc_layer_a(
             char activation_type,
-            float in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-            float kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-            float kernel_bias[_OUT_CHANNEL_NUM_],
-            float out_data3D[_OUT_CHANNEL_NUM_][1][1] ) {
+            T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+            T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+            T kernel_bias[_OUT_CHANNEL_NUM_],
+            T out_data3D[_OUT_CHANNEL_NUM_][1][1] ) {
 
         cout << "starting fully_connect ...." << endl;
 
-        for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
-            for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
+        for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
+            for (uint a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
                 float out_data_temp[1][1] = {0};//每一个卷积计算的结果
                 fc_kernel_a(in_data3D[a],
                             kernel_weights[a * _OUT_CHANNEL_NUM_ + b],//weight的存放顺序跟convolution层的不同

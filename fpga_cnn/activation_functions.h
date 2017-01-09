@@ -1,6 +1,7 @@
 //This file contains the popular activation functions used in CNNs
 //TODO: modify the commented function to be compatible with gcc compilation.
 //TODO: change the functions into class based expression.
+
 #ifndef _ACTIVATION_FUNCTIONS_H_
 #define _ACTIVATION_FUNCTIONS_H_
 

@@ -9,12 +9,12 @@ open_project hls_proj
 set_top inference_net
 
 add_files ../fpga_cnn/activation_functions.h
-add_files ../fpga_cnn/average_pooling.h
+add_files ../fpga_cnn/pool_layer.h
 add_files ../fpga_cnn/config.h
 add_files ../fpga_cnn/construct_net.h
-add_files ../fpga_cnn/convolution.h
+add_files ../fpga_cnn/conv_layer.h
 add_files ../fpga_cnn/data_type.h
-add_files ../fpga_cnn/fully_connect.h
+add_files ../fpga_cnn/fc_layer.h
 
 add_files ../fpga_cnn/hls_lib/static_vector.h
 
@@ -34,7 +34,7 @@ add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ff_test.
 
 
 open_solution -reset "fpga_cnn"
-set_part {xc7z020clg484}
+set_part {xc7z045ffg900-1}
 create_clock -period 10 -name default
 
 

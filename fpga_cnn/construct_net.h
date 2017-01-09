@@ -54,21 +54,21 @@ void inference_net(
 #endif
 
 
+    /*****************************************************************************************/
     //construct network --------------LeNet-5
     conv_layer<32, 5, 1, 6> C1;      //1@32x32-in, 6@28x28-out
     pool_layer<28, 2, 6> P2;         //6@28x28-in, 6@14x14-out
     conv_layer<14, 5, 6, 16> C3;     //6@14x14-in, 16@10x10-out
     pool_layer<10, 2, 16> P4;        //16@10x10-in, 16@5x5-out
     conv_layer<5, 5, 16, 120> C5;    //16@5x5-in, 120@1x1-out
-    fc_layer<120, 1, 10> F6;         //120@1x1-in, 10@1x1-out
+    fc_layer<float, 120, 1, 10> F6;         //120@1x1-in, 10@1x1-out
 
-    //temp storage space
+    //temp storage space for LeNet-5
     float  conv_1_out_a[6][28][28] = {0};
     float  pool_1_out_a[6][14][14] = {0};
     float  conv_2_out_a[16][10][10] = {0};
     float  pool_2_out_a[16][5][5] = {0};
     float  conv_3_out_a[120][1][1] = {0};
-
 
     //Forward propagation process
     C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out_a);
@@ -77,6 +77,8 @@ void inference_net(
     P4.pooling_layer_a(activation_type, conv_2_out_a, pool_2_weight_a, pool_2_bias_a, pool_2_out_a);
     C5.conv_layer_a(activation_type, pool_2_out_a, conv_3_weight_a, conv_3_bias_a, conv_3_out_a);
     F6.fc_layer_a(activation_type, conv_3_out_a, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
+    /******************************************************************************************/
+
 
 #if _C_DEBUG_MODE_
     cout << "Finished forward network process .........................." << endl;
