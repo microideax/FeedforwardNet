@@ -17,7 +17,7 @@
 
 using namespace std;
 
-template < int _INPUT_SIZE_, int _KERNEL_SIZE_, int _IN_CHANNEL_NUM_ >
+template <typename T, int _INPUT_SIZE_, int _KERNEL_SIZE_, int _IN_CHANNEL_NUM_ >
 class pool_layer {
 
 private:
@@ -29,20 +29,20 @@ public:
     /************************************************************************************/
     // pooling kernel function with array input
     void pooling_kernel_a(
-            float in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-            float kernel_weight,
-            float out_data[][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
+            T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
+            T kernel_weight,
+            T out_data[][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
         for (int i = 0; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; i = i + _KERNEL_SIZE_) {
             for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; j = j + _KERNEL_SIZE_) {
-                float sum = 0;
+                T sum = 0;
                 for (int ii = 0; ii < _KERNEL_SIZE_; ++ii) {
                     for (int jj = 0; jj < _KERNEL_SIZE_; ++jj) {
-                        float data = in_data[i + ii][j + jj];
+                        T data = in_data[i + ii][j + jj];
                         sum += data;
                     }
                 }
-                sum = (float)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+                sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
                 out_data[i/ _KERNEL_SIZE_][j / _KERNEL_SIZE_] = sum * kernel_weight;//每个输入乘同一个weight
             }
         }
@@ -78,14 +78,14 @@ public:
     //pooling layer function with array input
     void pooling_layer_a(
             char activation_type,
-            float in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-            float kernel_weights[],
-            float kernel_bias[],
-            float out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_/_KERNEL_SIZE_][_INPUT_SIZE_/_KERNEL_SIZE_] ) {
+            T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+            T kernel_weights[],
+            T kernel_bias[],
+            T out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_/_KERNEL_SIZE_][_INPUT_SIZE_/_KERNEL_SIZE_] ) {
 
         cout << "Starting average_pooling ...." << endl;
 
-        float out_data2D[_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_];
+        T out_data2D[_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_];
 
         for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
             pooling_kernel_a(
