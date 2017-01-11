@@ -14,12 +14,24 @@
 #define _C_DEBUG_MODE_ 1
 #endif
 
-
-
-
 //network configuration PARAMETERS
-//const int nn_in_data_size_conv[3] = { 32,14,5 };
-//const int nn_channel_size_conv = 5;
+int weight_bias_count_1 = 0;
+int weight_bias_count_2 = 0;
+
+int nn_in_data_size_conv[3] = { 32,14,5 };
+int nn_in_number_conv[3] = { 1,6,16 };
+const int nn_channel_size_conv = 5;
+int nn_channel_number_conv[3] = { 6,16,120 };
+
+int nn_in_data_size_pooling[2] = { 28,10 };
+int nn_in_number_pooling[2] = { 6,16 };
+int nn_channel_number_pooling[2] = { 6,16 };
+int nn_channel_size_pooling = 2;
+
+int nn_in_data_size_fc[1] = { 1 };
+int nn_in_number_fc[1] = { 120 };
+int nn_channel_size_fc = 1;
+int nn_channel_number_fc[1] = { 10 };
 
 #define O true
 #define X false
