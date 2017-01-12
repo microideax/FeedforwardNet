@@ -34,6 +34,9 @@ int nn_in_number_fc[1] = { 120 };
 int nn_channel_size_fc = 1;
 int nn_channel_number_fc[1] = { 10 };
 
+
+
+
 #define O true
 #define X false
 const bool tbl[6][16] = {
