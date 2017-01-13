@@ -144,7 +144,6 @@ public:
         ofstream pool_kernel_a;
         pool_kernel_a.open("pool_kernel_a.txt", ios::app);
         pool_kernel_a << "pooling kernel a input data" << endl;
-        pool_kernel_a << kernel_weight << endl;
         for (int i = 0; i < _INPUT_SIZE_; i++) {
             for (int j = 0; j < _INPUT_SIZE_; j++) {
                 pool_kernel_a << in_data[i][j] << " ";
@@ -171,7 +170,6 @@ public:
     void pooling_layer_a_no_w(
             char activation_type,
             T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-            T kernel_bias[],
             T out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_/_KERNEL_SIZE_][_INPUT_SIZE_/_KERNEL_SIZE_] ) {
 
         cout << "Starting average_pooling ...." << endl;
@@ -185,7 +183,7 @@ public:
             //循环遍历out_data2D矩阵加偏置和激活
             for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
                 for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
-                    out_data3D[a][i][j] = f(activation_type, (out_data3D[a][i][j] + kernel_bias[a]));
+                    out_data3D[a][i][j] = f(activation_type, out_data3D[a][i][j]);
                 }
             }
         }

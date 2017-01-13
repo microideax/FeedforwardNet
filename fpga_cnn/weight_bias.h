@@ -210,7 +210,6 @@ void load_bias_pooling(
 		if (weight_bias_count_3_pooling >= weight_bias_count_1 &&
 			weight_bias_count_1 >= weight_count &&
 			weight_bias_count_1 <= weight_bias_count) {
-			//
 			float f = atof(str.c_str());
 			//bias2D.push_back(f);//
 			pooling_1_bias2D[weight_bias_count_1 - weight_count] = f;

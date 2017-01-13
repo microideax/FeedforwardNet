@@ -7,7 +7,7 @@
 #define _CONFIG_H_
 
 // C++ compilation debug mode
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 #ifdef _HLS_MODE_
 #define _C_DEBUG_MODE_ 0
