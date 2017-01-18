@@ -34,7 +34,10 @@ add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ff_test.
 
 
 open_solution -reset "fpga_cnn"
-set_part {xc7z045ffg900-1}
+#zynq-7000 board
+#set_part {xc7z045ffg900-1} 
+# zedboard
+set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
 
