@@ -204,7 +204,7 @@ int main() {
 	//cout << "fc weight size = " << fc_1_weight2D.size() << "  " << fc_1_weight2D[0].size() << "  " << fc_1_weight2D[0][0].size() << endl;
 	//cout << "fc bias size = " << fc_1_bias2D.size() << endl;
 
-	float fc_1_out_a[10][1][1] = { 0 };
+	float fc_1_out_a[10] = { 0 };
 
 
 	// Inference network process
@@ -235,4 +235,3 @@ int main() {
 
 	return 0;
 }
-
