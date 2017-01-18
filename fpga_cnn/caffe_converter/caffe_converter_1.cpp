@@ -5,7 +5,7 @@
 #include <fstream>
 #include <memory>
 #include <ctime>
-#include "tiny_dnn/io/caffe/caffe.pb.h"
+#include "caffe.pb.h"
 //#ifdef _MSC_VER
 //#define _NOMINMAX
 //#include <io.h>
