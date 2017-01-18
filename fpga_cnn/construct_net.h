@@ -116,22 +116,6 @@ void inference_net(
 	float  conv_2_out[16][10][10] = { 0 };
 	float  pool_2_out[16][5][5] = { 0 };
 
-	//ifstream ifs(".\\example\\lenet_2conv2max_batch_tan_c1.txt");
-	//string str;
-	//int count = 0;
-	//while (ifs >> str)
-	//{
-	//	/*for (int i = 0; i < in_data2D.size(); i++) {
-	//	for (int j = 0; j < in_data2D[i].size(); j++) {
-	//	for (int k = 0; k < in_data2D[i][j].size(); k++) {*/
-	//	float f = atof(str.c_str());
-	//	conv_1_out[count /784][(count%784) / 28][count % 28] = f;
-	//	/*		}
-	//	}
-	//	}*/
-	//	count++;
-	//}
-
 	//Forward propagation process
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
 	P2.max_pooling_layer_a_no_w(activation_type, conv_1_out, pool_1_out);
