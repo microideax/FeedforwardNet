@@ -47,21 +47,37 @@ int main() {
 	cout << "input data size = " << in_data2D.size() << "  " << in_data2D[0].size() << "  " << in_data2D[0][0].size() << endl;
 	ofstream indata;
 	float in_data_3D[1][32][32];
-	indata.open("in_data.txt", ios::app);
+	/*indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < in_data2D.size(); i++) {
-		for (int j = 0; j < in_data2D[i].size(); j++) {
-			for (int k = 0; k < in_data2D[i][j].size(); k++) {
-				indata << in_data2D[i][j][k] << " ";
-				in_data_3D[i][j][k] = in_data2D[i][j][k];
-			}
-			indata << endl;
-		}
-		indata << endl;
+	for (int j = 0; j < in_data2D[i].size(); j++) {
+	for (int k = 0; k < in_data2D[i][j].size(); k++) {
+	indata << in_data2D[i][j][k] << " ";
+	in_data_3D[i][j][k] = in_data2D[i][j][k];
 	}
-	indata.close();
+	indata << endl;
+	}
+	indata << endl;
+	}
+	indata.close();*/
+
+	ifstream ifs("./input.txt");
+	string str;
+	int count = 0;
+	while (ifs >> str)
+	{
+		/*for (int i = 0; i < in_data2D.size(); i++) {
+		for (int j = 0; j < in_data2D[i].size(); j++) {
+		for (int k = 0; k < in_data2D[i][j].size(); k++) {*/
+		float f = atof(str.c_str());
+		in_data_3D[0][count / 32][count % 32] = f;
+		/*		}
+		}
+		}*/
+		count++;
+	}
 
 	// Prepare weights and bias for convolution layer 1
-	float        conv_1_weight2D[6][5][5];//
+	float        conv_1_weight2D[6][nn_channel_size_conv][nn_channel_size_conv];//
 	float 		 conv_1_bias2D[6];//
 	load_weight_conv(
 		conv_1_weight2D,
@@ -84,31 +100,31 @@ int main() {
 	//cout << "conv 1 weight size = " << sizeof(conv_1_weight2D) << "  " << sizeof(conv_1_weight2D[0])<< "  " << sizeof(conv_1_weight2D[0][0]) << endl;
 	//cout << "conv 1 bias size = " << sizeof(conv_1_bias2D) << endl;
 
-	//Prepare weights and bias for pooling layer 1
-	float pool_1_weight2D[24];
-	float pool_1_bias2D[6];
-	load_weight_pooling(
-		pool_1_weight2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_pooling,
-		nn_in_number_pooling,
-		in_number_pooling);
-	load_bias_pooling(
-		pool_1_bias2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_pooling,
-		nn_in_number_pooling,
-		nn_channel_number_pooling,
-		in_number_pooling);
-	in_number_pooling++;
+	////Prepare weights and bias for pooling layer 1
+	//float pool_1_weight2D[24];
+	//float pool_1_bias2D[6];
+	//load_weight_pooling(
+	//	pool_1_weight2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_pooling,
+	//	nn_in_number_pooling,
+	//	in_number_pooling);
+	//load_bias_pooling(
+	//	pool_1_bias2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_pooling,
+	//	nn_in_number_pooling,
+	//	nn_channel_number_pooling,
+	//	in_number_pooling);
+	//in_number_pooling++;
 
 	//cout << "pool 1 weight size = " << pooling_1_weight.size() << endl;
 	//cout << "pool 1 bias size = " << pooling_1_bias2D.size() << endl;
 
 	// Prepare weights and bias for convolution layer 2
-	float        conv_2_weight2D[96][5][5];//
+	float        conv_2_weight2D[96][nn_channel_size_conv][nn_channel_size_conv];//
 	float 		 conv_2_bias2D[16];//
 	load_weight_conv(
 		conv_2_weight2D,
@@ -131,56 +147,57 @@ int main() {
 	//cout << "conv 2 weight size = " << conv_2_weight2D.size() << "  " << conv_2_weight2D[0].size() << "  " << conv_2_weight2D[0][0].size() << endl;
 	//cout << "conv 2 bias size = " << conv_2_bias2D.size() << endl;
 
-	// Prepare weights and bias for pooling layer 2
-	float pool_2_weight2D[64];
-	float pool_2_bias2D[16];
-	load_weight_pooling(
-		pool_2_weight2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_pooling,
-		nn_in_number_pooling,
-		in_number_pooling);
-	load_bias_pooling(
-		pool_2_bias2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_pooling,
-		nn_in_number_pooling,
-		nn_channel_number_pooling,
-		in_number_pooling);
-	in_number_pooling++;
+	//// Prepare weights and bias for pooling layer 2
+	//float pool_2_weight2D[64];
+	//float pool_2_bias2D[16];
+	//load_weight_pooling(
+	//	pool_2_weight2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_pooling,
+	//	nn_in_number_pooling,
+	//	in_number_pooling);
+	//load_bias_pooling(
+	//	pool_2_bias2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_pooling,
+	//	nn_in_number_pooling,
+	//	nn_channel_number_pooling,
+	//	in_number_pooling);
+	//in_number_pooling++;
 
 	//cout << "pool 2 weight size = " << pooling_2_weight.size() << endl;
 	//cout << "pool 2 bias size = " << pooling_2_bias2D.size() << endl;
 
 	// Prepare weights and bias for convolution layer 3
-	float        conv_3_weight2D[1920][5][5];//
-	float 		 conv_3_bias2D[120];//
-	load_weight_conv(
-		conv_3_weight2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_channel_number_conv,
-		in_number_conv);
-	load_bias_conv(
-		conv_3_bias2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_channel_number_conv,
-		in_number_conv);
-	in_number_conv++;
+	//float        conv_3_weight2D[1920][nn_channel_size_conv][nn_channel_size_conv];//
+	//float 		 conv_3_bias2D[120];//
+	//load_weight_conv(
+	//	conv_3_weight2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_conv,
+	//	nn_in_number_conv,
+	//	nn_channel_number_conv,
+	//	in_number_conv);
+	//load_bias_conv(
+	//	conv_3_bias2D,
+	//	weight_bias_count_1,
+	//	weight_bias_count_2,
+	//	nn_channel_size_conv,
+	//	nn_in_number_conv,
+	//	nn_channel_number_conv,
+	//	in_number_conv);
+	//in_number_conv++;
 
 	//cout << "conv 3 weight size = " << conv_3_weight2D.size() << "  " << conv_3_weight2D[0].size() << "  " << conv_3_weight2D[0][0].size() << endl;
 	//cout << "conv 3 bias size = " << conv_3_bias2D.size() << endl;
 
 	// Prepare weights and bias for fully connected layer 1
 	//tensor_t_3d fc_1_weight2D;
-	float fc_1_weight2D[1200][1][1];
+	float fc_1_weight2D[160][5][5];
+	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10];
 	load_weight_fc(
 		fc_1_weight2D,
@@ -217,14 +234,14 @@ int main() {
 		// layer weights and bias inputs
 		conv_1_weight2D,
 		conv_1_bias2D,
-		pool_1_weight2D,
-		pool_1_bias2D,
+		//pool_1_weight2D,
+		//pool_1_bias2D,
 		conv_2_weight2D,
 		conv_2_bias2D,
-		pool_2_weight2D,
-		pool_2_bias2D,
-		conv_3_weight2D,
-		conv_3_bias2D,
+		//pool_2_weight2D,
+		//pool_2_bias2D,
+		//conv_3_weight2D,
+		//conv_3_bias2D,
 		fc_1_weight2D,
 		fc_1_bias2D,
 
@@ -234,3 +251,4 @@ int main() {
 
 	return 0;
 }
+

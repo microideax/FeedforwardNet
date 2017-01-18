@@ -1,9 +1,9 @@
-name: "LeNet_5"
+name: "LeNet_3conv2ave"
 layer {
   name: "input"
   type: "Input"
   top: "input"
-  input_param { shape: { dim: 64 dim: 1 dim: 28 dim:28 } } #***************
+  input_param { shape: { dim: 1 dim: 1 dim: 28 dim:28 } } 
 }
 
 # conv1
@@ -13,10 +13,10 @@ layer {
   bottom: "input"
   top: "c1"
   param {
-    lr_mult: 1##############
+    lr_mult: 1
   }
   param {
-    lr_mult: 2###########
+    lr_mult: 2
   }
   convolution_param {
     num_output: 6
@@ -24,10 +24,10 @@ layer {
     stride: 1
     pad: 2
     weight_filler {
-      type: "xavier"#############
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"###############
+      type: "constant"
     }
   }
 }
@@ -46,7 +46,7 @@ layer {
   bottom: "tan_c1"
   top: "s2"
   pooling_param {
-    pool: AVE#************
+    pool: AVE
     kernel_size: 2
     stride: 2
   }
@@ -63,20 +63,20 @@ layer {
   bottom: "tan_s2"
   top: "c3"
   param {
-    lr_mult: 1#*****************
+    lr_mult: 1
   }
   param {
-    lr_mult: 2#*****************
+    lr_mult: 2
   }
   convolution_param {
     num_output: 16
     kernel_size: 5
     stride: 1
     weight_filler {
-      type: "xavier"#**************
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"#***********
+      type: "constant"
     }
   }
 }
@@ -92,7 +92,7 @@ layer {
   bottom: "tan_c3"
   top: "s4"
   pooling_param {
-    pool: AVE#*************
+    pool: AVE
     kernel_size: 2
     stride: 2
   }
@@ -111,20 +111,20 @@ layer {
   bottom: "tan_s4"
   top: "c5"
   param {
-    lr_mult: 1#*****************
+    lr_mult: 1
   }
   param {
-    lr_mult: 2#*****************
+    lr_mult: 2
   }
   convolution_param {
     num_output: 120
     kernel_size: 5
     stride: 1
     weight_filler {
-      type: "xavier"#**************
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"#***********
+      type: "constant"
     }
   }
 }
@@ -141,18 +141,18 @@ layer {
   bottom: "tan_c5"
   top: "f6"
   param {
-    lr_mult:1#***********
+    lr_mult:1
   }
   param {
-    lr_mult:2#***********
+    lr_mult:2
   }
   inner_product_param {
     num_output: 10
     weight_filler {
-      type: "xavier"#************
+      type: "xavier"
     }
     bias_filler {
-      type: "constant"#***********
+      type: "constant"
     }
   }
 }

@@ -76,7 +76,7 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer)
         }
         else if(layer.layer(i).type()=="InnerProduct"){//get fc_layers' kernel_size,num_output
             InnerProductParameter inner_product_param = layer.layer(i).inner_product_param();
-            kernel_size=1;
+            kernel_size=1;//need to change!
             cout << "kernel size: " << kernel_size<<endl;
             num_output=inner_product_param.num_output();
             cout << "num_input_2: " << num_input<<endl;

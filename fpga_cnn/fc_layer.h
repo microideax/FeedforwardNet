@@ -92,7 +92,7 @@ public:
 														 //float out_data_temp[1][1] = {0};//每一个卷积计算的结果
 				T out_data_temp = 0;
 				fc_kernel_a(in_data3D[a],
-					kernel_weights[a * _OUT_CHANNEL_NUM_ + b],//weight的存放顺序跟convolution层的不同
+					kernel_weights[b * _IN_CHANNEL_NUM_ + a],//weight的存放顺序跟convolution层的不同
 					out_data_temp);
 				out_data3D[b] += out_data_temp;
 			}
