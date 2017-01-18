@@ -61,7 +61,7 @@ int main() {
 	indata.close();
 
 	// Prepare weights and bias for convolution layer 1
-	float        conv_1_weight2D[6][nn_channel_size_conv][nn_channel_size_conv];//
+	float        conv_1_weight2D[6][5][5];//
 	float 		 conv_1_bias2D[6];//
 	load_weight_conv(
 		conv_1_weight2D,
@@ -108,7 +108,7 @@ int main() {
 	//cout << "pool 1 bias size = " << pooling_1_bias2D.size() << endl;
 
 	// Prepare weights and bias for convolution layer 2
-	float        conv_2_weight2D[96][nn_channel_size_conv][nn_channel_size_conv];//
+	float        conv_2_weight2D[96][5][5];//
 	float 		 conv_2_bias2D[16];//
 	load_weight_conv(
 		conv_2_weight2D,
@@ -155,7 +155,7 @@ int main() {
 	//cout << "pool 2 bias size = " << pooling_2_bias2D.size() << endl;
 
 	// Prepare weights and bias for convolution layer 3
-	float        conv_3_weight2D[1920][nn_channel_size_conv][nn_channel_size_conv];//
+	float        conv_3_weight2D[1920][5][5];//
 	float 		 conv_3_bias2D[120];//
 	load_weight_conv(
 		conv_3_weight2D,
@@ -181,7 +181,6 @@ int main() {
 	// Prepare weights and bias for fully connected layer 1
 	//tensor_t_3d fc_1_weight2D;
 	float fc_1_weight2D[1200][1][1];
-	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10];
 	load_weight_fc(
 		fc_1_weight2D,
@@ -224,8 +223,8 @@ int main() {
 		conv_2_bias2D,
 		pool_2_weight2D,
 		pool_2_bias2D,
-		//conv_3_weight2D,
-		//conv_3_bias2D,
+		conv_3_weight2D,
+		conv_3_bias2D,
 		fc_1_weight2D,
 		fc_1_bias2D,
 
