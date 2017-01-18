@@ -70,8 +70,8 @@ void inference_net(
 #endif
 
 #if _C_DEBUG_MODE_
-    cout << "starting forward network process..........................." << endl;
-    cout << "..........................................................." << endl;
+	cout << "starting forward network process..........................." << endl;
+	cout << "..........................................................." << endl;
 #endif
 
 
@@ -127,8 +127,8 @@ void inference_net(
 
 
 #if _C_DEBUG_MODE_
-    cout << "Finished forward network process .........................." << endl;
-    cout << "..........................................................." << endl;
+	cout << "Finished forward network process .........................." << endl;
+	cout << "..........................................................." << endl;
 #endif
 
 }
