@@ -8,6 +8,17 @@ Fully HLS friendly inference network functions together with the CAFFE compatibl
 Please go through the user_guide.md of the basic examples.
 More documents are under progress and will be hosted in Docs folder.
 
+# File structure
+
+Feedforward
+|
+|--example // folder contains example design files. execute with run.sh
+|--fpga_cnn // main folder contains the cnn layer designs
+|--hls_lib  // folder that has hls synthesis support vectors
+|--backup   // temp folder for file storage
+|--hls_script.tcl // hls synthesis and co-sim script. run with vivado_hls
+
+
 # Status
 
 FeedforwardNet is under active development and is currently un-finished.
