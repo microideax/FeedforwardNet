@@ -224,8 +224,8 @@ int main() {
 		conv_2_bias2D,
 		pool_2_weight2D,
 		pool_2_bias2D,
-		conv_3_weight2D,
-		conv_3_bias2D,
+		//conv_3_weight2D,
+		//conv_3_bias2D,
 		fc_1_weight2D,
 		fc_1_bias2D,
 
