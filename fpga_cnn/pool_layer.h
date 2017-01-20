@@ -209,7 +209,7 @@ public:
 
 	/************************************************************************************/
 	// max pooling kernel function with array input without kernel weights
-	void max_pooling_kernel_a_no_w(
+	void max_pooling_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
 		T out_data[][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
@@ -262,7 +262,7 @@ public:
 
 	/************************************************************************************/
 	//max pooling layer function with array input without pooling weights
-	void max_pooling_layer_a_no_w(
+	void max_pooling_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		T out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
@@ -272,7 +272,7 @@ public:
 		T out_data2D[_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_];
 
 		for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
-			max_pooling_kernel_a_no_w(
+			max_pooling_kernel_a(
 				in_data3D[a],
 				out_data3D[a]);
 			//循环遍历out_data2D矩阵加偏置和激活
