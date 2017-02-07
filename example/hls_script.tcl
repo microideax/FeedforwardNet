@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj
+open_project hls_proj_c2m2_cpfuse_convbuf
 
 #set_top convolution_layer_with_table
 #set_top pooling_layer
@@ -27,7 +27,8 @@ add_files -tb ../stb_image/stb_image_write.h
 
 add_files ff_test.cpp
 add_files -tb 4.bmp
-add_files -tb LeNet-weights
+#add_files -tb LeNet-weights
+add_files -tb weights_batch.txt
 
 
 add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ff_test.cpp
@@ -41,11 +42,9 @@ set_part {xc7z020clg484-1}
 create_clock -period 10 -name default
 
 
-csim_design -clean -argv {LeNet-weights, 4.bmp}
+#csim_design -clean -argv {LeNet-weights, 4.bmp}
+csim_design -clean -argv {weights_batch, 4.bmp}
 
 csynth_design
 
-cosim_design -argv {LeNet-weights, 4.bmp} -trace_level none -rtl verilog -tool xsim
-
-
-
+cosim_design -argv {weights_batch, 4.bmp} -trace_level none -rtl verilog -tool xsim
