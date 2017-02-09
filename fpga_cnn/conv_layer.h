@@ -73,7 +73,7 @@ public:
 
         #if _C_DEBUG_MODE_
         int conv_layer_count = 0;
-        cout << "array conv kernel output ...." << endl;
+//        cout << "array conv kernel output ...." << endl;
         ofstream conv_kernel_a;
         conv_kernel_a.open("conv_kernel_a.txt", ios::app);
         for (int j = 0; j < _INPUT_SIZE_ ; j++) {
@@ -98,7 +98,7 @@ public:
         }
         conv_kernel_a << endl;
         conv_kernel_a.close();
-        cout << endl;
+//        cout << endl;
         #endif
     }
 
@@ -111,7 +111,7 @@ public:
             T kernel_bias[_OUT_CHANNEL_NUM_],
             T out_data3D[_OUT_CHANNEL_NUM_][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _KERNEL_SIZE_ + 1] ) {
 
-        cout << "starting convolution ...." << endl;
+        cout << "Processing convolution layer ...." << endl;
 
         for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
             for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
@@ -131,9 +131,10 @@ public:
                     out_data3D[b][j][k] = f(activation_type, (out_data3D[b][j][k] + kernel_bias[b]));
                 }
             }
-    }
+        }
+        cout << "Finished convolution layer ...." << endl;
 
-        //debugging output
+             //debugging output
         #if _C_DEBUG_MODE_
         cout << "finished convolution ...." << endl;
         ofstream out_conv_a;

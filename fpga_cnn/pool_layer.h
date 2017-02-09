@@ -48,10 +48,10 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
-		pool_kernel_a << "pooling kernel a input data" << endl;
+//		pool_kernel_a << "pooling kernel a input data" << endl;
 		pool_kernel_a << kernel_weight << endl;
 		for (int i = 0; i < _INPUT_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_; j++) {
@@ -61,7 +61,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -140,7 +140,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
 		pool_kernel_a << "pooling kernel a input data" << endl;
@@ -152,7 +152,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -235,7 +235,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
 		pool_kernel_a << "pooling kernel a input data" << endl;
@@ -247,7 +247,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -255,7 +255,7 @@ public:
 			pool_kernel_a << endl;
 		}
 		pool_kernel_a.close();
-		cout << endl;
+//		cout << endl;
 #endif
 
 	}
@@ -267,7 +267,7 @@ public:
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		T out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
-		cout << "Starting average_pooling ...." << endl;
+		cout << "Starting Max_pooling layer ...." << endl;
 
 		T out_data2D[_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_];
 
@@ -282,7 +282,7 @@ public:
 				}
 			}
 		}
-		cout << "Finished pooling array layer...." << endl;
+		cout << "Finished Max_pooling layer ...." << endl;
 
 		//debugging output
 #if _C_DEBUG_MODE_

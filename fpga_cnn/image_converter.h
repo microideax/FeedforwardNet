@@ -77,13 +77,13 @@ std_tensor_t_3d in_2_2D_conv(const int input_size, std_tensor_t in) {
 	std_tensor_t_3d in_data2D;
 	for (uint j = 0; j < in.size(); j++) {
 		in_data = in[j];
-		for (uint i = 0; i < in_data.size(); i++)//输入一维转二维
+		for (uint i = 0; i < in_data.size(); i++)//
 		{
-			if (in_data.size() < uint (input_size * input_size)) {//有多个输入
-				if (i == 0 || (i - 1) / input_size == i / input_size) {//将原本的一维输入按图片大小转换成二维
-					vec1.push_back(in_data[i]);//放入输入map每个像素的输入值构成输入行向量
-					if (i == in_data.size() - 1) {//最后一个输入行向量
-						vec2.push_back(vec1);//放入输入行向量构成二维输入tensor
+			if (in_data.size() < uint (input_size * input_size)) {//
+				if (i == 0 || (i - 1) / input_size == i / input_size) {//
+					vec1.push_back(in_data[i]);//
+					if (i == in_data.size() - 1) {//
+						vec2.push_back(vec1);//
 						vec1.clear();
 					}
 					if (i != 0 && i % (input_size*input_size) == 0) {
@@ -94,7 +94,7 @@ std_tensor_t_3d in_2_2D_conv(const int input_size, std_tensor_t in) {
 				else {
 					vec2.push_back(vec1);
 					vec1.clear();
-					vec1.push_back(in_data[i]);//放入输入行向量第一个元素
+					vec1.push_back(in_data[i]);//
 					if (i != 0 && i % (input_size*input_size) == 0) {
 						in_data2D.push_back(vec2);
 						vec2.clear();

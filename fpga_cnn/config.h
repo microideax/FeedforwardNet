@@ -36,7 +36,7 @@ int nn_channel_size_pooling = 2;
 
 int nn_in_data_size_fc[1] = { 5 };
 int nn_in_number_fc[1] = { 16 };
-int nn_channel_size_fc = 5;
+int nn_channel_size_fc = 1;
 int nn_channel_number_fc[1] = { 10 };
 
 

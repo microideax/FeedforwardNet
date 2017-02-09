@@ -54,6 +54,7 @@ void load(const caffe::LayerParameter& src,int num_input,int num_output,int kern
     out.close();
     cout<<endl;
 }
+
 void reload_weight_from_caffe_net(const caffe::NetParameter& layer)
 {
     int num_layers = layer.layer_size();
@@ -91,6 +92,7 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer)
 	}
         cout<<endl;
 }
+
 void read_proto_from_binary(const std::string& protobinary,
                                    google::protobuf::Message *message) {
     int fd = CNN_OPEN_BINARY(protobinary.c_str());

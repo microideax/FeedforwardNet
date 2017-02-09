@@ -29,7 +29,8 @@ public:
 	//fc kernel function with array input
 	void fc_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
+//		T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
+		T kernel_weight,
 		T& out_data) {
 		T sum = 0;
 		for (uint i = 0; i < _INPUT_SIZE_; i++)
@@ -37,14 +38,15 @@ public:
 			for (uint j = 0; j < _INPUT_SIZE_; j++)
 			{
 				T data = in_data[i][j];
-				T weight = kernel_weights[i][j];
+//				T weight = kernel_weights[i][j];
+                T weight = kernel_weight;
 				sum += data * weight;
 			}
 		}
 		out_data = sum;
 
 #if _C_DEBUG_MODE_
-		cout << "array fc kernel output ...." << endl;
+//		cout << "array fc kernel output ...." << endl;
 		ofstream fc_kernel_a;
 		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
 		fc_kernel_a << "fc kernel in data" << endl;
@@ -56,12 +58,13 @@ public:
 		}
 		fc_kernel_a << endl;
 		fc_kernel_a << "fc kernel in weight" << endl;
-		for (int i = 0; i < _INPUT_SIZE_; i++) {
-			for (int j = 0; j < _INPUT_SIZE_; j++) {
-				fc_kernel_a << kernel_weights[i][j] << " ";
-			}
-			fc_kernel_a << endl;
-		}
+//		for (int i = 0; i < _INPUT_SIZE_; i++) {
+//			for (int j = 0; j < _INPUT_SIZE_; j++) {
+//				fc_kernel_a << kernel_weights[i][j] << " ";
+//			}
+//			fc_kernel_a << endl;
+//		}
+        fc_kernel_a << kernel_weight << endl;
 		fc_kernel_a << endl;
 		fc_kernel_a << "fc kernel out data" << endl;
 		//for (int i = 0; i < 1; i++) {
@@ -72,20 +75,21 @@ public:
 		//}
 		fc_kernel_a << endl;
 		fc_kernel_a.close();
-		cout << endl;
+//		cout << endl;
 #endif
 	}
 
 	/************************************************************************************************/
-	//fc layer function with with tensor input
+	//fc layer function with with array input
 	void fc_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+//		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+        T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_],
 		T kernel_bias[_OUT_CHANNEL_NUM_],
 		T out_data3D[_OUT_CHANNEL_NUM_]) {
 
-		cout << "starting fully_connect ...." << endl;
+		cout << "starting fully_connect layer ...." << endl;
 
 		for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
 			for (uint a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
@@ -96,8 +100,10 @@ public:
 					out_data_temp);
 				out_data3D[b] += out_data_temp;
 			}
-			out_data3D[b] = f(activation_type, (out_data3D[b] + kernel_bias[b]));
+//			out_data3D[b] = f(activation_type, (out_data3D[b] + kernel_bias[b]));
 		}
+
+        cout << "Finished fully_connect layer ...." << endl;
 
 		//debugging output
 #if _C_DEBUG_MODE_

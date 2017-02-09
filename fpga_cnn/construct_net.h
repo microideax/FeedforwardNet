@@ -20,7 +20,7 @@
 #include "pool_layer.h"
 #include "fc_layer.h"
 
-bool has_connection_table[3] = { false, true, false };
+//bool has_connection_table[3] = { false, true, false };
 
 void inference_net(
 
@@ -39,7 +39,7 @@ void inference_net(
 	float        conv_2_bias_a[16],
 	//float        pool_2_weight_a[64],
 	//float        pool_2_bias_a[16],
-	float        fc_1_weight_a[16][5][5],
+	float        fc_1_weight_a[160],
 	float        fc_1_bias_a[10],
 
 
