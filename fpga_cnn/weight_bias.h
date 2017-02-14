@@ -12,7 +12,7 @@
 #include <algorithm>
 #include "data_type.h"
 
-
+/*
 void load_weight_conv(
 	float conv_1_weight2D[][5][5],
 	int& weight_bias_count_1,
@@ -23,24 +23,111 @@ void load_weight_conv(
 	int in_number_conv) {
 
     cout << "Loading CONV layer weights ..." << endl;
-
 	ifstream ifs("./weights_batch.txt");
 	string str;
-	int weight_count = weight_bias_count_1 + nn_channel_size_conv*nn_channel_size_conv*nn_in_number_conv[in_number_conv]
-		* nn_channel_number_conv[in_number_conv];
+    if (!ifs) {
+        cout << "weight file not found !" << endl;
+    }
+	int weight_count = weight_bias_count_1 +
+                        nn_channel_size_conv * nn_channel_size_conv
+                        * nn_in_number_conv[in_number_conv]
+		                * nn_channel_number_conv[in_number_conv];
 	int weight_bias_count_3_conv = 0;
-	while (ifs >> str && weight_bias_count_3_conv < weight_count)
+	while (ifs >> str && weight_bias_count_3_conv < (weight_count + 1))
 	{
+        cout << str << "  ";
 		if (weight_bias_count_3_conv >= weight_bias_count_2) {
-			int serial_no = weight_bias_count_3_conv - weight_bias_count_2;
+			int serial_no = weight_bias_count_3_conv - weight_bias_count_2 - 1;
 			float f = atof(str.c_str());
 			conv_1_weight2D[serial_no / (nn_channel_size_conv*nn_channel_size_conv)][(serial_no % (nn_channel_size_conv*nn_channel_size_conv)) / nn_channel_size_conv][serial_no%nn_channel_size_conv] = f;
 			weight_bias_count_1++;
 		}
 		weight_bias_count_3_conv++;
 	}
+    cout << endl;
 	cout << "conv layer weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
+}*/
+
+void load_weight_conv(
+        float conv_weight2D[][5][5],
+        int& weight_bias_record,
+        int nn_channel_size_conv,
+        int nn_in_number_conv[],
+        int nn_out_number_conv[],
+        int in_number_conv) {
+
+    cout << "Loading CONV layer weights ..." << endl;
+    ifstream ifs("./weights_batch.txt");
+    string str;
+    if (!ifs) {
+        cout << "weight file not found !" << endl;
+    }
+    int layer_weight_num = nn_channel_size_conv * nn_channel_size_conv
+                       * nn_in_number_conv[in_number_conv]
+                       * nn_out_number_conv[in_number_conv];
+    int weight_bias_count = 0;
+
+    ifs >> str;
+    if(ifs.eof())  cout << "end of file" << endl;
+    else cout << str << endl;
+    while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record) {
+        if (weight_bias_count >= weight_bias_record) {
+            cout << str << "  ";
+            int serial_no = weight_bias_count - weight_bias_record;
+            float f = atof(str.c_str());
+            int channel = serial_no / (nn_channel_size_conv * nn_channel_size_conv);
+            int y_index = (serial_no % (nn_channel_size_conv * nn_channel_size_conv)) / nn_channel_size_conv;
+            int x_index = serial_no % nn_channel_size_conv;
+            conv_weight2D[channel][y_index][x_index] = f;
+        }
+        weight_bias_count++;
+    }
+    weight_bias_record = weight_bias_count;
+    cout << endl;
+    cout << "conv layer weights number in total is = " << weight_bias_count << endl;
+    cout << "network weights in total is = " << weight_bias_count << endl;
+    ifs.close();
+}
+void load_bias_conv(
+        float conv_1_bias2D[],
+        int& weight_bias_count_1,
+        int& weight_bias_count_2,
+        int nn_channel_size_conv,
+        int nn_in_number_conv[],
+        int nn_channel_number_conv[],
+        int in_number_conv) {
+
+    cout << "Loading CONV layer bias ..." << endl;
+
+    ifstream ifs("./weights_batch.txt");
+    if (!ifs) {
+        cout << "weight file not found !" << endl;
+    }
+    string str;
+    vec_t bias2D;
+    int weight_count = weight_bias_count_2
+                       + nn_channel_size_conv
+                         * nn_channel_size_conv*nn_in_number_conv[in_number_conv]
+                         * nn_channel_number_conv[in_number_conv];
+    int weight_bias_count = weight_count + nn_channel_number_conv[in_number_conv];
+    int weight_bias_count_3_conv = 0;
+    while (ifs >> str && weight_bias_count_3_conv < weight_bias_count)
+    {
+        cout << str << "  ";
+        if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
+            && weight_bias_count_1 <= weight_bias_count) {
+            float f = atof(str.c_str());
+            conv_1_bias2D[weight_bias_count_1 - weight_count] = f;
+            weight_bias_count_1++;
+        }
+        weight_bias_count_3_conv++;
+    }
+    weight_bias_count_2 = weight_bias_count_1;
+    cout << endl;
+    cout << "conv layer bias number in total is = " << weight_bias_count_1 << endl;
+    ifs.close();
+    //return bias2D;
 }
 
 void load_weight_pooling(
@@ -60,6 +147,7 @@ void load_weight_pooling(
 	int weight_bias_count_3_pooling = 0;
 	while (ifs >> str&&weight_bias_count_3_pooling<weight_count)
 	{
+        cout << str << "  ";
 		if (weight_bias_count_3_pooling >= weight_bias_count_2) {
 			//
 			int serial_no = weight_bias_count_3_pooling - weight_bias_count_2;
@@ -112,7 +200,7 @@ void load_weight_fc(
 	cout << "fc layer weights number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 }
-
+/*
 void load_bias_conv(
 	float conv_1_bias2D[],
 	int& weight_bias_count_1,
@@ -125,6 +213,9 @@ void load_bias_conv(
     cout << "Loading CONV layer bias ..." << endl;
 
 	ifstream ifs("./weights_batch.txt");
+    if (!ifs) {
+        cout << "weight file not found !" << endl;
+    }
 	string str;
 	vec_t bias2D;
 	int weight_count = weight_bias_count_2
@@ -135,6 +226,7 @@ void load_bias_conv(
 	int weight_bias_count_3_conv = 0;
 	while (ifs >> str && weight_bias_count_3_conv < weight_bias_count)
 	{
+        cout << str << "  ";
 		if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
 			&& weight_bias_count_1 <= weight_bias_count) {
 			float f = atof(str.c_str());
@@ -144,11 +236,12 @@ void load_bias_conv(
 		weight_bias_count_3_conv++;
 	}
 	weight_bias_count_2 = weight_bias_count_1;
+    cout << endl;
 	cout << "conv layer bias number in total is = " << weight_bias_count_1 << endl;
 	ifs.close();
 	//return bias2D;
 }
-
+*/
 void load_bias_pooling(
 	float pooling_1_bias2D[],
 	int& weight_bias_count_1,

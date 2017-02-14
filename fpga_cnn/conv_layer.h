@@ -139,7 +139,7 @@ public:
         cout << "finished convolution ...." << endl;
         ofstream out_conv_a;
         out_conv_a.open("conv_layer_a.txt", ios::app);
-        out_conv_a << "input 3D arry to conv layer ..................." << endl;
+        out_conv_a << "input 3D arry to conv layer ...................." << endl;
         for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
             for (int j = 0; j < _INPUT_SIZE_; j++) {
                 for (int k = 0; k < _INPUT_SIZE_; k++) {
@@ -151,6 +151,13 @@ public:
         }
         out_conv_a << endl;
 
+        out_conv_a << "input bias to conv layer ........................" << endl;
+        for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
+            out_conv_a << kernel_bias[i] << "  ";
+        }
+        out_conv_a << endl;
+
+        out_conv_a << "output from conv layer .........................." << endl;
         for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
             for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; j++) {
                 for (int k = 0; k < _INPUT_SIZE_ - _KERNEL_SIZE_ + 1; k++) {

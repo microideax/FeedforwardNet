@@ -7,6 +7,8 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <cstring>
+#include <cstdlib>
 
 #include "../fpga_cnn/config.h"
 #include "../fpga_cnn/data_type.h"
@@ -20,6 +22,7 @@ using namespace std;
 int main() {
 
     char tan_h = 't';
+    char none = 'i';
 	int in_number_conv = 0;  // number of convolutional layer
 	int in_number_fc = 0;// number of fully_connected layer
 	int in_number_pooling = 0;
@@ -63,8 +66,8 @@ int main() {
 	float 		 conv_1_bias2D[6] = {0};
 	load_weight_conv(
 		conv_1_weight2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
+		weight_bias_record,
+//		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
@@ -110,8 +113,8 @@ int main() {
 	float 		 conv_2_bias2D[16] = {0};//
 	load_weight_conv(
 		conv_2_weight2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
+		weight_bias_record,
+//		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
@@ -231,10 +234,10 @@ int main() {
     }
     indata_compare.close();
 
-	// Inference network process
+    // Inference network process
 	inference_net(
 
-		tan_h,
+		none,
 
 		// input pic data
 		in_data_3D,
