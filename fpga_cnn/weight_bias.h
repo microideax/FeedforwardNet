@@ -51,6 +51,7 @@ void load_weight_conv(
 
 void load_weight_conv(
         float conv_weight2D[][5][5],
+        float conv_bias[],
         int& weight_bias_record,
         int nn_channel_size_conv,
         int nn_in_number_conv[],
@@ -69,7 +70,7 @@ void load_weight_conv(
     int weight_bias_count = 0;
 
     ifs >> str;
-    if(ifs.eof())  cout << "end of file" << endl;
+    if(ifs.eof())  cout << "file error" << endl;
     else cout << str << endl;
     while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record) {
         if (weight_bias_count >= weight_bias_record) {
@@ -87,7 +88,6 @@ void load_weight_conv(
     cout << endl;
     cout << "conv layer weights number in total is = " << weight_bias_count << endl;
     cout << "network weights in total is = " << weight_bias_count << endl;
-    ifs.close();
 }
 void load_bias_conv(
         float conv_1_bias2D[],
@@ -99,24 +99,19 @@ void load_bias_conv(
         int in_number_conv) {
 
     cout << "Loading CONV layer bias ..." << endl;
-
     ifstream ifs("./weights_batch.txt");
     if (!ifs) {
         cout << "weight file not found !" << endl;
     }
     string str;
-    vec_t bias2D;
-    int weight_count = weight_bias_count_2
-                       + nn_channel_size_conv
-                         * nn_channel_size_conv*nn_in_number_conv[in_number_conv]
-                         * nn_channel_number_conv[in_number_conv];
+    int layer_bias_num = nn_in_number_conv[in_number_conv] * nn_out_number_conv[in_number_conv];
     int weight_bias_count = weight_count + nn_channel_number_conv[in_number_conv];
     int weight_bias_count_3_conv = 0;
     while (ifs >> str && weight_bias_count_3_conv < weight_bias_count)
     {
-        cout << str << "  ";
         if (weight_bias_count_3_conv >= weight_bias_count_1 && weight_bias_count_1 >= weight_count
             && weight_bias_count_1 <= weight_bias_count) {
+            cout << str << "  ";
             float f = atof(str.c_str());
             conv_1_bias2D[weight_bias_count_1 - weight_count] = f;
             weight_bias_count_1++;

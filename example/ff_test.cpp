@@ -64,22 +64,23 @@ int main() {
 	// Prepare weights and bias for convolution layer 1
 	float        conv_1_weight2D[6][nn_channel_size_conv][nn_channel_size_conv] = {0};
 	float 		 conv_1_bias2D[6] = {0};
-	load_weight_conv(
+	load_weight_bias_conv(
 		conv_1_weight2D,
+        conv_1_bias2D,
 		weight_bias_record,
 //		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
 		in_number_conv);
-	load_bias_conv(
-		conv_1_bias2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_channel_number_conv,
-		in_number_conv);
+//	load_bias_conv(
+//		conv_1_bias2D,
+//		weight_bias_count_1,
+//		weight_bias_count_2,
+//		nn_channel_size_conv,
+//		nn_in_number_conv,
+//		nn_channel_number_conv,
+//		in_number_conv);
 	in_number_conv++;
 
 	//cout << "conv 1 weight size = " << sizeof(conv_1_weight2D) << "  " << sizeof(conv_1_weight2D[0])<< "  " << sizeof(conv_1_weight2D[0][0]) << endl;
@@ -111,24 +112,26 @@ int main() {
 	// Prepare weights and bias for convolution layer 2
 	float        conv_2_weight2D[96][nn_channel_size_conv][nn_channel_size_conv] = {0};//
 	float 		 conv_2_bias2D[16] = {0};//
-	load_weight_conv(
+/*
+	load_weight_bias_conv(
 		conv_2_weight2D,
+        conv_2_bias2D,
 		weight_bias_record,
 //		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
 		in_number_conv);
-	load_bias_conv(
-		conv_2_bias2D,
-		weight_bias_count_1,
-		weight_bias_count_2,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_channel_number_conv,
-		in_number_conv);
+//	load_bias_conv(
+//		conv_2_bias2D,
+//		weight_bias_count_1,
+//		weight_bias_count_2,
+//		nn_channel_size_conv,
+//		nn_in_number_conv,
+//		nn_channel_number_conv,
+//		in_number_conv);
 	in_number_conv++;
-
+*/
 	//cout << "conv 2 weight size = " << conv_2_weight2D.size() << "  " << conv_2_weight2D[0].size() << "  " << conv_2_weight2D[0][0].size() << endl;
 	//cout << "conv 2 bias size = " << conv_2_bias2D.size() << endl;
 
@@ -182,7 +185,7 @@ int main() {
 	// Prepare weights and bias for fully connected layer 1
 	//tensor_t_3d fc_1_weight2D;
 
-
+/*
 	float fc_1_weight2D[160][1][1] = {0};
 	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10] = {0};
@@ -214,10 +217,10 @@ int main() {
     fc_weights << endl;
     fc_weights.close();
 
-
+*/
 	//cout << "fc weight size = " << fc_1_weight2D.size() << "  " << fc_1_weight2D[0].size() << "  " << fc_1_weight2D[0][0].size() << endl;
 	//cout << "fc bias size = " << fc_1_bias2D.size() << endl;
-
+/*
 	float fc_1_out_a[10] = { 0 };
 
 
@@ -259,7 +262,7 @@ int main() {
 		// output fc data
 		fc_1_out_a
 	);
-
+*/
 	return 0;
 
 }
