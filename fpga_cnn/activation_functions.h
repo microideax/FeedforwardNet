@@ -30,7 +30,7 @@ float f(char type, float data) {
 		return float(1) / (float(1) + exp(-data));
 	}
 	else if (type == 'r') { //relu
-		return std::max(float(0), data);
+		return ((float(0) > data) ? float(0) : data);
 	}
 	else if (type == 'l') { //leak_relu
 		return (data > float(0)) ? data : float(0.01) * data;

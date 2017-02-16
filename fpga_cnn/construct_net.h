@@ -20,7 +20,7 @@
 #include "pool_layer.h"
 #include "fc_layer.h"
 
-bool has_connection_table[3] = { false, true, false };
+//bool has_connection_table[3] = { false, true, false };
 
 void inference_net(
 
@@ -65,8 +65,26 @@ void inference_net(
 #pragma HLS INTERFACE ap_bus port=in_data_3D
 #pragma HLS RESOURCE core=AXI4M variable=in_data_3D
 
+#pragma HLS INTERFACE ap_bus port=conv_1_weight_a
+#pragma HLS RESOURCE core=AXI4M variable=conv_1_weight_a
+
+#pragma HLS INTERFACE ap_bus port=conv_1_bias_a
+#pragma HLS RESOURCE core=AXI4M variable=conv_1_bias_a
+
+#pragma HLS INTERFACE ap_bus port=conv_2_weight_a
+#pragma HLS RESOURCE core=AXI4M variable=conv_2_weight_a
+
+#pragma HLS INTERFACE ap_bus port=conv_2_bias_a
+#pragma HLS RESOURCE core=AXI4M variable=conv_2_bias_a
+
+#pragma HLS INTERFACE ap_bus port=fc_1_weight_a
+#pragma HLS RESOURCE core=AXI4M variable=fc_1_weight_a
+
+#pragma HLS INTERFACE ap_bus port=fc_1_bias_a
+#pragma HLS RESOURCE core=AXI4M variable=fc_1_bias_a
+
 #pragma HLS INTERFACE ap_bus port=fc_1_out_a
-#pragma HLS RESOURCE coer=AXI4M variable=fc_1_out_a
+#pragma HLS RESOURCE core=AXI4M variable=fc_1_out_a
 #endif
 
 #if _C_DEBUG_MODE_
@@ -74,7 +92,7 @@ void inference_net(
 	cout << "..........................................................." << endl;
 #endif
 
-
+char relu = 'r';
 	/*****************************************************************************************/
 	////construct network --------------LeNet-5
 	//conv_layer<float, 32, 5, 1, 6> C1;      //1@32x32-in, 6@28x28-out
@@ -118,11 +136,13 @@ void inference_net(
 
 	//Forward propagation process
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
-	P2.max_pooling_layer_a_no_w(activation_type, conv_1_out, pool_1_out);
+//    C1.conv_layer_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, pool_1_out);
+//    C3.conv_layer_w_pool_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, pool_2_out);
+	P2.max_pooling_layer_a(activation_type, conv_1_out, pool_1_out);
 	C3.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
-	P4.max_pooling_layer_a_no_w(activation_type, conv_2_out, pool_2_out);
+	P4.max_pooling_layer_a(activation_type, conv_2_out, pool_2_out);
 	F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
-
+//    F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
 	/******************************************************************************************/
 
 

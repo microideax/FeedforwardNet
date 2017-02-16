@@ -9,4 +9,4 @@ do
 done
 
 
-g++ -g -Wall -Wextra -pedantic -fpermissive -I ../ -O0 ff_test.cpp -o fftest
+g++ -g -Wall -Wextra -pedantic -fpermissive -I ../ -I /home/yaochen/work/caffe/include/ -O0 ff_test.cpp -o fftest

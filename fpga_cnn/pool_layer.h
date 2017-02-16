@@ -48,10 +48,10 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
-		pool_kernel_a << "pooling kernel a input data" << endl;
+//		pool_kernel_a << "pooling kernel a input data" << endl;
 		pool_kernel_a << kernel_weight << endl;
 		for (int i = 0; i < _INPUT_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_; j++) {
@@ -61,7 +61,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -140,7 +140,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
 		pool_kernel_a << "pooling kernel a input data" << endl;
@@ -152,7 +152,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -209,7 +209,7 @@ public:
 
 	/************************************************************************************/
 	// max pooling kernel function with array input without kernel weights
-	void max_pooling_kernel_a_no_w(
+	void max_pooling_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
 		T out_data[][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
@@ -235,7 +235,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
 		pool_kernel_a << "pooling kernel a input data" << endl;
@@ -247,7 +247,7 @@ public:
 		}
 		pool_kernel_a << endl;
 
-		pool_kernel_a << "pooling kernel a output data" << endl;
+//		pool_kernel_a << "pooling kernel a output data" << endl;
 		for (int i = 0; i < _INPUT_SIZE_ / _KERNEL_SIZE_; i++) {
 			for (int j = 0; j < _INPUT_SIZE_ / _KERNEL_SIZE_; j++) {
 				pool_kernel_a << out_data[i][j] << " ";
@@ -255,24 +255,24 @@ public:
 			pool_kernel_a << endl;
 		}
 		pool_kernel_a.close();
-		cout << endl;
+//		cout << endl;
 #endif
 
 	}
 
 	/************************************************************************************/
 	//max pooling layer function with array input without pooling weights
-	void max_pooling_layer_a_no_w(
+	void max_pooling_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		T out_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_]) {
 
-		cout << "Starting average_pooling ...." << endl;
+		cout << "Starting Max_pooling layer ...." << endl;
 
 		T out_data2D[_INPUT_SIZE_ / _KERNEL_SIZE_][_INPUT_SIZE_ / _KERNEL_SIZE_];
 
 		for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
-			max_pooling_kernel_a_no_w(
+			max_pooling_kernel_a(
 				in_data3D[a],
 				out_data3D[a]);
 			//循环遍历out_data2D矩阵加偏置和激活
@@ -282,7 +282,7 @@ public:
 				}
 			}
 		}
-		cout << "Finished pooling array layer...." << endl;
+		cout << "Finished Max_pooling layer ...." << endl;
 
 		//debugging output
 #if _C_DEBUG_MODE_

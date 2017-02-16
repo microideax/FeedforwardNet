@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf conv_* pool* in* out* fc*
+rm -rf conv_* in_* pool* out* fc*
