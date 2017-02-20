@@ -29,8 +29,8 @@ public:
 	//fc kernel function with array input
 	void fc_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-//		T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weight,
+		T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
+//		T kernel_weight,
 		T& out_data) {
 		T sum = 0;
 		for (uint i = 0; i < _INPUT_SIZE_; i++)
@@ -38,8 +38,8 @@ public:
 			for (uint j = 0; j < _INPUT_SIZE_; j++)
 			{
 				T data = in_data[i][j];
-//				T weight = kernel_weights[i][j];
-                T weight = kernel_weight;
+				T weight = kernel_weights[i][j];
+//                T weight = kernel_weight;
 				sum += data * weight;
 			}
 		}
@@ -58,14 +58,16 @@ public:
 		}
 		fc_kernel_a << endl;
 		fc_kernel_a << "fc kernel in weight" << endl;
-//		for (int i = 0; i < _INPUT_SIZE_; i++) {
-//			for (int j = 0; j < _INPUT_SIZE_; j++) {
-//				fc_kernel_a << kernel_weights[i][j] << " ";
-//			}
-//			fc_kernel_a << endl;
-//		}
-        fc_kernel_a << kernel_weight << endl;
-		fc_kernel_a << endl;
+
+		for (int i = 0; i < _INPUT_SIZE_; i++) {
+			for (int j = 0; j < _INPUT_SIZE_; j++) {
+				fc_kernel_a << kernel_weights[i][j] << " ";
+			}
+			fc_kernel_a << endl;
+		}
+        /*fc_kernel_a << kernel_weight << endl;
+		fc_kernel_a << endl;*/
+
 		fc_kernel_a << "fc kernel out data" << endl;
 		//for (int i = 0; i < 1; i++) {
 		//    for (int j = 0; j < 1; j++) {
@@ -84,8 +86,8 @@ public:
 	void fc_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-//		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-        T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_],
+		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+//        T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_],
 		T kernel_bias[_OUT_CHANNEL_NUM_],
 		T out_data3D[_OUT_CHANNEL_NUM_]) {
 
