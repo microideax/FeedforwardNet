@@ -98,7 +98,7 @@ void load_weight_pooling(
 void load_weight_fc(
 
 	//float fc_1_weight2D[][1][1],
-	float fc_1_weight2D[][1][1],
+	float fc_1_weight2D[][5][5],
 	int& weight_bias_record,
 
 	int nn_channel_size_fc,

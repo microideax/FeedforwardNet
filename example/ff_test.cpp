@@ -161,7 +161,7 @@ int main() {
 
 	// Prepare weights and bias for convolution layer 3
 	//tensor_t_3d fc_1_weight2D;
-	float fc_1_weight2D[160][1][1] = {0};
+	float fc_1_weight2D[160][5][5] = {0};
 	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10] = {0};
 	load_weight_fc(

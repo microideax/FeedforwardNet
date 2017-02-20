@@ -39,7 +39,7 @@ void inference_net(
 	float        conv_2_bias_a[16],
 	//float        pool_2_weight_a[64],
 	//float        pool_2_bias_a[16],
-	float        fc_1_weight_a[160][1][1],
+	float        fc_1_weight_a[160][5][5],
 	float        fc_1_bias_a[10],
 
 
