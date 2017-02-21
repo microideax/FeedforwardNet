@@ -26,7 +26,8 @@ add_files -tb ../stb_image/stb_image_write.h
 
 
 add_files ff_test.cpp
-add_files -tb 4.bmp
+#add_files -tb 4.bmp
+add_files -tb input.txt
 #add_files -tb LeNet-weights
 add_files -tb weights_batch.txt
 
@@ -43,8 +44,8 @@ create_clock -period 10 -name default
 
 
 #csim_design -clean -argv {LeNet-weights, 4.bmp}
-csim_design -clean -argv {weights_batch, 4.bmp}
+csim_design -clean -argv {weights_batch, input.txt}
 
 csynth_design
 
-cosim_design -argv {weights_batch, 4.bmp} -trace_level none -rtl verilog -tool xsim
+cosim_design -argv {weights_batch, input.txt} -trace_level none -rtl verilog -tool xsim
