@@ -1,12 +1,40 @@
-name: "LeNet_3conv2ave"
+name: "LeNet_2conv2max"
 layer {
   name: "input"
-  type: "Input"
+  type: "Data"
   top: "input"
-  input_param { shape: { dim: 1 dim: 1 dim: 28 dim:28 } } 
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "/home/dmir/work/caffe/examples/mnist/mnist_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "input"
+  type: "Data"
+  top: "input"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "/home/dmir/work/caffe/examples/mnist/mnist_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
 }
 
-# conv1
+
 layer {
   name: "c1"
   type: "Convolution"
@@ -46,7 +74,7 @@ layer {
   bottom: "tan_c1"
   top: "s2"
   pooling_param {
-    pool: AVE
+    pool: MAX
     kernel_size: 2
     stride: 2
   }
@@ -92,7 +120,7 @@ layer {
   bottom: "tan_c3"
   top: "s4"
   pooling_param {
-    pool: AVE
+    pool: MAX
     kernel_size: 2
     stride: 2
   }
@@ -105,41 +133,12 @@ layer {
   type: "TanH"
 }
 
-layer {
-  name: "c5"
-  type: "Convolution"
-  bottom: "tan_s4"
-  top: "c5"
-  param {
-    lr_mult: 1
-  }
-  param {
-    lr_mult: 2
-  }
-  convolution_param {
-    num_output: 120
-    kernel_size: 5
-    stride: 1
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-layer {
-  name: "tan_c5"
-  bottom: "c5"
-  top: "tan_c5"
-  type: "TanH"
-}
 
 layer {
-  name: "f6"
+  name: "f5"
   type: "InnerProduct"
-  bottom: "tan_c5"
-  top: "f6"
+  bottom: "tan_s4"
+  top: "f5"
   param {
     lr_mult:1
   }
@@ -157,17 +156,30 @@ layer {
   }
 }
 layer {
-  name: "tan_f6"
-  bottom: "f6"
-  top: "tan_f6"
+  name: "tan_f5"
+  bottom: "f5"
+  top: "tan_f5"
   type: "TanH"
+}
+
+
+#accuracy
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "tan_f5"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
 }
 
 #loss
 layer {
-  name: "prob"
-  type: "Softmax"
-  bottom: "tan_f6"
-  top: "prob"
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "tan_f5"
+  bottom: "label"
+  top: "loss"
 }
-

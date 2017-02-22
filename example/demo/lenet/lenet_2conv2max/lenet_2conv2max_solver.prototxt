@@ -1,0 +1,16 @@
+net: "models/lenet/lenet_2conv2max/lenet_2conv2max.prototxt"
+test_iter:100
+test_interval:500
+base_lr:0.01
+momentum: 0.9
+#type: SGD
+weight_decay: 0.0005
+lr_policy: "inv"
+gamma: 0.0001
+#stepsize: 1000
+power: 0.75
+display: 100
+max_iter: 10000
+snapshot: 5000
+snapshot_prefix: "models/lenet/lenet_2conv2max/lenet_2conv2max"
+solver_mode: CPU
