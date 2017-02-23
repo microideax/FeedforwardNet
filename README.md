@@ -42,6 +42,7 @@ If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
 7. cp the input.txt from example/demo/lenet to example, it is the input image file.
 8. cd to example folder and run ./run.sh to generate the executable file to test the correctness of the network model.
 9. run ./fftest to predict the input.txt file.
+10. change the setting of _HLS_MODE_ in config.h file to enable hardware synthesis.
 10. run vivado_hls -f hls_script.tcl to generate the HLS project.
 
 
