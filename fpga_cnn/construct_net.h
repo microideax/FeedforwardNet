@@ -16,6 +16,7 @@
 #include "weight_bias.h"
 
 #include "activation_functions.h"
+#include "conv_pool_layer.h"
 #include "conv_layer.h"
 #include "pool_layer.h"
 #include "fc_layer.h"
