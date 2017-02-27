@@ -12,9 +12,9 @@
 #include <algorithm>
 #include "data_type.h"
 
-
+template<int size>
 void load_weight_conv(
-        float conv_weight2D[][5][5],
+        float conv_weight2D[][size][size],
         float conv_bias[],
         int& weight_bias_record,
         int nn_channel_size_conv,
@@ -23,7 +23,7 @@ void load_weight_conv(
         int in_number_conv) {
 
     cout << "Loading CONV layer weights ..." << endl;
-    ifstream ifs("./weights_batch.txt");
+    ifstream ifs(".\\weights_bias_relu.txt");
     string str;
     if (!ifs) {
         cout << "weight file not found !" << endl;
@@ -66,7 +66,7 @@ void load_weight_pooling(
 
     cout << "Loading POOL layer weights ..." << endl;
 
-	ifstream ifs("./weights_batch.txt");
+	ifstream ifs(".\\weights_bias_relu.txt");
 	string str;
 
 	if (!ifs) {
@@ -95,10 +95,9 @@ void load_weight_pooling(
 	//return weight_v;
 }
 
+template<int size>
 void load_weight_fc(
-
-	//float fc_1_weight2D[][1][1],
-	float fc_1_weight2D[][5][5],
+	float fc_1_weight2D[][size][size],
 	int& weight_bias_record,
 
 	int nn_channel_size_fc,
@@ -108,7 +107,7 @@ void load_weight_fc(
 
     cout << "Loading FC layer weights ..." << endl;
 
-	ifstream ifs("./weights_batch.txt");
+	ifstream ifs(".\\weights_bias_relu.txt");
 	string str;
 
 	if (!ifs) {
@@ -156,7 +155,7 @@ void load_bias_conv(
 
 	cout << "Loading CONV layer bias ..." << endl;
 
-	ifstream ifs("./weights_batch.txt");
+	ifstream ifs(".\\weights_bias_relu.txt");
     if (!ifs) {
         cout << "weight file not found !" << endl;
     }
@@ -197,7 +196,7 @@ void load_bias_pooling(
 
     cout << "Loading POOL layer bias ..." << endl;
 
-	ifstream ifs("./weights_batch.txt");
+	ifstream ifs(".\\weights_bias_relu.txt");
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
@@ -235,7 +234,7 @@ void load_bias_fc(
 
     cout << "Loading FC layer bias ..." << endl;
 
-	ifstream ifs("./weights_batch.txt");
+	ifstream ifs(".\\weights_bias_relu.txt");
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
