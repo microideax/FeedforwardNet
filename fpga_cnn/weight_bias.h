@@ -23,7 +23,7 @@ void load_weight_conv(
         int in_number_conv) {
 
     cout << "Loading CONV layer weights ..." << endl;
-    ifstream ifs(".\\weights_bias_relu.txt");
+    ifstream ifs("weights_bias_relu.txt");
     string str;
     if (!ifs) {
         cout << "weight file not found !" << endl;
@@ -66,7 +66,7 @@ void load_weight_pooling(
 
     cout << "Loading POOL layer weights ..." << endl;
 
-	ifstream ifs(".\\weights_bias_relu.txt");
+	ifstream ifs("weights_bias_relu.txt");
 	string str;
 
 	if (!ifs) {
@@ -107,7 +107,7 @@ void load_weight_fc(
 
     cout << "Loading FC layer weights ..." << endl;
 
-	ifstream ifs(".\\weights_bias_relu.txt");
+	ifstream ifs("weights_bias_relu.txt");
 	string str;
 
 	if (!ifs) {
@@ -155,7 +155,7 @@ void load_bias_conv(
 
 	cout << "Loading CONV layer bias ..." << endl;
 
-	ifstream ifs(".\\weights_bias_relu.txt");
+	ifstream ifs("weights_bias_relu.txt");
     if (!ifs) {
         cout << "weight file not found !" << endl;
     }
@@ -196,7 +196,7 @@ void load_bias_pooling(
 
     cout << "Loading POOL layer bias ..." << endl;
 
-	ifstream ifs(".\\weights_bias_relu.txt");
+	ifstream ifs("weights_bias_relu.txt");
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
@@ -234,7 +234,7 @@ void load_bias_fc(
 
     cout << "Loading FC layer bias ..." << endl;
 
-	ifstream ifs(".\\weights_bias_relu.txt");
+	ifstream ifs("weights_bias_relu.txt");
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;

@@ -102,7 +102,7 @@ public:
 					out_data_temp);
 				out_data3D[b] += out_data_temp;
 			}
-//			out_data3D[b] = f(activation_type, (out_data3D[b] + kernel_bias[b]));
+			out_data3D[b] = f(activation_type, (out_data3D[b] + kernel_bias[b]));
 		}
 
         cout << "Finished fully_connect layer ...." << endl;
