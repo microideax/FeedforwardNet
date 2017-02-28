@@ -110,18 +110,18 @@ int main() {
 	in_number_conv++;
 
 
-    for (int i = 0; i < 6; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++) {
-                conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
-                conv_1_weight2D[i][j][k] = quantize(conv_1_weight2D[i][j][k]);
-            }
-        }
-    }
-    for (int i =0; i<6; i++){
-        conv_1_bias2D[i] = roundf(conv_1_bias2D[i]*10)/10;
-        conv_1_bias2D[i] = quantize(conv_1_bias2D[i]);
-    }
+//    for (int i = 0; i < 6; i++){
+//        for (int j = 0; j < 5; j++){
+//            for (int k = 0; k < 5; k++) {
+//                conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
+//                conv_1_weight2D[i][j][k] = quantize(conv_1_weight2D[i][j][k]);
+//            }
+//        }
+//    }
+//    for (int i =0; i<6; i++){
+//        conv_1_bias2D[i] = roundf(conv_1_bias2D[i]*10)/10;
+//        conv_1_bias2D[i] = quantize(conv_1_bias2D[i]);
+//    }
 
 	//cout << "conv 1 weight size = " << sizeof(conv_1_weight2D) << "  " << sizeof(conv_1_weight2D[0])<< "  " << sizeof(conv_1_weight2D[0][0]) << endl;
 	//cout << "conv 1 bias size = " << sizeof(conv_1_bias2D) << endl;
@@ -172,18 +172,18 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-    for (int i = 0; i < 96; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++) {
-                conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
-                conv_2_weight2D[i][j][k] = quantize(conv_2_weight2D[i][j][k]);
-            }
-        }
-    }
-    for (int i =0; i<16; i++){
-        conv_2_bias2D[i] = roundf(conv_2_bias2D[i]*10)/10;
-        conv_2_bias2D[i] = quantize(conv_2_bias2D[i]);
-    }
+//    for (int i = 0; i < 96; i++){
+//        for (int j = 0; j < 5; j++){
+//            for (int k = 0; k < 5; k++) {
+//                conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
+//                conv_2_weight2D[i][j][k] = quantize(conv_2_weight2D[i][j][k]);
+//            }
+//        }
+//    }
+//    for (int i =0; i<16; i++){
+//        conv_2_bias2D[i] = roundf(conv_2_bias2D[i]*10)/10;
+//        conv_2_bias2D[i] = quantize(conv_2_bias2D[i]);
+//    }
 
 	//cout << "conv 2 weight size = " << conv_2_weight2D.size() << "  " << conv_2_weight2D[0].size() << "  " << conv_2_weight2D[0][0].size() << endl;
 	//cout << "conv 2 bias size = " << conv_2_bias2D.size() << endl;
@@ -234,18 +234,18 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
-    for (int i = 0; i < 160; i++){
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++) {
-                fc_1_weight2D[i][j][k] = roundf(fc_1_weight2D[i][j][k] * 10) / 10.0;
-                fc_1_weight2D[i][j][k] = quantize(fc_1_weight2D[i][j][k]);
-            }
-        }
-    }
-    for (int i =0; i<10; i++){
-        fc_1_bias2D[i] = roundf(fc_1_bias2D[i]*10)/10;
-        fc_1_bias2D[i] = quantize(fc_1_bias2D[i]);
-    }
+//    for (int i = 0; i < 160; i++){
+//        for (int j = 0; j < 5; j++){
+//            for (int k = 0; k < 5; k++) {
+//                fc_1_weight2D[i][j][k] = roundf(fc_1_weight2D[i][j][k] * 10) / 10.0;
+//                fc_1_weight2D[i][j][k] = quantize(fc_1_weight2D[i][j][k]);
+//            }
+//        }
+//    }
+//    for (int i =0; i<10; i++){
+//        fc_1_bias2D[i] = roundf(fc_1_bias2D[i]*10)/10;
+//        fc_1_bias2D[i] = quantize(fc_1_bias2D[i]);
+//    }
 	/*float fc_1_weight[160];
 	ofstream fc_weights;
 	fc_weights.open("fc_weights.txt", ios::app);
