@@ -12,9 +12,7 @@
 
 #include "config.h"
 #include "data_type.h"
-
 #include "weight_bias.h"
-
 #include "activation_functions.h"
 #include "conv_pool_layer.h"
 #include "conv_layer.h"
@@ -28,7 +26,7 @@ void inference_net(
 	char activation_type,
 
 	// input pic data
-	float in_data_3D[1][28][28],
+	float in_data_3D[10000][1][32][32],
 
 
 	// layer weights and bias inputs ------- conv2pool2fc
@@ -59,7 +57,7 @@ void inference_net(
 	//float        fc_1_bias_a[10],
 
 	// output fc data
-	float fc_1_out_a[10]
+	float fc_1_out_a[10000][10]
 ) {
 
 #if _HLS_MODE_
@@ -123,7 +121,7 @@ char relu = 'r';
 	/******************************************************************************************/
 
 	//construct network --------------conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
-    conv_pool_layer<float, 28, 5, 2, 1, 2, 0, 2, 1, 6> C1P2;
+    conv_pool_layer<float, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
 	//conv_layer<float, 32, 5, 1, 6> C1;
 	//pool_layer<float, 28, 2, 6> P2;
 	conv_pool_layer<float, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;
@@ -131,21 +129,23 @@ char relu = 'r';
 	//pool_layer<float, 10, 2, 16> P4;
 	fc_layer<float, 16, 5, 10> F5;
 
-	//temp storage space
-	float  conv_1_out[6][28][28] = { 0 };
-	float  pool_1_out[6][14][14] = { 0 };
-	float  conv_2_out[16][10][10] = { 0 };
-	float  pool_2_out[16][5][5] = { 0 };
+	for (int i = 0; i < 10000;i++) {
+		//temp storage space
+		float  conv_1_out[6][28][28] = { 0 };
+		float  pool_1_out[6][14][14] = { 0 };
+		float  conv_2_out[16][10][10] = { 0 };
+		float  pool_2_out[16][5][5] = { 0 };
 
-	//Forward propagation process
-//	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
-	C1P2.conv_layer_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, pool_1_out);
-	C3P4.conv_layer_w_pool_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, pool_2_out);
-//	P2.max_pooling_layer_a(activation_type, conv_1_out, pool_1_out);
-//	C3.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
-//	P4.max_pooling_layer_a(activation_type, conv_2_out, pool_2_out);
-	F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
-//    F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
+		//Forward propagation process
+		//	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
+		C1P2.conv_layer_w_pool_a(activation_type, in_data_3D[i], conv_1_weight_a, conv_1_bias_a, pool_1_out);
+		C3P4.conv_layer_w_pool_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, pool_2_out);
+		//	P2.max_pooling_layer_a(activation_type, conv_1_out, pool_1_out);
+		//	C3.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
+		//	P4.max_pooling_layer_a(activation_type, conv_2_out, pool_2_out);
+		F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a[i]);
+		//    F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
+	}
 	/******************************************************************************************/
 
 

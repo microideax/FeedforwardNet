@@ -39,7 +39,7 @@ void load_weight_conv(
     else cout << str << endl;*/
     while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record) {
 		if (str != "weights:"&&str != "bias:") {
-			cout << str << "  ";
+			//cout << str << "  ";
 			if (weight_bias_count >= weight_bias_record) {
 				int serial_no = weight_bias_count - weight_bias_record;
 				float f = atof(str.c_str());
@@ -77,7 +77,7 @@ void load_weight_pooling(
 	while (ifs >> str&&weight_bias_count<layer_weight_num + weight_bias_record)
 	{
 		if (str != "weights:"&&str != "bias:") {
-			cout << str << " ";
+			//cout << str << " ";
 			if (weight_bias_count >= weight_bias_record) {
 				//
 				int serial_no = weight_bias_count - weight_bias_record;
@@ -119,7 +119,7 @@ void load_weight_fc(
 	while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record)
 	{
 		if (str != "weights:"&&str != "bias:") {
-			cout << str << " ";
+			//cout << str << " ";
 			if (weight_bias_count >= weight_bias_record) {
 				//
 				if (nn_channel_size_fc == 1) {
@@ -172,7 +172,7 @@ void load_bias_conv(
 	{
 		if (str != "weights:"&&str != "bias:") {
 			if (weight_bias_count >= weight_bias_record) {
-				cout << str << "  ";
+				//cout << str << "  ";
 				float f = atof(str.c_str());
 				conv_1_bias2D[weight_bias_count - weight_bias_record] = f;
 			}
@@ -208,7 +208,7 @@ void load_bias_pooling(
 	{
 		if (str != "weights:"&&str != "bias:") {
 			if (weight_bias_count >= weight_bias_record) {
-				cout << str << " ";
+				//cout << str << " ";
 				float f = atof(str.c_str());
 				//bias2D.push_back(f);//
 				pooling_1_bias2D[weight_bias_count - weight_bias_record] = f;
@@ -246,7 +246,7 @@ void load_bias_fc(
 	{
 		if (str != "weights:"&&str != "bias:") {
 			if (weight_bias_count >= weight_bias_record) {
-				cout << str << " ";
+				//cout << str << " ";
 				float f = atof(str.c_str());
 				//bias2D.push_back(f);
 				fc_1_bias2D[weight_bias_count - weight_bias_record] = f;

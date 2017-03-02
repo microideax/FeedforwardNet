@@ -43,8 +43,7 @@ int nn_out_number_fc[1] = { 10 };
 int nn_channel_size_fc = 5;
 int nn_channel_number_fc[1] = { 10 };
 
-
-
+float label_list[10] = { 0,1,2,3,4,5,6,7,8,9 };
 
 #define O true
 #define X false
