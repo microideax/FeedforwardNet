@@ -9,6 +9,7 @@
 #include <iterator>
 #include <cstring>
 #include <cstdlib>
+#include <time.h>
 
 #include "../fpga_cnn/config.h"
 #include "../fpga_cnn/data_type.h"
@@ -17,6 +18,10 @@
 #include "../fpga_cnn/construct_net.h"
 #include "../fpga_cnn/conv_layer.h"
 #include "../fpga_cnn/data_quantize.h"
+#include "../fpga_cnn/read_mnist.h"
+#include "../fpga_cnn/softmax.h"
+#include "../fpga_cnn/predict.h"
+#include "../fpga_cnn/accuracy.h"
 
 using namespace std;
 
@@ -62,30 +67,37 @@ int main() {
 	//	in_data2D_temp = in_2_2D_conv(nn_in_data_size_conv[0], in_data_temp);
 
 	//input data array
-	float in_data_3D[1][28][28] = { 0 };
+	/*float in_data_3D[1][28][28] = { 0 };
 
-	ifstream ifs("./input_3.txt");
+	ifstream ifs(".\\example\\input_3.txt");
 	string str;
 	int count = 0;
 	while (ifs >> str)
 	{
-		float f = atof(str.c_str());
-		in_data_3D[0][count / 28][count % 28] = f;
-		count++;
+	float f = atof(str.c_str());
+	in_data_3D[0][count / 28][count % 28] = f;
+	count++;
 	}
 
 	ofstream indata;
 	indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < 1; i++) {
-		for (int j = 0; j < 28; j++) {
-			for (int k = 0; k < 28; k++) {
-				indata << in_data_3D[i][j][k] << " ";
-			}
-			indata << endl;
-		}
-		indata << endl;
+	for (int j = 0; j < 28; j++) {
+	for (int k = 0; k < 28; k++) {
+	indata << in_data_3D[i][j][k] << " ";
 	}
-	indata.close();
+	indata << endl;
+	}
+	indata << endl;
+	}
+	indata.close();*/
+
+	float mnist_train_data[60000][1][32][32];
+	float mnist_train_label[60000][10] = { 0 };
+	float mnist_test_data[10000][1][32][32];
+	float mnist_test_label[10000][10] = { 0 };
+	getSrcData(mnist_train_data, mnist_train_label, mnist_test_data, mnist_test_label);
+	cout << "getSrcData end!!!!!!!!!!!!!!" << endl;
 
 	// Prepare weights and bias for convolution layer 1
 	float        conv_1_weight2D[6][nn_channel_size_conv][nn_channel_size_conv] = { 0 };
@@ -110,18 +122,19 @@ int main() {
 	in_number_conv++;
 
 
-//    for (int i = 0; i < 6; i++){
-//        for (int j = 0; j < 5; j++){
-//            for (int k = 0; k < 5; k++) {
-//                conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
-//                conv_1_weight2D[i][j][k] = quantize(conv_1_weight2D[i][j][k]);
-//            }
-//        }
-//    }
-//    for (int i =0; i<6; i++){
-//        conv_1_bias2D[i] = roundf(conv_1_bias2D[i]*10)/10;
-//        conv_1_bias2D[i] = quantize(conv_1_bias2D[i]);
-//    }
+	/*for (int i = 0; i < 6; i++) {
+	for (int j = 0; j < 5; j++) {
+	for (int k = 0; k < 5; k++) {
+	conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
+	conv_1_weight2D[i][j][k] = quantize(conv_1_weight2D[i][j][k]);
+	}
+	}
+	}
+	for (int i = 0; i<6; i++) {
+	conv_1_bias2D[i] = roundf(conv_1_bias2D[i] * 10) / 10;
+	conv_1_bias2D[i] = quantize(conv_1_bias2D[i]);
+	}*/
+
 
 	//cout << "conv 1 weight size = " << sizeof(conv_1_weight2D) << "  " << sizeof(conv_1_weight2D[0])<< "  " << sizeof(conv_1_weight2D[0][0]) << endl;
 	//cout << "conv 1 bias size = " << sizeof(conv_1_bias2D) << endl;
@@ -172,18 +185,20 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-//    for (int i = 0; i < 96; i++){
-//        for (int j = 0; j < 5; j++){
-//            for (int k = 0; k < 5; k++) {
-//                conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
-//                conv_2_weight2D[i][j][k] = quantize(conv_2_weight2D[i][j][k]);
-//            }
-//        }
-//    }
-//    for (int i =0; i<16; i++){
-//        conv_2_bias2D[i] = roundf(conv_2_bias2D[i]*10)/10;
-//        conv_2_bias2D[i] = quantize(conv_2_bias2D[i]);
-//    }
+
+	/*for (int i = 0; i < 96; i++) {
+	for (int j = 0; j < 5; j++) {
+	for (int k = 0; k < 5; k++) {
+	conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
+	conv_2_weight2D[i][j][k] = quantize(conv_2_weight2D[i][j][k]);
+	}
+	}
+	}
+	for (int i = 0; i<16; i++) {
+	conv_2_bias2D[i] = roundf(conv_2_bias2D[i] * 10) / 10;
+	conv_2_bias2D[i] = quantize(conv_2_bias2D[i]);
+	}*/
+
 
 	//cout << "conv 2 weight size = " << conv_2_weight2D.size() << "  " << conv_2_weight2D[0].size() << "  " << conv_2_weight2D[0][0].size() << endl;
 	//cout << "conv 2 bias size = " << conv_2_bias2D.size() << endl;
@@ -234,18 +249,20 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
-//    for (int i = 0; i < 160; i++){
-//        for (int j = 0; j < 5; j++){
-//            for (int k = 0; k < 5; k++) {
-//                fc_1_weight2D[i][j][k] = roundf(fc_1_weight2D[i][j][k] * 10) / 10.0;
-//                fc_1_weight2D[i][j][k] = quantize(fc_1_weight2D[i][j][k]);
-//            }
-//        }
-//    }
-//    for (int i =0; i<10; i++){
-//        fc_1_bias2D[i] = roundf(fc_1_bias2D[i]*10)/10;
-//        fc_1_bias2D[i] = quantize(fc_1_bias2D[i]);
-//    }
+
+	/*for (int i = 0; i < 160; i++) {
+	for (int j = 0; j < 5; j++) {
+	for (int k = 0; k < 5; k++) {
+	fc_1_weight2D[i][j][k] = roundf(fc_1_weight2D[i][j][k] * 10) / 10.0;
+	fc_1_weight2D[i][j][k] = quantize(fc_1_weight2D[i][j][k]);
+	}
+	}
+	}
+	for (int i = 0; i<10; i++) {
+	fc_1_bias2D[i] = roundf(fc_1_bias2D[i] * 10) / 10;
+	fc_1_bias2D[i] = quantize(fc_1_bias2D[i]);
+	}*/
+
 	/*float fc_1_weight[160];
 	ofstream fc_weights;
 	fc_weights.open("fc_weights.txt", ios::app);
@@ -260,7 +277,7 @@ int main() {
 	cout << "fc weight size = " << fc_1_weight2D.size() << "  " << fc_1_weight2D[0].size() << "  " << fc_1_weight2D[0][0].size() << endl;
 	cout << "fc bias size = " << fc_1_bias2D.size() << endl;*/
 
-	float fc_1_out_a[10] = { 0 };
+	float fc_1_out_a[10000][10] = { 0 };
 
 
 	/*ofstream indata_compare;
@@ -276,6 +293,10 @@ int main() {
 	}
 	indata_compare.close();*/
 
+	clock_t start, finish;
+	double totaltime;
+	start = clock();
+
 	//Inference network process
 	inference_net(
 
@@ -283,7 +304,7 @@ int main() {
 		relu,
 
 		//input pic data
-		in_data_3D,
+		mnist_test_data,
 
 		//layer weights and bias inputs
 		conv_1_weight2D,
@@ -303,6 +324,15 @@ int main() {
 		fc_1_out_a
 	);
 
-	return 0;
+	softmax(fc_1_out_a);
 
+	predict(fc_1_out_a, label_list);
+
+	accuracy(fc_1_out_a, mnist_test_label);
+
+	finish = clock();
+	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+	cout << "predicted time is£º " << totaltime << " s" << endl;
+	getchar();
+	return 0;
 }
