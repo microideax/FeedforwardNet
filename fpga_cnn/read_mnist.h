@@ -7,9 +7,11 @@
 #include <time.h>  
 #include <iostream>  
 #include <fstream>  
-#include <numeric>  
-#include <windows.h>  
-#include <random>  
+#include <numeric>
+#include <stdio.h>
+//#include <windows.h>
+//#include <random>
+#include <fstream>
 #include <algorithm>  
 #include <string>  
 #include "../fpga_cnn/data_type.h"
@@ -60,7 +62,8 @@ static int reverseInt(int i)////英特尔处理器和其他低端机用户必须翻转头字节
 /*	labels magic_number = 2049											*/
 
 template<int size>
-static void readMnistImages(std::string filename, float data_dst[][1][size][size], int num_image)
+static void readMnistImages(const char* filename, float data_dst[][1][size][size], int num_image)
+//static void readMnistImages(std::string filename, float data_dst[][1][size][size], int num_image)
 {
 	const int width_src_image = 28;
 	const int height_src_image = 28;
@@ -70,6 +73,7 @@ static void readMnistImages(std::string filename, float data_dst[][1][size][size
 	const float scale_max = 1;
 
 	std::ifstream file(filename, std::ios::binary);//二进制读取Mnist数据
+//	ifstream file(filename, ios::binary);
 	assert(file.is_open());
 
 	int magic_number = 0;
@@ -106,12 +110,14 @@ static void readMnistImages(std::string filename, float data_dst[][1][size][size
 }
 
 template<int size>
-static void readMnistLabels(std::string filename, float data_dst[][size], int num_image)
+static void readMnistLabels(const char* filename, float data_dst[][size], int num_image)
+//static void readMnistLabels(std::string filename, float data_dst[][size], int num_image)
 {
 	const float scale_max = 1;
 
 	std::ifstream file(filename, std::ios::binary);
-	assert(file.is_open());
+//	ifstream file(filename, ios::binary);
+    assert(file.is_open());
 
 	int magic_number = 0;
 	int number_of_images = 0;
@@ -150,8 +156,10 @@ void getSrcData(float mnist_train_data[][1][size][size], float mnist_train_label
 	readMnistImages(filename_train_images, mnist_train_data, num_patterns_train_CNN, mnist_train_data);
 	readMnistLabels(filename_train_labels, mnist_train_label, num_patterns_train_CNN, mnist_train_label);
 	*/
-	std::string filename_test_images = ".\\example\\data\\t10k-images.idx3-ubyte";
-	std::string filename_test_labels = ".\\example\\data\\t10k-labels.idx1-ubyte";
+//	std::string filename_test_images = "../example/data/t10k-images.idx3-ubyte";
+//	std::string filename_test_labels = "../example/data/t10k-labels.idx1-ubyte";
+    const char* filename_test_images = "../example/data/t10k-images-idx3-ubyte";
+	const char* filename_test_labels = "../example/data/t10k-labels-idx1-ubyte";
 	readMnistImages(filename_test_images, mnist_test_data, num_patterns_test_CNN);
 	readMnistLabels(filename_test_labels, mnist_test_label, num_patterns_test_CNN);
 

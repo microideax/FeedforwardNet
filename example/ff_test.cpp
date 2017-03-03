@@ -332,7 +332,7 @@ int main() {
 
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "predicted time is£º " << totaltime << " s" << endl;
+	cout << "predicted time is: " << totaltime << " s" << endl;
 	getchar();
 	return 0;
 }
