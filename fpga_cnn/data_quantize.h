@@ -17,6 +17,11 @@ float quantize (float x){
     return x;
 }
 
+float quantize (float a, float b, float x){
+    if (x < a || x > b)
+        x = 0;
+}
+
 
 
 #endif

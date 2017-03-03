@@ -45,38 +45,40 @@ public:
 		out_data = sum;
 
 #if _C_DEBUG_MODE_
-//		cout << "array fc kernel output ...." << endl;
-		//ofstream fc_kernel_a;
-		//fc_kernel_a.open("fc_kernel_a.txt", ios::app);
-		//fc_kernel_a << "fc kernel in data" << endl;
-		//for (int i = 0; i < _INPUT_SIZE_; i++) {
-		//	for (int j = 0; j < _INPUT_SIZE_; j++) {
-		//		fc_kernel_a << in_data[i][j] << " ";
-		//	}
-		//	fc_kernel_a << endl;
-		//}
-		//fc_kernel_a << endl;
-		//fc_kernel_a << "fc kernel in weight" << endl;
+#if _KERNEL_DEBUG_
+		cout << "array fc kernel output ...." << endl;
+		ofstream fc_kernel_a;
+		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
+		fc_kernel_a << "fc kernel in data" << endl;
+		for (int i = 0; i < _INPUT_SIZE_; i++) {
+			for (int j = 0; j < _INPUT_SIZE_; j++) {
+				fc_kernel_a << in_data[i][j] << " ";
+			}
+			fc_kernel_a << endl;
+		}
+		fc_kernel_a << endl;
+		fc_kernel_a << "fc kernel in weight" << endl;
 
-		//for (int i = 0; i < _INPUT_SIZE_; i++) {
-		//	for (int j = 0; j < _INPUT_SIZE_; j++) {
-		//		fc_kernel_a << kernel_weights[i][j] << " ";
-		//	}
-		//	fc_kernel_a << endl;
-		//}
-  //      /*fc_kernel_a << kernel_weight << endl;
-		//fc_kernel_a << endl;*/
+		for (int i = 0; i < _INPUT_SIZE_; i++) {
+			for (int j = 0; j < _INPUT_SIZE_; j++) {
+				fc_kernel_a << kernel_weights[i][j] << " ";
+			}
+			fc_kernel_a << endl;
+		}
+        /*fc_kernel_a << kernel_weight << endl;
+		fc_kernel_a << endl;*/
 
-		//fc_kernel_a << "fc kernel out data" << endl;
-		////for (int i = 0; i < 1; i++) {
-		////    for (int j = 0; j < 1; j++) {
-		//fc_kernel_a << out_data << " ";
-		////    }
-		////    fc_kernel_a << endl;
-		////}
-		//fc_kernel_a << endl;
-		//fc_kernel_a.close();
-//		cout << endl;
+		fc_kernel_a << "fc kernel out data" << endl;
+		//for (int i = 0; i < 1; i++) {
+		//    for (int j = 0; j < 1; j++) {
+		fc_kernel_a << out_data << " ";
+		//    }
+		//    fc_kernel_a << endl;
+		//}
+		fc_kernel_a << endl;
+		fc_kernel_a.close();
+		cout << endl;
+#endif
 #endif
 	}
 
@@ -108,7 +110,8 @@ public:
 
 		//debugging output
 #if _C_DEBUG_MODE_
-		/*cout << "finished fully_connect ...." << endl;
+#if _KERNEL_DEBUG_
+		cout << "finished fully_connect ...." << endl;
 		ofstream fc_layer_a;
 		fc_layer_a.open("fc_layer_a.txt", ios::app);
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
@@ -117,7 +120,8 @@ public:
 		fc_layer_a << endl;
 		fc_layer_a << endl;
 		fc_layer_a.close();
-		cout << endl;*/
+		cout << endl;
+#endif
 #endif
 	}
 

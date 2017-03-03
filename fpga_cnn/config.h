@@ -9,11 +9,14 @@
 // C++ compilation debug mode
 //#define _HLS_MODE_  1
 
+#define _KERNEL_DEBUG_ 0
+
 #ifdef _HLS_MODE_
 #define _C_DEBUG_MODE_ 0
 #else
 #define _C_DEBUG_MODE_ 1
 #endif
+
 
 //network configuration PARAMETERS
 int weight_bias_record = 0;

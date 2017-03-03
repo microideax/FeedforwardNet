@@ -48,21 +48,9 @@ public:
 		}
 		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-#ifdef _HLS_MODE_
-#pragma HLS unroll factor=2
-#endif
 				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-#ifdef _HLS_MODE_
-#pragma HLS unroll factor=2
-#endif
 					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii <= _CONV_KERNEL_SIZE_ / 2; ++ii) {
-#ifdef _HLS_MODE_
-#pragma HLS unroll factor=4
-#endif
 						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; ++jj) {
-#ifdef _HLS_MODE_
-#pragma HLS pipeline
-#endif
 							if (i + ii >= 0 && i + ii<_INPUT_SIZE_&&j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
 								T data = in_data_par[i + ii][j + jj];
 								T weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
@@ -90,6 +78,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		int conv_layer_count = 0;
 		//ofstream conv_kernel_a;
 		//conv_kernel_a.open("conv_kernel_a.txt", ios::app);
@@ -115,6 +104,7 @@ public:
 		//}
 		//conv_kernel_a << endl;
 		//conv_kernel_a.close();
+#endif
 #endif
 	}
 
@@ -183,8 +173,9 @@ public:
 
 		//debugging output
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		//cout << "finished convolution and pooling...." << endl;
-		/*ofstream out_pool_a;
+		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
 		out_pool_a << "input 3D arry to conv and pooling layer ..................." << endl;
 		for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
@@ -221,7 +212,8 @@ public:
 			out_pool_a << endl;
 		}
 		out_pool_a.close();
-		cout << endl;*/
+		cout << endl;
+#endif
 #endif
 
 	}
