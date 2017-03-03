@@ -9,7 +9,13 @@
 // C++ compilation debug mode
 //#define _HLS_MODE_  1
 
+#define _BATCH_MODE_ 1
+
+#ifdef _BATCH_MODE_
 #define _KERNEL_DEBUG_ 0
+#else
+#define _KERNEL_DEBUG_ 1
+#endif
 
 #ifdef _HLS_MODE_
 #define _C_DEBUG_MODE_ 0

@@ -6,9 +6,6 @@
 
 #include<vector>
 #include<string>
-#include "hls_lib/static_vector.h"
-//#include "hls_lib/static_unordered_map.h"
-//#include "hls_lib/static_unordered_set.h"
 
 using namespace std;
 
@@ -26,14 +23,14 @@ typedef std::vector<vec_t> tensor_t;
 typedef std::vector<tensor_t> tensor_t_3d;
 */
 
-typedef s_vector<float, 120> vec_t;//avg_pooling_2要存2*2*16个weight,convolution_3要存120个bias
-typedef s_vector<vec_t, 32> tensor_t;
-typedef s_vector<tensor_t, 1920> tensor_t_3d;//convolution_3要存16*120个权重矩阵
+//typedef s_vector<float, 120> vec_t;//avg_pooling_2要存2*2*16个weight,convolution_3要存120个bias
+//typedef s_vector<vec_t, 32> tensor_t;
+//typedef s_vector<tensor_t, 1920> tensor_t_3d;//convolution_3要存16*120个权重矩阵
 
 
-typedef s_vector<float, 32> vec_t_32;
-typedef s_vector<vec_t_32, 32> tensor_t_32;
-typedef s_vector<tensor_t_32, 1> tensor_3d_32_1;
+//typedef s_vector<float, 32> vec_t_32;
+//typedef s_vector<vec_t_32, 32> tensor_t_32;
+//typedef s_vector<tensor_t_32, 1> tensor_3d_32_1;
 
 /*
 typedef s_vector<float, 28> vec_t_28;
