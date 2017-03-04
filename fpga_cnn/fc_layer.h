@@ -115,10 +115,8 @@ public:
 		ofstream fc_layer_a;
 		fc_layer_a.open("fc_layer_a.txt", ios::app);
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
-			fc_layer_a << out_data3D[i] << " ";
+			fc_layer_a << out_data3D[i] << " " << endl;
 		}
-		fc_layer_a << endl;
-		fc_layer_a << endl;
 		fc_layer_a.close();
 		cout << endl;
 #endif

@@ -44,24 +44,24 @@ int main() {
 	//		in_data_1[0][i / 32][i % 32] = data_in[i];
 	//	}
 
+#if _KERNEL_DEBUG_
 	//input data array
-	float in_data_3D[1][28][28] = { 0 };
-/*
+	float in_data_3D[1][32][32] = { 0 };
 	ifstream ifs("./input_3.txt");
 	string str;
 	int count = 0;
 	while (ifs >> str)
 	{
 	float f = atof(str.c_str());
-	in_data_3D[0][count / 28][count % 28] = f;
+	in_data_3D[0][count / 32][count % 32] = f;
 	count++;
 	}
 
 	ofstream indata;
 	indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < 1; i++) {
-	    for (int j = 0; j < 28; j++) {
-	        for (int k = 0; k < 28; k++) {
+	    for (int j = 0; j < 32; j++) {
+	        for (int k = 0; k < 32; k++) {
 	            indata << in_data_3D[i][j][k] << " ";
 	        }
 	        indata << endl;
@@ -69,14 +69,16 @@ int main() {
 	    indata << endl;
 	}
 	indata.close();
-*/
+#endif
 
+#if _BATCH_MODE_
 	float mnist_train_data[60000][1][32][32];
 	float mnist_train_label[60000][10] = { 0 };
 	float mnist_test_data[10000][1][32][32];
 	float mnist_test_label[10000][10] = { 0 };
 	getSrcData(mnist_train_data, mnist_train_label, mnist_test_data, mnist_test_label);
 	cout << "getSrcData end!!!!!!!!!!!!!!" << endl;
+#endif
 
 	// Prepare weights and bias for convolution layer 1
 	float        conv_1_weight2D[6][nn_channel_size_conv][nn_channel_size_conv] = { 0 };
@@ -207,6 +209,7 @@ int main() {
 	}
 	indata_compare.close();*/
 
+#if _BATCH_MODE_
     cout << "starting forward network batch process..........................." << endl;
     cout << "..........................................................." << endl;
 
@@ -215,12 +218,17 @@ int main() {
 	start = clock();
 
 	for (int i = 0; i < 10000;i++) {
+#endif
+
 	//Inference network process
 	    inference_net(
             relu, //activation function
-//            in_data_3D, //input pic data
+#if _KERNEL_DEBUG_
+            in_data_3D, //input pic data
+#endif
+#if _BATCH_MODE_
 		    mnist_test_data[i], //input test dataset
-
+#endif
 		    //layer weights and bias inputs
 		    conv_1_weight2D,
 		    conv_1_bias2D,
@@ -232,6 +240,7 @@ int main() {
             //output fc data
 		    fc_1_out_temp);
 
+#if _BATCH_MODE_
         for (int j = 0; j < 10; j++){
             fc_1_out_a[i][j] = fc_1_out_temp[j];
             fc_1_out_temp[j] = 0;
@@ -248,6 +257,8 @@ int main() {
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
 	getchar();
+#endif
+
 	return 0;
 
 }

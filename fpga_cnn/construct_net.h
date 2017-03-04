@@ -58,7 +58,7 @@ void inference_net(
 	float  pool_1_out[6][14][14] = { 0 };
 	float  pool_2_out[16][5][5] = { 0 };
 
-	//Forward propagation process
+	//Forward propagation by layer
 	C1P2.conv_layer_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, pool_1_out);
 	C3P4.conv_layer_w_pool_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, pool_2_out);
 	F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
