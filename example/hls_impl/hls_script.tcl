@@ -32,7 +32,7 @@ add_files -tb ../input_3.txt
 add_files -tb ../weights_bias_relu.txt
 
 
-add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ff_test.cpp
+add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
 open_solution -reset "fpga_cnn"

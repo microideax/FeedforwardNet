@@ -39,10 +39,10 @@ float f(char type, float data) {
 		return (data<float(0) ? (exp(data) - float(1)) : data);
 	}
 	else if (type == 't') { // tanh
-		//const float ep = exp(data);
-		//const float em = exp(-data);
-		//return (ep - em) / (ep + em);
-		return tanh(data);
+		const float ep = exp(data);
+		const float em = exp(-data);
+		return (ep - em) / (ep + em);
+//		return tanh(data);
 	}
 	else if (type == 'h') { // tan_hp1m2
 		const float ep = exp(data);
