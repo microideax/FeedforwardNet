@@ -106,15 +106,15 @@ int main() {
 	for (int i = 0; i < 6; i++) {
 	    for (int j = 0; j < 5; j++) {
 	        for (int k = 0; k < 5; k++) {
-	            conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
+	            conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 100) / 100.0;
 //	            quantize(-1, 1, conv_1_weight2D[i][j][k]);
 	        }
 	    }
 	}
-//	for (int i = 0; i<6; i++) {
-////	conv_1_bias2D[i] = roundf(conv_1_bias2D[i] * 10) / 10;
+	for (int i = 0; i<6; i++) {
+	    conv_1_bias2D[i] = roundf(conv_1_bias2D[i] * 100) / 100;
 //	conv_1_bias2D[i] = quantize(-0.2, 0.2, conv_1_bias2D[i]);
-//	}
+	}
 
 
 	// Prepare weights and bias for convolution layer 2
