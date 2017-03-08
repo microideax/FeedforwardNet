@@ -103,17 +103,17 @@ int main() {
 	in_number_conv++;
 
 
-//	for (int i = 0; i < 6; i++) {
-//	for (int j = 0; j < 5; j++) {
-//	for (int k = 0; k < 5; k++) {
-//	conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
-////	conv_1_weight2D[i][j][k] = quantize(conv_1_weight2D[i][j][k]);
-//	}
-//	}
-//	}
+	for (int i = 0; i < 6; i++) {
+	    for (int j = 0; j < 5; j++) {
+	        for (int k = 0; k < 5; k++) {
+	            conv_1_weight2D[i][j][k] = roundf(conv_1_weight2D[i][j][k] * 10) / 10.0;
+//	            quantize(-1, 1, conv_1_weight2D[i][j][k]);
+	        }
+	    }
+	}
 //	for (int i = 0; i<6; i++) {
-//	conv_1_bias2D[i] = roundf(conv_1_bias2D[i] * 10) / 10;
-////	conv_1_bias2D[i] = quantize(conv_1_bias2D[i]);
+////	conv_1_bias2D[i] = roundf(conv_1_bias2D[i] * 10) / 10;
+//	conv_1_bias2D[i] = quantize(-0.2, 0.2, conv_1_bias2D[i]);
 //	}
 
 
@@ -144,8 +144,8 @@ int main() {
 //	for (int i = 0; i < 96; i++) {
 //	for (int j = 0; j < 5; j++) {
 //	for (int k = 0; k < 5; k++) {
-//	conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
-////	conv_2_weight2D[i][j][k] = quantize(-0.2, 0.2, conv_2_weight2D[i][j][k]);
+////	conv_2_weight2D[i][j][k] = roundf(conv_2_weight2D[i][j][k] * 10) / 10.0;
+//        quantize(-0.3, 0.3, conv_2_weight2D[i][j][k]);
 //	}
 //	}
 //	}
