@@ -11,24 +11,28 @@
 #include <fstream>
 #include <algorithm>
 #include "data_type.h"
+#include "config.h"
+#include <string>
+
+string weight_src = "weights_alexnet.txt";
 
 template<int size>
 void load_weight_conv(
         float conv_weight2D[][size][size],
-        float conv_bias[],
         int& weight_bias_record,
-        int nn_channel_size_conv,
+        int nn_channel_size_conv[],
         int nn_in_number_conv[],
         int nn_out_number_conv[],
         int in_number_conv) {
 
     cout << "Loading CONV layer weights ..." << endl;
-    ifstream ifs("weights_bias_relu.txt");
+    ifstream ifs(weight_src);
     string str;
     if (!ifs) {
         cout << "weight file not found !" << endl;
     }
-    int layer_weight_num = nn_channel_size_conv * nn_channel_size_conv
+    int layer_weight_num = nn_channel_size_conv[in_number_conv] 
+		               * nn_channel_size_conv[in_number_conv]
                        * nn_in_number_conv[in_number_conv]
                        * nn_out_number_conv[in_number_conv];
     int weight_bias_count = 0;
@@ -43,9 +47,9 @@ void load_weight_conv(
 			if (weight_bias_count >= weight_bias_record) {
 				int serial_no = weight_bias_count - weight_bias_record;
 				float f = atof(str.c_str());
-				int channel = serial_no / (nn_channel_size_conv * nn_channel_size_conv);
-				int y_index = (serial_no % (nn_channel_size_conv * nn_channel_size_conv)) / nn_channel_size_conv;
-				int x_index = serial_no % nn_channel_size_conv;
+				int channel = serial_no / (nn_channel_size_conv[in_number_conv] * nn_channel_size_conv[in_number_conv]);
+				int y_index = (serial_no % (nn_channel_size_conv[in_number_conv] * nn_channel_size_conv[in_number_conv])) / nn_channel_size_conv[in_number_conv];
+				int x_index = serial_no % nn_channel_size_conv[in_number_conv];
 				conv_weight2D[channel][y_index][x_index] = f;
 			}
 			weight_bias_count++;
@@ -60,19 +64,21 @@ void load_weight_conv(
 void load_weight_pooling(
 	float pooling_1_weight[],
 	int& weight_bias_record,
-	int nn_channel_size_pooling,
+	int nn_channel_size_pooling[],
 	int nn_in_number_pooling[],
 	int in_number_pooling) {
 
     cout << "Loading POOL layer weights ..." << endl;
 
-	ifstream ifs("weights_bias_relu.txt");
+	ifstream ifs(weight_src);
 	string str;
 
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
 	}
-	int layer_weight_num = nn_channel_size_pooling*nn_channel_size_pooling*nn_in_number_pooling[in_number_pooling];
+	int layer_weight_num = nn_channel_size_pooling[in_number_pooling] 
+		*nn_channel_size_pooling[in_number_pooling] 
+		*nn_in_number_pooling[in_number_pooling];
 	int weight_bias_count = 0;
 	while (ifs >> str&&weight_bias_count<layer_weight_num + weight_bias_record)
 	{
@@ -99,21 +105,20 @@ template<int size>
 void load_weight_fc(
 	float fc_1_weight2D[][size][size],
 	int& weight_bias_record,
-
-	int nn_channel_size_fc,
+	int nn_channel_size_fc[],
 	int nn_in_number_fc[],
 	int nn_out_number_fc[],
 	int in_number_fc) {
 
     cout << "Loading FC layer weights ..." << endl;
 
-	ifstream ifs("weights_bias_relu.txt");
+	ifstream ifs(weight_src);
 	string str;
 
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
 	}
-	int layer_weight_num = nn_channel_size_fc*nn_channel_size_fc*nn_in_number_fc[in_number_fc]
+	int layer_weight_num = nn_channel_size_fc[in_number_fc] *nn_channel_size_fc[in_number_fc] *nn_in_number_fc[in_number_fc]
 		* nn_out_number_fc[in_number_fc];
 	int weight_bias_count = 0;
 	while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record)
@@ -122,18 +127,18 @@ void load_weight_fc(
 			//cout << str << " ";
 			if (weight_bias_count >= weight_bias_record) {
 				//
-				if (nn_channel_size_fc == 1) {
+				if (nn_channel_size_fc[in_number_fc] == 1) {
 					int serial_no = weight_bias_count - weight_bias_record;
 					float f = atof(str.c_str());
-					int channel = serial_no / (nn_channel_size_fc * nn_channel_size_fc);
+					int channel = serial_no / (nn_channel_size_fc[in_number_fc] * nn_channel_size_fc[in_number_fc]);
 					fc_1_weight2D[channel][0][0] = f;
 				}
 				else {
 					int serial_no = weight_bias_count - weight_bias_record;
 					float f = atof(str.c_str());
-					int channel = serial_no / (nn_channel_size_fc * nn_channel_size_fc);
-					int y_index = (serial_no % (nn_channel_size_fc*nn_channel_size_fc)) / nn_channel_size_fc;
-					int x_index = serial_no%nn_channel_size_fc;
+					int channel = serial_no / (nn_channel_size_fc[in_number_fc] * nn_channel_size_fc[in_number_fc]);
+					int y_index = (serial_no % (nn_channel_size_fc[in_number_fc] *nn_channel_size_fc[in_number_fc])) / nn_channel_size_fc[in_number_fc];
+					int x_index = serial_no%nn_channel_size_fc[in_number_fc];
 					fc_1_weight2D[channel][y_index][x_index] = f;
 				}
 			}
@@ -148,14 +153,14 @@ void load_weight_fc(
 void load_bias_conv(
 	float conv_1_bias2D[],
 	int& weight_bias_record,
-	int nn_channel_size_conv,
+	int nn_channel_size_conv[],
 	int nn_in_number_conv[],
 	int nn_out_number_conv[],
 	int in_number_conv) {
 
 	cout << "Loading CONV layer bias ..." << endl;
 
-	ifstream ifs("weights_bias_relu.txt");
+	ifstream ifs(weight_src);
     if (!ifs) {
         cout << "weight file not found !" << endl;
     }
@@ -189,14 +194,14 @@ void load_bias_conv(
 void load_bias_pooling(
 	float pooling_1_bias2D[],
 	int& weight_bias_record,
-	int nn_channel_size_pooling,
+	int nn_channel_size_pooling[],
 	int nn_in_number_pooling[],
 	int nn_out_number_pooling[],
 	int in_number_pooling) {
 
     cout << "Loading POOL layer bias ..." << endl;
 
-	ifstream ifs("weights_bias_relu.txt");
+	ifstream ifs(weight_src);
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
@@ -227,14 +232,14 @@ void load_bias_pooling(
 void load_bias_fc(
 	float fc_1_bias2D[],
 	int& weight_bias_record,
-	int nn_channel_size_fc,
+	int nn_channel_size_fc[],
 	int nn_in_number_fc[],
 	int nn_out_number_fc[],
 	int in_number_fc) {
 
     cout << "Loading FC layer bias ..." << endl;
 
-	ifstream ifs("weights_bias_relu.txt");
+	ifstream ifs(weight_src);
 	string str;
 	if (!ifs) {
 		cout << "weight file not found !" << endl;
@@ -261,4 +266,4 @@ void load_bias_fc(
 	//return bias2D;
 }
 
-#endif //
+#endif 
