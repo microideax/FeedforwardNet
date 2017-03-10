@@ -75,6 +75,7 @@ public:
 			lrn_local_a_across_channels(alpha, beta,a,in_data3D,out_data3D);
 			//lrn_local_a_within_channel(alpha, beta, in_data3D[a], out_data3D[a]);
 		}
+#if _C_DEBUG_MODE_
 		ofstream out_lrn_a;
 		out_lrn_a.open("lrn_layer_a.txt", ios::app);
 		out_lrn_a << "output from lrn layer .........................." << endl;
@@ -90,6 +91,7 @@ public:
 		out_lrn_a.close();
 		cout << endl;
 	}
+#endif
 };
 
 #endif

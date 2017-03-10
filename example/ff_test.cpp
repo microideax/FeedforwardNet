@@ -3,12 +3,12 @@
 //Using stb_image instead of OpenCV to eliminate library dependency.
 
 #include <iostream>
-#include <vector>
+//#include <vector>
 #include <fstream>
 #include <algorithm>
-#include <iterator>
-#include <cstring>
-#include <cstdlib>
+//#include <iterator>
+//#include <cstring>
+//#include <cstdlib>
 #include <time.h>
 #include "../fpga_cnn/config.h"
 #include "../fpga_cnn/data_type.h"

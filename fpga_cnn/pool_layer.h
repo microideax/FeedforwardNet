@@ -54,7 +54,7 @@ public:
 							sum += data;
 						}
 					}
-					sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+					sum = (T)(sum / (_POOL_KERNEL_SIZE_ * _POOL_KERNEL_SIZE_));//求出每个pooling窗口内的均值
 					out_data[(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = sum * kernel_weight;//每个输入乘同一个weight
 				}
 			}
@@ -69,7 +69,7 @@ public:
 							sum += data;
 						}
 					}
-					sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+					sum = (T)(sum / (_POOL_KERNEL_SIZE_ * _POOL_KERNEL_SIZE_));//求出每个pooling窗口内的均值
 					out_data[(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = sum * kernel_weight;//每个输入乘同一个weight
 				}
 			}
@@ -173,7 +173,7 @@ public:
 							sum += data;
 						}
 					}
-					sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+					sum = (T)(sum / (_POOL_KERNEL_SIZE_ * _POOL_KERNEL_SIZE_));//求出每个pooling窗口内的均值
 					out_data[(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = sum;//每个输入不乘weight
 				}
 			}
@@ -188,7 +188,7 @@ public:
 							sum += data;
 						}
 					}
-					sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
+					sum = (T)(sum / (_POOL_KERNEL_SIZE_ * _POOL_KERNEL_SIZE_));//求出每个pooling窗口内的均值
 					out_data[(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = sum ;//每个输入不乘weight
 				}
 			}

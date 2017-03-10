@@ -6,7 +6,7 @@
 #define _CONSTRUCT_NET_H_
 
 #include <iostream>
-#include <vector>
+//#include <vector>
 #include <fstream>
 #include <algorithm>
 

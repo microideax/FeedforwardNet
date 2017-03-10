@@ -14,7 +14,7 @@
 #include "config.h"
 #include <string>
 
-string weight_src = "weights_alexnet.txt";
+const char* weight_src = "weights_alexnet.txt";
 
 template<int size>
 void load_weight_conv(

@@ -3,11 +3,12 @@
 #define _DROPOUT_LAYER_H_
 
 #include <iostream>
-#include <algorithm>
-#include <math.h> 
+#include <fstream>
+//#include <algorithm>
+//#include <math.h>
 #include "config.h"
-#include "data_type.h"
-#include "activation_functions.h"
+//#include "data_type.h"
+//#include "activation_functions.h"
 
 using namespace std;
 
@@ -32,7 +33,8 @@ public:
 				}
 			}
 		}
-		
+
+//#if _C_DEBUG_MODE_
 		ofstream out_dropout_a;
 		out_dropout_a.open("dropout_layer_a.txt", ios::app);
 		out_dropout_a << "output from dropout layer .........................." << endl;
@@ -47,6 +49,7 @@ public:
 		}
 		out_dropout_a.close();
 		cout << endl;
+//#endif
 	}
 };
 
