@@ -5,13 +5,13 @@
 #define _DATA_TYPE_H_
 
 #include<vector>
-#include<string>
+//#include<string>
 
 using namespace std;
 
-typedef unsigned int uint;
-typedef uint cnn_size_t;
-
+//typedef unsigned int uint;
+//typedef uint cnn_size_t;
+//
 typedef std::vector<float, std::allocator<float> > std_vec_t;
 typedef std::vector<std_vec_t> std_tensor_t;
 typedef std::vector<std_tensor_t> std_tensor_t_3d;

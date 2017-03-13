@@ -9,12 +9,9 @@
 #include <fstream>  
 #include <numeric>
 #include <stdio.h>
-//#include <windows.h>
-//#include <random>
-#include <fstream>
-#include <algorithm>  
+#include <algorithm>
 #include <string>  
-#include "../fpga_cnn/data_type.h"
+//#include "../fpga_cnn/data_type.h"
 
 #define num_patterns_train_CNN      60000 //mnist训练模式对数(总数),10个数字为一对
 #define num_patterns_test_CNN       10000 //mnist测试模式对数(总数),10个数字为一对  

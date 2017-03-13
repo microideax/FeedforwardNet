@@ -7,12 +7,12 @@
 #define _WEIGHT_BIAS_H_
 
 #include <iostream>
-#include <vector>
+//#include <vector>
 #include <fstream>
-#include <algorithm>
-#include "data_type.h"
-#include "config.h"
-#include <string>
+//#include <algorithm>
+//#include "data_type.h"
+//#include "config.h"
+//#include <string>
 
 const char* weight_src = "weights_alexnet.txt";
 

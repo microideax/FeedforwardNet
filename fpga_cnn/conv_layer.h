@@ -8,8 +8,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include "data_type.h"
 #include "activation_functions.h"
 #include "config.h"
 
@@ -80,31 +78,33 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-        //int conv_layer_count = 0;
-        //ofstream conv_kernel_a;
-        //conv_kernel_a.open("conv_kernel_a.txt", ios::app);
-        //for (int j = 0; j < _INPUT_SIZE_ ; j++) {
-        //    for (int k = 0; k < _INPUT_SIZE_ ; k++) {
-        //        conv_kernel_a << in_data[j][k] << " "; // i?
-        //    }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
-        //    for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
-        //        conv_kernel_a << kernel_weights[j][k] << " "; // i?
-        //    }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
-        //    for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
-        //        conv_kernel_a << out_data[j][k] << " "; //
-        //    }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //conv_kernel_a.close();
+#if _KERNEL_DEBUG_
+        int conv_layer_count = 0;
+        ofstream conv_kernel_a;
+        conv_kernel_a.open("conv_kernel_a.txt", ios::app);
+        for (int j = 0; j < _INPUT_SIZE_ ; j++) {
+            for (int k = 0; k < _INPUT_SIZE_ ; k++) {
+                conv_kernel_a << in_data[j][k] << " "; // i?
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a << endl;
+        for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
+            for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
+                conv_kernel_a << kernel_weights[j][k] << " "; // i?
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a << endl;
+        for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
+            for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
+                conv_kernel_a << out_data[j][k] << " "; //
+            }
+            conv_kernel_a << endl;
+        }
+        conv_kernel_a << endl;
+        conv_kernel_a.close();
+#endif
 #endif
     }
 
@@ -118,7 +118,9 @@ public:
             T out_data3D[_OUT_CHANNEL_NUM_][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
 
-        //cout << "Processing convolution layer ...." << endl;
+#ifdef _C_DEBUG_MODE_
+        cout << "Starting convolution layer ...." << endl;
+#endif
 
 		for (int c = 0; c < _GROUP_; c++) {//group loop
 			for (int b = c * _OUT_CHANNEL_NUM_ / _GROUP_; b < c * _OUT_CHANNEL_NUM_ / _GROUP_ + _OUT_CHANNEL_NUM_ / _GROUP_; b++) {//output kernel loop
@@ -135,25 +137,11 @@ public:
 				}
 			}
 		}
-        
-        //cout << "Finished convolution layer ...." << endl;
 
-        //debugging output
 #if _C_DEBUG_MODE_
-        //cout << "finished convolution ...." << endl;
+        cout << "Finished convolution layer ...." << endl;
         ofstream out_conv_a;
         out_conv_a.open("conv_layer_a.txt", ios::app);
-        /*out_conv_a << "input 3D arry to conv layer ...................." << endl;
-        for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
-            for (int j = 0; j < _INPUT_SIZE_; j++) {
-                for (int k = 0; k < _INPUT_SIZE_; k++) {
-                    out_conv_a << in_data3D[i][j][k] << " ";
-                }
-                out_conv_a << endl;
-            }
-            out_conv_a << endl;
-        }
-        out_conv_a << endl;*/
 
         out_conv_a << "output from conv layer .........................." << endl;
         for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
@@ -181,7 +169,9 @@ public:
             T kernel_bias[],
             T out_data3D[][_INPUT_SIZE_ - _CONV_KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _CONV_KERNEL_SIZE_ + 1]) {
 
+#if _C_DEBUG_MODE_
         cout << "starting convolution ...." << endl;
+#endif
 
         for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
             for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop

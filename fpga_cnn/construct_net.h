@@ -6,14 +6,8 @@
 #define _CONSTRUCT_NET_H_
 
 #include <iostream>
-//#include <vector>
-#include <fstream>
-#include <algorithm>
-
 #include "config.h"
-#include "data_type.h"
 #include "weight_bias.h"
-#include "activation_functions.h"
 #include "conv_pool_layer.h"
 #include "conv_layer.h"
 #include "pool_layer.h"
@@ -61,9 +55,6 @@ void inference_net(
 #endif
 
 	/******************************************************************************************/
-	//construct network --------------conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
-    /*conv_pool_layer<float, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
-	conv_pool_layer<float, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;*/
 
 	//construct network --------------alexnet
 	conv_layer<float, 227, 11, 0, 4, 3, 96, 1> C1;

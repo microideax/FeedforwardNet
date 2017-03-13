@@ -4,13 +4,12 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include <math.h> 
+//#include <algorithm>
+//#include <math.h>
 #include "config.h"
-#include "data_type.h"
-#include "activation_functions.h"
+//#include "activation_functions.h"
 
-using namespace std;
+//using namespace std;
 
 template <typename T, int _IN_CHANNEL_NUM_, int _LOCAL_SIZE_, int _INPUT_SIZE_>
 class lrn_layer {

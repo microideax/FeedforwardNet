@@ -8,12 +8,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include "data_type.h"
 #include "activation_functions.h"
 #include "config.h"
 
-using namespace std;
+//using namespace std;
 
 extern const bool tbl[6][16];
 
@@ -79,7 +77,6 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-		int conv_layer_count = 0;
 		ofstream conv_kernel_a;
 		conv_kernel_a.open("conv_kernel_a.txt", ios::app);
 		for (int j = 0; j < _INPUT_SIZE_; j++) {

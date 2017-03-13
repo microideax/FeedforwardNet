@@ -9,12 +9,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>
-#include "data_type.h"
 #include "activation_functions.h"
 #include "config.h"
 
-using namespace std;
+//using namespace std;
 
 template <typename T, int _INPUT_SIZE_, int _POOL_KERNEL_SIZE_, int _POOL_PADDING_, int _POOL_STRIDE_, int _IN_CHANNEL_NUM_>
 class pool_layer {
@@ -31,19 +29,6 @@ public:
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
 		T kernel_weight,
 		T out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
-		//for (int i = 0; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; i = i + _KERNEL_SIZE_) {
-		//	for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; j = j + _KERNEL_SIZE_) {
-		//		T sum = 0;
-		//		for (int ii = 0; ii < _KERNEL_SIZE_; ++ii) {
-		//			for (int jj = 0; jj < _KERNEL_SIZE_; ++jj) {
-		//				T data = in_data[i + ii][j + jj];
-		//				sum += data;
-		//			}
-		//		}
-		//		sum = (T)(sum / (_KERNEL_SIZE_ * _KERNEL_SIZE_));//求出每个pooling窗口内的均值
-		//		out_data[i / _KERNEL_SIZE_][j / _KERNEL_SIZE_] = sum * kernel_weight;//每个输入乘同一个weight
-		//	}
-		//}
 		if (_POOL_KERNEL_SIZE_ % 2 != 0) {//_POOL_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _POOL_KERNEL_SIZE_ / 2 - _POOL_PADDING_; i < _INPUT_SIZE_ + _POOL_PADDING_ - _POOL_KERNEL_SIZE_ / 2; i += _POOL_STRIDE_) {
 				for (int j = _POOL_KERNEL_SIZE_ / 2 - _POOL_PADDING_; j < _INPUT_SIZE_ + _POOL_PADDING_ - _POOL_KERNEL_SIZE_ / 2; j += _POOL_STRIDE_) {

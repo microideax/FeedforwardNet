@@ -5,12 +5,9 @@
 #ifndef _ACTIVATION_FUNCTIONS_H_
 #define _ACTIVATION_FUNCTIONS_H_
 
-#include <iostream>
-#include <algorithm>
 #include <math.h>
-#include "data_type.h"
 
-using namespace std;
+//using namespace std;
 /*
 identity = i;
 sigmod   = s;

@@ -1,28 +1,28 @@
-#if _HLS_MODE_
-#pragma HLS INTERFACE ap_bus port=in_data_3D
-#pragma HLS RESOURCE core=AXI4M variable=in_data_3D
-
-#pragma HLS INTERFACE ap_bus port=conv_1_weight_a
-#pragma HLS RESOURCE core=AXI4M variable=conv_1_weight_a
-
-#pragma HLS INTERFACE ap_bus port=conv_1_bias_a
-#pragma HLS RESOURCE core=AXI4M variable=conv_1_bias_a
-
-#pragma HLS INTERFACE ap_bus port=conv_2_weight_a
-#pragma HLS RESOURCE core=AXI4M variable=conv_2_weight_a
-
-#pragma HLS INTERFACE ap_bus port=conv_2_bias_a
-#pragma HLS RESOURCE core=AXI4M variable=conv_2_bias_a
-
-#pragma HLS INTERFACE ap_bus port=fc_1_weight_a
-#pragma HLS RESOURCE core=AXI4M variable=fc_1_weight_a
-
-#pragma HLS INTERFACE ap_bus port=fc_1_bias_a
-#pragma HLS RESOURCE core=AXI4M variable=fc_1_bias_a
-
-#pragma HLS INTERFACE ap_bus port=fc_1_out_a
-#pragma HLS RESOURCE core=AXI4M variable=fc_1_out_a
-#endif
+//#if _HLS_MODE_
+//#pragma HLS INTERFACE ap_bus port=in_data_3D
+//#pragma HLS RESOURCE core=AXI4M variable=in_data_3D
+//
+//#pragma HLS INTERFACE ap_bus port=conv_1_weight_a
+//#pragma HLS RESOURCE core=AXI4M variable=conv_1_weight_a
+//
+//#pragma HLS INTERFACE ap_bus port=conv_1_bias_a
+//#pragma HLS RESOURCE core=AXI4M variable=conv_1_bias_a
+//
+//#pragma HLS INTERFACE ap_bus port=conv_2_weight_a
+//#pragma HLS RESOURCE core=AXI4M variable=conv_2_weight_a
+//
+//#pragma HLS INTERFACE ap_bus port=conv_2_bias_a
+//#pragma HLS RESOURCE core=AXI4M variable=conv_2_bias_a
+//
+//#pragma HLS INTERFACE ap_bus port=fc_1_weight_a
+//#pragma HLS RESOURCE core=AXI4M variable=fc_1_weight_a
+//
+//#pragma HLS INTERFACE ap_bus port=fc_1_bias_a
+//#pragma HLS RESOURCE core=AXI4M variable=fc_1_bias_a
+//
+//#pragma HLS INTERFACE ap_bus port=fc_1_out_a
+//#pragma HLS RESOURCE core=AXI4M variable=fc_1_out_a
+//#endif
 
 //// layer weights and bias inputs ------- LeNet-5
 //float        conv_1_weight_a[6][5][5],
@@ -72,7 +72,8 @@
 //float        fc_1_bias_a[10],
 
 /******************************************************************************************/
-////construct network --------------conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
+////construct network --------------LeNet-5 example 2
+/// conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
 //conv_pool_layer<float, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
 //conv_pool_layer<float, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;
 //fc_layer<float, 16, 5, 10> F5;
@@ -87,3 +88,7 @@
 //F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
 
 /******************************************************************************************/
+////construct network --------------LeNet-5 example 3
+////conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
+/*conv_pool_layer<float, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
+conv_pool_layer<float, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;*/

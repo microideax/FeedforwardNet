@@ -3,10 +3,6 @@
 #define _SOFTMAX_H_
 
 #include <iostream>
-#include <vector>
-#include <fstream>
-#include <algorithm>
-#include "data_type.h"
 
 #if _KERNEL_DEBUG_
 template<int size, int label_size>
