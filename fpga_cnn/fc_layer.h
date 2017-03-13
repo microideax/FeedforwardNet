@@ -146,7 +146,7 @@ public:
 
 //debugging output
 #if _C_DEBUG_MODE_
-		//#if _KERNEL_DEBUG_
+#if _KERNEL_DEBUG_
 		cout << "finished fully_connect ...." << endl;
 		ofstream fc_layer_a;
 		fc_layer_a.open("fc_layer_a.txt", ios::app);
@@ -157,7 +157,7 @@ public:
 		fc_layer_a << endl;
 		fc_layer_a.close();
 		cout << endl;
-		//#endif
+#endif
 #endif
 	}
 

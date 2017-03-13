@@ -11,7 +11,7 @@
 #include "activation_functions.h"
 #include "config.h"
 
-using namespace std;
+//using namespace std;
 
 extern const bool tbl[6][16];
 

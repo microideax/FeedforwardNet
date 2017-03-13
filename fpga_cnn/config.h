@@ -7,7 +7,7 @@
 #define _CONFIG_H_
 
 // C++ compilation debug mode
-//#define _HLS_MODE_  1
+#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 
@@ -57,16 +57,16 @@ float dropout_ratio = 0.5;
 
 float label_list[10] = { 0,1,2,3,4,5,6,7,8,9 };
 
-#define O true
-#define X false
-const bool tbl[6][16] = {
-	O, X, X, X, O, O, O, X, X, O, O, O, O, X, O, O,
-	O, O, X, X, X, O, O, O, X, X, O, O, O, O, X, O,
-	O, O, O, X, X, X, O, O, O, X, X, O, X, O, O, O,
-	X, O, O, O, X, X, O, O, O, O, X, X, O, X, O, O,
-	X, X, O, O, O, X, X, O, O, O, O, X, O, O, X, O,
-	X, X, X, O, O, O, X, X, O, O, O, O, X, O, O, O };
-#undef O
-#undef X
+//#define O true
+//#define X false
+//const bool tbl[6][16] = {
+//	O, X, X, X, O, O, O, X, X, O, O, O, O, X, O, O,
+//	O, O, X, X, X, O, O, O, X, X, O, O, O, O, X, O,
+//	O, O, O, X, X, X, O, O, O, X, X, O, X, O, O, O,
+//	X, O, O, O, X, X, O, O, O, O, X, X, O, X, O, O,
+//	X, X, O, O, O, X, X, O, O, O, O, X, O, O, X, O,
+//	X, X, X, O, O, O, X, X, O, O, O, O, X, O, O, O };
+//#undef O
+//#undef X
 
 #endif //FFNET_CONFIG_H
