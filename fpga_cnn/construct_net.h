@@ -68,9 +68,9 @@ void inference_net(
 	conv_layer<float, 13, 3, 1, 1, 384, 256, 2> C5;
 	pool_layer<float, 13, 3, 0, 2, 256> P5;
 	fc_layer<float, 256, 6, 4096> F6;
-	dropout_layer<float, 4096, 1> D6;
+	/*dropout_layer<float, 4096, 1> D6;*/
 	fc_layer<float, 4096, 1, 4096> F7;
-	dropout_layer<float, 4096, 1> D7;
+	/*dropout_layer<float, 4096, 1> D7;*/
 	fc_layer<float, 4096, 1, 1000> F8;
 
 	//temp storage space
@@ -85,9 +85,9 @@ void inference_net(
 	float  conv_5_out[256][13][13] = { 0 };
 	float  pool_5_out[256][6][6] = { 0 };
 	float  fc_6_out[4096][1][1] = { 0 };
-	float  drop_6_out[4096][1][1] = { 0 };
+	/*float  drop_6_out[4096][1][1] = { 0 };*/
 	float  fc_7_out[4096][1][1] = { 0 };
-	float  drop_7_out[4096][1][1] = { 0 };
+	/*float  drop_7_out[4096][1][1] = { 0 };*/
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
@@ -101,9 +101,9 @@ void inference_net(
 	C5.conv_layer_a(activation_type, conv_4_out, conv_5_weight_a, conv_5_bias_a, conv_5_out);
 	P5.max_pooling_layer_a(activation_type, conv_5_out, pool_5_out);
 	F6.fc_layer_a(activation_type, pool_5_out, fc_6_weight_a, fc_6_bias_a, fc_6_out);
-	D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);
+	/*D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);*/
 	F7.fc_layer_a(activation_type, fc_6_out, fc_7_weight_a, fc_7_bias_a, fc_7_out);
-	D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);
+	/*D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);*/
 	F8.fc_layer_a_no_activation(activation_type, fc_7_out, fc_8_weight_a, fc_8_bias_a, fc_8_out_a);
 
 	/******************************************************************************************/
