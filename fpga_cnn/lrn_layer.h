@@ -54,10 +54,10 @@ public:
 					R data = 0;
 					for (int ii = -_LOCAL_SIZE_ / 2; ii <= _LOCAL_SIZE_ / 2; ++ii) {
 						if (a + ii >= 0 && a + ii<_IN_CHANNEL_NUM_) {//if in all channels
-							data += pow_ff(in_data[a+ii][j][k], 2);
+							data += pow(in_data[a+ii][j][k], 2);
 						}
 					}
-					out_data[a][j][k] = in_data[a][j][k] * pow_ff(1 + (alpha / _LOCAL_SIZE_) * data, -beta);
+					out_data[a][j][k] = in_data[a][j][k] * pow(1 + (alpha / _LOCAL_SIZE_) * data, -beta);
 				}
 			}
 		//}
