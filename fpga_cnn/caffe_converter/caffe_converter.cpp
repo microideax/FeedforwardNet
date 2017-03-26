@@ -7,7 +7,7 @@
 #include <ctime>
 #include <limits>
 #include "caffe.pb.h"
-#include "layer_factory_impl.h"
+#include "layer_factory_impl_2.h"
 //#ifdef _MSC_VER
 //#define _NOMINMAX
 //#include <io.h>
@@ -156,7 +156,7 @@ void read_proto_from_text(const std::string& prototxt,
                                  google::protobuf::Message *message) {
     int fd = CNN_OPEN_TXT(prototxt.c_str());
     if (fd == -1) {
-        cout<<"file not found: "<<prototxt<<endl;
+        cout<<"file not fonud: "<<prototxt<<endl;
     }
 
     google::protobuf::io::FileInputStream input(fd);
@@ -200,17 +200,40 @@ void reload_weight_from_caffe_protobinary(const std::string& caffebinary,int inp
 	reload_weight_from_caffe_net(np,input_param);
 }
 
+void compute_mean(const string& mean_file)
+{
+    caffe::BlobProto blob;
+    read_proto_from_binary(mean_file, &blob);
+
+    vector<cv::Mat> channels;
+    auto data = blob.mutable_data()->mutable_data();
+
+    for (int i = 0; i < blob.channels(); i++, data += blob.height() * blob.width())
+        channels.emplace_back(blob.height(), blob.width(), CV_32FC1, data);
+
+    ofstream out;
+    out.open("mean_alexnet.txt",ios::app);
+    cv::Mat mean;
+    cv::merge(channels, mean);
+    out<<cv::Mat(cv::Size(1, 1), mean.type(), cv::mean(mean))<<" ";
+    out.close();
+}
+
 void test(const string& model_file,
-          const std::string& trained_file) {
+          const std::string& trained_file,
+          const string& mean_file) {
     int input_param[]={0,0};
     create_net_from_caffe_prototxt(model_file,input_param);
 	reload_weight_from_caffe_protobinary(trained_file,input_param);
+    compute_mean(mean_file);
 }
 
 int main(int argc, char** argv) {
     string model_file = argv[1];
 	string trained_file = argv[2];
+    string mean_file = argv[3];
     cout<<"model_file:"<<model_file<<endl;
     cout<<"trained_file:"<<trained_file<<endl;
-	test(model_file,trained_file);
+    cout<<"mean_file:"<<mean_file<<endl;
+	test(model_file,trained_file,mean_file);
 }
