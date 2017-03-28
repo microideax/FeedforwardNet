@@ -119,8 +119,11 @@ public:
 			[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1] = { 0 };
 
-		//cout << "starting convolution and pooling...." << endl;
-
+#ifdef _C_DEBUG_MODE_
+#ifdef _KERNEL_DEBUG_
+		cout << "Starting convolution with pooling layer ...." << endl;
+#endif
+#endif
 		//convolution...
 		for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
 			for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
@@ -171,7 +174,7 @@ public:
 		//debugging output
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-		//cout << "finished convolution and pooling...." << endl;
+		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
 		out_pool_a << "input 3D arry to conv and pooling layer ..................." << endl;

@@ -11,7 +11,7 @@
 #include "activation_functions.h"
 
 
-//using namespace std;
+using namespace std;
 
 template <typename T, int _IN_CHANNEL_NUM_, int _INPUT_SIZE_, int _OUT_CHANNEL_NUM_>
 class fc_layer {
@@ -42,7 +42,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-		cout << "array fc kernel output ...." << endl;
+		//cout << "array fc kernel output ...." << endl;
 		ofstream fc_kernel_a;
 		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
 		fc_kernel_a << "fc kernel in data" << endl;
@@ -73,7 +73,7 @@ public:
 		//}
 		fc_kernel_a << endl;
 		fc_kernel_a.close();
-		cout << endl;
+//		cout << endl;
 #endif
 #endif
 	}
@@ -109,13 +109,12 @@ public:
 		ofstream fc_layer_a;
 		fc_layer_a.open("fc_layer_a.txt", ios::app);
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
-			fc_layer_a << out_data3D[i][0][0] << " ";
+			fc_layer_a << out_data3D[i][0][0] << " " << endl;
 		}
-		fc_layer_a << endl;
-		fc_layer_a << endl;
 		fc_layer_a.close();
 		cout << endl;
 #endif
+
 	}
 
 	/************************************************************************************************/
@@ -153,8 +152,6 @@ public:
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
 			fc_layer_a << out_data3D[i][0][0] << " " << endl;
 		}
-		fc_layer_a << endl;
-		fc_layer_a << endl;
 		fc_layer_a.close();
 		cout << endl;
 #endif

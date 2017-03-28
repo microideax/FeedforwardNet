@@ -139,6 +139,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
         cout << "Finished convolution layer ...." << endl;
         ofstream out_conv_a;
         out_conv_a.open("conv_layer_a.txt", ios::app);
@@ -155,6 +156,7 @@ public:
         }
         out_conv_a.close();
         cout << endl;
+#endif
 #endif
 
     }
