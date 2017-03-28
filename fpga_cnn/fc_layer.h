@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "config.h"
+//#include "config.h"
 #include "activation_functions.h"
 
 
