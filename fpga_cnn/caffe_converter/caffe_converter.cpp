@@ -7,7 +7,7 @@
 #include <ctime>
 #include <limits>
 #include "caffe.pb.h"
-#include "layer_factory_impl_2.h"
+#include "layer_factory_impl.h"
 //#ifdef _MSC_VER
 //#define _NOMINMAX
 //#include <io.h>
