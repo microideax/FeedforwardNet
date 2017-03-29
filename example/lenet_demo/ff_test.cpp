@@ -138,13 +138,21 @@ int main() {
 
 #if _BATCH_MODE_
     cout << "starting forward network batch process..........................." << endl;
-    cout << "..........................................................." << endl;
+    cout << "................................................................." << endl;
 
 	clock_t start, finish;
 	double totaltime;
 	start = clock();
 
-	for (int i = 0; i < 10000;i++) {
+	for (int i = 0; i < 10000; i++) {
+        if (i % 200 == 0){
+            cout <<">>";
+        }
+#endif
+
+#if _KERNEL_DEBUG_
+    cout << "starting forward network single picture processing ..............." << endl;
+    cout << ".................................................................." << endl;
 #endif
 
 	//Inference network process
@@ -168,12 +176,12 @@ int main() {
 		fc_1_out_temp);
 
 #if _BATCH_MODE_
-	for (int j = 0; j < 10; j++){
-            fc_1_out_a[i][j] = fc_1_out_temp[j][1][1];
-            fc_1_out_temp[j][1][1] = 0;
+	    for (int j = 0; j < 10; j++){
+            fc_1_out_a[i][j] = fc_1_out_temp[j][0][0];
+            fc_1_out_temp[j][0][0] = 0;
         }
 	}
-
+    cout << endl;
 	softmax(fc_1_out_a);
 
 	predict(fc_1_out_a, label_list);

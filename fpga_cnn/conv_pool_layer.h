@@ -119,8 +119,8 @@ public:
 			[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1] = { 0 };
 
-#ifdef _C_DEBUG_MODE_
-#ifdef _KERNEL_DEBUG_
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "Starting convolution with pooling layer ...." << endl;
 #endif
 #endif

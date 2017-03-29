@@ -60,14 +60,14 @@ void predict(float (&x)[size][label_size], float(&y)[label_size]) {//for mnist d
 				max = x[i][j];
 			}
 		}
-		cout << "finished predict ...." << endl;
+//		cout << "finished predict ...." << endl;
 		ofstream predict_a;
 		predict_a.open("predict_a.txt", ios::app);
 		predict_a << "predicted class and probabilities is:  " << y[predict_label] << "  " << max << endl;
 		predict_a << endl;
 		predict_a.close();
-		cout << endl;
 	}
+//	cout << endl;
 }
 #endif
 #endif

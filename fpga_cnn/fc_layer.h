@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <fstream>
-//#include "config.h"
 #include "activation_functions.h"
 
 
@@ -79,7 +78,7 @@ public:
 	}
 
 	/************************************************************************************************/
-	//fc layer function with with array input with activation
+	//fc layer function with array input and activation functions
 	void fc_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
@@ -88,7 +87,9 @@ public:
 		T out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "starting fully_connect layer ...." << endl;
+#endif
 #endif
 
 		for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
@@ -104,6 +105,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		//debugging output
 		cout << "finished fully_connect ...." << endl;
 		ofstream fc_layer_a;
@@ -113,6 +115,7 @@ public:
 		}
 		fc_layer_a.close();
 		cout << endl;
+#endif
 #endif
 
 	}
@@ -128,7 +131,9 @@ public:
 		T out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "starting fully_connect layer ...." << endl;
+#endif
 #endif
 
 		for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop

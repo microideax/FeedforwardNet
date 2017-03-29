@@ -54,7 +54,8 @@ void accuracy(float (&x)[size][label_size],float (&y)[size][label_size]) {//for 
 		}
 	}
 	accuracy = right_count / all_count;
-	cout << "finished calculating accuracy ...." << endl;
+	cout << "finished calculating accuracy ..................................." << endl;
+	cout << "................................................................." << endl;
 	cout << endl;
 	ofstream accuracy_a;
 	accuracy_a.open("accuracy_a.txt", ios::app);
