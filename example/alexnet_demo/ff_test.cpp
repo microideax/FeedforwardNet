@@ -9,22 +9,22 @@
 #include <fstream>
 #include <algorithm>
 //#include <iterator>
-//#include <cstring>
-//#include <cstdlib>
+#include <cstring>
+#include <cstdlib>
 #include <time.h>
-#include "../fpga_cnn/config.h"
-#include "../fpga_cnn/data_type.h"
-#include "../fpga_cnn/image_converter.h"
-#include "../fpga_cnn/weight_bias.h"
-#include "../fpga_cnn/construct_net.h"
-//#include "../fpga_cnn/conv_layer.h"
+#include "config.h"
+#include "construct_net.h"
+#include "../../fpga_cnn/data_type.h"
+#include "../../fpga_cnn/image_converter.h"
+#include "../../fpga_cnn/weight_bias.h"
+#include "../fpga_cnn/conv_layer.h"
 //#include "../fpga_cnn/data_quantize.h"
-#include "../fpga_cnn/read_mnist.h"
-#include "../fpga_cnn/softmax.h"
-#include "../fpga_cnn/predict.h"
-#include "../fpga_cnn/accuracy.h"
-#include "../fpga_cnn/pow_function.h"
-#include "../fpga_cnn/resize_image.h"
+#include "../../fpga_cnn/read_mnist.h"
+#include "../../fpga_cnn/softmax.h"
+#include "../../fpga_cnn/predict.h"
+#include "../../fpga_cnn/accuracy.h"
+#include "../../fpga_cnn/pow_function.h"
+#include "../../fpga_cnn/resize_image.h"
 //#include "../fpga_cnn/set_mean.h"
 
 using namespace std;
@@ -50,7 +50,7 @@ int main() {
 	string y2 = "]";
 
 	if (!ifs1) {
-		cout << "weight file not found !" << endl;
+		cout << "mean data file not found !" << endl;
 	}
 	int index = 0;
 	while (ifs1 >> str1) {
@@ -74,7 +74,7 @@ int main() {
 	string str;
 
 	if (!ifs) {
-		cout << "weight file not found !" << endl;
+		cout << "val data file not found !" << endl;
 	}
 	int num = 0;
 	while (ifs >> str&&num<20) {//num:10 pair (image_name,image_class)
@@ -88,9 +88,10 @@ int main() {
 	}
 	ifs.close();
 
+
 	//load val image file *****************************
 #if _KERNEL_DEBUG_
-	string image_dir = "C:/Users/Administrator/Desktop/ILSVRC2012_img_val/ILSVRC2012_val_00000001.JPEG";//validation dataset dir
+	string image_dir = "ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
 	float in_data_3D[3][227][227] = { 0 };
@@ -140,6 +141,9 @@ int main() {
 			}
 		}
 	}
+
+    cout << "testing point 2" << endl;
+
 	ofstream indata;
 	indata.open("in_data_crop_mean_1.txt", ios::app);
 	for (int i = 0; i < 3; i++) {
@@ -157,7 +161,7 @@ int main() {
 
 #if _BATCH_MODE_
 	//load val image set file *****************************
-	string root_dir = "C:/Users/Administrator/Desktop/ILSVRC2012_img_val/";
+	string root_dir = "./ILSVRC2012_img_val/";
 	float imagenet_test_data_channel_swap[10][3][1000][900] = { 0 };
 	float imagenet_test_data[10][3][227][227] = { 0 };
 	for (int image_num = 0; image_num < 10; image_num++) {
@@ -547,6 +551,18 @@ int main() {
 
 	predict(fc_8_out);
 #endif
+
+#if _HLS_MODE_
+    cout << "finished inference processing ............" << endl;
+    ofstream predict_output;
+    predict_output.open("predict_output.txt", ios::app);
+    for (int i = 0; i < 10; i++) {
+        predict_output << fc_1_out_temp[i][0][0] << " " << endl;
+    }
+    predict_output.close();
+    cout << endl;
+#endif
+
 	return 0;
 
 }

@@ -62,7 +62,7 @@ float f(char type, float data) {
 //    else return false;
 //}
 
-float df(string& type, float data) {
+float df(char& type, float data) {
 	if (type == "identity")
 	{
 		return float(1);
@@ -85,9 +85,6 @@ float df(string& type, float data) {
 	else if (type == "tan_hp1m2") {
 		return 2 * data *(float(1) - data);
 	}
-//	else if (type == "softmax") {
-//		return data * (float(1) - data);
-//	}
     else return false;
 }
 

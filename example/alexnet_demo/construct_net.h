@@ -7,13 +7,13 @@
 
 #include <iostream>
 #include "config.h"
-#include "weight_bias.h"
-#include "conv_pool_layer.h"
-#include "conv_layer.h"
-#include "pool_layer.h"
-#include "fc_layer.h"
-#include "dropout_layer.h"
-#include "lrn_layer.h"
+//#include "weight_bias.h"
+#include "../../fpga_cnn/conv_pool_layer.h"
+#include "../../fpga_cnn/conv_layer.h"
+#include "../../fpga_cnn/pool_layer.h"
+#include "../../fpga_cnn/fc_layer.h"
+#include "../../fpga_cnn/dropout_layer.h"
+#include "../../fpga_cnn/lrn_layer.h"
 
 void inference_net(
 
