@@ -319,7 +319,11 @@ public:
 		T out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "Starting Max_pooling layer ...." << endl;
+#endif
+#endif
 
 		for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
 			max_pooling_kernel_a(
@@ -332,13 +336,14 @@ public:
 				}
 			}
 		}
-		cout << "Finished Max_pooling layer ...." << endl;
 
-		//debugging output
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
+		cout << "Finished Max_pooling layer ...." << endl;
+        //debugging output
 		ofstream out_pool_a;
 		out_pool_a.open("pool_layer_a.txt", ios::app);
-		out_pool_a << "output from pool layer .........................." << endl;
+//		out_pool_a << "output from pool layer .........................." << endl;
 		for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
 			for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
 				for (int k = 0; k < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; k++) {
@@ -350,6 +355,7 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
+#endif
 #endif
 	}
 };

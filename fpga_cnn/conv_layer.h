@@ -119,8 +119,10 @@ public:
             T kernel_bias[_OUT_CHANNEL_NUM_],
             T out_data3D[_OUT_CHANNEL_NUM_][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
 
-#ifdef _C_DEBUG_MODE_
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
         cout << "Starting convolution layer ...." << endl;
+#endif
 #endif
 
 		for (int c = 0; c < _GROUP_; c++) {//group loop
