@@ -64,9 +64,9 @@ void inference_net(
 
     //Forward propagation by layer
     C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
-    P2.pooling_layer_a_no_w(activation_type, conv_1_out, pool_1_out);
+    P2.max_pooling_layer_a(activation_type, conv_1_out, pool_1_out);
     C3.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
-    P4.pooling_layer_a_no_w(activation_type, conv_2_out, pool_2_out);
+    P4.max_pooling_layer_a(activation_type, conv_2_out, pool_2_out);
     F5.fc_layer_a(activation_type, pool_2_out, fc_1_weight_a, fc_1_bias_a, fc_1_out_a);
     /******************************************************************************************/
 
