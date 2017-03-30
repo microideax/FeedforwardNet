@@ -15,7 +15,7 @@ using namespace std;
 
 extern const bool tbl[6][16];
 
-template <typename T, uint _INPUT_SIZE_, uint _CONV_KERNEL_SIZE_, uint _CONV_PADDING_, uint _CONV_STRIDE_, uint _IN_CHANNEL_NUM_, uint _OUT_CHANNEL_NUM_, uint _GROUP_>
+template <typename T, int _INPUT_SIZE_, int _CONV_KERNEL_SIZE_, int _CONV_PADDING_, int _CONV_STRIDE_, int _IN_CHANNEL_NUM_, int _OUT_CHANNEL_NUM_, int _GROUP_>
 class conv_layer {
 
 private:
@@ -47,18 +47,21 @@ public:
 
 		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii <= _CONV_KERNEL_SIZE_ / 2; ++ii) {
-						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; ++jj) {
-							if (i + ii >= 0 && i + ii < _INPUT_SIZE_ && j + jj >= 0 && j + jj < _INPUT_SIZE_) {//if overlapped
-								T data = in_data_par[i + ii][j + jj];
-								T weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
-								out_data[(i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_][(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_] += data * weight;
-							}
-						}
-					}
-				}
-			}
+                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_;
+                     j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
+                    for (int ii = (-_CONV_KERNEL_SIZE_ / 2); ii <= _CONV_KERNEL_SIZE_ / 2; ii = ii + 1) {
+                        for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; jj = jj + 1) {
+                            if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) &&
+                                (j + jj < _INPUT_SIZE_)) {//if overlapped
+                                T data = in_data_par[i + ii][j + jj];
+                                T weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
+                                out_data[(i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_][
+                                        (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_] += data * weight;
+                            }
+                        }
+                    }
+                }
+            }
 		}
 		else {
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
