@@ -142,8 +142,6 @@ int main() {
 		}
 	}
 
-    cout << "testing point 2" << endl;
-
 	ofstream indata;
 	indata.open("in_data_crop_mean_1.txt", ios::app);
 	for (int i = 0; i < 3; i++) {
@@ -162,9 +160,9 @@ int main() {
 #if _BATCH_MODE_
 	//load val image set file *****************************
 	string root_dir = "./ILSVRC2012_img_val/";
-	float imagenet_test_data_channel_swap[10][3][1000][900] = { 0 };
-	float imagenet_test_data[10][3][227][227] = { 0 };
-	for (int image_num = 0; image_num < 10; image_num++) {
+	float imagenet_test_data_channel_swap[2][3][1000][900] = { 0 };
+	float imagenet_test_data[2][3][227][227] = { 0 };
+	for (int image_num = 0; image_num < 2; image_num++) {
 		string image_dir = root_dir + val_name_class[image_num][0];
 		int w;
 		int h;
@@ -212,6 +210,7 @@ int main() {
 				}
 			}
 		}
+        /*
 		ofstream indata;
 		indata.open("in_data_crop_mean.txt", ios::app);
 		indata << "image_num: " << image_num << "**********" << endl;
@@ -226,6 +225,7 @@ int main() {
 		}
 		indata << endl;
 		indata.close();
+         */
 	}
 #endif
 

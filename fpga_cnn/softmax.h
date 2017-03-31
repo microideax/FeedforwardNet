@@ -54,16 +54,6 @@ void softmax(float(&x)[num][label_size][size][size]) {//for imagenet dataset
 			for (int j = 0; j < label_size; j++) {
 				x[i][j][0][0] /= sum;
 			}
-			/*cout << "finished softmax ...." << endl;
-			ofstream softmax_a;
-			softmax_a.open("softmax_a.txt", ios::app);
-			for (int j = 0; j < label_size; j++) {
-			softmax_a << x[i][j] << " ";
-			}
-			softmax_a << endl;
-			softmax_a << endl;
-			softmax_a.close();
-			cout << endl;*/
 	}
 }
 
@@ -85,16 +75,6 @@ void softmax(float (&x)[size][label_size]) {//for mnist dataset
 		for (int j = 0; j < label_size; j++) {
 			x[i][j] /= sum;
 		}
-		/*cout << "finished softmax ...." << endl;
-		ofstream softmax_a;
-		softmax_a.open("softmax_a.txt", ios::app);
-		for (int j = 0; j < label_size; j++) {
-		softmax_a << x[i][j] << " ";
-		}
-		softmax_a << endl;
-		softmax_a << endl;
-		softmax_a.close();
-		cout << endl;*/
 	}
 }
 #endif
