@@ -17,7 +17,7 @@
 #include "../../fpga_cnn/data_type.h"
 #include "../../fpga_cnn/image_converter.h"
 #include "../../fpga_cnn/weight_bias.h"
-#include "../fpga_cnn/conv_layer.h"
+#include "../../fpga_cnn/conv_layer.h"
 //#include "../fpga_cnn/data_quantize.h"
 #include "../../fpga_cnn/read_mnist.h"
 #include "../../fpga_cnn/softmax.h"
@@ -70,14 +70,14 @@ int main() {
 
 	//load val (image_name,image_class) set file *****************************
 	ifstream ifs("val.txt");
-	string val_name_class[10][2];
+	string val_name_class[2][2];
 	string str;
 
 	if (!ifs) {
 		cout << "val data file not found !" << endl;
 	}
 	int num = 0;
-	while (ifs >> str&&num<20) {//num:10 pair (image_name,image_class)
+	while (ifs >> str&&num<4) {//num:10 pair (image_name,image_class)
 		if (num % 2 == 0) {//image_name
 			val_name_class[num / 2][0] = str;
 		}
@@ -91,7 +91,7 @@ int main() {
 
 	//load val image file *****************************
 #if _KERNEL_DEBUG_
-	string image_dir = "ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";//validation dataset dir
+	string image_dir = ".\\example\\alexnet_demo\\ILSVRC2012_img_val\\ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
 	float in_data_3D[3][227][227] = { 0 };
@@ -142,8 +142,10 @@ int main() {
 		}
 	}
 
+	cout << "testing point 2" << endl;
+
 	ofstream indata;
-	indata.open("in_data_crop_mean_1.txt", ios::app);
+	indata.open("in_data_crop_mean.txt", ios::app);
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 227; j++) {
 			for (int k = 0; k < 227; k++) {
@@ -210,7 +212,6 @@ int main() {
 				}
 			}
 		}
-        /*
 		ofstream indata;
 		indata.open("in_data_crop_mean.txt", ios::app);
 		indata << "image_num: " << image_num << "**********" << endl;
@@ -225,7 +226,6 @@ int main() {
 		}
 		indata << endl;
 		indata.close();
-         */
 	}
 #endif
 
@@ -455,7 +455,7 @@ int main() {
 #if _BATCH_MODE_
 	//float fc_1_out_a[10000][10] = { 0 };
 	//float fc_1_out_temp[10] = { 0 };
-	float fc_1_out_a[10][1000][1][1] = { 0 };
+	float fc_1_out_a[2][1000][1][1] = { 0 };
 	float fc_1_out_temp[1000][1][1] = { 0 };
 
 	/*ofstream indata_compare;
@@ -479,10 +479,10 @@ int main() {
 	start = clock();
 
 	//for (int i = 0; i < 10000; i++) {//test mnist dataset
-	for (int i = 0; i < 10; i++) {//test imagenet dataset
+	for (int i = 0; i < 2; i++) {//test imagenet dataset
 #endif
 
-								  //Inference network process
+								 //Inference network process
 		inference_net(
 			relu, //activation function
 
@@ -545,7 +545,7 @@ int main() {
 #endif
 
 #if _KERNEL_DEBUG_
-    //output fc data
+	//output fc data
 	fc_8_out);
 	softmax(fc_8_out);
 
@@ -553,14 +553,14 @@ int main() {
 #endif
 
 #if _HLS_MODE_
-    cout << "finished inference processing ............" << endl;
-    ofstream predict_output;
-    predict_output.open("predict_output.txt", ios::app);
-    for (int i = 0; i < 10; i++) {
-        predict_output << fc_1_out_temp[i][0][0] << " " << endl;
-    }
-    predict_output.close();
-    cout << endl;
+	cout << "finished inference processing ............" << endl;
+	ofstream predict_output;
+	predict_output.open("predict_output.txt", ios::app);
+	for (int i = 0; i < 10; i++) {
+		predict_output << fc_1_out_temp[i][0][0] << " " << endl;
+	}
+	predict_output.close();
+	cout << endl;
 #endif
 
 	return 0;
