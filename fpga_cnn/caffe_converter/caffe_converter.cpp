@@ -1,5 +1,4 @@
 // caffe_converter.cpp : ¶šÒå¿ØÖÆÌšÓŠÓÃ³ÌÐòµÄÈë¿Úµã¡£
-//
 
 #include <iostream>
 #include <fstream>
@@ -35,7 +34,7 @@ using namespace caffe;
 void load(const caffe::LayerParameter& src,int num_input,int num_output,int kernel_size) {
     int src_idx = 0;
     ofstream out;
-    out.open("weights_alexnet.txt",ios::app);
+    out.open("net_weights.txt",ios::app);
     out<<"weights: "<<endl;
     //load weight
     for (int o = 0; o < num_output; o++) {
@@ -59,9 +58,9 @@ void load(const caffe::LayerParameter& src,int num_input,int num_output,int kern
     out.close();
     //cout<<endl;
 }
+
 void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
 {
-    cout<<layer.layers_size()<<endl;
     caffe_layer_vector src_net(layer);
     int num_layers = src_net.size();
     int num_input=input_param[0];
@@ -131,7 +130,6 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
         
     }
 }
-
     
 void create_net_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
 {
@@ -152,6 +150,7 @@ void create_net_from_caffe_net(const caffe::NetParameter& layer,int input_param[
             //return input_param;
         }
 }
+
 void read_proto_from_text(const std::string& prototxt,
                                  google::protobuf::Message *message) {
     int fd = CNN_OPEN_TXT(prototxt.c_str());
@@ -161,19 +160,17 @@ void read_proto_from_text(const std::string& prototxt,
 
     google::protobuf::io::FileInputStream input(fd);
     input.SetCloseOnDelete(true);
-    cout<<fd<<endl;
 
     if (!google::protobuf::TextFormat::Parse(&input, message)) {
         cout<<"failed to parse"<<endl;
     }
 }
+
 void read_proto_from_binary(const std::string& protobinary,
                                    google::protobuf::Message *message) {
     int fd = CNN_OPEN_BINARY(protobinary.c_str());
     google::protobuf::io::FileInputStream rawstr(fd);
     google::protobuf::io::CodedInputStream codedstr(&rawstr);
-
-    cout<<fd<<endl;
 
     rawstr.SetCloseOnDelete(true);
     codedstr.SetTotalBytesLimit(std::numeric_limits<int>::max(),
@@ -183,6 +180,7 @@ void read_proto_from_binary(const std::string& protobinary,
         cout<<"failed to parse"<<endl;
     }
 }
+
 void create_net_from_caffe_prototxt(const std::string& caffeprototxt,int input_param[])
 {
     caffe::NetParameter np;
@@ -190,12 +188,13 @@ void create_net_from_caffe_prototxt(const std::string& caffeprototxt,int input_p
     read_proto_from_text(caffeprototxt, &np);
     create_net_from_caffe_net(np,input_param);
 }
+
 void reload_weight_from_caffe_protobinary(const std::string& caffebinary,int input_param[])
 {
 	caffe::NetParameter np;
 
 	read_proto_from_binary(caffebinary, &np);
-    cout<<np.name()<<endl;
+    cout <<"net_name: "<<np.name()<<endl;
     //cout<<np.layer(0).type()<<endl;
 	reload_weight_from_caffe_net(np,input_param);
 }
@@ -212,15 +211,15 @@ void compute_mean(const string& mean_file)
         channels.emplace_back(blob.height(), blob.width(), CV_32FC1, data);
 
     ofstream out;
-    out.open("mean_alexnet.txt",ios::app);
+    out.open("net_mean.txt",ios::app);
     cv::Mat mean;
     cv::merge(channels, mean);
     out<<cv::Mat(cv::Size(1, 1), mean.type(), cv::mean(mean))<<" ";
     out.close();
 }
 
-void test(const string& model_file,
-          const std::string& trained_file,
+void test_has_mean(const string& model_file,
+          const string& trained_file,
           const string& mean_file) {
     int input_param[]={0,0};
     create_net_from_caffe_prototxt(model_file,input_param);
@@ -228,12 +227,32 @@ void test(const string& model_file,
     compute_mean(mean_file);
 }
 
+void test_no_mean(const string& model_file,
+          const string& trained_file) {
+    int input_param[]={0,0};
+    create_net_from_caffe_prototxt(model_file,input_param);
+    reload_weight_from_caffe_protobinary(trained_file,input_param);
+}
+
 int main(int argc, char** argv) {
-    string model_file = argv[1];
-	string trained_file = argv[2];
-    string mean_file = argv[3];
+    cout<<"argc:"<<argc<<endl;
+    int arg_channel = 1;
+    string model_file = argv[arg_channel++];
+	string trained_file = argv[arg_channel++];
     cout<<"model_file:"<<model_file<<endl;
     cout<<"trained_file:"<<trained_file<<endl;
-    cout<<"mean_file:"<<mean_file<<endl;
-	test(model_file,trained_file,mean_file);
+    try  
+    {  
+        if(argc==4){
+            string mean_file = argv[arg_channel++];
+			cout << "mean_file:" << mean_file << endl;
+            test_has_mean(model_file,trained_file,mean_file);
+        }else if(argc==3){
+            test_no_mean(model_file,trained_file);
+        }
+    }  
+    catch (exception& e)  
+    {  
+        cout << "Standard exception: " << e.what() << endl;  
+    }  
 }
