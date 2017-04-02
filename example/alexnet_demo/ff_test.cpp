@@ -91,7 +91,7 @@ int main() {
 
 	//load val image file *****************************
 #if _KERNEL_DEBUG_
-	string image_dir = ".\\example\\alexnet_demo\\ILSVRC2012_img_val\\ILSVRC2012_val_00000003.JPEG";//validation dataset dir
+	string image_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
 	float in_data_3D[3][227][227] = { 0 };
