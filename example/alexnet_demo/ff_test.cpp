@@ -91,7 +91,11 @@ int main() {
 
 	//load val image file *****************************
 #if _KERNEL_DEBUG_
-	string image_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";//validation dataset dir
+#if _HLS_MODE_
+	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
+#else
+	string imaga_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+#endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
 	float in_data_3D[3][227][227] = { 0 };

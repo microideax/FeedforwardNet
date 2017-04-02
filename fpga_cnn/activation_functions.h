@@ -61,7 +61,7 @@ float f(char type, float data) {
 //	}
 //    else return false;
 //}
-
+/*
 float df(char& type, float data) {
 	if (type == "identity")
 	{
@@ -87,7 +87,7 @@ float df(char& type, float data) {
 	}
     else return false;
 }
-
+*/
 //vec_t df(string& type, const vec_t& y, uint index) {
 //    vec_t v(0, 0);
 //    if (type == "softmax")

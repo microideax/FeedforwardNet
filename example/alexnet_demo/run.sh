@@ -9,5 +9,5 @@ do
 done
 
 
-g++ -g -Wall -Wextra -pedantic -fpermissive -I ../ -I /home/yaochen/work/caffe/include/ -O0 ff_test.cpp -o fftest
-#clang++ -I ../ -I /home/yaochen/work/caffe/include/ -o0 ff_test.cpp -o fftest
+#g++ -g -std=c++0x -Wall -Wextra -pedantic -fpermissive -I ../ -I /home/yaochen/work/caffe/include/ -O0 ff_test.cpp -o fftest
+clang++ -I ../ -I /home/yaochen/work/caffe/include/ -o0 ff_test.cpp -o fftest
