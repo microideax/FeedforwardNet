@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_alexnet_layer_1
+open_project hls_proj_alexnet
 
 #set_top convolution_layer_with_table
 #set_top pooling_layer
@@ -12,7 +12,7 @@ add_files ../../../fpga_cnn/activation_functions.h
 add_files ../../../fpga_cnn/conv_pool_layer.h
 add_files ../../../fpga_cnn/pool_layer.h
 add_files ../config.h
-add_files ../fpga_cnn/construct_net.h
+add_files ../construct_net.h
 add_files ../../../fpga_cnn/conv_layer.h
 add_files ../../../fpga_cnn/data_type.h
 add_files ../../../fpga_cnn/fc_layer.h
@@ -48,8 +48,8 @@ set_part {xc7vx690tffg1761-2}
 create_clock -period 10 -name default
 
 
-csim_design -clean -argv {weights_alexnet, alexnet_input.txt}
+csim_design -clean -argv {weights_alexnet, ILSVRC2012_val_00000003.JPEG, val.txt, mean_alexnet.txt}
 
-#csynth_design
+csynth_design
 
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
