@@ -17,7 +17,6 @@
 #include "../../fpga_cnn/image_converter.h"
 #include "../../fpga_cnn/weight_bias.h"
 #include "../../fpga_cnn/conv_layer.h"
-#include "../../fpga_cnn/pool_layer.h"
 #include "../../fpga_cnn/data_quantize.h"
 #include "../../fpga_cnn/read_mnist.h"
 #include "../../fpga_cnn/softmax.h"
