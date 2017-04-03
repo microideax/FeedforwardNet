@@ -19,6 +19,7 @@
 #include "../../fpga_cnn/pool_layer.h"
 #include "../../fpga_cnn/fc_layer.h"
 
+bool has_connection_table[3] = { false, true, false };
 
 void inference_net(
 
@@ -57,9 +58,9 @@ void inference_net(
 	/*****************************************************************************************/
 	//construct network --------------LeNet-5
 	conv_layer<float, 32, 5, 0, 1, 1, 6, 1> C1;      //1@32x32-in, 6@28x28-out
-	pool_layer<float, 28, 2, 0£¬2, 6> P2;         //6@28x28-in, 6@14x14-out
+	pool_layer<float, 28, 2, 0, 2, 6> P2;         //6@28x28-in, 6@14x14-out
 	conv_layer<float, 14, 5, 0, 1, 6, 16, 1> C3;     //6@14x14-in, 16@10x10-out
-	pool_layer<float, 10, 2, 0£¬2, 16> P4;        //16@10x10-in, 16@5x5-out
+	pool_layer<float, 10, 2, 0, 2, 16> P4;        //16@10x10-in, 16@5x5-out
 	conv_layer<float, 5, 5, 0, 1, 16, 120, 1> C5;    //16@5x5-in, 120@1x1-out
 	fc_layer<float, 120, 1, 10> F6;         //120@1x1-in, 10@1x1-out
 

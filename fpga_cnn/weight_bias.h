@@ -12,9 +12,9 @@
 //#include <algorithm>
 //#include "data_type.h"
 //#include "config.h"
-//#include <string>
+#include <string>
 
-const char* weight_src = "weights_alexnet.txt";
+const char* weight_src = "LeNet-weights";
 
 template<int size>
 void load_weight_conv(

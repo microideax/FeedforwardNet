@@ -87,7 +87,7 @@ public:
 	}
 
 	/************************************************************************************/
-	//pooling layer function with array input
+	//average pooling layer function with array input
 	void pooling_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
@@ -206,7 +206,7 @@ public:
 	}
 
 	/************************************************************************************/
-	//pooling layer function with array input without pooling weights
+	//average pooling layer function with array input without pooling weights
 	void pooling_layer_a_no_w(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
