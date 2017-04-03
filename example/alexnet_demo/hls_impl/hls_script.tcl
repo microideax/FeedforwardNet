@@ -48,7 +48,7 @@ set_part {xc7vx690tffg1761-2}
 create_clock -period 10 -name default
 
 
-csim_design -clean -argv {weights_alexnet, ILSVRC2012_val_00000003.JPEG, val.txt, mean_alexnet.txt}
+csim_design -clean -argv {weights_alexnet.txt, ILSVRC2012_val_00000003.JPEG, val.txt, mean_alexnet.txt}
 
 csynth_design
 
