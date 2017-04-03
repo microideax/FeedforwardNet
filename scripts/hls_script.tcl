@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_alexnet
+open_project hls_proj_lenet
 
 #set_top convolution_layer_with_table
 #set_top pooling_layer
@@ -11,8 +11,8 @@ set_top inference_net
 add_files ../../fpga_cnn/activation_functions.h
 add_files ../../fpga_cnn/conv_pool_layer.h
 add_files ../../fpga_cnn/pool_layer.h
-add_files ../../fpga_cnn/config.h
-add_files ../../fpga_cnn/construct_net.h
+add_files ../config.h
+add_files ../construct_net.h
 add_files ../../fpga_cnn/conv_layer.h
 add_files ../../fpga_cnn/data_type.h
 add_files ../../fpga_cnn/fc_layer.h
@@ -30,8 +30,8 @@ add_files -tb ../../stb_image/stb_image_resize.h
 add_files -tb ../../stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
-add_files -tb ../alexnet_input.txt
-add_files -tb ../weights_alexnet.txt
+add_files -tb ../input_3.txt
+add_files -tb ../weights_lenet.txt
 
 
 add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
@@ -47,7 +47,7 @@ set_part {xc7vx690tffg1761-2}
 create_clock -period 10 -name default
 
 
-csim_design -clean -argv {weights_alexnet, alexnet_input.txt}
+csim_design -clean -argv {weights_lenet, input_3.txt}
 
 csynth_design
 
