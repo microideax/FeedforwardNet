@@ -94,7 +94,7 @@ int main() {
 #if _HLS_MODE_
 	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 #else
-	string image_dir = "ILSVRC2012_val_00000003.JPEG";
+	string image_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
 #endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
@@ -561,7 +561,7 @@ int main() {
 	ofstream predict_output;
 	predict_output.open("predict_output.txt", ios::app);
 	for (int i = 0; i < 10; i++) {
-		predict_output << fc_1_out_temp[i][0][0] << " " << endl;
+		predict_output << fc_8_out[i][0][0] << " " << endl;
 	}
 	predict_output.close();
 	cout << endl;
