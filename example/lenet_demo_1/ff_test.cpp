@@ -17,6 +17,7 @@
 #include "../../fpga_cnn/image_converter.h"
 #include "../../fpga_cnn/weight_bias.h"
 #include "../../fpga_cnn/conv_layer.h"
+#include "../../fpga_cnn/pool_layer.h"
 #include "../../fpga_cnn/data_quantize.h"
 #include "../../fpga_cnn/read_mnist.h"
 #include "../../fpga_cnn/softmax.h"
@@ -42,21 +43,21 @@ int main() {
 	int count = 0;
 	while (ifs >> str)
 	{
-	float f = atof(str.c_str());
-	in_data_3D[0][count / 32][count % 32] = f;
-	count++;
+		float f = atof(str.c_str());
+		in_data_3D[0][count / 32][count % 32] = f;
+		count++;
 	}
 
 	ofstream indata;
 	indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < 1; i++) {
-	    for (int j = 0; j < 32; j++) {
-	        for (int k = 0; k < 32; k++) {
-	            indata << in_data_3D[i][j][k] << " ";
-	        }
-	        indata << endl;
-	    }
-	    indata << endl;
+		for (int j = 0; j < 32; j++) {
+			for (int k = 0; k < 32; k++) {
+				indata << in_data_3D[i][j][k] << " ";
+			}
+			indata << endl;
+		}
+		indata << endl;
 	}
 	indata.close();
 #endif
@@ -96,7 +97,6 @@ int main() {
 	load_weight_conv(
 		conv_2_weight2D,
 		weight_bias_record,
-		//		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
@@ -104,17 +104,14 @@ int main() {
 	load_bias_conv(
 		conv_2_bias2D,
 		weight_bias_record,
-		//weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
 		nn_channel_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
-	// Prepare weights and bias for convolution layer 3
-	//tensor_t_3d fc_1_weight2D;
+	// Prepare weights and bias for fully connected layer 1
 	float fc_1_weight2D[160][5][5] = { 0 };
-	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10] = { 0 };
 	load_weight_fc(
 		fc_1_weight2D,
@@ -126,7 +123,6 @@ int main() {
 	load_bias_fc(
 		fc_1_bias2D,
 		weight_bias_record,
-		//weight_bias_count_2,
 		nn_channel_size_fc,
 		nn_in_number_fc,
 		nn_channel_number_fc,
@@ -134,54 +130,54 @@ int main() {
 	in_number_fc++;
 
 	float fc_1_out_a[10000][10] = { 0 };
-	float fc_1_out_temp[10][1][1] = {0};
+	float fc_1_out_temp[10][1][1] = { 0 };
 
 #if _BATCH_MODE_
-    cout << "starting forward network batch process..........................." << endl;
-    cout << "................................................................." << endl;
+	cout << "starting forward network batch process..........................." << endl;
+	cout << "................................................................." << endl;
 
 	clock_t start, finish;
 	double totaltime;
 	start = clock();
 
 	for (int i = 0; i < 10000; i++) {
-        if (i % 200 == 0){
-            cout <<">>";
-        }
+		if (i % 200 == 0) {
+			cout << ">>";
+		}
 #endif
 
 #if _KERNEL_DEBUG_
-    cout << "starting forward network single picture processing ..............." << endl;
-    cout << ".................................................................." << endl;
+		cout << "starting forward network single picture processing ..............." << endl;
+		cout << ".................................................................." << endl;
 #endif
 
-	//Inference network process
-	inference_net(
-		relu, //activation function
+		//Inference network process
+		inference_net(
+			relu, //activation function
 #if _KERNEL_DEBUG_
-		in_data_3D, //input pic data
+			in_data_3D, //input pic data
 #endif
 #if _BATCH_MODE_
-		mnist_test_data[i], //input test dataset
+			mnist_test_data[i], //input test dataset
 #endif
-		//layer weights and bias inputs
-		conv_1_weight2D,
-		conv_1_bias2D,
-		conv_2_weight2D,
-		conv_2_bias2D,
-		fc_1_weight2D,
-		fc_1_bias2D,
+								//layer weights and bias inputs
+			conv_1_weight2D,
+			conv_1_bias2D,
+			conv_2_weight2D,
+			conv_2_bias2D,
+			fc_1_weight2D,
+			fc_1_bias2D,
 
-		//output fc data
-		fc_1_out_temp);
+			//output fc data
+			fc_1_out_temp);
 
 #if _BATCH_MODE_
-	    for (int j = 0; j < 10; j++){
-            fc_1_out_a[i][j] = fc_1_out_temp[j][0][0];
-            fc_1_out_temp[j][0][0] = 0;
-        }
+		for (int j = 0; j < 10; j++) {
+			fc_1_out_a[i][j] = fc_1_out_temp[j][0][0];
+			fc_1_out_temp[j][0][0] = 0;
+		}
 	}
-    cout << endl;
+	cout << endl;
 	softmax(fc_1_out_a);
 
 	predict(fc_1_out_a, label_list);
