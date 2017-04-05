@@ -107,7 +107,7 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
             cout << "num_input: " << num_input<<endl;
             cout << "num_output: " << num_output<<endl;
             input_size=1;
-        }else if(src_net[i].type()=="Pooling"){//get fc_layers' kernel_size,num_output
+        }else if(src_net[i].type()=="Pooling"){//get pooling_layers' kernel_size,num_output
             PoolingParameter pooling_param = src_net[i].pooling_param();
             pad=pooling_param.pad();
             kernel_size=pooling_param.kernel_size();
@@ -129,6 +129,142 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
         cout<<endl;
         
     }
+}
+
+void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
+{
+    caffe_layer_vector src_net(layer);
+    int num_input=input_param[0];
+    int input_size=input_param[1];
+    bool has_lrn_layer=false;
+    
+    //conv_layer config params
+    vector<int> nn_in_data_size_conv;
+    vector<int> nn_in_number_conv;
+    vector<int> nn_out_number_conv;
+    vector<int> nn_channel_size_conv;
+    //pool_layer config params
+    vector<int> nn_in_data_size_pooling;
+    vector<int> nn_in_number_pooling;
+    vector<int> nn_channel_size_pooling;
+    //fc_layer config params
+    vector<int> nn_in_data_size_fc;
+    vector<int> nn_in_number_fc;
+    vector<int> nn_out_number_fc;
+    vector<int> nn_channel_size_fc;
+    //lrn_layer config params
+    vector<int> nn_local_size_lrn;
+    vector<float> nn_alpha_lrn;
+    vector<float> nn_beta_lrn;
+    int num_output=0;
+    for (int i = 0; i < src_net.size(); i++) {
+        int pad=0;
+        int kernel_size=0;
+        int stride=1;
+        if(src_net[i].type()=="Convolution"){
+            ConvolutionParameter conv_param = src_net[i].convolution_param();
+            nn_in_data_size_conv.push_back(input_size);
+            num_output=conv_param.num_output();
+            nn_out_number_conv.push_back(num_output);
+            kernel_size=conv_param.kernel_size(0);
+            nn_channel_size_conv.push_back(kernel_size);
+            if (conv_param.pad_size()>0){
+                pad=conv_param.pad(0);
+            }
+            if (conv_param.stride_size()>0){
+                stride=conv_param.stride(0);
+            }
+            input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
+            num_input=num_input/conv_param.group();
+            nn_in_number_conv.push_back(num_input);
+        }else if(src_net[i].type()=="InnerProduct"){
+            InnerProductParameter inner_product_param = src_net[i].inner_product_param();
+            nn_in_data_size_fc.push_back(input_size);
+            nn_in_number_fc.push_back(num_input);
+            kernel_size=input_size;
+            nn_channel_size_fc.push_back(kernel_size);
+            num_output=inner_product_param.num_output();
+            nn_out_number_fc.push_back(num_output);
+            input_size=1;
+        }else if(src_net[i].type()=="Pooling"){
+            PoolingParameter pooling_param = src_net[i].pooling_param();
+            nn_in_data_size_pooling.push_back(input_size);
+            nn_in_number_pooling.push_back(num_input);
+            pad=pooling_param.pad();
+            kernel_size=pooling_param.kernel_size();
+            nn_channel_size_pooling.push_back(kernel_size);
+            stride=pooling_param.stride();
+            input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
+        }else if(src_net[i].type()=="LRN"){
+            has_lrn_layer=true;
+            int local_size=src_net[i].lrn_param().local_size();
+            nn_local_size_lrn.push_back(local_size);
+            float alpha=src_net[i].lrn_param().alpha();
+            nn_alpha_lrn.push_back(alpha);
+            float beta=src_net[i].lrn_param().beta();
+            nn_beta_lrn.push_back(beta);
+        }
+        if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
+            num_input=num_output;//set each layer's num_input equals to the last layer's num_output
+        }
+    }
+    vector<string> str_nn_config_params_name_int;
+    str_nn_config_params_name_int.push_back("nn_in_data_size_conv: ");
+    str_nn_config_params_name_int.push_back("nn_in_number_conv: ");
+    str_nn_config_params_name_int.push_back("nn_out_number_conv: ");
+    str_nn_config_params_name_int.push_back("nn_channel_size_conv: ");
+    str_nn_config_params_name_int.push_back("nn_in_data_size_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_in_number_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_channel_size_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_in_data_size_fc: ");
+    str_nn_config_params_name_int.push_back("nn_in_number_fc: ");
+    str_nn_config_params_name_int.push_back("nn_out_number_fc: ");
+    str_nn_config_params_name_int.push_back("nn_channel_size_fc: ");
+    if(has_lrn_layer==true){
+        str_nn_config_params_name_int.push_back("nn_local_size_lrn: ");
+    }
+
+    vector<vector<int>> nn_config_params_int;
+    nn_config_params_int.push_back(nn_in_data_size_conv);
+    nn_config_params_int.push_back(nn_in_number_conv);
+    nn_config_params_int.push_back(nn_out_number_conv);
+    nn_config_params_int.push_back(nn_channel_size_conv);
+    nn_config_params_int.push_back(nn_in_data_size_pooling);
+    nn_config_params_int.push_back(nn_in_number_pooling);
+    nn_config_params_int.push_back(nn_channel_size_pooling);
+    nn_config_params_int.push_back(nn_in_data_size_fc);
+    nn_config_params_int.push_back(nn_in_number_fc);
+    nn_config_params_int.push_back(nn_out_number_fc);
+    nn_config_params_int.push_back(nn_channel_size_fc);
+    if(has_lrn_layer){
+        nn_config_params_int.push_back(nn_local_size_lrn);
+    }
+    ofstream out;
+    out.open("net_config_params.txt",ios::app);
+    for (int i = 0; i < nn_config_params_int.size(); i++) {
+        out<<str_nn_config_params_name_int[i];
+        for (int j = 0; j < nn_config_params_int[i].size(); j++) {
+        out<<nn_config_params_int[i][j]<<" ";
+        }
+        out<<endl;
+    }
+    if(has_lrn_layer){
+        vector<string> str_nn_config_params_name_float;
+        str_nn_config_params_name_float.push_back("nn_alpha_lrn: ");
+        str_nn_config_params_name_float.push_back("nn_beta_lrn: ");
+
+        vector<vector<float>> nn_config_params_float;
+        nn_config_params_float.push_back(nn_alpha_lrn);
+        nn_config_params_float.push_back(nn_beta_lrn);
+        for (int i = 0; i < nn_config_params_float.size(); i++) {
+        out<<str_nn_config_params_name_float[i];
+            for (int j = 0; j < nn_config_params_float[i].size(); j++) {
+            out<<nn_config_params_float[i][j]<<" ";
+            }
+            out<<endl;
+        }
+    }
+    out.close();
 }
     
 void create_net_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
@@ -218,6 +354,14 @@ void compute_mean(const string& mean_file)
     out.close();
 }
 
+void get_config_params_from_caffe_protobinary(const std::string& caffebinary,int input_param[])
+{
+    caffe::NetParameter np;
+
+    read_proto_from_binary(caffebinary, &np);
+    get_config_params_from_caffe_net(np,input_param);
+}
+
 void test_has_mean(const string& model_file,
           const string& trained_file,
           const string& mean_file) {
@@ -225,6 +369,7 @@ void test_has_mean(const string& model_file,
     create_net_from_caffe_prototxt(model_file,input_param);
 	reload_weight_from_caffe_protobinary(trained_file,input_param);
     compute_mean(mean_file);
+    get_config_params_from_caffe_protobinary(trained_file,input_param);
 }
 
 void test_no_mean(const string& model_file,
@@ -232,6 +377,7 @@ void test_no_mean(const string& model_file,
     int input_param[]={0,0};
     create_net_from_caffe_prototxt(model_file,input_param);
     reload_weight_from_caffe_protobinary(trained_file,input_param);
+    get_config_params_from_caffe_protobinary(trained_file,input_param);
 }
 
 int main(int argc, char** argv) {
@@ -245,7 +391,7 @@ int main(int argc, char** argv) {
     {  
         if(argc==4){
             string mean_file = argv[arg_channel++];
-			cout << "mean_file:" << mean_file << endl;
+            cout<<"mean_file:"<<mean_file<<endl;
             test_has_mean(model_file,trained_file,mean_file);
         }else if(argc==3){
             test_no_mean(model_file,trained_file);

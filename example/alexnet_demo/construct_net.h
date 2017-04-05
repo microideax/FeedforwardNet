@@ -12,7 +12,7 @@
 #include "../../fpga_cnn/conv_layer.h"
 #include "../../fpga_cnn/pool_layer.h"
 #include "../../fpga_cnn/fc_layer.h"
-#include "../../fpga_cnn/dropout_layer.h"
+//#include "../../fpga_cnn/dropout_layer.h"
 #include "../../fpga_cnn/lrn_layer.h"
 
 void inference_net(
@@ -20,8 +20,6 @@ void inference_net(
 	char activation_type,
 
 	// input pic data
-	//float in_data_3D[1][32][32],
-	//float in_data_3D[1][28][28],
 	float in_data_3D[3][227][227],
 
 	// layer weights and bias inputs ------- Alexnet
@@ -91,10 +89,10 @@ void inference_net(
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
-	L1.lrn_layer_a(alpha,beta, conv_1_out, lrn_1_out);
+	L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], conv_1_out, lrn_1_out);
 	P1.max_pooling_layer_a(activation_type, lrn_1_out, pool_1_out);
 	C2.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
-	L2.lrn_layer_a(alpha, beta, conv_2_out, lrn_2_out);
+	L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], conv_2_out, lrn_2_out);
 	P2.max_pooling_layer_a(activation_type, lrn_2_out, pool_2_out);
 	C3.conv_layer_a(activation_type, pool_2_out, conv_3_weight_a, conv_3_bias_a, conv_3_out);
 	C4.conv_layer_a(activation_type, conv_3_out, conv_4_weight_a, conv_4_bias_a, conv_4_out);

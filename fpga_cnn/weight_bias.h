@@ -14,10 +14,9 @@
 //#include "config.h"
 #include <string>
 
-const char* weight_src = "weights_lenet.txt";
-
 template<int size>
 void load_weight_conv(
+	    const char* weight_src,
         float conv_weight2D[][size][size],
         int& weight_bias_record,
         int nn_channel_size_conv[],
@@ -62,6 +61,7 @@ void load_weight_conv(
 }
 
 void load_weight_pooling(
+	const char* weight_src,
 	float pooling_1_weight[],
 	int& weight_bias_record,
 	int nn_channel_size_pooling[],
@@ -103,6 +103,7 @@ void load_weight_pooling(
 
 template<int size>
 void load_weight_fc(
+	const char* weight_src,
 	float fc_1_weight2D[][size][size],
 	int& weight_bias_record,
 	int nn_channel_size_fc[],
@@ -151,6 +152,7 @@ void load_weight_fc(
 }
 
 void load_bias_conv(
+	const char* weight_src,
 	float conv_1_bias2D[],
 	int& weight_bias_record,
 	int nn_channel_size_conv[],
@@ -192,11 +194,11 @@ void load_bias_conv(
 }
 
 void load_bias_pooling(
+	const char* weight_src,
 	float pooling_1_bias2D[],
 	int& weight_bias_record,
 	int nn_channel_size_pooling[],
 	int nn_in_number_pooling[],
-	int nn_out_number_pooling[],
 	int in_number_pooling) {
 
     cout << "Loading POOL layer bias ..." << endl;
@@ -207,7 +209,7 @@ void load_bias_pooling(
 		cout << "weight file not found !" << endl;
 	}
 	//vec_t bias2D;
-	int layer_bias_num = nn_out_number_pooling[in_number_pooling];
+	int layer_bias_num = nn_in_number_pooling[in_number_pooling];
 	int weight_bias_count = 0;
 	while (ifs >> str&&weight_bias_count < layer_bias_num + weight_bias_record)
 	{
@@ -230,6 +232,7 @@ void load_bias_pooling(
 }
 
 void load_bias_fc(
+	const char* weight_src,
 	float fc_1_bias2D[],
 	int& weight_bias_record,
 	int nn_channel_size_fc[],

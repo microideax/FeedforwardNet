@@ -10,6 +10,7 @@
 #include <algorithm>
 //#include <iterator>
 #include <cstring>
+#include <sstream>
 #include <cstdlib>
 #include <time.h>
 #include "config.h"
@@ -25,6 +26,7 @@
 #include "../../fpga_cnn/accuracy.h"
 #include "../../fpga_cnn/pow_function.h"
 #include "../../fpga_cnn/resize_image.h"
+#include "get_config_params.h"
 //#include "../fpga_cnn/set_mean.h"
 
 using namespace std;
@@ -42,6 +44,13 @@ const unsigned char * loadfile(const std::string &file, int &size)
 }
 
 int main() {
+	//net weight src *****************************
+	const char* weight_src = "weights_lenet.txt";
+
+	//get config params from net *****************************
+	string filename = "net_config_params.txt";
+	get_config_params(filename);
+
 	//load mean file *****************************
 	ifstream ifs1("mean_alexnet.txt");
 	float channel_mean[3] = { 0 };
@@ -77,7 +86,7 @@ int main() {
 		cout << "val data file not found !" << endl;
 	}
 	int num = 0;
-	while (ifs >> str&&num<4) {//num:10 pair (image_name,image_class)
+	while (ifs >> str&&num<4) {//num:2 pair (image_name,image_class)
 		if (num % 2 == 0) {//image_name
 			val_name_class[num / 2][0] = str;
 		}
@@ -262,18 +271,20 @@ int main() {
 	float conv_1_weight2D[288][11][11] = { 0 };
 	float conv_1_bias2D[96] = { 0 };
 	load_weight_conv(
+		weight_src,
 		conv_1_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_1_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -295,18 +306,20 @@ int main() {
 	float conv_2_bias2D[256] = { 0 };
 
 	load_weight_conv(
+		weight_src,
 		conv_2_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_2_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -328,18 +341,20 @@ int main() {
 	float conv_3_bias2D[384] = { 0 };
 
 	load_weight_conv(
+		weight_src,
 		conv_3_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_3_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -348,18 +363,20 @@ int main() {
 	float conv_4_bias2D[384] = { 0 };
 
 	load_weight_conv(
+		weight_src,
 		conv_4_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_4_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -368,18 +385,20 @@ int main() {
 	float conv_5_bias2D[256] = { 0 };
 
 	load_weight_conv(
+		weight_src,
 		conv_5_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_5_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -387,18 +406,20 @@ int main() {
 	float fc_6_weight2D[1048576][6][6] = { 0 };
 	float fc_6_bias2D[4096] = { 0 };
 	load_weight_fc(
+		weight_src,
 		fc_6_weight2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	load_bias_fc(
+		weight_src,
 		fc_6_bias2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	in_number_fc++;
 
@@ -406,18 +427,20 @@ int main() {
 	float fc_7_weight2D[16777216][1][1] = { 0 };
 	float fc_7_bias2D[4096] = { 0 };
 	load_weight_fc(
+		weight_src,
 		fc_7_weight2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	load_bias_fc(
+		weight_src,
 		fc_7_bias2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	in_number_fc++;
 
@@ -425,18 +448,20 @@ int main() {
 	float fc_8_weight2D[4096000][1][1] = { 0 };
 	float fc_8_bias2D[1000] = { 0 };
 	load_weight_fc(
+		weight_src,
 		fc_8_weight2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	load_bias_fc(
+		weight_src,
 		fc_8_bias2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	in_number_fc++;
 
@@ -570,3 +595,4 @@ int main() {
 	return 0;
 
 }
+

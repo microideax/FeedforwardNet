@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cstring>
+#include <sstream>
 #include <cstdlib>
 #include <time.h>
 
@@ -22,10 +23,17 @@
 #include "../../fpga_cnn/softmax.h"
 #include "../../fpga_cnn/predict.h"
 #include "../../fpga_cnn/accuracy.h"
+#include "get_config_params.h"
 
 using namespace std;
 
 int main() {
+	//net weight src *****************************
+	const char* weight_src = "weights_lenet.txt";
+
+	//get config params from net *****************************
+	string filename = "net_config_params.txt";
+	get_config_params(filename);
 
 	char tan_h = 't';
 	char relu = 'r';
@@ -37,26 +45,26 @@ int main() {
 #if _KERNEL_DEBUG_
 	//input data array
 	float in_data_3D[1][32][32] = { 0 };
-	ifstream ifs("./input_3.txt");
+	ifstream ifs("input_3.txt");
 	string str;
 	int count = 0;
 	while (ifs >> str)
 	{
-	float f = atof(str.c_str());
-	in_data_3D[0][count / 32][count % 32] = f;
-	count++;
+		float f = atof(str.c_str());
+		in_data_3D[0][count / 32][count % 32] = f;
+		count++;
 	}
 
 	ofstream indata;
 	indata.open("in_data.txt", ios::app);
 	for (int i = 0; i < 1; i++) {
-	    for (int j = 0; j < 32; j++) {
-	        for (int k = 0; k < 32; k++) {
-	            indata << in_data_3D[i][j][k] << " ";
-	        }
-	        indata << endl;
-	    }
-	    indata << endl;
+		for (int j = 0; j < 32; j++) {
+			for (int k = 0; k < 32; k++) {
+				indata << in_data_3D[i][j][k] << " ";
+			}
+			indata << endl;
+		}
+		indata << endl;
 	}
 	indata.close();
 #endif
@@ -74,18 +82,20 @@ int main() {
 	float        conv_1_weight2D[6][5][5] = { 0 };
 	float 		 conv_1_bias2D[6] = { 0 };
 	load_weight_conv(
+		weight_src,
 		conv_1_weight2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_1_bias2D,
 		weight_bias_record,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
@@ -94,94 +104,93 @@ int main() {
 	float 		 conv_2_bias2D[16] = { 0 };//
 
 	load_weight_conv(
+		weight_src,
 		conv_2_weight2D,
 		weight_bias_record,
-		//		weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	load_bias_conv(
+		weight_src,
 		conv_2_bias2D,
 		weight_bias_record,
-		//weight_bias_count_2,
 		nn_channel_size_conv,
 		nn_in_number_conv,
-		nn_channel_number_conv,
+		nn_out_number_conv,
 		in_number_conv);
 	in_number_conv++;
 
-	// Prepare weights and bias for convolution layer 3
-	//tensor_t_3d fc_1_weight2D;
+	// Prepare weights and bias for fully connected layer 1
 	float fc_1_weight2D[160][5][5] = { 0 };
-	//vec_t fc_1_bias2D;
 	float fc_1_bias2D[10] = { 0 };
 	load_weight_fc(
+		weight_src,
 		fc_1_weight2D,
 		weight_bias_record,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	load_bias_fc(
+		weight_src,
 		fc_1_bias2D,
 		weight_bias_record,
-		//weight_bias_count_2,
 		nn_channel_size_fc,
 		nn_in_number_fc,
-		nn_channel_number_fc,
+		nn_out_number_fc,
 		in_number_fc);
 	in_number_fc++;
 
 	float fc_1_out_a[10000][10] = { 0 };
-	float fc_1_out_temp[10][1][1] = {0};
+	float fc_1_out_temp[10][1][1] = { 0 };
 
 #if _BATCH_MODE_
-    cout << "starting forward network batch process..........................." << endl;
-    cout << "................................................................." << endl;
+	cout << "starting forward network batch process..........................." << endl;
+	cout << "................................................................." << endl;
 
 	clock_t start, finish;
 	double totaltime;
 	start = clock();
 
 	for (int i = 0; i < 10000; i++) {
-        if (i % 200 == 0){
-            cout <<">>";
-        }
+		if (i % 200 == 0) {
+			cout << ">>";
+		}
 #endif
 
 #if _KERNEL_DEBUG_
-    cout << "starting forward network single picture processing ..............." << endl;
-    cout << ".................................................................." << endl;
+		cout << "starting forward network single picture processing ..............." << endl;
+		cout << ".................................................................." << endl;
 #endif
 
-	//Inference network process
-	inference_net(
-		relu, //activation function
+		//Inference network process
+		inference_net(
+			relu, //activation function
 #if _KERNEL_DEBUG_
-		in_data_3D, //input pic data
+			in_data_3D, //input pic data
 #endif
 #if _BATCH_MODE_
-		mnist_test_data[i], //input test dataset
+			mnist_test_data[i], //input test dataset
 #endif
-		//layer weights and bias inputs
-		conv_1_weight2D,
-		conv_1_bias2D,
-		conv_2_weight2D,
-		conv_2_bias2D,
-		fc_1_weight2D,
-		fc_1_bias2D,
+								//layer weights and bias inputs
+			conv_1_weight2D,
+			conv_1_bias2D,
+			conv_2_weight2D,
+			conv_2_bias2D,
+			fc_1_weight2D,
+			fc_1_bias2D,
 
-		//output fc data
-		fc_1_out_temp);
+			//output fc data
+			fc_1_out_temp);
 
 #if _BATCH_MODE_
-	    for (int j = 0; j < 10; j++){
-            fc_1_out_a[i][j] = fc_1_out_temp[j][0][0];
-            fc_1_out_temp[j][0][0] = 0;
-        }
+		for (int j = 0; j < 10; j++) {
+			fc_1_out_a[i][j] = fc_1_out_temp[j][0][0];
+			fc_1_out_temp[j][0][0] = 0;
+		}
 	}
-    cout << endl;
+	cout << endl;
 	softmax(fc_1_out_a);
 
 	predict(fc_1_out_a, label_list);
@@ -193,18 +202,14 @@ int main() {
 	cout << "predicted time is: " << totaltime << " s" << endl;
 	getchar();
 #endif
+#if _KERNEL_DEBUG_
+	//output fc data
+	softmax(fc_1_out_temp);
 
-#if _HLS_MODE_
-    cout << "finished inference processing ............" << endl;
-    ofstream predict_output;
-    predict_output.open("predict_output.txt", ios::app);
-    for (int i = 0; i < 10; i++) {
-        predict_output << fc_1_out_temp[i][0][0] << " " << endl;
-    }
-    predict_output.close();
-    cout << endl;
+	predict(fc_1_out_temp);
 #endif
-
 	return 0;
 
 }
+
+
