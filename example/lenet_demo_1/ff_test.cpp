@@ -202,6 +202,16 @@ int main() {
 	cout << "predicted time is: " << totaltime << " s" << endl;
 	getchar();
 #endif
+#if _HLS_MODE_
+	cout << "finished inference processing ............" << endl;
+	ofstream predict_output;
+	predict_output.open("predict_output.txt", ios::app);
+	for (int i = 0; i < 10; i++) {
+		predict_output << fc_1_out_temp[i][0][0] << " " << endl;
+	}
+	predict_output.close();
+	cout << endl;
+#endif
 #if _KERNEL_DEBUG_
 	//output fc data
 	softmax(fc_1_out_temp);
