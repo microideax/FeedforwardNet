@@ -47,10 +47,6 @@ int main() {
 	//net weight src *****************************
 	const char* weight_src = "weights_lenet.txt";
 
-	//get config params from net *****************************
-	string filename = "net_config_params.txt";
-	get_config_params(filename);
-
 	//load mean file *****************************
 	ifstream ifs1("mean_alexnet.txt");
 	float channel_mean[3] = { 0 };

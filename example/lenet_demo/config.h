@@ -28,19 +28,19 @@ int weight_bias_record = 0;
 int weight_bias_count_1 = 0;
 int weight_bias_count_2 = 0;
 
-int nn_in_data_size_conv[2] = { 0 };
-int nn_in_number_conv[2] = { 0 };
-int nn_out_number_conv[2] = { 0 };
-int nn_channel_size_conv[2] = { 0 };
+int nn_in_data_size_conv[2] = { 32,14 };
+int nn_in_number_conv[2] = { 1,6 };
+int nn_out_number_conv[2] = { 6, 16 };
+int nn_channel_size_conv[2] = { 5, 5 };
 
-int nn_in_data_size_pooling[2] = { 0 };
-int nn_in_number_pooling[2] = { 0 };
-int nn_channel_size_pooling[2] = { 0 };
+int nn_in_data_size_pooling[2] = { 28,10 };
+int nn_in_number_pooling[2] = { 6,16 };
+int nn_channel_size_pooling[2] = { 2,2 };
 
-int nn_in_data_size_fc[1] = { 0 };
-int nn_in_number_fc[1] = { 0 };
-int nn_out_number_fc[1] = { 0 };
-int nn_channel_size_fc[1] = { 0 };
+int nn_in_data_size_fc[1] = { 5 };
+int nn_in_number_fc[1] = { 16 };
+int nn_out_number_fc[1] = { 10 };
+int nn_channel_size_fc[1] = { 5 };
 
 float label_list[10] = { 0,1,2,3,4,5,6,7,8,9 };
 

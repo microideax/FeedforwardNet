@@ -31,10 +31,6 @@ int main() {
 	//net weight src *****************************
 	const char* weight_src = "weights_lenet.txt";
 
-	//get config params from net *****************************
-	string filename = "net_config_params.txt";
-	get_config_params(filename);
-
 	char tan_h = 't';
 	char relu = 'r';
 	char none = 'i';

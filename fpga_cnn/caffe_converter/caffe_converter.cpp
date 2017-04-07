@@ -140,18 +140,26 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     
     //conv_layer config params
     vector<int> nn_in_data_size_conv;
+    vector<int> nn_channel_size_conv;
+    vector<int> nn_padding_conv;
+    vector<int> nn_stride_conv;
     vector<int> nn_in_number_conv;
     vector<int> nn_out_number_conv;
-    vector<int> nn_channel_size_conv;
+    vector<int> nn_group_conv;
+    
     //pool_layer config params
     vector<int> nn_in_data_size_pooling;
-    vector<int> nn_in_number_pooling;
     vector<int> nn_channel_size_pooling;
+    vector<int> nn_padding_pooling;
+    vector<int> nn_stride_pooling;
+    vector<int> nn_in_number_pooling;
+    
     //fc_layer config params
     vector<int> nn_in_data_size_fc;
     vector<int> nn_in_number_fc;
     vector<int> nn_out_number_fc;
     vector<int> nn_channel_size_fc;
+
     //lrn_layer config params
     vector<int> nn_local_size_lrn;
     vector<float> nn_alpha_lrn;
@@ -171,11 +179,14 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             if (conv_param.pad_size()>0){
                 pad=conv_param.pad(0);
             }
+            nn_padding_conv.push_back(pad);
             if (conv_param.stride_size()>0){
                 stride=conv_param.stride(0);
             }
+            nn_stride_conv.push_back(stride);
             input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
-            num_input=num_input/conv_param.group();
+            nn_group_conv.push_back(conv_param.group());
+            //num_input=num_input/conv_param.group();
             nn_in_number_conv.push_back(num_input);
         }else if(src_net[i].type()=="InnerProduct"){
             InnerProductParameter inner_product_param = src_net[i].inner_product_param();
@@ -191,9 +202,11 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             nn_in_data_size_pooling.push_back(input_size);
             nn_in_number_pooling.push_back(num_input);
             pad=pooling_param.pad();
+            nn_padding_pooling.push_back(pad);
             kernel_size=pooling_param.kernel_size();
             nn_channel_size_pooling.push_back(kernel_size);
             stride=pooling_param.stride();
+            nn_stride_pooling.push_back(stride);
             input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
         }else if(src_net[i].type()=="LRN"){
             has_lrn_layer=true;
@@ -210,12 +223,19 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     }
     vector<string> str_nn_config_params_name_int;
     str_nn_config_params_name_int.push_back("nn_in_data_size_conv: ");
+    str_nn_config_params_name_int.push_back("nn_channel_size_conv: ");
+    str_nn_config_params_name_int.push_back("nn_padding_conv: ");
+    str_nn_config_params_name_int.push_back("nn_stride_conv: ");
     str_nn_config_params_name_int.push_back("nn_in_number_conv: ");
     str_nn_config_params_name_int.push_back("nn_out_number_conv: ");
-    str_nn_config_params_name_int.push_back("nn_channel_size_conv: ");
+    str_nn_config_params_name_int.push_back("nn_group_conv: ");
+
     str_nn_config_params_name_int.push_back("nn_in_data_size_pooling: ");
-    str_nn_config_params_name_int.push_back("nn_in_number_pooling: ");
     str_nn_config_params_name_int.push_back("nn_channel_size_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_padding_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_stride_pooling: ");
+    str_nn_config_params_name_int.push_back("nn_in_number_pooling: ");
+
     str_nn_config_params_name_int.push_back("nn_in_data_size_fc: ");
     str_nn_config_params_name_int.push_back("nn_in_number_fc: ");
     str_nn_config_params_name_int.push_back("nn_out_number_fc: ");
@@ -226,12 +246,19 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
 
     vector<vector<int>> nn_config_params_int;
     nn_config_params_int.push_back(nn_in_data_size_conv);
+    nn_config_params_int.push_back(nn_channel_size_conv);
+    nn_config_params_int.push_back(nn_padding_conv);
+    nn_config_params_int.push_back(nn_stride_conv);
     nn_config_params_int.push_back(nn_in_number_conv);
     nn_config_params_int.push_back(nn_out_number_conv);
-    nn_config_params_int.push_back(nn_channel_size_conv);
+    nn_config_params_int.push_back(nn_group_conv);
+
     nn_config_params_int.push_back(nn_in_data_size_pooling);
-    nn_config_params_int.push_back(nn_in_number_pooling);
     nn_config_params_int.push_back(nn_channel_size_pooling);
+    nn_config_params_int.push_back(nn_padding_pooling);
+    nn_config_params_int.push_back(nn_stride_pooling);
+    nn_config_params_int.push_back(nn_in_number_pooling);
+
     nn_config_params_int.push_back(nn_in_data_size_fc);
     nn_config_params_int.push_back(nn_in_number_fc);
     nn_config_params_int.push_back(nn_out_number_fc);
