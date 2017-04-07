@@ -22,18 +22,26 @@ add_files ../../../fpga_cnn/dropout_layer.h
 add_files -tb ../../../fpga_cnn/accuracy.h
 add_files -tb ../../../fpga_cnn/data_quantize.h
 add_files -tb ../../../fpga_cnn/weight_bias.h
+
 add_files -tb ../../../stb_image/stb_image.h
 add_files -tb ../../../stb_image/stb_image_resize.h
 add_files -tb ../../../stb_image/stb_image_write.h
+
+add_files -tb ../../../fpga_cnn/read_mnist.h
+add_files -tb ../../../fpga_cnn/softmax.h
+add_files -tb ../../../fpga_cnn/predict.h
+
 
 add_files ../ff_test.cpp
 
 #add input files
 add_files -tb ../input_3.txt
 add_files -tb ../weights_lenet.txt
+add_files -tb ../data/t10k-images-idx3-ubyte
+add_files -tb ../data/t10k-labels-idx1-ubyte
 
 #add compilation pragmas
-add_files -cflags "-std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
+add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 #hls project settings
 open_solution -reset "fpga_cnn"
@@ -49,4 +57,4 @@ csim_design -clean -argv {*.txt}
 
 csynth_design
 
-cosim_design -argv {*.txt} -trace_level none -rtl verilog -tool xsim
+#cosim_design -argv {*.txt} -trace_level none -rtl verilog -tool xsim
