@@ -93,6 +93,7 @@ public:
 #endif
 
 		for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
+            out_data3D[b][0][0] = T(0);
 			for (uint a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
 														 //float out_data_temp[1][1] = {0};//每一个卷积计算的结果
 				T out_data_temp = 0;
@@ -101,7 +102,11 @@ public:
 					out_data_temp);
 				out_data3D[b][0][0] += out_data_temp;
 			}
+#if _ACT_RELU_
+            out_data3D[b][0][0] = relu((out_data3D[b][0][0] + kernel_bias[b]));
+#else
 			out_data3D[b][0][0] = f(activation_type, (out_data3D[b][0][0] + kernel_bias[b]));
+#endif
 		}
 
 #if _C_DEBUG_MODE_

@@ -17,6 +17,10 @@ elu      = e;
 tan_h    = t;
 tan_hp1m2 = h;
 */
+template<typename T>
+T relu(T data){
+    return (T(0) >= data ? T(0) : data);
+}
 
 float f(char type, float data) {
 	if (type == 'i') // identity

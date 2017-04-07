@@ -1,8 +1,7 @@
 //
 // Created by yaochen on 29/12/16.
 //
-//average pooling layer with kernel weights and without kernel weights function.
-//max pooling without layer kernel weights function.
+//TODO: if conv_layer use relu, then max_pooling do not need to use relu again. Need to modify this part of code.
 
 #ifndef _POOLING_LAYER_H_
 #define _POOLING_LAYER_H_
@@ -332,7 +331,11 @@ public:
 			//循环遍历out_data2D矩阵加偏置和激活
 			for (int i = 0; i < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; i++) {
 				for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
+#if _ACT_RELU_
+                    out_data3D[a][i][j] = relu(out_data3D[a][i][j]);
+#else
 					out_data3D[a][i][j] = f(activation_type, out_data3D[a][i][j]);
+#endif
 				}
 			}
 		}
