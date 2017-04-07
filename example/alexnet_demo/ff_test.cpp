@@ -45,7 +45,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 
 int main() {
 	//net weight src *****************************
-	const char* weight_src = "weights_lenet.txt";
+	const char* weight_src = "weights_alexnet.txt";
 
 	//load mean file *****************************
 	ifstream ifs1("mean_alexnet.txt");
