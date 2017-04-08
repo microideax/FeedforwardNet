@@ -6,7 +6,7 @@
 #define _ACTIVATION_FUNCTIONS_H_
 
 #include <math.h>
-
+#include <iostream>
 //using namespace std;
 /*
 identity = i;
@@ -19,7 +19,15 @@ tan_hp1m2 = h;
 */
 template<typename T>
 T relu(T data){
-    return (T(0) >= data ? T(0) : data);
+//    return (T(0) >= data ? T(0) : data);
+    if (data >= 0){
+//        cout << "data in range" << data << " ====> " << data << endl;
+        return data;
+    }
+    else {
+//        cout << "data out range" << data << " ====> " << 0 << endl;
+        return 0;
+    }
 }
 
 float f(char type, float data) {

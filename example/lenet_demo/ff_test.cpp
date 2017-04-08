@@ -23,7 +23,7 @@
 #include "../../fpga_cnn/softmax.h"
 #include "../../fpga_cnn/predict.h"
 #include "../../fpga_cnn/accuracy.h"
-#include "get_config_params.h"
+//#include "get_config_params.h"
 
 using namespace std;
 

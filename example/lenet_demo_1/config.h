@@ -10,9 +10,9 @@
 #define _ACT_RELU_ 1
 
 // C++ compilation debug mode
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
-//#define _BATCH_MODE_ 1
+#define _BATCH_MODE_ 1
 
 #ifdef _BATCH_MODE_
 #define _KERNEL_DEBUG_ 0

@@ -8,9 +8,10 @@
 #include <algorithm>
 #include <iterator>
 #include <cstring>
-#include <sstream>
 #include <cstdlib>
 #include <time.h>
+
+#include <ap_fixed.h>
 
 #include "config.h"
 #include "construct_net.h"
@@ -23,13 +24,12 @@
 #include "../../fpga_cnn/softmax.h"
 #include "../../fpga_cnn/predict.h"
 #include "../../fpga_cnn/accuracy.h"
-//#include "get_config_params.h"
 
 using namespace std;
 
 int main() {
-	//net weight src *****************************
-	const char* weight_src = "weights_lenet.txt";
+
+    const char* weight_src = "weights_lenet.txt";
 
 	char tan_h = 't';
 	char relu = 'r';
@@ -40,14 +40,14 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//input data array
-	float in_data_3D[1][32][32] = { 0 };
-	ifstream ifs("input_3.txt");
+	ap_fixed<64,32> in_data_3D[1][32][32] = { 0 };
+	ifstream ifs("./input_3.txt");
 	string str;
 	int count = 0;
 	while (ifs >> str)
 	{
 		float f = atof(str.c_str());
-		in_data_3D[0][count / 32][count % 32] = f;
+		in_data_3D[0][count / 32][count % 32] = (ap_fixed<64,32>)f;
 		count++;
 	}
 
@@ -67,79 +67,161 @@ int main() {
 
 #if _BATCH_MODE_
 	float mnist_train_data[60000][1][32][32];
+    ap_fixed<64,32> mnist_train_data_fixed[60000][1][32][32];
 	float mnist_train_label[60000][10] = { 0 };
+    ap_fixed<64,32> mnist_train_label_fixed[60000][10] = { 0 };
 	float mnist_test_data[10000][1][32][32];
+    ap_fixed<64,32> mnist_test_data_fixed[10000][1][32][32];
 	float mnist_test_label[10000][10] = { 0 };
+    ap_fixed<64,32> mnist_test_label_fixed[10000][10] = { 0 };
 	getSrcData(mnist_train_data, mnist_train_label, mnist_test_data, mnist_test_label);
 	cout << "getSrcData end!!!!!!!!!!!!!!" << endl;
+    for(int i = 0; i < 10000; i++){
+        for(int j = 0; j < 1; j++){
+            for(int k = 0; k < 32; k++){
+                for(int l = 0; l < 32; l++){
+                    mnist_test_data_fixed[i][j][k][l] = ap_fixed<64,32>(mnist_test_data[i][j][k][l]);
+                }
+            }
+        }
+    }
+    for(int i = 0; i < 10000; i++){
+        for(int j = 0; j < 10; j++){
+//            for(int k = 0; k < 32; k++){
+//                for(int l = 0; l < 32; l++){
+                    mnist_test_label_fixed[i][j] = ap_fixed<64,32>(mnist_test_label[i][j]);
+        }
+    }
 #endif
 
 	// Prepare weights and bias for convolution layer 1
 	float        conv_1_weight2D[6][5][5] = { 0 };
+    ap_fixed<64,32>          conv_1_weight2D_int[6][5][5] = {0};
 	float 		 conv_1_bias2D[6] = { 0 };
-	load_weight_conv(
-		weight_src,
-		conv_1_weight2D,
-		weight_bias_record,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_out_number_conv,
-		in_number_conv);
-	load_bias_conv(
-		weight_src,
-		conv_1_bias2D,
-		weight_bias_record,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_out_number_conv,
-		in_number_conv);
+    ap_fixed<64,32>          conv_1_bias2D_int[6] = {0};
+    load_weight_conv(
+            weight_src,
+            conv_1_weight2D,
+            weight_bias_record,
+            nn_channel_size_conv,
+            nn_in_number_conv,
+            nn_out_number_conv,
+            in_number_conv);
+    load_bias_conv(
+            weight_src,
+            conv_1_bias2D,
+            weight_bias_record,
+            nn_channel_size_conv,
+            nn_in_number_conv,
+            nn_out_number_conv,
+            in_number_conv);
 	in_number_conv++;
 
+	for(int i = 0; i < 6; i++){
+        for(int j = 0; j < 5; j++){
+            for(int k = 0; k < 5; k++){
+//                conv_1_weight2D[i][j][k] = round(conv_1_weight2D[i][j][k] * 100)/100;
+//                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
+//                    conv_1_weight2D[i][j][k] = 0;
+//                }
+                conv_1_weight2D_int[i][j][k] = ap_fixed<64,32>(conv_1_weight2D[i][j][k]);
+                cout << conv_1_weight2D_int[i][j][k]<<"  ";
+            }
+        }
+    }
+    for(int i = 0; i < 6; i++){
+//        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
+        conv_1_bias2D_int[i] = ap_fixed<64,32>(conv_1_bias2D[i]);
+    }
 	// Prepare weights and bias for convolution layer 2
 	float        conv_2_weight2D[96][5][5] = { 0 };//
+    ap_fixed<64,32>          conv_2_weight2D_int[96][5][5] = {0};
 	float 		 conv_2_bias2D[16] = { 0 };//
+    ap_fixed<64,32>          conv_2_bias2D_int[16] = {0};
 
-	load_weight_conv(
-		weight_src,
-		conv_2_weight2D,
-		weight_bias_record,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_out_number_conv,
-		in_number_conv);
-	load_bias_conv(
-		weight_src,
-		conv_2_bias2D,
-		weight_bias_record,
-		nn_channel_size_conv,
-		nn_in_number_conv,
-		nn_out_number_conv,
-		in_number_conv);
+    load_weight_conv(
+            weight_src,
+            conv_2_weight2D,
+            weight_bias_record,
+            nn_channel_size_conv,
+            nn_in_number_conv,
+            nn_out_number_conv,
+            in_number_conv);
+    load_bias_conv(
+            weight_src,
+            conv_2_bias2D,
+            weight_bias_record,
+            nn_channel_size_conv,
+            nn_in_number_conv,
+            nn_out_number_conv,
+            in_number_conv);
 	in_number_conv++;
+
+    for(int i = 0; i < 96; i++){
+        for(int j = 0; j < 5; j++){
+            for(int k = 0; k < 5; k++){
+//                conv_2_weight2D[i][j][k] = round(conv_2_weight2D[i][j][k] * 100)/100;
+//                if(conv_2_weight2D[i][j][k] >= -0.03 && conv_2_weight2D[i][j][k] <= 0.03){
+//                    conv_2_weight2D[i][j][k] = 0;
+//                }
+                conv_2_weight2D_int[i][j][k] = ap_fixed<64,32>(conv_2_weight2D[i][j][k]);
+                cout << conv_2_weight2D_int[i][j][k]<<"  ";
+            }
+        }
+    }
+    for(int i = 0; i < 16; i++){
+//        conv_2_bias2D[i] = round(conv_2_bias2D[i] * 100)/100;
+        conv_2_bias2D_int[i] = ap_fixed<64,32>(conv_2_bias2D[i]);
+    }
 
 	// Prepare weights and bias for fully connected layer 1
 	float fc_1_weight2D[160][5][5] = { 0 };
+    ap_fixed<64,32>   fc_1_weight2D_int[160][5][5] = {0};
 	float fc_1_bias2D[10] = { 0 };
-	load_weight_fc(
-		weight_src,
-		fc_1_weight2D,
-		weight_bias_record,
-		nn_channel_size_fc,
-		nn_in_number_fc,
-		nn_out_number_fc,
-		in_number_fc);
-	load_bias_fc(
-		weight_src,
-		fc_1_bias2D,
-		weight_bias_record,
-		nn_channel_size_fc,
-		nn_in_number_fc,
-		nn_out_number_fc,
-		in_number_fc);
+    ap_fixed<64,32>   fc_1_bias2D_int[10] = {0};
+    load_weight_fc(
+            weight_src,
+            fc_1_weight2D,
+            weight_bias_record,
+            nn_channel_size_fc,
+            nn_in_number_fc,
+            nn_out_number_fc,
+            in_number_fc);
+    load_bias_fc(
+            weight_src,
+            fc_1_bias2D,
+            weight_bias_record,
+            nn_channel_size_fc,
+            nn_in_number_fc,
+            nn_out_number_fc,
+            in_number_fc);
 	in_number_fc++;
 
+    for(int i = 0; i < 160; i++){
+        for(int j = 0; j < 5; j++){
+            for(int k = 0; k < 5; k++){
+//                fc_1_weight2D[i][j][k] = round(fc_1_weight2D[i][j][k] * 100)/100;
+//                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
+//                    fc_1_weight2D[i][j][k] = 0;
+//                }
+                fc_1_weight2D_int[i][j][k] = ap_fixed<64,32>(fc_1_weight2D[i][j][k]);
+                cout << fc_1_weight2D_int[i][j][k]<<"  ";
+            }
+        }
+    }
+    for(int i = 0; i < 10; i++){
+//        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
+        fc_1_bias2D_int[i] = ap_fixed<64,32>(fc_1_bias2D[i]);
+    }
+
 	float fc_1_out_a[10000][10] = { 0 };
+    ap_fixed<64,32>   fc_1_out_a_int[10000][10] = {0};
 	float fc_1_out_temp[10][1][1] = { 0 };
+    ap_fixed<64,32>   fc_1_out_temp_int[10][1][1];
+    for(int i = 0; i < 10; i++){
+        fc_1_out_temp_int[i][0][0] = 0;
+    }
+    cout<< endl;
 
 #if _BATCH_MODE_
 	cout << "starting forward network batch process..........................." << endl;
@@ -158,6 +240,13 @@ int main() {
 #if _KERNEL_DEBUG_
 		cout << "starting forward network single picture processing ..............." << endl;
 		cout << ".................................................................." << endl;
+
+ap_fixed<64, 32> a = -1.2568;
+ap_fixed<64, 32> b = 1.2789;
+ap_fixed<64, 32> c = (a >= ap_fixed<64,32>(0))?a:ap_fixed<64,32>(0);
+    cout << c;
+    cout << endl;
+
 #endif
 
 		//Inference network process
@@ -167,18 +256,18 @@ int main() {
 			in_data_3D, //input pic data
 #endif
 #if _BATCH_MODE_
-			mnist_test_data[i], //input test dataset
+			mnist_test_data_fixed[i], //input test dataset
 #endif
 								//layer weights and bias inputs
-			conv_1_weight2D,
-			conv_1_bias2D,
-			conv_2_weight2D,
-			conv_2_bias2D,
-			fc_1_weight2D,
-			fc_1_bias2D,
+			conv_1_weight2D_int,
+			conv_1_bias2D_int,
+			conv_2_weight2D_int,
+			conv_2_bias2D_int,
+			fc_1_weight2D_int,
+			fc_1_bias2D_int,
 
 			//output fc data
-			fc_1_out_temp);
+			fc_1_out_temp_int);
 
 #if _BATCH_MODE_
 		for (int j = 0; j < 10; j++) {
@@ -198,23 +287,7 @@ int main() {
 	cout << "predicted time is: " << totaltime << " s" << endl;
 	getchar();
 #endif
-#if _HLS_MODE_
-	cout << "finished inference processing ............" << endl;
-	ofstream predict_output;
-	predict_output.open("predict_output.txt", ios::app);
-	for (int i = 0; i < 10; i++) {
-		predict_output << fc_1_out_temp[i][0][0] << " " << endl;
-	}
-	predict_output.close();
-	cout << endl;
-#endif
-#if _KERNEL_DEBUG_
-	softmax(fc_1_out_temp);
 
-	predict(fc_1_out_temp);
-#endif
 	return 0;
 
 }
-
-
