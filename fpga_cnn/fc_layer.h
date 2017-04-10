@@ -103,14 +103,14 @@ public:
 				out_data3D[b][0][0] += out_data_temp;
 			}
 #if _ACT_RELU_
-            out_data3D[b][0][0] = relu((out_data3D[b][0][0] + kernel_bias[b]));
+            out_data3D[b][0][0] = Relu((out_data3D[b][0][0] + kernel_bias[b]));
 #else
 			out_data3D[b][0][0] = f(activation_type, (out_data3D[b][0][0] + kernel_bias[b]));
 #endif
 		}
 
 #if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _KERNEL_DEBUG_
 		//debugging output
 		cout << "finished fully_connect ...." << endl;
 		ofstream fc_layer_a;
@@ -120,7 +120,7 @@ public:
 		}
 		fc_layer_a.close();
 		cout << endl;
-#endif
+//#endif
 #endif
 
 	}

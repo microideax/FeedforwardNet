@@ -20,15 +20,32 @@ tan_hp1m2 = h;
 template<typename T>
 T relu(T data){
 //    return (T(0) >= data ? T(0) : data);
-    if (data >= 0){
-//        cout << "data in range" << data << " ====> " << data << endl;
+    if (data > T(0)){
+        cout << "data in range  " << data << " ====> " << data << endl;
         return data;
     }
     else {
-//        cout << "data out range" << data << " ====> " << 0 << endl;
+        cout << "data out range  " << data << " ====> " << 0 << endl;
         return 0;
     }
 }
+
+template<int a, int b>
+ap_fixed<a, b> RELU(ap_fixed<a, b> data){
+    if (data > 0){
+        return data;
+    }
+    else
+        return 0;
+};
+
+ap_fixed<64, 32> Relu( ap_fixed<64,32> data){
+    if (data > 0){
+        return data;
+    }
+    else
+        return 0;
+};
 
 float f(char type, float data) {
 	if (type == 'i') // identity

@@ -59,10 +59,41 @@ void inference_net(
     fc_layer<ap_fixed<64,32>, 16, 5, 10> F5;
 
     //temp storage space
-    ap_fixed<64,32>  conv_1_out[6][28][28] = { 0 };
-    ap_fixed<64,32>  pool_1_out[6][14][14] = { 0 };
-    ap_fixed<64,32>  conv_2_out[16][10][10] = { 0 };
-    ap_fixed<64,32>  pool_2_out[16][5][5] = { 0 };
+    ap_fixed<64,32>  conv_1_out[6][28][28];
+    ap_fixed<64,32>  pool_1_out[6][14][14];
+    ap_fixed<64,32>  conv_2_out[16][10][10];
+    ap_fixed<64,32>  pool_2_out[16][5][5];
+
+
+//internal memory initiallization
+for(int i = 0; i < 6; i++){
+    for(int j = 0; j < 28; j++){
+        for(int k = 0; k < 28; k++){
+            conv_1_out[i][j][k] = ap_fixed<64,32>(0);
+        }
+    }
+}
+for(int i = 0; i < 6; i++){
+    for(int j = 0; j < 14; j++){
+        for(int k = 0; k < 14; k++){
+            pool_1_out[i][j][k] = 0;
+        }
+    }
+}
+for(int i = 0; i < 16; i++){
+    for(int j = 0; j < 10; j++){
+        for(int k = 0; k < 10; k++){
+            conv_2_out[i][j][k] = 0;
+        }
+    }
+}
+for(int i = 0; i < 16; i++){
+    for(int j = 0; j < 5; j++){
+        for(int k = 0; k < 5; k++){
+            pool_2_out[i][j][k] = 0;
+        }
+    }
+}
 
     //Forward propagation by layer
     C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);

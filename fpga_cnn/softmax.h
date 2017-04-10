@@ -77,6 +77,29 @@ void softmax(float (&x)[size][label_size]) {//for mnist dataset
 		}
 	}
 }
+
+template<int size, int label_size>
+void Softmax(ap_fixed<64,32> (&x)[size][label_size]){
+    for (int i = 0; i < size; i++) {
+        ap_fixed<64,32> max = 0;
+        ap_fixed<64,32> sum = 0;
+        for (int j = 0; j < label_size; j++) {
+			if (max < x[i][j]) {
+				max = x[i][j];
+			}
+		}
+        for (int j = 0; j < label_size; j++) {
+			x[i][j] = exp(x[i][j] - max);
+			sum += x[i][j];
+		}
+		for (int j = 0; j < label_size; j++) {
+			x[i][j] /= sum;
+		cout << x[i][j] << "  ";
+		}
+	    cout << endl;
+	    cout << endl;
+    }
+};
 #endif
 
 
