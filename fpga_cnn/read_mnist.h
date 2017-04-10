@@ -157,11 +157,11 @@ void getSrcData(float mnist_train_data[][1][size][size], float mnist_train_label
 //	std::string filename_test_images = "../example/data/t10k-images.idx3-ubyte";
 //	std::string filename_test_labels = "../example/data/t10k-labels.idx1-ubyte";
 //#if _HLS_MODE_
-    const char* filename_test_images = "t10k-images-idx3-ubyte";
-	const char* filename_test_labels = "t10k-labels-idx1-ubyte";
+//    const char* filename_test_images = "t10k-images-idx3-ubyte";
+//	const char* filename_test_labels = "t10k-labels-idx1-ubyte";
 //#else
-//    const char* filename_test_images = "data/t10k-images-idx3-ubyte";
-//	const char* filename_test_labels = "data/t10k-labels-idx1-ubyte";
+    const char* filename_test_images = "data/t10k-images-idx3-ubyte";
+	const char* filename_test_labels = "data/t10k-labels-idx1-ubyte";
 //#endif
 	readMnistImages(filename_test_images, mnist_test_data, num_patterns_test_CNN);
 	readMnistLabels(filename_test_labels, mnist_test_label, num_patterns_test_CNN);

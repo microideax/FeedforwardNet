@@ -60,6 +60,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 //		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
@@ -82,6 +83,7 @@ public:
 		}
 		pool_kernel_a.close();
 		cout << endl;
+#endif
 #endif
 	}
 
@@ -285,7 +287,8 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-		cout << "pooling kernel a input array...." << endl;
+#if _KERNEL_DEBUG_
+//		cout << "pooling kernel a input array...." << endl;
 		ofstream pool_kernel_a;
 		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
 		pool_kernel_a << "pooling kernel a input data" << endl;
@@ -307,7 +310,7 @@ public:
 		pool_kernel_a.close();
 		cout << endl;
 #endif
-
+#endif
 	}
 
 	/************************************************************************************/

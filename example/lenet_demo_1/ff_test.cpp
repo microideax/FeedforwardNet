@@ -234,9 +234,6 @@ int main() {
 	start = clock();
 
 	for (int i = 0; i < 10000; i++) {
-		if (i % 200 == 0) {
-			cout << ">>";
-		}
 #endif
 
 #if _KERNEL_DEBUG_
@@ -271,11 +268,11 @@ int main() {
 		}
 	}
 	cout << endl;
-//	softmax(fc_1_out_a);
+	softmax(fc_1_out_a);
 
-//	predict(fc_1_out_a, label_list);
+	predict(fc_1_out_a, label_list);
 
-//	accuracy(fc_1_out_a, mnist_test_label);
+	accuracy(fc_1_out_a, mnist_test_label);
 
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;

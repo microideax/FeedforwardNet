@@ -110,7 +110,7 @@ public:
 		}
 
 #if _C_DEBUG_MODE_
-//#if _KERNEL_DEBUG_
+#if _KERNEL_DEBUG_
 		//debugging output
 		cout << "finished fully_connect ...." << endl;
 		ofstream fc_layer_a;
@@ -120,7 +120,7 @@ public:
 		}
 		fc_layer_a.close();
 		cout << endl;
-//#endif
+#endif
 #endif
 
 	}
