@@ -7,6 +7,8 @@
 
 #include <math.h>
 #include <iostream>
+
+#include "config.h"
 //using namespace std;
 /*
 identity = i;
@@ -46,6 +48,11 @@ ap_fixed<64, 32> Relu( ap_fixed<64,32> data){
     else
         return 0;
 };
+
+cnn_data_type Relu(cnn_data_type data){
+    if(data > 0) return data;
+    else return 0;
+}
 
 float f(char type, float data) {
 	if (type == 'i') // identity

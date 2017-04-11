@@ -6,6 +6,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+typedef cnn_data_type ap_fixed<64, 32>;
+
 //activation function selection
 #define _ACT_RELU_ 1
 
