@@ -103,7 +103,7 @@ public:
 				out_data3D[b][0][0] += out_data_temp;
 			}
 #if _ACT_RELU_
-            out_data3D[b][0][0] = Relu((out_data3D[b][0][0] + kernel_bias[b]));
+            out_data3D[b][0][0] = Relu_20((out_data3D[b][0][0] + kernel_bias[b]));
 #else
 			out_data3D[b][0][0] = f(activation_type, (out_data3D[b][0][0] + kernel_bias[b]));
 #endif

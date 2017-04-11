@@ -53,8 +53,8 @@ set_part {xc7vx690tffg1761-2}
 #set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
-csim_design -clean -argv {*.txt}
+#csim_design -clean -argv {*.txt}
 
-#csynth_design
+csynth_design
 
 #cosim_design -argv {*.txt} -trace_level none -rtl verilog -tool xsim

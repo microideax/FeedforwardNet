@@ -8,7 +8,7 @@
 #include <math.h>
 #include <iostream>
 
-#include "config.h"
+#include "data_type.h"
 //using namespace std;
 /*
 identity = i;
@@ -41,7 +41,7 @@ ap_fixed<a, b> RELU(ap_fixed<a, b> data){
         return 0;
 };
 
-ap_fixed<64, 32> Relu( ap_fixed<64,32> data){
+ap_fixed<64, 32> Relu_64(ap_fixed<64,32> data){
     if (data > 0){
         return data;
     }
@@ -49,10 +49,27 @@ ap_fixed<64, 32> Relu( ap_fixed<64,32> data){
         return 0;
 };
 
-cnn_data_type Relu(cnn_data_type data){
+ap_fixed<32,16> Relu_32(ap_fixed<32,16> data){
     if(data > 0) return data;
     else return 0;
-}
+};
+ap_fixed<24,16> Relu_24(ap_fixed<24,16> data){
+    if(data > 0) return data;
+    else return 0;
+};
+ap_fixed<20,16> Relu_20(ap_fixed<20,16> data){
+    if(data > 0) return data;
+    else return 0;
+};
+ap_fixed<16,12> Relu_16(ap_fixed<16,12> data){
+    if(data > 0) return data;
+    else return 0;
+};
+
+ap_fixed<8,4> Relu_8(ap_fixed<8,4> data){
+    if(data > 0) return data;
+    else return 0;
+};
 
 float f(char type, float data) {
 	if (type == 'i') // identity

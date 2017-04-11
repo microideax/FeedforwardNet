@@ -335,7 +335,7 @@ public:
 			for (int i = 0; i < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; i++) {
 				for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
 #if _ACT_RELU_
-                    out_data3D[a][i][j] = Relu(out_data3D[a][i][j]);
+                    out_data3D[a][i][j] = Relu_20(out_data3D[a][i][j]);
 #else
 					out_data3D[a][i][j] = f(activation_type, out_data3D[a][i][j]);
 #endif

@@ -6,15 +6,13 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-typedef cnn_data_type ap_fixed<64, 32>;
-
 //activation function selection
 #define _ACT_RELU_ 1
 
 // C++ compilation debug mode
-//#define _HLS_MODE_  1
+#define _HLS_MODE_  1
 
-#define _BATCH_MODE_ 1
+//#define _BATCH_MODE_ 1
 
 #ifdef _BATCH_MODE_
 #define _KERNEL_DEBUG_ 0
