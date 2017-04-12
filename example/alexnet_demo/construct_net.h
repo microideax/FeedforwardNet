@@ -6,6 +6,7 @@
 #define _CONSTRUCT_NET_H_
 
 #include <iostream>
+#include <ap_fixed.h>
 #include "config.h"
 //#include "weight_bias.h"
 #include "../../fpga_cnn/conv_pool_layer.h"
@@ -20,28 +21,28 @@ void inference_net(
 	char activation_type,
 
 	// input pic data
-	float in_data_3D[3][227][227],
+	data_type in_data_3D[3][227][227],
 
 	// layer weights and bias inputs ------- Alexnet
-	float        conv_1_weight_a[288][11][11],
-	float        conv_1_bias_a[96],
-	float        conv_2_weight_a[12288][5][5],
-	float        conv_2_bias_a[256],
-	float        conv_3_weight_a[98304][3][3],
-	float        conv_3_bias_a[384],
-	float        conv_4_weight_a[73728][3][3],
-	float        conv_4_bias_a[384],
-	float        conv_5_weight_a[49152][3][3],
-	float        conv_5_bias_a[256],
-	float        fc_6_weight_a[1048576][6][6],
-	float        fc_6_bias_a[4096],
-	float        fc_7_weight_a[16777216][1][1],
-	float        fc_7_bias_a[4096],
-	float        fc_8_weight_a[4096000][1][1],
-	float        fc_8_bias_a[1000],
+	data_type        conv_1_weight_a[288][11][11],
+	data_type        conv_1_bias_a[96],
+	data_type        conv_2_weight_a[12288][5][5],
+	data_type        conv_2_bias_a[256],
+	data_type        conv_3_weight_a[98304][3][3],
+	data_type        conv_3_bias_a[384],
+	data_type        conv_4_weight_a[73728][3][3],
+	data_type        conv_4_bias_a[384],
+	data_type        conv_5_weight_a[49152][3][3],
+	data_type        conv_5_bias_a[256],
+	data_type        fc_6_weight_a[1048576][6][6],
+	data_type        fc_6_bias_a[4096],
+	data_type        fc_7_weight_a[16777216][1][1],
+	data_type        fc_7_bias_a[4096],
+	data_type        fc_8_weight_a[4096000][1][1],
+	data_type        fc_8_bias_a[1000],
 
 	// output fc data
-	float fc_8_out_a[1000][1][1]
+	data_type fc_8_out_a[1000][1][1]
 ) {
 
 
@@ -55,36 +56,36 @@ void inference_net(
 	/******************************************************************************************/
 
 	//construct network --------------alexnet
-	conv_layer<float, 227, 11, 0, 4, 3, 96, 1> C1;
-	lrn_layer<float, 96 ,5 ,55> L1;
-	pool_layer<float, 55, 3, 0, 2, 96> P1;
-	conv_layer<float, 27, 5, 2, 1, 96, 256, 2> C2;
-	lrn_layer<float, 256, 5, 27> L2;
-	pool_layer<float, 27, 3, 0, 2, 256> P2;
-	conv_layer<float, 13, 3, 1, 1, 256, 384, 1> C3;
-	conv_layer<float, 13, 3, 1, 1, 384, 384, 2> C4;
-	conv_layer<float, 13, 3, 1, 1, 384, 256, 2> C5;
-	pool_layer<float, 13, 3, 0, 2, 256> P5;
-	fc_layer<float, 256, 6, 4096> F6;
+	conv_layer<data_type, 227, 11, 0, 4, 3, 96, 1> C1;
+	lrn_layer<data_type, 96 ,5 ,55> L1;
+	pool_layer<data_type, 55, 3, 0, 2, 96> P1;
+	conv_layer<data_type, 27, 5, 2, 1, 96, 256, 2> C2;
+	lrn_layer<data_type, 256, 5, 27> L2;
+	pool_layer<data_type, 27, 3, 0, 2, 256> P2;
+	conv_layer<data_type, 13, 3, 1, 1, 256, 384, 1> C3;
+	conv_layer<data_type, 13, 3, 1, 1, 384, 384, 2> C4;
+	conv_layer<data_type, 13, 3, 1, 1, 384, 256, 2> C5;
+	pool_layer<data_type, 13, 3, 0, 2, 256> P5;
+	fc_layer<data_type, 256, 6, 4096> F6;
 	/*dropout_layer<float, 4096, 1> D6;*/
-	fc_layer<float, 4096, 1, 4096> F7;
+	fc_layer<data_type, 4096, 1, 4096> F7;
 	/*dropout_layer<float, 4096, 1> D7;*/
-	fc_layer<float, 4096, 1, 1000> F8;
+	fc_layer<data_type, 4096, 1, 1000> F8;
 
 	//temp storage space
-	float  conv_1_out[96][55][55] = { 0 };
-	float  lrn_1_out[96][55][55] = { 0 };
-	float  pool_1_out[96][27][27] = { 0 };
-	float  conv_2_out[256][27][27] = { 0 };
-	float  lrn_2_out[256][27][27] = { 0 };
-	float  pool_2_out[256][13][13] = { 0 };
-	float  conv_3_out[384][13][13] = { 0 };
-	float  conv_4_out[384][13][13] = { 0 };
-	float  conv_5_out[256][13][13] = { 0 };
-	float  pool_5_out[256][6][6] = { 0 };
-	float  fc_6_out[4096][1][1] = { 0 };
+	data_type  conv_1_out[96][55][55] = { 0 };
+	data_type  lrn_1_out[96][55][55] = { 0 };
+	data_type  pool_1_out[96][27][27] = { 0 };
+	data_type  conv_2_out[256][27][27] = { 0 };
+	data_type  lrn_2_out[256][27][27] = { 0 };
+	data_type  pool_2_out[256][13][13] = { 0 };
+	data_type  conv_3_out[384][13][13] = { 0 };
+	data_type  conv_4_out[384][13][13] = { 0 };
+	data_type  conv_5_out[256][13][13] = { 0 };
+	data_type  pool_5_out[256][6][6] = { 0 };
+	data_type  fc_6_out[4096][1][1] = { 0 };
 	/*float  drop_6_out[4096][1][1] = { 0 };*/
-	float  fc_7_out[4096][1][1] = { 0 };
+	data_type  fc_7_out[4096][1][1] = { 0 };
 	/*float  drop_7_out[4096][1][1] = { 0 };*/
 
 	//Forward propagation by layer

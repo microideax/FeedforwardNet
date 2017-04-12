@@ -135,7 +135,7 @@ public:
 				for (int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++) {
 					for (int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++) {
 #if _ACT_RELU_
-                        out_data3D[b][j][k] = Relu_20((out_data3D[b][j][k] + kernel_bias[b]));
+                        out_data3D[b][j][k] = Relu_64((out_data3D[b][j][k] + kernel_bias[b]));
 #else
 						out_data3D[b][j][k] = f(activation_type, (out_data3D[b][j][k] + kernel_bias[b]));
 #endif
