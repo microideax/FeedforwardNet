@@ -172,8 +172,8 @@ int main() {
 #if _BATCH_MODE_
 	//load val image set file *****************************
 	string root_dir = "./ILSVRC2012_img_val/";
-	float imagenet_test_data_channel_swap[2][3][1000][900] = { 0 };
-	float imagenet_test_data[2][3][227][227] = { 0 };
+	data_type imagenet_test_data_channel_swap[2][3][1000][900] = { 0 };
+	data_type imagenet_test_data[2][3][227][227] = { 0 };
 	for (int image_num = 0; image_num < 2; image_num++) {
 		string image_dir = root_dir + val_name_class[image_num][0];
 		int w;
@@ -201,7 +201,7 @@ int main() {
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = i; j < w * h * 3; j += 3) {
-				imagenet_test_data_channel_swap[image_num][2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j];//range:0--255
+				imagenet_test_data_channel_swap[image_num][2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (data_type)image_orig[j];//range:0--255
 			}
 		}
 
@@ -663,9 +663,6 @@ int main() {
 			fc_8_weight2D_int,
 			fc_8_bias2D_int,
 
-			//output fc data
-			//fc_8_out_int);
-
 #if _BATCH_MODE_
 			fc_1_out_temp);
 		//test mnist dataset
@@ -700,9 +697,13 @@ int main() {
 #if _KERNEL_DEBUG_
 	//output fc data
 	fc_8_out_int);
-	//softmax(fc_8_out);
 
-	//predict(fc_8_out);
+    for(int i=0;i<1000;i++){
+		fc_8_out[i][0][0]=float(fc_8_out_int[i][0][0]);
+	}
+	softmax(fc_8_out);
+
+	predict(fc_8_out);
 #endif
 
 #if _HLS_MODE_
