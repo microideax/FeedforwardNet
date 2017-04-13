@@ -1,0 +1,152 @@
+name: "LeNet_2conv2max_relu"
+layer {
+  name: "input"
+  type: "Input"
+  top: "input"
+  input_param { shape: { dim: 10000 dim: 1 dim: 28 dim:28 } }
+}
+
+layer {
+  name: "c1"
+  type: "Convolution"
+  bottom: "input"
+  top: "c1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 6
+    kernel_size: 5
+    stride: 1
+    pad: 2
+    weight_filler {
+      #type: "xavier"
+      type: "gaussian"
+      mean: 0
+      std:0.05
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layer {
+  name: "relu_c1"
+  bottom: "c1"
+  top: "c1"
+  type: "ReLU"
+}
+
+# pool1
+layer {
+  name: "s2"
+  type: "Pooling"
+  bottom: "c1"
+  top: "s2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "relu_s2"
+  bottom: "s2"
+  top: "s2"
+  type: "ReLU"
+}
+layer {
+  name: "c3"
+  type: "Convolution"
+  bottom: "s2"
+  top: "c3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 16
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      #type: "xavier"
+      type: "gaussian"
+      mean: 0
+      std:0.05
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_c3"
+  bottom: "c3"
+  top: "c3"
+  type: "ReLU"
+}
+layer {
+  name: "s4"
+  type: "Pooling"
+  bottom: "c3"
+  top: "s4"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+layer {
+  name: "relu_s4"
+  bottom: "s4"
+  top: "s4"
+  type: "ReLU"
+}
+
+
+layer {
+  name: "f5"
+  type: "InnerProduct"
+  bottom: "s4"
+  top: "f5"
+  param {
+    lr_mult:1
+  }
+  param {
+    lr_mult:2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      #type: "xavier"
+      type: "gaussian"
+      mean: 0
+      std:0.05
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_f5"
+  bottom: "f5"
+  top: "f5"
+  type: "ReLU"
+}
+
+
+#loss
+layer {
+  name: "prob"
+  type: "Softmax"
+  bottom: "f5"
+  top: "prob"
+}

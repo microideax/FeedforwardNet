@@ -1,0 +1,19 @@
+net: "models/lenet/lenet_2conv2max_cccp/lenet_2conv2max_cccp.prototxt"
+test_iter:100
+test_interval:500
+base_lr:0.02
+momentum: 0.9
+#type: SGD
+weight_decay: 0.0001
+lr_policy: "inv"
+gamma: 0.0001
+#stepsize: 1000
+power: 0.75
+display: 100
+max_iter: 10000
+snapshot: 5000
+snapshot_prefix: "models/lenet/lenet_2conv2max_cccp/lenet_2conv2max_cccp"
+solver_mode: GPU
+
+
+
