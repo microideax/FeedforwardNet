@@ -80,31 +80,31 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        int conv_layer_count = 0;
-        ofstream conv_kernel_a;
-        conv_kernel_a.open("conv_kernel_a.txt", ios::app);
-        for (int j = 0; j < _INPUT_SIZE_ ; j++) {
-            for (int k = 0; k < _INPUT_SIZE_ ; k++) {
-                conv_kernel_a << in_data[j][k] << " "; // i?
-            }
-            conv_kernel_a << endl;
-        }
-        conv_kernel_a << endl;
-        for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
-            for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
-                conv_kernel_a << kernel_weights[j][k] << " "; // i?
-            }
-            conv_kernel_a << endl;
-        }
-        conv_kernel_a << endl;
-        for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
-            for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
-                conv_kernel_a << out_data[j][k] << " "; //
-            }
-            conv_kernel_a << endl;
-        }
-        conv_kernel_a << endl;
-        conv_kernel_a.close();
+        //int conv_layer_count = 0;
+        //ofstream conv_kernel_a;
+        //conv_kernel_a.open("conv_kernel_a.txt", ios::app);
+        //for (int j = 0; j < _INPUT_SIZE_ ; j++) {
+        //    for (int k = 0; k < _INPUT_SIZE_ ; k++) {
+        //        conv_kernel_a << in_data[j][k] << " "; // i?
+        //    }
+        //    conv_kernel_a << endl;
+        //}
+        //conv_kernel_a << endl;
+        //for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
+        //    for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
+        //        conv_kernel_a << kernel_weights[j][k] << " "; // i?
+        //    }
+        //    conv_kernel_a << endl;
+        //}
+        //conv_kernel_a << endl;
+        //for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
+         //   for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
+         //       conv_kernel_a << out_data[j][k] << " "; //
+         //   }
+        //    conv_kernel_a << endl;
+        //}
+        //conv_kernel_a << endl;
+        //conv_kernel_a.close();
 #endif
 #endif
     }
@@ -144,11 +144,23 @@ public:
 			}
 		}
 
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _C_DEBUG_MODE_
+//#if _KERNEL_DEBUG_
         cout << "Finished convolution layer ...." << endl;
         ofstream out_conv_a;
         out_conv_a.open("conv_layer_a.txt", ios::app);
+
+        out_conv_a << "input 3D arry to conv layer ..................." << endl;
+        for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
+            for (int j = 0; j < _INPUT_SIZE_; j++) {
+                for (int k = 0; k < _INPUT_SIZE_; k++) {
+                    out_conv_a << in_data3D[i][j][k] << " ";
+                }
+                out_conv_a << endl;
+            }
+            out_conv_a << endl;
+        }
+        out_conv_a << endl;
 
         out_conv_a << "output from conv layer .........................." << endl;
         for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
@@ -162,8 +174,8 @@ public:
         }
         out_conv_a.close();
         cout << endl;
-#endif
-#endif
+//#endif
+//#endif
 
     }
 

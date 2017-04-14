@@ -76,21 +76,21 @@ for(int i = 0; i < 6; i++){
 for(int i = 0; i < 6; i++){
     for(int j = 0; j < 14; j++){
         for(int k = 0; k < 14; k++){
-            pool_1_out[i][j][k] = 0;
+            pool_1_out[i][j][k] = ap_fixed<64,32>(0);
         }
     }
 }
 for(int i = 0; i < 16; i++){
     for(int j = 0; j < 10; j++){
         for(int k = 0; k < 10; k++){
-            conv_2_out[i][j][k] = 0;
+            conv_2_out[i][j][k] = ap_fixed<64,32>(0);
         }
     }
 }
 for(int i = 0; i < 16; i++){
     for(int j = 0; j < 5; j++){
         for(int k = 0; k < 5; k++){
-            pool_2_out[i][j][k] = 0;
+            pool_2_out[i][j][k] = ap_fixed<64,32>(0);
         }
     }
 }

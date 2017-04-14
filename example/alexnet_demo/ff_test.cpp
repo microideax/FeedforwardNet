@@ -76,14 +76,14 @@ int main() {
 
 	//load val (image_name,image_class) set file *****************************
 	ifstream ifs("val.txt");
-	string val_name_class[2][2];
+	string val_name_class[3][2];
 	string str;
 
 	if (!ifs) {
 		cout << "val data file not found !" << endl;
 	}
 	int num = 0;
-	while (ifs >> str&&num<4) {//num:2 pair (image_name,image_class)
+	while (ifs >> str&&num<6) {//num:3 pair (image_name,image_class)
 		if (num % 2 == 0) {//image_name
 			val_name_class[num / 2][0] = str;
 		}
@@ -172,9 +172,9 @@ int main() {
 #if _BATCH_MODE_
 	//load val image set file *****************************
 	string root_dir = "./ILSVRC2012_img_val/";
-	data_type imagenet_test_data_channel_swap[2][3][1000][900] = { 0 };
-	data_type imagenet_test_data[2][3][227][227] = { 0 };
-	for (int image_num = 0; image_num < 2; image_num++) {
+	data_type imagenet_test_data_channel_swap[3][3][1000][900] = { 0 };
+	data_type imagenet_test_data[3][3][227][227] = { 0 };
+	for (int image_num = 0; image_num < 3; image_num++) {
 		string image_dir = root_dir + val_name_class[image_num][0];
 		int w;
 		int h;
@@ -294,14 +294,14 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_1_weight2D_int[i][j][k] = data_type(conv_1_weight2D[i][j][k]);
+                conv_1_weight2D_int[i][j][k] = (data_type)(conv_1_weight2D[i][j][k]);
 //                cout << conv_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 96; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_1_bias2D_int[i] = data_type(conv_1_bias2D[i]);
+        conv_1_bias2D_int[i] = (data_type)(conv_1_bias2D[i]);
         cout << conv_1_bias2D_int[i] << "  " ;
     }
     cout << endl;
@@ -337,14 +337,14 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_2_weight2D_int[i][j][k] = data_type(conv_2_weight2D[i][j][k]);
+                conv_2_weight2D_int[i][j][k] = (data_type)(conv_2_weight2D[i][j][k]);
 //                cout << conv_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 256; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_2_bias2D_int[i] = data_type(conv_2_bias2D[i]);
+        conv_2_bias2D_int[i] = (data_type)(conv_2_bias2D[i]);
         cout << conv_2_bias2D_int[i] << "  " ;
     }
     cout << endl;
@@ -380,14 +380,14 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_3_weight2D_int[i][j][k] = data_type(conv_3_weight2D[i][j][k]);
+                conv_3_weight2D_int[i][j][k] = (data_type)(conv_3_weight2D[i][j][k]);
 //                cout << conv_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 384; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_3_bias2D_int[i] = data_type(conv_3_bias2D[i]);
+        conv_3_bias2D_int[i] = (data_type)(conv_3_bias2D[i]);
         cout << conv_3_bias2D_int[i] << "  " ;
     }
     cout << endl;
@@ -423,14 +423,14 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_4_weight2D_int[i][j][k] = data_type(conv_4_weight2D[i][j][k]);
+                conv_4_weight2D_int[i][j][k] = (data_type)(conv_4_weight2D[i][j][k]);
 //                cout << conv_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 384; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_4_bias2D_int[i] = data_type(conv_4_bias2D[i]);
+        conv_4_bias2D_int[i] = (data_type)(conv_4_bias2D[i]);
         cout << conv_4_bias2D_int[i] << "  " ;
     }
     cout << endl;
@@ -466,14 +466,14 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_5_weight2D_int[i][j][k] = data_type(conv_5_weight2D[i][j][k]);
+                conv_5_weight2D_int[i][j][k] = (data_type)(conv_5_weight2D[i][j][k]);
 //                cout << conv_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 256; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_5_bias2D_int[i] = data_type(conv_5_bias2D[i]);
+        conv_5_bias2D_int[i] = (data_type)(conv_5_bias2D[i]);
         cout << conv_5_bias2D_int[i] << "  " ;
     }
     cout << endl;
@@ -508,14 +508,14 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_6_weight2D_int[i][j][k] = data_type(fc_6_weight2D[i][j][k]);
+                fc_6_weight2D_int[i][j][k] = (data_type)(fc_6_weight2D[i][j][k]);
 //                cout << fc_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_6_bias2D_int[i] = data_type(fc_6_bias2D[i]);
+        fc_6_bias2D_int[i] = (data_type)(fc_6_bias2D[i]);
     }
 
 	// Prepare weights and bias for fc layer 7
@@ -548,14 +548,14 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_7_weight2D_int[i][j][k] = data_type(fc_7_weight2D[i][j][k]);
+                fc_7_weight2D_int[i][j][k] = (data_type)(fc_7_weight2D[i][j][k]);
 //                cout << fc_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_7_bias2D_int[i] = data_type(fc_7_bias2D[i]);
+        fc_7_bias2D_int[i] = (data_type)(fc_7_bias2D[i]);
     }
 
 	// Prepare weights and bias for fc layer 8
@@ -588,14 +588,14 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_8_weight2D_int[i][j][k] = data_type(fc_8_weight2D[i][j][k]);
+                fc_8_weight2D_int[i][j][k] = (data_type)(fc_8_weight2D[i][j][k]);
 //                cout << fc_1_weight2D_int[i][j][k]<<"  ";
             }
         }
     }
     for(int i = 0; i < 1000; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_8_bias2D_int[i] = data_type(fc_8_bias2D[i]);
+        fc_8_bias2D_int[i] = (data_type)(fc_8_bias2D[i]);
     }
 
 #if _KERNEL_DEBUG_
@@ -604,23 +604,13 @@ int main() {
 #endif
 
 #if _BATCH_MODE_
-	//float fc_1_out_a[10000][10] = { 0 };
-	//float fc_1_out_temp[10] = { 0 };
-	float fc_1_out_a[2][1000][1][1] = { 0 };
+	float fc_1_out_a[3][1000][1][1] = { 0 };
 	float fc_1_out_temp[1000][1][1] = { 0 };
-
-	/*ofstream indata_compare;
-	indata_compare.open("in_data_compare.txt", ios::app);
-	for (int i = 0; i < 1; i++) {
-	for (int j = 0; j < 32; j++) {
-	for (int k = 0; k < 32; k++) {
-	indata_compare << in_data_3D[i][j][k] << " ";
-	}
-	indata_compare << endl;
-	}
-	indata_compare << endl;
-	}
-	indata_compare.close();*/
+	data_type   fc_1_out_temp_int[1000][1][1];
+	for(int i = 0; i < 1000; i++){
+        fc_1_out_temp_int[i][0][0] = (data_type)(0);
+    }
+    cout<< endl;
 
 	cout << "starting forward network batch process..........................." << endl;
 	cout << "..........................................................." << endl;
@@ -630,7 +620,7 @@ int main() {
 	start = clock();
 
 	//for (int i = 0; i < 10000; i++) {//test mnist dataset
-	for (int i = 0; i < 2; i++) {//test imagenet dataset
+	for (int i = 0; i < 3; i++) {//test imagenet dataset
 #endif
 
 								 //Inference network process
@@ -663,8 +653,9 @@ int main() {
 			fc_8_weight2D_int,
 			fc_8_bias2D_int,
 
+
 #if _BATCH_MODE_
-			fc_1_out_temp);
+			fc_1_out_temp_int);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
@@ -674,8 +665,8 @@ int main() {
 		for (int j = 0; j < 1000; j++) {
 			for (int k = 0; k < 1; k++) {
 				for (int l = 0; l < 1; l++) {
-					fc_1_out_a[i][j][k][l] = fc_1_out_temp[j][k][l];
-					fc_1_out_temp[j][k][l] = 0;
+					fc_1_out_a[i][j][k][l] = (float)(fc_1_out_temp_int[j][k][l]);
+					fc_1_out_temp_int[j][k][l] = (data_type)(0);
 				}
 			}
 		}
@@ -699,7 +690,7 @@ int main() {
 	fc_8_out_int);
 
     for(int i=0;i<1000;i++){
-		fc_8_out[i][0][0]=float(fc_8_out_int[i][0][0]);
+		fc_8_out[i][0][0]=(float)(fc_8_out_int[i][0][0]);
 	}
 	softmax(fc_8_out);
 

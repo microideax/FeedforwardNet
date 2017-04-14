@@ -6,6 +6,13 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+//activation function selection
+#define _ACT_RELU_ 1
+
+//define data type
+typedef ap_fixed<64,32> data_type;
+//typedef float data_type;
+
 // C++ compilation debug mode
 //#define _HLS_MODE_  1
 

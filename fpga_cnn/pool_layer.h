@@ -289,26 +289,26 @@ public:
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
 //		cout << "pooling kernel a input array...." << endl;
-		ofstream pool_kernel_a;
-		pool_kernel_a.open("pool_kernel_a.txt", ios::app);
-		pool_kernel_a << "pooling kernel a input data" << endl;
-		for (int i = 0; i < _INPUT_SIZE_; i++) {
-			for (int j = 0; j < _INPUT_SIZE_; j++) {
-				pool_kernel_a << in_data[i][j] << " ";
-			}
-			pool_kernel_a << endl;
-		}
-		pool_kernel_a << endl;
+		//ofstream pool_kernel_a;
+		//pool_kernel_a.open("pool_kernel_a.txt", ios::app);
+		//pool_kernel_a << "pooling kernel a input data" << endl;
+		//for (int i = 0; i < _INPUT_SIZE_; i++) {
+		//	for (int j = 0; j < _INPUT_SIZE_; j++) {
+		//		pool_kernel_a << in_data[i][j] << " ";
+		//	}
+		//	pool_kernel_a << endl;
+		//}
+		//pool_kernel_a << endl;
 
 //		pool_kernel_a << "pooling kernel a output data" << endl;
-		for (int i = 0; i < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; i++) {
-			for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
-				pool_kernel_a << out_data[i][j] << " ";
-			}
-			pool_kernel_a << endl;
-		}
-		pool_kernel_a.close();
-		cout << endl;
+		//for (int i = 0; i < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; i++) {
+		//	for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
+		//		pool_kernel_a << out_data[i][j] << " ";
+		//	}
+		//	pool_kernel_a << endl;
+		//}
+		//pool_kernel_a.close();
+		//cout << endl;
 #endif
 #endif
 	}
@@ -349,7 +349,7 @@ public:
         //debugging output
 		ofstream out_pool_a;
 		out_pool_a.open("pool_layer_a.txt", ios::app);
-//		out_pool_a << "output from pool layer .........................." << endl;
+		out_pool_a << "output from pool layer .........................." << endl;
 		for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
 			for (int j = 0; j < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; j++) {
 				for (int k = 0; k < (_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; k++) {

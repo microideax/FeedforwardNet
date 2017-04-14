@@ -117,7 +117,15 @@ public:
 	[(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 		T out_data3d_temp[_OUT_CHANNEL_NUM_]
 			[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]
-		[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1] = { 0 };
+		[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1];
+		//internal memory initiallization
+		for(int i = 0; i < _OUT_CHANNEL_NUM_; i++){
+            for(int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++){
+                for(int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++){
+                    out_data3d_temp[i][j][k] = (data_type)(0);
+                }
+            }
+        }
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -133,7 +141,11 @@ public:
 			}
 			for (int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++) {
 				for (int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++) {
+#if _ACT_RELU_
+                    out_data3d_temp[b][j][k] = Relu_64(out_data3d_temp[b][j][k] + kernel_bias[b]);
+#else
 					out_data3d_temp[b][j][k] = f(activation_type, (out_data3d_temp[b][j][k] + kernel_bias[b]));
+#endif
 				}
 			}
 			//max pooling...
@@ -149,7 +161,11 @@ public:
 								}
 							}
 						}
-						out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = f(activation_type, max);
+#if _ACT_RELU_
+                    out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = Relu_64(max);
+#else
+					out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = f(activation_type, max);
+#endif
 					}
 				}
 			}
@@ -165,15 +181,19 @@ public:
 								}
 							}
 						}
-						out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = f(activation_type, max);
+#if _ACT_RELU_
+                    out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = Relu_64(max);
+#else
+					out_data3D[b][(i - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_][(j - _POOL_KERNEL_SIZE_ / 2 + _POOL_PADDING_) / _POOL_STRIDE_] = f(activation_type, max);
+#endif
 					}
 				}
 			}
 		}
 
 		//debugging output
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _C_DEBUG_MODE_
+//#if _KERNEL_DEBUG_
 		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
@@ -213,8 +233,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-#endif
-#endif
+//#endif
+//#endif
 
 	}
 };

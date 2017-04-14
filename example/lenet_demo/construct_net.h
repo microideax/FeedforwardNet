@@ -9,6 +9,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <ap_fixed.h>
 
 #include "config.h"
 #include "../../fpga_cnn/data_type.h"
@@ -25,18 +26,18 @@ void inference_net(
         char activation_type,
 
         // input pic data
-        float in_data_3D[1][32][32],
+        data_type in_data_3D[1][32][32],
 
         // layer weights and bias inputs ------- conv2pool2fc
-        float        conv_1_weight_a[6][5][5],
-        float        conv_1_bias_a[6],
-        float        conv_2_weight_a[96][5][5],
-        float        conv_2_bias_a[16],
-        float        fc_1_weight_a[160][5][5],
-        float        fc_1_bias_a[10],
+        data_type        conv_1_weight_a[6][5][5],
+        data_type        conv_1_bias_a[6],
+        data_type        conv_2_weight_a[96][5][5],
+        data_type        conv_2_bias_a[16],
+        data_type        fc_1_weight_a[160][5][5],
+        data_type        fc_1_bias_a[10],
 
         // output fc data
-        float fc_1_out_a[10][1][1]
+        data_type fc_1_out_a[10][1][1]
 ) {
 
 
@@ -50,13 +51,29 @@ void inference_net(
 
     /******************************************************************************************/
     //construct network --------------conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
-    conv_pool_layer<float, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
-    conv_pool_layer<float, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;
-    fc_layer<float, 16, 5, 10> F5;
+    conv_pool_layer<data_type, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
+    conv_pool_layer<data_type, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;
+    fc_layer<data_type, 16, 5, 10> F5;
 
     //temp storage space
-    float  pool_1_out[6][14][14] = { 0 };
-    float  pool_2_out[16][5][5] = { 0 };
+    data_type  pool_1_out[6][14][14];
+    data_type  pool_2_out[16][5][5];
+
+    //internal memory initiallization
+    for(int i = 0; i < 6; i++){
+        for(int j = 0; j < 14; j++){
+            for(int k = 0; k < 14; k++){
+                pool_1_out[i][j][k] = (data_type)(0);
+            }
+        }
+    }
+    for(int i = 0; i < 16; i++){
+        for(int j = 0; j < 5; j++){
+            for(int k = 0; k < 5; k++){
+                pool_2_out[i][j][k] = (data_type)(0);
+            }
+        }
+    }
 
     //Forward propagation by layer
     C1P2.conv_layer_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, pool_1_out);

@@ -73,20 +73,106 @@ void inference_net(
 	fc_layer<data_type, 4096, 1, 1000> F8;
 
 	//temp storage space
-	data_type  conv_1_out[96][55][55] = { 0 };
-	data_type  lrn_1_out[96][55][55] = { 0 };
-	data_type  pool_1_out[96][27][27] = { 0 };
-	data_type  conv_2_out[256][27][27] = { 0 };
-	data_type  lrn_2_out[256][27][27] = { 0 };
-	data_type  pool_2_out[256][13][13] = { 0 };
-	data_type  conv_3_out[384][13][13] = { 0 };
-	data_type  conv_4_out[384][13][13] = { 0 };
-	data_type  conv_5_out[256][13][13] = { 0 };
-	data_type  pool_5_out[256][6][6] = { 0 };
-	data_type  fc_6_out[4096][1][1] = { 0 };
+	data_type  conv_1_out[96][55][55];
+	data_type  lrn_1_out[96][55][55];
+	data_type  pool_1_out[96][27][27];
+	data_type  conv_2_out[256][27][27];
+	data_type  lrn_2_out[256][27][27];
+	data_type  pool_2_out[256][13][13];
+	data_type  conv_3_out[384][13][13];
+	data_type  conv_4_out[384][13][13];
+	data_type  conv_5_out[256][13][13];
+	data_type  pool_5_out[256][6][6];
+	data_type  fc_6_out[4096][1][1];
 	/*float  drop_6_out[4096][1][1] = { 0 };*/
-	data_type  fc_7_out[4096][1][1] = { 0 };
+	data_type  fc_7_out[4096][1][1];
 	/*float  drop_7_out[4096][1][1] = { 0 };*/
+
+    //internal memory initiallization
+    for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            conv_1_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+    for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            lrn_1_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            pool_1_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            conv_2_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            lrn_2_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 13; j++){
+        for(int k = 0; k < 13; k++){
+            pool_2_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 384; i++){
+    for(int j = 0; j < 13; j++){
+        for(int k = 0; k < 13; k++){
+            conv_3_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 384; i++){
+    for(int j = 0; j < 13; j++){
+        for(int k = 0; k < 13; k++){
+            conv_4_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 13; j++){
+        for(int k = 0; k < 13; k++){
+            conv_5_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 6; j++){
+        for(int k = 0; k < 6; k++){
+            pool_5_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 4096; i++){
+    for(int j = 0; j < 1; j++){
+        for(int k = 0; k < 1; k++){
+            fc_6_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 4096; i++){
+    for(int j = 0; j < 1; j++){
+        for(int k = 0; k < 1; k++){
+            fc_7_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <string>  
+#include <ap_fixed.h>
 //#include "../fpga_cnn/data_type.h"
 
 #define num_patterns_train_CNN      60000 //mnist训练模式对数(总数),10个数字为一对
@@ -20,7 +21,7 @@
 #define num_map_output_CNN      10 //输出层map个数  
 
 template<int size>
-void init_variable(float val_array[][1][size][size], float value, int len)
+void init_variable(data_type val_array[][1][size][size], data_type value, int len)
 {
 	printf("begin_init!!!!!!!!\n");
 	for (int i = 0; i < num_patterns_test_CNN; i++) {
@@ -59,15 +60,15 @@ static int reverseInt(int i)////英特尔处理器和其他低端机用户必须翻转头字节
 /*	labels magic_number = 2049											*/
 
 template<int size>
-static void readMnistImages(const char* filename, float data_dst[][1][size][size], int num_image)
+static void readMnistImages(const char* filename, data_type data_dst[][1][size][size], int num_image)
 //static void readMnistImages(std::string filename, float data_dst[][1][size][size], int num_image)
 {
 	const int width_src_image = 28;
 	const int height_src_image = 28;
 	const int x_padding = 2;
 	const int y_padding = 2;
-	const float scale_min = -1;
-	const float scale_max = 1;
+	const data_type scale_min = -1;
+	const data_type scale_max = 1;
 
 	std::ifstream file(filename, std::ios::binary);//二进制读取Mnist数据
 //	ifstream file(filename, ios::binary);
@@ -99,7 +100,8 @@ static void readMnistImages(const char* filename, float data_dst[][1][size][size
 				file.read((char*)&temp, sizeof(temp));
 				//data_dst[addr + width_image_input_CNN * (r + y_padding) + c + x_padding] = (((int)temp) / 255.0) * (scale_max - scale_min) + scale_min;//归一化
 				//mnist_data[addr + width_image_input_CNN * (r + y_padding) + c + x_padding] = (((int)temp) / 255.0) * (scale_max - scale_min) + scale_min;
-				data_dst[i][0][r + y_padding][c + x_padding] = (((int)temp) / 255.0) * (scale_max - scale_min) + scale_min;//归一化
+				//data_dst[i][0][r + y_padding][c + x_padding] = (data_type)(((int)temp) / 255.0) * (scale_max - scale_min) + scale_min;//归一化
+				data_dst[i][0][r + y_padding][c + x_padding] = (data_type)(((int)temp));//归一化
 			}
 		}
 	}
@@ -107,10 +109,10 @@ static void readMnistImages(const char* filename, float data_dst[][1][size][size
 }
 
 template<int size>
-static void readMnistLabels(const char* filename, float data_dst[][size], int num_image)
+static void readMnistLabels(const char* filename, data_type data_dst[][size], int num_image)
 //static void readMnistLabels(std::string filename, float data_dst[][size], int num_image)
 {
-	const float scale_max = 1;
+	const data_type scale_max = 1;
 
 	std::ifstream file(filename, std::ios::binary);
 //	ifstream file(filename, ios::binary);
@@ -135,8 +137,8 @@ static void readMnistLabels(const char* filename, float data_dst[][size], int nu
 }
 
 template<int size,int label_size>
-void getSrcData(float mnist_train_data[][1][size][size], float mnist_train_label[][label_size],
-	float mnist_test_data[][1][size][size], float mnist_test_label[][label_size])
+void getSrcData(data_type mnist_train_data[][1][size][size], data_type mnist_train_label[][label_size],
+	data_type mnist_test_data[][1][size][size], data_type mnist_test_label[][label_size])
 {
 	/*初始化mnist数据矩阵*/
 	//int train_data_length = width_image_input_CNN * width_image_input_CNN * num_patterns_train_CNN;// training data length
@@ -144,7 +146,7 @@ void getSrcData(float mnist_train_data[][1][size][size], float mnist_train_label
 	//int train_label_length = num_map_output_CNN * num_patterns_train_CNN;
 	
 	int test_data_length = width_image_input_CNN * height_image_input_CNN * num_patterns_test_CNN;
-	init_variable(mnist_test_data, -1.0, test_data_length);//init the array with -1
+	init_variable(mnist_test_data, (data_type)0.0, test_data_length);//init the array with -1
 	int test_label_length = num_map_output_CNN * num_patterns_test_CNN;
   
 	/*
