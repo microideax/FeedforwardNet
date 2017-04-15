@@ -57,10 +57,10 @@ void inference_net(
 
 	//construct network --------------alexnet
 	conv_layer<data_type, 227, 11, 0, 4, 3, 96, 1> C1;
-	lrn_layer<data_type, 96 ,5 ,55> L1;
+	lrn_layer<float, 96 ,5 ,55> L1;
 	pool_layer<data_type, 55, 3, 0, 2, 96> P1;
 	conv_layer<data_type, 27, 5, 2, 1, 96, 256, 2> C2;
-	lrn_layer<data_type, 256, 5, 27> L2;
+	lrn_layer<float, 256, 5, 27> L2;
 	pool_layer<data_type, 27, 3, 0, 2, 256> P2;
 	conv_layer<data_type, 13, 3, 1, 1, 256, 384, 1> C3;
 	conv_layer<data_type, 13, 3, 1, 1, 384, 384, 2> C4;
@@ -74,10 +74,14 @@ void inference_net(
 
 	//temp storage space
 	data_type  conv_1_out[96][55][55];
+	float  conv_1_out_float[96][55][55];
 	data_type  lrn_1_out[96][55][55];
+	float  lrn_1_out_float[96][55][55];
 	data_type  pool_1_out[96][27][27];
 	data_type  conv_2_out[256][27][27];
+	float  conv_2_out_float[256][27][27];
 	data_type  lrn_2_out[256][27][27];
+	float  lrn_2_out_float[256][27][27];
 	data_type  pool_2_out[256][13][13];
 	data_type  conv_3_out[384][13][13];
 	data_type  conv_4_out[384][13][13];
@@ -96,10 +100,24 @@ void inference_net(
         }
     }
 }
+for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            conv_1_out_float[i][j][k] = (float)(0);
+        }
+    }
+}
     for(int i = 0; i < 96; i++){
     for(int j = 0; j < 55; j++){
         for(int k = 0; k < 55; k++){
             lrn_1_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            lrn_1_out_float[i][j][k] = (float)(0);
         }
     }
 }
@@ -114,6 +132,20 @@ for(int i = 0; i < 256; i++){
     for(int j = 0; j < 27; j++){
         for(int k = 0; k < 27; k++){
             conv_2_out[i][j][k] = (data_type)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            conv_2_out_float[i][j][k] = (float)(0);
+        }
+    }
+}
+for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            lrn_2_out_float[i][j][k] = (float)(0);
         }
     }
 }
@@ -176,10 +208,38 @@ for(int i = 0; i < 4096; i++){
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, conv_1_out);
-	L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], conv_1_out, lrn_1_out);
+	for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            conv_1_out_float[i][j][k] = (float)conv_1_out[i][j][k];
+        }
+    }
+}
+	L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], conv_1_out_float, lrn_1_out_float);
+	for(int i = 0; i < 96; i++){
+    for(int j = 0; j < 55; j++){
+        for(int k = 0; k < 55; k++){
+            lrn_1_out[i][j][k] = (data_type)lrn_1_out_float[i][j][k];
+        }
+    }
+}
 	P1.max_pooling_layer_a(activation_type, lrn_1_out, pool_1_out);
 	C2.conv_layer_a(activation_type, pool_1_out, conv_2_weight_a, conv_2_bias_a, conv_2_out);
-	L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], conv_2_out, lrn_2_out);
+	for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            conv_2_out_float[i][j][k] = (float)conv_2_out[i][j][k];
+        }
+    }
+}
+	L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], conv_2_out_float, lrn_2_out_float);
+	for(int i = 0; i < 256; i++){
+    for(int j = 0; j < 27; j++){
+        for(int k = 0; k < 27; k++){
+            lrn_2_out[i][j][k] = (data_type)lrn_2_out_float[i][j][k];
+        }
+    }
+}
 	P2.max_pooling_layer_a(activation_type, lrn_2_out, pool_2_out);
 	C3.conv_layer_a(activation_type, pool_2_out, conv_3_weight_a, conv_3_bias_a, conv_3_out);
 	C4.conv_layer_a(activation_type, conv_3_out, conv_4_weight_a, conv_4_bias_a, conv_4_out);

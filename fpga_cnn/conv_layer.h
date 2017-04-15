@@ -81,8 +81,8 @@ public:
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
         //int conv_layer_count = 0;
-        //ofstream conv_kernel_a;
-        //conv_kernel_a.open("conv_kernel_a.txt", ios::app);
+        ofstream conv_kernel_a;
+        conv_kernel_a.open("conv_kernel_a.txt", ios::app);
         //for (int j = 0; j < _INPUT_SIZE_ ; j++) {
         //    for (int k = 0; k < _INPUT_SIZE_ ; k++) {
         //        conv_kernel_a << in_data[j][k] << " "; // i?
@@ -90,12 +90,12 @@ public:
         //    conv_kernel_a << endl;
         //}
         //conv_kernel_a << endl;
-        //for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
-        //    for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
-        //        conv_kernel_a << kernel_weights[j][k] << " "; // i?
-        //    }
+        for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
+            for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
+                conv_kernel_a << kernel_weights[j][k] << " "; // i?
+            }
         //    conv_kernel_a << endl;
-        //}
+        }
         //conv_kernel_a << endl;
         //for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
          //   for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
@@ -104,7 +104,7 @@ public:
         //    conv_kernel_a << endl;
         //}
         //conv_kernel_a << endl;
-        //conv_kernel_a.close();
+        conv_kernel_a.close();
 #endif
 #endif
     }
@@ -135,7 +135,7 @@ public:
 				for (int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++) {
 					for (int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++) {
 #if _ACT_RELU_
-                        out_data3D[b][j][k] = Relu_64((out_data3D[b][j][k] + kernel_bias[b]));
+                        out_data3D[b][j][k] = Relu_32((out_data3D[b][j][k] + kernel_bias[b]));
 #else
 						out_data3D[b][j][k] = f(activation_type, (out_data3D[b][j][k] + kernel_bias[b]));
 #endif

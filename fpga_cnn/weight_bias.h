@@ -35,7 +35,8 @@ void load_weight_conv(
                        * nn_in_number_conv[in_number_conv]
                        * nn_out_number_conv[in_number_conv];
     int weight_bias_count = 0;
-
+    float weight_min = 0;
+    float weight_max = 0;
 
     /*ifs >> str;
     if(ifs.eof())  cout << "file error" << endl;
@@ -46,6 +47,12 @@ void load_weight_conv(
 			if (weight_bias_count >= weight_bias_record) {
 				int serial_no = weight_bias_count - weight_bias_record;
 				float f = atof(str.c_str());
+				if(f < weight_min){
+					weight_min =f ;
+				}
+				if(f > weight_max){
+					weight_max =f ;
+				}
 				int channel = serial_no / (nn_channel_size_conv[in_number_conv] * nn_channel_size_conv[in_number_conv]);
 				int y_index = (serial_no % (nn_channel_size_conv[in_number_conv] * nn_channel_size_conv[in_number_conv])) / nn_channel_size_conv[in_number_conv];
 				int x_index = serial_no % nn_channel_size_conv[in_number_conv];
@@ -58,6 +65,14 @@ void load_weight_conv(
     cout << endl;
     cout << "conv layer weights number in total is = " << weight_bias_count << endl;
     cout << "network weights in total is = " << weight_bias_count << endl;
+    ifs.close();
+
+    ofstream weight_range;
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
 }
 
 void load_weight_pooling(
@@ -122,6 +137,9 @@ void load_weight_fc(
 	int layer_weight_num = nn_channel_size_fc[in_number_fc] *nn_channel_size_fc[in_number_fc] *nn_in_number_fc[in_number_fc]
 		* nn_out_number_fc[in_number_fc];
 	int weight_bias_count = 0;
+	float weight_min = 0;
+    float weight_max = 0;
+
 	while (ifs >> str && weight_bias_count < layer_weight_num + weight_bias_record)
 	{
 		if (str != "weights:"&&str != "bias:") {
@@ -131,12 +149,24 @@ void load_weight_fc(
 				if (nn_channel_size_fc[in_number_fc] == 1) {
 					int serial_no = weight_bias_count - weight_bias_record;
 					float f = atof(str.c_str());
+					if(f < weight_min){
+					    weight_min =f ;
+				    }
+				    if(f > weight_max){
+					    weight_max =f ;
+				    }
 					int channel = serial_no / (nn_channel_size_fc[in_number_fc] * nn_channel_size_fc[in_number_fc]);
 					fc_1_weight2D[channel][0][0] = f;
 				}
 				else {
 					int serial_no = weight_bias_count - weight_bias_record;
 					float f = atof(str.c_str());
+					if(f < weight_min){
+					    weight_min =f ;
+				    }
+				    if(f > weight_max){
+					    weight_max =f ;
+				    }
 					int channel = serial_no / (nn_channel_size_fc[in_number_fc] * nn_channel_size_fc[in_number_fc]);
 					int y_index = (serial_no % (nn_channel_size_fc[in_number_fc] *nn_channel_size_fc[in_number_fc])) / nn_channel_size_fc[in_number_fc];
 					int x_index = serial_no%nn_channel_size_fc[in_number_fc];
@@ -149,6 +179,13 @@ void load_weight_fc(
 	weight_bias_record = weight_bias_count;
 	cout << "fc layer weights number in total is = " << weight_bias_count << endl;
 	ifs.close();
+
+	ofstream weight_range;
+	weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from fc layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
 }
 
 void load_bias_conv(

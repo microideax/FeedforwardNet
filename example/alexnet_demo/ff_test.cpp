@@ -601,6 +601,9 @@ int main() {
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000][1][1] = { 0 };
 	data_type   fc_8_out_int[1000][1][1];
+	clock_t start, finish;
+	double totaltime;
+	start = clock();
 #endif
 
 #if _BATCH_MODE_
@@ -679,10 +682,6 @@ int main() {
 	//accuracy(fc_1_out_a, mnist_test_label);//for mnist dataset
 	accuracy(fc_1_out_a, val_name_class);//for imagenet dataset
 
-	finish = clock();
-	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "predicted time is: " << totaltime << " s" << endl;
-	getchar();
 #endif
 
 #if _KERNEL_DEBUG_
@@ -696,6 +695,11 @@ int main() {
 
 	predict(fc_8_out);
 #endif
+
+	finish = clock();
+	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+	cout << "predicted time is: " << totaltime << " s" << endl;
+	getchar();
 
 #if _HLS_MODE_
 	cout << "finished inference processing ............" << endl;

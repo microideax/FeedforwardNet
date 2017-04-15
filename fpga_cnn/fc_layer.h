@@ -42,8 +42,8 @@ public:
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
 		//cout << "array fc kernel output ...." << endl;
-		ofstream fc_kernel_a;
-		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
+		//ofstream fc_kernel_a;
+		//fc_kernel_a.open("fc_kernel_a.txt", ios::app);
 		//fc_kernel_a << "fc kernel in data" << endl;
 		//for (int i = 0; i < _INPUT_SIZE_; i++) {
 		//	for (int j = 0; j < _INPUT_SIZE_; j++) {
@@ -54,12 +54,12 @@ public:
 		//fc_kernel_a << endl;
 		//fc_kernel_a << "fc kernel in weight" << endl;
 
-		for (int i = 0; i < _INPUT_SIZE_; i++) {
-			for (int j = 0; j < _INPUT_SIZE_; j++) {
-				fc_kernel_a << kernel_weights[i][j] << " ";
-			}
+		//for (int i = 0; i < _INPUT_SIZE_; i++) {
+		//	for (int j = 0; j < _INPUT_SIZE_; j++) {
+		//		fc_kernel_a << kernel_weights[i][j] << " ";
+		//	}
 		//	fc_kernel_a << endl;
-		}
+		//}
         /*fc_kernel_a << kernel_weight << endl;
 		fc_kernel_a << endl;*/
 
@@ -71,7 +71,7 @@ public:
 		//    fc_kernel_a << endl;
 		//}
 		//fc_kernel_a << endl;
-		fc_kernel_a.close();
+		//fc_kernel_a.close();
 //		cout << endl;
 #endif
 #endif
@@ -103,7 +103,7 @@ public:
 				out_data3D[b][0][0] += out_data_temp;
 			}
 #if _ACT_RELU_
-            out_data3D[b][0][0] = Relu_64((out_data3D[b][0][0] + kernel_bias[b]));
+            out_data3D[b][0][0] = Relu_32((out_data3D[b][0][0] + kernel_bias[b]));
 #else
 			out_data3D[b][0][0] = f(activation_type, (out_data3D[b][0][0] + kernel_bias[b]));
 #endif

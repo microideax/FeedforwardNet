@@ -6,6 +6,14 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+//activation function selection
+#define _ACT_RELU_ 1
+
+//define data type
+//typedef ap_fixed<64,32> data_type;
+typedef ap_fixed<32,16> data_type;
+//typedef float data_type;
+
 // C++ compilation debug mode
 //#define _HLS_MODE_  1
 
@@ -42,9 +50,6 @@ int nn_in_number_fc[3] = { 512,4096,4096 };
 int nn_out_number_fc[3] = { 4096,4096,1000 };
 int nn_channel_size_fc[3] = { 7,1,1 };
 
-int nn_local_size_lrn[2] = { 5,5 };
-float nn_alpha_lrn[2] = { 0.0001,0.0001 };
-float nn_beta_lrn[2] = { 0.75,0.75 };
 //float dropout_ratio = 0.5;
 
 //#define O true
