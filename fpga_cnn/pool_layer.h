@@ -13,7 +13,7 @@
 
 //using namespace std;
 
-template <typename T, int _INPUT_SIZE_, int _POOL_KERNEL_SIZE_, int _POOL_PADDING_, int _POOL_STRIDE_, int _IN_CHANNEL_NUM_>
+template <typename T, typename W, typename G, int _INPUT_SIZE_, int _POOL_KERNEL_SIZE_, int _POOL_PADDING_, int _POOL_STRIDE_, int _IN_CHANNEL_NUM_>
 class pool_layer {
 
 private:
@@ -26,8 +26,8 @@ public:
 	// pooling kernel function with array input
 	void pooling_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weight,
-		T out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
+		W kernel_weight,
+		G out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 		if (_POOL_KERNEL_SIZE_ % 2 != 0) {//_POOL_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _POOL_KERNEL_SIZE_ / 2 - _POOL_PADDING_; i < _INPUT_SIZE_ + _POOL_PADDING_ - _POOL_KERNEL_SIZE_ / 2; i += _POOL_STRIDE_) {
 				for (int j = _POOL_KERNEL_SIZE_ / 2 - _POOL_PADDING_; j < _INPUT_SIZE_ + _POOL_PADDING_ - _POOL_KERNEL_SIZE_ / 2; j += _POOL_STRIDE_) {
@@ -92,9 +92,9 @@ public:
 	void pooling_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[],
-		T kernel_bias[],
-		T out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
+		W kernel_weights[],
+		W kernel_bias[],
+		G out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 
 		cout << "Starting average_pooling ...." << endl;
@@ -135,7 +135,7 @@ public:
 	// pooling kernel function with array input without kernel weights
 	void pooling_kernel_a_no_w(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-		T out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
+		G out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 		//for (int i = 0; i < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; i = i + _KERNEL_SIZE_) {
 		//	for (int j = 0; j < _INPUT_SIZE_ - _KERNEL_SIZE_ / 2; j = j + _KERNEL_SIZE_) {
 		//		T sum = 0;
@@ -211,7 +211,7 @@ public:
 	void pooling_layer_a_no_w(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
+		G out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 
 		cout << "Starting average_pooling ...." << endl;
@@ -251,7 +251,7 @@ public:
 	// max pooling kernel function with array input without kernel weights
 	void max_pooling_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-		T out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
+		G out_data[][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 
 		if (_POOL_KERNEL_SIZE_ % 2 != 0) {//_POOL_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _POOL_KERNEL_SIZE_ / 2 - _POOL_PADDING_; i < _INPUT_SIZE_ + _POOL_PADDING_ - _POOL_KERNEL_SIZE_ / 2; i += _POOL_STRIDE_) {
@@ -318,7 +318,7 @@ public:
 	void max_pooling_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
+		G out_data3D[_IN_CHANNEL_NUM_][(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
 		[(_INPUT_SIZE_ + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 
 #if _C_DEBUG_MODE_

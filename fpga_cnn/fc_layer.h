@@ -12,7 +12,7 @@
 
 using namespace std;
 
-template <typename T, int _IN_CHANNEL_NUM_, int _INPUT_SIZE_, int _OUT_CHANNEL_NUM_>
+template <typename T, typename W, typename G, int _IN_CHANNEL_NUM_, int _INPUT_SIZE_, int _OUT_CHANNEL_NUM_>
 class fc_layer {
 
 private:
@@ -25,8 +25,8 @@ public:
 	//fc kernel function with array input
 	void fc_kernel_a(
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
-		T& out_data) {
+		W kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
+		G& out_data) {
 		T sum = 0;
 		for (uint i = 0; i < _INPUT_SIZE_; i++)
 		{
@@ -82,9 +82,9 @@ public:
 	void fc_layer_a(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_bias[_OUT_CHANNEL_NUM_],
-		T out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
+		W kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+		W kernel_bias[_OUT_CHANNEL_NUM_],
+		G out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -131,10 +131,10 @@ public:
 	void fc_layer_a_no_activation(
 		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
+		W kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		//        T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_],
-		T kernel_bias[_OUT_CHANNEL_NUM_],
-		T out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
+		W kernel_bias[_OUT_CHANNEL_NUM_],
+		G out_data3D[_OUT_CHANNEL_NUM_][1][1]) {
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_

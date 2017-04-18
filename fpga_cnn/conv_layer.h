@@ -15,7 +15,7 @@ using namespace std;
 
 extern const bool tbl[6][16];
 
-template <typename T, int _INPUT_SIZE_, int _CONV_KERNEL_SIZE_, int _CONV_PADDING_, int _CONV_STRIDE_, int _IN_CHANNEL_NUM_, int _OUT_CHANNEL_NUM_, int _GROUP_>
+template <typename T, typename W, typename G, int _INPUT_SIZE_, int _CONV_KERNEL_SIZE_, int _CONV_PADDING_, int _CONV_STRIDE_, int _IN_CHANNEL_NUM_, int _OUT_CHANNEL_NUM_, int _GROUP_>
 class conv_layer {
 
 private:
@@ -28,11 +28,11 @@ public:
     /************************************************************************************************/
     void conv_kernel_a(
             T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
-            T kernel_weights[_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
-            T out_data[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
+            W kernel_weights[_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
+            G out_data[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
 
         T in_data_par[_INPUT_SIZE_][_INPUT_SIZE_] = {0};
-        T kernel_weights_par[_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_] = {0};
+        W kernel_weights_par[_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_] = {0};
 
         for (uint i = 0; i < _INPUT_SIZE_; i++) {
             for (uint j = 0; j < _INPUT_SIZE_; j++) {
@@ -53,7 +53,7 @@ public:
                             if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) &&
                                 (j + jj < _INPUT_SIZE_)) {//if overlapped
                                 T data = in_data_par[i + ii][j + jj];
-                                T weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
+                                W weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
                                 out_data[(i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_][
                                         (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_] += data * weight;
                             }
@@ -69,7 +69,7 @@ public:
 						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
 							if (i + ii >= 0 && i + ii< _INPUT_SIZE_ && j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
 								T data = in_data_par[i + ii][j + jj];
-								T weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
+								W weight = kernel_weights_par[ii + _CONV_KERNEL_SIZE_ / 2][jj + _CONV_KERNEL_SIZE_ / 2];
 								out_data[(i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_][(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_] += data * weight;
 							}
 						}
@@ -114,9 +114,9 @@ public:
     void conv_layer_a(
             char activation_type,
             T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
-            T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
-            T kernel_bias[_OUT_CHANNEL_NUM_],
-            T out_data3D[_OUT_CHANNEL_NUM_][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
+            W kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
+            W kernel_bias[_OUT_CHANNEL_NUM_],
+            G out_data3D[_OUT_CHANNEL_NUM_][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1]) {
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
