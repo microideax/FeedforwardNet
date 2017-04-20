@@ -11,11 +11,11 @@
 
 //define data type
 //typedef ap_fixed<64,32> data_type;
-typedef ap_fixed<32,16> data_type;
+typedef ap_fixed<20,10> data_type;
 //typedef float data_type;
 
 // C++ compilation debug mode
-//#define _HLS_MODE_  1
+#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 

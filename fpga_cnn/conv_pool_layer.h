@@ -112,7 +112,7 @@ public:
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
 		T kernel_bias[_OUT_CHANNEL_NUM_],
-		T out_data3D[_OUT_CHANNEL_NUM_]
+        T out_data3D[_OUT_CHANNEL_NUM_]
 		[(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]
 	[(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1]) {
 		T out_data3d_temp[_OUT_CHANNEL_NUM_]
@@ -192,8 +192,8 @@ public:
 		}
 
 		//debugging output
-//#if _C_DEBUG_MODE_
-//#if _KERNEL_DEBUG_
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
@@ -233,8 +233,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-//#endif
-//#endif
+#endif
+#endif
 
 	}
 };

@@ -53,7 +53,7 @@ void inference_net(
     //construct network --------------conv(1-6) + max Pooling + conv(6-16) + max pooling + fc
     conv_pool_layer<data_type, 32, 5, 0, 1, 2, 0, 2, 1, 6> C1P2;
     conv_pool_layer<data_type, 14, 5, 0, 1, 2, 0, 2, 6, 16> C3P4;
-    fc_layer<data_type, 16, 5, 10> F5;
+    fc_layer<data_type, data_type, data_type, 16, 5, 10> F5;
 
     //temp storage space
     data_type  pool_1_out[6][14][14];
