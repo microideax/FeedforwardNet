@@ -9,12 +9,12 @@ set_top inference_net
 #add lib headers
 add_files ../../../fpga_cnn/activation_functions.h
 add_files ../../../fpga_cnn/conv_pool_layer.h
-add_files ../../../fpga_cnn/pool_layer.h
+add_files ../../../fpga_cnn/pool_layer_buf.h
 add_files ../config.h
 add_files ../construct_net.h
-add_files ../../../fpga_cnn/conv_layer.h
+add_files ../../../fpga_cnn/conv_layer_buf.h
 add_files ../../../fpga_cnn/data_type.h
-add_files ../../../fpga_cnn/fc_layer.h
+add_files ../../../fpga_cnn/fc_layer_buf.h
 add_files ../../../fpga_cnn/lrn_layer.h
 add_files ../../../fpga_cnn/dropout_layer.h
 
@@ -53,7 +53,7 @@ set_part {xc7vx690tffg1761-2}
 #set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
-#csim_design -clean -argv {*.txt}
+csim_design -clean -argv {*.txt}
 
 csynth_design
 
