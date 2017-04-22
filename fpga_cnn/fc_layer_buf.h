@@ -117,7 +117,7 @@ public:
 		fc_layer_a.open("fc_layer_a.txt", ios::app);
 		fc_layer_a << "output from fc layer .........................." << endl;
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
-			fc_layer_a << out_data3D[i][0][0] << " ";
+			fc_layer_a << out_data3D[i][0][0] << endl;
 		}
 		fc_layer_a.close();
 		cout << endl;
