@@ -31,11 +31,11 @@ add_files -tb ../../../stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
 add_files -tb ../ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG
-add_files -tb ../weights_alexnet.txt
+add_files -tb ../net_weights.txt
 add_files -tb ../val.txt
-add_files -tb ../mean_alexnet.txt
+add_files -tb ../net_mean.txt
 
-add_files -cflags "-g -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
+add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
 open_solution -reset "fpga_cnn"

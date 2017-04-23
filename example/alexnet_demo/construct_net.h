@@ -56,21 +56,21 @@ void inference_net(
 	/******************************************************************************************/
 
 	//construct network --------------alexnet
-	conv_layer<data_type, 227, 11, 0, 4, 3, 96, 1> C1;
+	conv_layer<data_type, data_type, data_type, 227, 11, 0, 4, 3, 96, 1> C1;
 	lrn_layer<float, 96 ,5 ,55> L1;
-	pool_layer<data_type, 55, 3, 0, 2, 96> P1;
-	conv_layer<data_type, 27, 5, 2, 1, 96, 256, 2> C2;
+	pool_layer<data_type, data_type, data_type, 55, 3, 0, 2, 96> P1;
+	conv_layer<data_type, data_type, data_type, 27, 5, 2, 1, 96, 256, 2> C2;
 	lrn_layer<float, 256, 5, 27> L2;
-	pool_layer<data_type, 27, 3, 0, 2, 256> P2;
-	conv_layer<data_type, 13, 3, 1, 1, 256, 384, 1> C3;
-	conv_layer<data_type, 13, 3, 1, 1, 384, 384, 2> C4;
-	conv_layer<data_type, 13, 3, 1, 1, 384, 256, 2> C5;
-	pool_layer<data_type, 13, 3, 0, 2, 256> P5;
-	fc_layer<data_type, 256, 6, 4096> F6;
+	pool_layer<data_type, data_type, data_type, 27, 3, 0, 2, 256> P2;
+	conv_layer<data_type, data_type, data_type, 13, 3, 1, 1, 256, 384, 1> C3;
+	conv_layer<data_type, data_type, data_type, 13, 3, 1, 1, 384, 384, 2> C4;
+	conv_layer<data_type, data_type, data_type, 13, 3, 1, 1, 384, 256, 2> C5;
+	pool_layer<data_type, data_type, data_type, 13, 3, 0, 2, 256> P5;
+	fc_layer<data_type, data_type, data_type, 256, 6, 4096> F6;
 	/*dropout_layer<float, 4096, 1> D6;*/
-	fc_layer<data_type, 4096, 1, 4096> F7;
+	fc_layer<data_type, data_type, data_type, 4096, 1, 4096> F7;
 	/*dropout_layer<float, 4096, 1> D7;*/
-	fc_layer<data_type, 4096, 1, 1000> F8;
+	fc_layer<data_type, data_type, data_type, 4096, 1, 1000> F8;
 
 	//temp storage space
 	data_type  conv_1_out[96][55][55];
@@ -94,96 +94,96 @@ void inference_net(
 
     //internal memory initiallization
     for(int i = 0; i < 96; i++){
-    for(int j = 0; j < 55; j++){
-        for(int k = 0; k < 55; k++){
-            conv_1_out[i][j][k] = (data_type)(0);
+        for(int j = 0; j < 55; j++){
+            for(int k = 0; k < 55; k++){
+                conv_1_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 96; i++){
-    for(int j = 0; j < 55; j++){
-        for(int k = 0; k < 55; k++){
-            conv_1_out_float[i][j][k] = (float)(0);
-        }
-    }
-}
     for(int i = 0; i < 96; i++){
-    for(int j = 0; j < 55; j++){
-        for(int k = 0; k < 55; k++){
-            lrn_1_out[i][j][k] = (data_type)(0);
+        for(int j = 0; j < 55; j++){
+            for(int k = 0; k < 55; k++){
+                conv_1_out_float[i][j][k] = (float)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 96; i++){
-    for(int j = 0; j < 55; j++){
-        for(int k = 0; k < 55; k++){
-            lrn_1_out_float[i][j][k] = (float)(0);
+    for(int i = 0; i < 96; i++){
+        for(int j = 0; j < 55; j++){
+            for(int k = 0; k < 55; k++){
+                lrn_1_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 96; i++){
-    for(int j = 0; j < 27; j++){
-        for(int k = 0; k < 27; k++){
-            pool_1_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 96; i++){
+        for(int j = 0; j < 55; j++){
+            for(int k = 0; k < 55; k++){
+                lrn_1_out_float[i][j][k] = (float)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 27; j++){
-        for(int k = 0; k < 27; k++){
-            conv_2_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 96; i++){
+        for(int j = 0; j < 27; j++){
+            for(int k = 0; k < 27; k++){
+                pool_1_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 27; j++){
-        for(int k = 0; k < 27; k++){
-            conv_2_out_float[i][j][k] = (float)(0);
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 27; j++){
+            for(int k = 0; k < 27; k++){
+                conv_2_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 27; j++){
-        for(int k = 0; k < 27; k++){
-            lrn_2_out_float[i][j][k] = (float)(0);
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 27; j++){
+            for(int k = 0; k < 27; k++){
+                conv_2_out_float[i][j][k] = (float)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 27; j++){
-        for(int k = 0; k < 27; k++){
-            lrn_2_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 27; j++){
+            for(int k = 0; k < 27; k++){
+                lrn_2_out_float[i][j][k] = (float)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 13; j++){
-        for(int k = 0; k < 13; k++){
-            pool_2_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 27; j++){
+            for(int k = 0; k < 27; k++){
+                lrn_2_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 384; i++){
-    for(int j = 0; j < 13; j++){
-        for(int k = 0; k < 13; k++){
-            conv_3_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 13; j++){
+            for(int k = 0; k < 13; k++){
+                pool_2_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 384; i++){
-    for(int j = 0; j < 13; j++){
-        for(int k = 0; k < 13; k++){
-            conv_4_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 384; i++){
+        for(int j = 0; j < 13; j++){
+            for(int k = 0; k < 13; k++){
+                conv_3_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
-for(int i = 0; i < 256; i++){
-    for(int j = 0; j < 13; j++){
-        for(int k = 0; k < 13; k++){
-            conv_5_out[i][j][k] = (data_type)(0);
+    for(int i = 0; i < 384; i++){
+        for(int j = 0; j < 13; j++){
+            for(int k = 0; k < 13; k++){
+                conv_4_out[i][j][k] = (data_type)(0);
+            }
         }
     }
-}
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 13; j++){
+            for(int k = 0; k < 13; k++){
+                conv_5_out[i][j][k] = (data_type)(0);
+            }
+        }
+    }
 for(int i = 0; i < 256; i++){
     for(int j = 0; j < 6; j++){
         for(int k = 0; k < 6; k++){

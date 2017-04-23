@@ -27,8 +27,7 @@
 #include "../../fpga_cnn/accuracy.h"
 #include "../../fpga_cnn/pow_function.h"
 #include "../../fpga_cnn/resize_image.h"
-#include "get_config_params.h"
-//#include "../fpga_cnn/set_mean.h"
+
 
 using namespace std;
 
@@ -83,7 +82,7 @@ int main() {
 		cout << "val data file not found !" << endl;
 	}
 	int num = 0;
-	while (ifs >> str&&num<6) {//num:3 pair (image_name,image_class)
+	while (ifs >> str && num < 6) {//num:3 pair (image_name,image_class)
 		if (num % 2 == 0) {//image_name
 			val_name_class[num / 2][0] = str;
 		}
