@@ -10,8 +10,8 @@
 #define _ACT_RELU_ 1
 
 //define data type
+typedef ap_fixed<16,10> data_type;
 //typedef ap_fixed<64,32> data_type;
-typedef ap_fixed<64,32> data_type;
 //typedef float data_type;
 
 // C++ compilation debug mode
