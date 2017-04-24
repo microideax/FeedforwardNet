@@ -25,7 +25,7 @@
 #include "../../fpga_cnn/softmax_one_dim.h"
 #include "../../fpga_cnn/predict_one_dim.h"
 #include "../../fpga_cnn/accuracy_one_dim.h"
-#include "get_config_params.h"
+//#include "get_config_params.h"
 
 using namespace std;
 
@@ -252,7 +252,7 @@ int main() {
 	ofstream predict_output;
 	predict_output.open("predict_output.txt", ios::app);
 	for (int i = 0; i < 10; i++) {
-		predict_output << fc_1_out_temp[i][0][0] << " " << endl;
+		predict_output << fc_1_out_temp_int[i] << " " << endl;
 	}
 	predict_output.close();
 	cout << endl;
