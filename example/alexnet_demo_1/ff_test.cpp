@@ -27,7 +27,7 @@
 #include "../../fpga_cnn/accuracy_one_dim.h"
 #include "../../fpga_cnn/pow_function.h"
 #include "../../fpga_cnn/resize_image.h"
-#include "get_config_params.h"
+//#include "get_config_params.h"
 //#include "../fpga_cnn/set_mean.h"
 
 using namespace std;
@@ -132,7 +132,7 @@ int main() {
 		}
 	}
 
-	resize_image(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop
+	resize_image<3, 500, 375, 227>(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop
 
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 227; j++) {
