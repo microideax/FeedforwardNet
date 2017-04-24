@@ -27,13 +27,13 @@ public:
 		T in_data[_INPUT_SIZE_][_INPUT_SIZE_],
 		W kernel_weights[_INPUT_SIZE_][_INPUT_SIZE_],
 		G& out_data) {
-		T sum = 0;
+		G sum = 0;
 		for (uint i = 0; i < _INPUT_SIZE_; i++)
 		{
 			for (uint j = 0; j < _INPUT_SIZE_; j++)
 			{
 				T data = in_data[i][j];
-				T weight = kernel_weights[i][j];
+				W weight = kernel_weights[i][j];
 				sum += data * weight;
 			}
 		}
@@ -93,7 +93,7 @@ public:
 #endif
 
 		for (uint b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
-            out_data3D[b][0][0] = T(0);
+            out_data3D[b][0][0] = G(0);
 			for (uint a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
 														 //float out_data_temp[1][1] = {0};//每一个卷积计算的结果
 				T out_data_temp = 0;
@@ -103,7 +103,7 @@ public:
 				out_data3D[b][0][0] += out_data_temp;
 			}
 #if _ACT_RELU_
-            out_data3D[b][0][0] = Relu_32((out_data3D[b][0][0] + kernel_bias[b]));
+            out_data3D[b][0][0] = Relu_64((out_data3D[b][0][0] + kernel_bias[b]));
 #else
 			out_data3D[b][0][0] = f(activation_type, (out_data3D[b][0][0] + kernel_bias[b]));
 #endif
@@ -129,7 +129,6 @@ public:
 	/************************************************************************************************/
 	//fc layer function with with array input without activation
 	void fc_layer_a_no_activation(
-		char activation_type,
 		T in_data3D[_IN_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		W kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_][_INPUT_SIZE_][_INPUT_SIZE_],
 		//        T kernel_weights[_IN_CHANNEL_NUM_ * _OUT_CHANNEL_NUM_],
