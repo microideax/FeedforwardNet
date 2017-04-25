@@ -57,10 +57,10 @@ void inference_net(
 
 	//construct network --------------alexnet
 	conv_layer<data_type,data_type_w,data_type_o, 227, 11, 0, 4, 3, 96, 1> C1;
-	lrn_layer<float, 96 ,5 ,55> L1;
+	lrn_layer<data_type_o, 96 ,5 ,55> L1;
 	pool_layer<data_type,data_type_w,data_type_o, 55, 3, 0, 2, 96> P1;
 	conv_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 96, 256, 2> C2;
-	lrn_layer<float, 256, 5, 27> L2;
+	lrn_layer<data_type_o, 256, 5, 27> L2;
 	pool_layer<data_type,data_type_w,data_type_o, 27, 3, 0, 2, 256> P2;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 256, 384, 1> C3;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 384, 2> C4;
@@ -75,9 +75,7 @@ void inference_net(
 	//temp storage space
 	data_type_o  output_1[96*55*55];
     data_type_o  output_2[96*55*55];
-    float  output_1_float[96*55*55];
-	float  output_2_float[96*55*55];
-
+    
 	/*float  drop_6_out[4096][1][1] = { 0 };*/
 	//data_type  fc_7_out[4096][1][1];
 	/*float  drop_7_out[4096][1][1] = { 0 };*/
@@ -87,27 +85,17 @@ void inference_net(
             output_1[i] = (data_type_o)(0);
             output_2[i] = (data_type_o)(0);
 }
-for(int i = 0; i < 96*55*55; i++){
-            output_1_float[i] = (float)(0);
-            output_2_float[i] = (float)(0);
-}
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
-	for(int i = 0; i < 96*55*55; i++){
-            output_1_float[i] = (float)output_1[i];
-}
-for(int i = 0; i < 96*55*55; i++){
-            output_1[i] = (data_type_o)(0);
-}
+
 	data_type_o output_min_lrn_1 = (data_type_o)0;
     data_type_o output_max_lrn_1 = (data_type_o)0;
-    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1_float, output_2_float);
+    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
-            output_1_float[i] = (float)(0);
+            output_1[i] = (data_type_o)(0);
 }
 	for(int i = 0; i < 96*55*55; i++){
-            output_2[i] = (data_type_o)output_2_float[i];
             if(output_2[i] < output_min_lrn_1){
                 output_min_lrn_1 = output_2[i];
             }
@@ -116,16 +104,16 @@ for(int i = 0; i < 96*55*55; i++){
             }
 }
 
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+ #if _C_DEBUG_MODE_
+ #if _KERNEL_DEBUG_
 	ofstream output_range;
     output_range.open("lrn_layer_output_range_a.txt", ios::app);
     output_range << "output range from lrn_1 layer .........................." << endl;
     output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
     output_range << endl;
     output_range.close();
-#endif
-#endif
+ #endif
+ #endif
 
     P1.max_pooling_layer_a(activation_type, output_2, output_1);
     for(int i = 0; i < 96*55*55; i++){
@@ -135,14 +123,10 @@ for(int i = 0; i < 96*55*55; i++){
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
 }
-	for(int i = 0; i < 96*55*55; i++){
-            output_2_float[i] = (float)output_2[i];
-}
 	data_type_o output_min_lrn_2 = (data_type_o)0;
     data_type_o output_max_lrn_2 = (data_type_o)0;
-    L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_2_float, output_1_float);
+    L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_2, output_1);
 	for(int i = 0; i < 96*55*55; i++){
-            output_2[i] = (data_type_o)output_1_float[i];
             if(output_2[i] < output_min_lrn_2){
                 output_min_lrn_2 = output_2[i];
             }
@@ -150,7 +134,6 @@ for(int i = 0; i < 96*55*55; i++){
                 output_max_lrn_2 = output_2[i];
             }
 }
-
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
     output_range.open("lrn_layer_output_range_a.txt", ios::app);
@@ -161,37 +144,40 @@ for(int i = 0; i < 96*55*55; i++){
 #endif
 #endif
 
-    P2.max_pooling_layer_a(activation_type, output_2, output_1);
-    for(int i = 0; i < 96*55*55; i++){
+for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
 }
-	C3.conv_layer_a(activation_type, output_1, conv_3_weight_a, conv_3_bias_a, output_2);
+    P2.max_pooling_layer_a(activation_type, output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
 }
-	C4.conv_layer_a(activation_type, output_2, conv_4_weight_a, conv_4_bias_a, output_1);
+	C3.conv_layer_a(activation_type, output_2, conv_3_weight_a, conv_3_bias_a, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
 }
-	C5.conv_layer_a(activation_type, output_1, conv_5_weight_a, conv_5_bias_a, output_2);
+	C4.conv_layer_a(activation_type, output_1, conv_4_weight_a, conv_4_bias_a, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
 }
-	P5.max_pooling_layer_a(activation_type, output_2, output_1);
+	C5.conv_layer_a(activation_type, output_2, conv_5_weight_a, conv_5_bias_a, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
 }
-	F6.fc_layer_a(activation_type, output_1, fc_6_weight_a, fc_6_bias_a, output_2);
+	P5.max_pooling_layer_a(activation_type, output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
+}
+	F6.fc_layer_a(activation_type, output_2, fc_6_weight_a, fc_6_bias_a, output_1);
+    for(int i = 0; i < 96*55*55; i++){
+            output_2[i] = (data_type_o)(0);
 }
 	/*D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);*/
-	F7.fc_layer_a(activation_type, output_2, fc_7_weight_a, fc_7_bias_a, output_1);
+	F7.fc_layer_a(activation_type, output_1, fc_7_weight_a, fc_7_bias_a, output_2);
     for(int i = 0; i < 96*55*55; i++){
-            output_2[i] = (data_type_o)(0);
+            output_1[i] = (data_type_o)(0);
 }
 	/*D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);*/
-	F8.fc_layer_a_no_activation(output_1, fc_8_weight_a, fc_8_bias_a, fc_8_out_a);
+	F8.fc_layer_a_no_activation(output_2, fc_8_weight_a, fc_8_bias_a, fc_8_out_a);
 
 	/******************************************************************************************/
 

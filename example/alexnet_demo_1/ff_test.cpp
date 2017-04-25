@@ -76,7 +76,8 @@ int main() {
 
 	//load val (image_name,image_class) set file *****************************
 	ifstream ifs("val.txt");
-	string val_name_class[10][2];
+	string val_name[10];
+	float val_class[10];
 	string str;
 
 	if (!ifs) {
@@ -84,11 +85,11 @@ int main() {
 	}
 	int num = 0;
 	while (ifs >> str&&num<20) {//num:4 pair (image_name,image_class)
-		if (num % 2 == 0) {//image_name
-			val_name_class[num / 2][0] = str;
+		if (num % 2 == 1) {//image_name
+			val_class[num / 2] = int(atof(str.c_str()));
 		}
 		else {//image_class
-			val_name_class[num / 2][1] = str;
+			val_name[num / 2] = str;
 		}
 		num++;
 	}
@@ -106,6 +107,8 @@ int main() {
 	//input data array
 	float in_data_3D[3][227][227] = { 0 };
 	data_type in_data_3D_int[3*227*227] = { 0 };
+	int crop_w = 227;
+	int crop_h = 227;
 	int w;
 	int h;
 	int channels;
@@ -130,8 +133,8 @@ int main() {
 	resize_image(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop
 
 	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 227; j++) {
-			for (int k = 0; k < 227; k++) {
+		for (int j = 0; j < crop_h; j++) {
+			for (int k = 0; k < crop_w; k++) {
 				in_data_3D[i][j][k] = in_data_3D[i][j][k] * 255 - channel_mean[i];
 			}
 		}
@@ -141,8 +144,8 @@ int main() {
 
     int in_data_size=0;
 	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 227; j++) {
-			for (int k = 0; k < 227; k++) {
+		for (int j = 0; j < crop_h; j++) {
+			for (int k = 0; k < crop_w; k++) {
 				in_data_3D_int[in_data_size] = (data_type)in_data_3D[i][j][k];
 				in_data_size++;
 			}
@@ -155,14 +158,14 @@ int main() {
 	ofstream indata;
 	indata.open("in_data_crop_mean.txt", ios::app);
 	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 227; j++) {
-			for (int k = 0; k < 227; k++) {
-				indata << in_data_3D_int[i*227*227+j*227+k] << " ";
-				if(in_data_3D_int[i*227*227+j*227+k] < output_min){
-					output_min = in_data_3D_int[i*227*227+j*227+k];
+		for (int j = 0; j < crop_h; j++) {
+			for (int k = 0; k < crop_w; k++) {
+				indata << in_data_3D_int[i*crop_h*crop_w+j*crop_w+k] << " ";
+				if(in_data_3D_int[i*crop_h*crop_w+j*crop_w+k] < output_min){
+					output_min = in_data_3D_int[i*crop_h*crop_w+j*crop_w+k];
 				}
-				if(in_data_3D_int[i*227*227+j*227+k] > output_max){
-					output_max = in_data_3D_int[i*227*227+j*227+k];
+				if(in_data_3D_int[i*crop_h*crop_w+j*crop_w+k] > output_max){
+					output_max = in_data_3D_int[i*crop_h*crop_w+j*crop_w+k];
 				}
 			}
 			indata << endl;
@@ -184,9 +187,11 @@ int main() {
 	string root_dir = "./ILSVRC2012_img_val/";
 	float imagenet_test_data_channel_swap[10][3][500][500] = { 0 };
 	float imagenet_test_data[10][3][227][227] = { 0 };
-	data_type imagenet_test_data_int[10][3][227][227] = { 0 };
+	data_type imagenet_test_data_int[10*3*227*227] = { 0 };
 	for (int image_num = 0; image_num < 10; image_num++) {
-		string image_dir = root_dir + val_name_class[image_num][0];
+		string image_dir = root_dir + val_name[image_num];
+		int crop_w = 227;
+	    int crop_h = 227;
 		int w;
 		int h;
 		int channels;
@@ -211,17 +216,19 @@ int main() {
 		resize_image(imagenet_test_data_channel_swap[image_num], h, w, imagenet_test_data[image_num]);//in_data after crop
 
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 227; j++) {
-				for (int k = 0; k < 227; k++) {
+			for (int j = 0; j < crop_h; j++) {
+				for (int k = 0; k < crop_w; k++) {
 					imagenet_test_data[image_num][i][j][k] = imagenet_test_data[image_num][i][j][k] * 255 - channel_mean[i];
 				}
 			}
 		}
 
+		int in_data_size=0;
 		for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 227; j++) {
-			for (int k = 0; k < 227; k++) {
-				imagenet_test_data_int[image_num][i][j][k] = (data_type)imagenet_test_data[image_num][i][j][k];
+		for (int j = 0; j < crop_h; j++) {
+			for (int k = 0; k < crop_w; k++) {
+				imagenet_test_data_int[image_num*3*crop_h*crop_w+in_data_size] = (data_type)imagenet_test_data[image_num][i][j][k];
+				in_data_size++;
 			}
 		}
 	}
@@ -230,9 +237,9 @@ int main() {
 		indata.open("in_data_crop_mean.txt", ios::app);
 		indata << "image_num: " << image_num << "**********" << endl;
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 227; j++) {
-				for (int k = 0; k < 227; k++) {
-					indata << imagenet_test_data_int[image_num][i][j][k] << " ";
+			for (int j = 0; j < crop_h; j++) {
+				for (int k = 0; k < crop_w; k++) {
+					indata << imagenet_test_data_int[image_num*3*crop_h*crop_w+i*crop_h*crop_w+j*crop_w+k] << " ";
 				}
 				indata << endl;
 			}
@@ -638,9 +645,8 @@ int main() {
 	start = clock();
 #endif
 
-
 #if _BATCH_MODE_
-	float fc_1_out_a[10*1000*1*1] = { 0 };
+	float fc_1_out_a[4*1000*1*1] = { 0 };
 	float fc_1_out_temp[1000*1*1] = { 0 };
 	data_type   fc_1_out_temp_int[1000*1*1];
 	for(int i = 0; i < 1000; i++){
@@ -655,7 +661,8 @@ int main() {
 	double totaltime;
 	start = clock();
 
-	for (int i = 0; i < 10; i++) {//test imagenet dataset
+	//for (int i = 0; i < 10000; i++) {//test mnist dataset
+	for (int i = 0; i < 4; i++) {//test imagenet dataset
 #endif
 
 		//Inference network process
@@ -668,7 +675,7 @@ int main() {
 
 #if _BATCH_MODE_
 						//mnist_test_data[i], //input test mnist dataset
-			imagenet_test_data_int[i],//input test imagenet dataset
+			imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
 								  //layer weights and bias inputs
 			conv_1_weight2D_int,
@@ -688,17 +695,16 @@ int main() {
 			fc_8_weight2D_int,
 			fc_8_bias2D_int,
 
-
 #if _KERNEL_DEBUG_
-                //output fc data
-            fc_8_out_int);
+	//output fc data
+	fc_8_out_int);
 
-    for(int i = 0; i < 1000; i++){
-        fc_8_out[i]=(float)(fc_8_out_int[i]);
-    }
-    softmax(fc_8_out,1000);
+    for(int i=0;i<1000;i++){
+		fc_8_out[i]=(float)(fc_8_out_int[i]);
+	}
+	softmax(fc_8_out,1000);
 
-    predict(fc_8_out,1000);
+	predict(fc_8_out,1000);
 #endif
 
 #if _BATCH_MODE_
@@ -716,31 +722,29 @@ int main() {
 		}
 	}
 
-	softmax(fc_1_out_a);
+	softmax(fc_1_out_a,10,1000);
 
-	predict(fc_1_out_a);
+	predict(fc_1_out_a,10,1000);
 
 	//accuracy(fc_1_out_a, mnist_test_label);//for mnist dataset
-	accuracy(fc_1_out_a, val_name_class);//for imagenet dataset
+	accuracy(fc_1_out_a, val_class,10,1000);//for imagenet dataset
 
 #endif
-
-
 
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
 
-//#if _HLS_MODE_
-//	cout << "finished inference processing ............" << endl;
-//	ofstream predict_output;
-//	predict_output.open("predict_output.txt", ios::app);
-//	for (int i = 0; i < 10; i++) {
-//		predict_output << fc_8_out[i]<< " " << endl;
-//	}
-//	predict_output.close();
-//	cout << endl;
-//#endif
+#if _HLS_MODE_
+	cout << "finished inference processing ............" << endl;
+	ofstream predict_output;
+	predict_output.open("predict_output.txt", ios::app);
+	for (int i = 0; i < 10; i++) {
+		predict_output << fc_8_out[i] << " " << endl;
+	}
+	predict_output.close();
+	cout << endl;
+#endif
 
 	return 0;
 

@@ -45,21 +45,21 @@ public:
 	}
 
 	void lrn_local_a_across_channels(
-		T alpha,
-		T beta,
+		float alpha,
+		float beta,
 		int a,
 		T *in_data3D,
 		T *out_data3D) {
 		//for (int i = a; i < _IN_CHANNEL_NUM_; ++i) {
 			for (int j = 0; j < _INPUT_SIZE_; ++j) {
 				for (int k = 0; k < _INPUT_SIZE_; ++k) {
-					T data = 0;
+					float data = 0;
 					for (int ii = -_LOCAL_SIZE_ / 2; ii <= _LOCAL_SIZE_ / 2; ++ii) {
 						if (a + ii >= 0 && a + ii<_IN_CHANNEL_NUM_) {//if in all channels
-							data += (pow_ff(*(in_data3D+(a+ii)*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k), 2));
+							data += pow_ff((float)(*(in_data3D+(a+ii)*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k)), 2);
 						}
 					}
-					*(out_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k) = (*(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k)) * (pow_ff(1 + (alpha / _LOCAL_SIZE_) * data, -beta));
+					*(out_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k) = (T)((((float)(*(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k))) * (pow_ff(1 + (alpha / _LOCAL_SIZE_) * data, -beta))));
 				}
 			}
 		//}
@@ -68,8 +68,8 @@ public:
 	/************************************************************************************************/
 	//lrn layer function with array input
 	void lrn_layer_a(
-		T alpha,
-		T beta,
+		float alpha,
+		float beta,
 		T *in_data3D,
 		T *out_data3D) {
 

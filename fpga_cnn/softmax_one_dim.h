@@ -36,26 +36,26 @@ void softmax(float x[],int label_size) {//for a image
 #endif
 
 #if _BATCH_MODE_
-template<int num, int size, int label_size>
-void softmax(float(&x)[num][label_size][size][size]) {//for imagenet dataset
-	for (int i = 0; i < num; i++) {
-		float max = 0.0;
-		float sum = 0.0;
-			for (int j = 0; j < label_size; j++) {
-				if (max < x[i][j][0][0]) {
-					max = x[i][j][0][0];
-				}
-			}
-			for (int j = 0; j < label_size; j++) {
-				x[i][j][0][0] = exp(x[i][j][0][0] - max);
-				sum += x[i][j][0][0];
-			}
+//template<int num, int size, int label_size>
+//void softmax(float x[], int num, int label_size) {//for imagenet dataset
+//	for (int i = 0; i < num; i++) {
+//		float max = 0.0;
+//		float sum = 0.0;
+//			for (int j = 0; j < label_size; j++) {
+//				if (max < x[i * label_size + j]) {
+//					max = x[i * label_size + j];
+//				}
+//			}
+//			for (int j = 0; j < label_size; j++) {
+//				x[i * label_size + j] = exp(x[i * label_size + j] - max);
+//				sum += x[i * label_size + j];
+//			}
 
-			for (int j = 0; j < label_size; j++) {
-				x[i][j][0][0] /= sum;
-			}
-	}
-}
+//			for (int j = 0; j < label_size; j++) {
+//				x[i * label_size + j] /= sum;
+//			}
+//	}
+//}
 
 //template<int size, int label_size>
 void softmax(float x[], int size, int label_size) {//for mnist dataset
@@ -69,7 +69,7 @@ void softmax(float x[], int size, int label_size) {//for mnist dataset
 		}
 		for (int j = 0; j < label_size; j++) {
 			x[i * label_size + j] = exp(x[i * label_size + j] - max);
-			sum += x[i * 10 + j];
+			sum += x[i * label_size + j];
 		}
 
 		for (int j = 0; j < label_size; j++) {

@@ -4,22 +4,22 @@
 
 #include <iostream>
 
-template<int num, int size, int label_size>
-void accuracy(float(&x)[num][label_size][size][size], string(&y)[num][2]) {//for imagenet dataset
+//template<int num, int size, int label_size>
+void accuracy(float x[], int label_size, float y[], int size) {//for imagenet dataset
 	float right_count = 0;
-	float all_count = num;
+	float all_count = size;
 	float accuracy = 0;
-	for (int i = 0; i < num; i++)
+	for (int i = 0; i < size; i++)
 	{
 		int predict_label = 0;
 		float max = 0;
 		for (int j = 0; j < label_size; j++) {
-			if (x[i][j][0][0] > max) {
+			if (x[i * label_size + j] > max) {
 				predict_label = j;
-				max = x[i][j][0][0];
+				max = x[i * label_size + j];
 			}
 		}
-		if (predict_label == int(atof(y[i][1].c_str()))) {
+		if (predict_label == int(y[i])) {
 			right_count++;
 		}
 	}

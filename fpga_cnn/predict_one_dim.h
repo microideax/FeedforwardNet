@@ -27,16 +27,16 @@ void predict(float x[], int label_size) {
 #endif
 
 #if _BATCH_MODE_
-template<int num, int size, int label_size>
-void predict(float(&x)[num][label_size][size][size]) {//for imagenet dataset
-	for (int i = 0; i < num; i++)
+//template<int num, int size, int label_size>
+void predict(float x[], int size, int label_size) {//for imagenet dataset
+	for (int i = 0; i < size; i++)
 	{
 		int predict_label = 0;
 		float max = 0;
 		for (int j = 0; j < label_size; j++) {
-			if (x[i][j][0][0]>max) {
+			if (x[i * label_size + j]>max) {
 				predict_label = j;
-				max = x[i][j][0][0];
+				max = x[i * label_size + j];
 			}
 		}
 		cout << "finished predict ...." << endl;
