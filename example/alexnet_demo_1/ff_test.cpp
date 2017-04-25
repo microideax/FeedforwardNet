@@ -727,7 +727,7 @@ int main() {
 	predict(fc_1_out_a,10,1000);
 
 	//accuracy(fc_1_out_a, mnist_test_label);//for mnist dataset
-	accuracy(fc_1_out_a, val_class,10,1000);//for imagenet dataset
+	accuracy(fc_1_out_a,1000, val_class,10);//for imagenet dataset
 
 #endif
 
