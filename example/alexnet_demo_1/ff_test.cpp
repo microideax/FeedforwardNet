@@ -45,6 +45,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 }
 
 int main() {
+
 	//net weight src *****************************
 	const char* weight_src = "net_weights.txt";
 
@@ -54,7 +55,6 @@ int main() {
 	string str1;
 	string y1 = "[";
 	string y2 = "]";
-
 	if (!ifs1) {
 		cout << "mean data file not found !" << endl;
 	}
@@ -112,11 +112,6 @@ int main() {
 	int size;
 	const unsigned char * data = loadfile(image_dir, size);
 	const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 3);
-	//STBI_default = 0, // only used for req_comp 
-	//STBI_grey = 1,
-	//STBI_grey_alpha = 2,
-	//STBI_rgb = 3,
-	//STBI_rgb_alpha = 4
 
 	for (int i = 0; i < 3; i++) {
 		for (int j = i; j < w * h * 3; j += 3) {
@@ -132,7 +127,7 @@ int main() {
 		}
 	}
 
-	resize_image<3, 500, 375, 227>(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop
+	resize_image(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop
 
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 227; j++) {
@@ -198,11 +193,6 @@ int main() {
 		int size;
 		const unsigned char * data = loadfile(image_dir, size);
 		const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 3);
-		//STBI_default = 0, // only used for req_comp 
-		//STBI_grey = 1,
-		//STBI_grey_alpha = 2,
-		//STBI_rgb = 3,
-		//STBI_rgb_alpha = 4
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = i; j < w * h * 3; j += 3) {
@@ -259,24 +249,6 @@ int main() {
 	int in_number_conv = 0;  // number of convolutional layer
 	int in_number_fc = 0;// number of fully_connected layer
 	int in_number_pooling = 0;
-
-	//std_vec_t data_in;
-	//float in_data_1[3][227][227] = { 0 };
-	////convert image to data matrix
-	//	const std::string filename = ".\\example\\cat.jpg";
-	//	convert_image(filename, 0, 1, 227, 227, data_in);
-	//	for (int i = 0; i < data_in.size(); i++) {
-	//		in_data_1[i/51529][(i % 51529) / 227][(i % 51529) % 227] = data_in[i];
-	//	}
-
-#if _BATCH_MODE_
-	/*float mnist_train_data[60000][1][32][32];
-	float mnist_train_label[60000][10] = { 0 };
-	float mnist_test_data[10000][1][32][32];
-	float mnist_test_label[10000][10] = { 0 };
-	getSrcData(mnist_train_data, mnist_train_label, mnist_test_data, mnist_test_label);
-	cout << "getSrcData end!!!!!!!!!!!!!!" << endl;*/
-#endif
 
 	// Prepare weights and bias for convolution layer 1
 	float conv_1_weight2D[288*11*11] = { 0 };
@@ -666,6 +638,7 @@ int main() {
 	start = clock();
 #endif
 
+
 #if _BATCH_MODE_
 	float fc_1_out_a[10*1000*1*1] = { 0 };
 	float fc_1_out_temp[1000*1*1] = { 0 };
@@ -682,11 +655,10 @@ int main() {
 	double totaltime;
 	start = clock();
 
-	//for (int i = 0; i < 10000; i++) {//test mnist dataset
 	for (int i = 0; i < 10; i++) {//test imagenet dataset
 #endif
 
-								 //Inference network process
+		//Inference network process
 		inference_net(
 			relu, //activation function
 
@@ -717,6 +689,18 @@ int main() {
 			fc_8_bias2D_int,
 
 
+#if _KERNEL_DEBUG_
+                //output fc data
+            fc_8_out_int);
+
+    for(int i = 0; i < 1000; i++){
+        fc_8_out[i]=(float)(fc_8_out_int[i]);
+    }
+    softmax(fc_8_out,1000);
+
+    predict(fc_8_out,1000);
+#endif
+
 #if _BATCH_MODE_
 			fc_1_out_temp_int);
 		//test mnist dataset
@@ -724,6 +708,7 @@ int main() {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
 		fc_1_out_temp[j] = 0;
 		}*/
+
 		//test imagenet dataset
 		for (int j = 0; j < 1000; j++) {
 					fc_1_out_a[i * 1000 + j] = (float)(fc_1_out_temp_int[j]);
@@ -740,32 +725,22 @@ int main() {
 
 #endif
 
-#if _KERNEL_DEBUG_
-	//output fc data
-	fc_8_out_int);
 
-    for(int i=0;i<1000;i++){
-		fc_8_out[i]=(float)(fc_8_out_int[i]);
-	}
-	softmax(fc_8_out,1000);
-
-	predict(fc_8_out,1000);
-#endif
 
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
 
-#if _HLS_MODE_
-	cout << "finished inference processing ............" << endl;
-	ofstream predict_output;
-	predict_output.open("predict_output.txt", ios::app);
-	for (int i = 0; i < 10; i++) {
-		predict_output << fc_8_out[i][0][0] << " " << endl;
-	}
-	predict_output.close();
-	cout << endl;
-#endif
+//#if _HLS_MODE_
+//	cout << "finished inference processing ............" << endl;
+//	ofstream predict_output;
+//	predict_output.open("predict_output.txt", ios::app);
+//	for (int i = 0; i < 10; i++) {
+//		predict_output << fc_8_out[i]<< " " << endl;
+//	}
+//	predict_output.close();
+//	cout << endl;
+//#endif
 
 	return 0;
 

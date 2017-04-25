@@ -115,12 +115,17 @@ for(int i = 0; i < 96*55*55; i++){
                 output_max_lrn_1 = output_2[i];
             }
 }
+
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 	ofstream output_range;
     output_range.open("lrn_layer_output_range_a.txt", ios::app);
     output_range << "output range from lrn_1 layer .........................." << endl;
     output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
     output_range << endl;
     output_range.close();
+#endif
+#endif
 
     P1.max_pooling_layer_a(activation_type, output_2, output_1);
     for(int i = 0; i < 96*55*55; i++){
@@ -145,11 +150,16 @@ for(int i = 0; i < 96*55*55; i++){
                 output_max_lrn_2 = output_2[i];
             }
 }
+
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
     output_range.open("lrn_layer_output_range_a.txt", ios::app);
     output_range << "output range from lrn_2 layer .........................." << endl;
     output_range << output_min_lrn_2 << "~~~" << output_max_lrn_2 << endl;
     output_range << endl;
     output_range.close();
+#endif
+#endif
 
     P2.max_pooling_layer_a(activation_type, output_2, output_1);
     for(int i = 0; i < 96*55*55; i++){
