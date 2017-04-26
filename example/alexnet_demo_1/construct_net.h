@@ -75,111 +75,60 @@ void inference_net(
 	//temp storage space
 	data_type_o  output_1[96*55*55];
     data_type_o  output_2[96*55*55];
-    
-	/*float  drop_6_out[4096][1][1] = { 0 };*/
-	//data_type  fc_7_out[4096][1][1];
-	/*float  drop_7_out[4096][1][1] = { 0 };*/
-
     //internal memory initiallization
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
             output_2[i] = (data_type_o)(0);
-}
+    }
 
 	//Forward propagation by layer
 	C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
-
-	data_type_o output_min_lrn_1 = (data_type_o)0;
-    data_type_o output_max_lrn_1 = (data_type_o)0;
     L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
-	for(int i = 0; i < 96*55*55; i++){
-            if(output_2[i] < output_min_lrn_1){
-                output_min_lrn_1 = output_2[i];
-            }
-            if(output_2[i] > output_max_lrn_1){
-                output_max_lrn_1 = output_2[i];
-            }
-}
-
- #if _C_DEBUG_MODE_
- #if _KERNEL_DEBUG_
-	ofstream output_range;
-    output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    output_range << "output range from lrn_1 layer .........................." << endl;
-    output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
-    output_range << endl;
-    output_range.close();
- #endif
- #endif
-
+    }
     P1.max_pooling_layer_a(activation_type, output_2, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
-}
+    }
 	C2.conv_layer_a(activation_type, output_1, conv_2_weight_a, conv_2_bias_a, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
-	data_type_o output_min_lrn_2 = (data_type_o)0;
-    data_type_o output_max_lrn_2 = (data_type_o)0;
-    L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_2, output_1);
+    }
+	L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_2, output_1);
 	for(int i = 0; i < 96*55*55; i++){
-            if(output_2[i] < output_min_lrn_2){
-                output_min_lrn_2 = output_2[i];
-            }
-            if(output_2[i] > output_max_lrn_2){
-                output_max_lrn_2 = output_2[i];
-            }
-}
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
-    output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    output_range << "output range from lrn_2 layer .........................." << endl;
-    output_range << output_min_lrn_2 << "~~~" << output_max_lrn_2 << endl;
-    output_range << endl;
-    output_range.close();
-#endif
-#endif
-
-for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
-}
+    }
     P2.max_pooling_layer_a(activation_type, output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
+    }
 	C3.conv_layer_a(activation_type, output_2, conv_3_weight_a, conv_3_bias_a, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
-}
+    }
 	C4.conv_layer_a(activation_type, output_1, conv_4_weight_a, conv_4_bias_a, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
+    }
 	C5.conv_layer_a(activation_type, output_2, conv_5_weight_a, conv_5_bias_a, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
-}
+    }
 	P5.max_pooling_layer_a(activation_type, output_1, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
+    }
 	F6.fc_layer_a(activation_type, output_2, fc_6_weight_a, fc_6_bias_a, output_1);
     for(int i = 0; i < 96*55*55; i++){
             output_2[i] = (data_type_o)(0);
-}
-	/*D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);*/
+    }
 	F7.fc_layer_a(activation_type, output_1, fc_7_weight_a, fc_7_bias_a, output_2);
     for(int i = 0; i < 96*55*55; i++){
             output_1[i] = (data_type_o)(0);
-}
-	/*D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);*/
+    }
 	F8.fc_layer_a_no_activation(output_2, fc_8_weight_a, fc_8_bias_a, fc_8_out_a);
-
-	/******************************************************************************************/
+    /******************************************************************************************/
 
 
 #if _C_DEBUG_MODE_
