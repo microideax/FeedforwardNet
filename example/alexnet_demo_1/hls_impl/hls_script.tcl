@@ -35,9 +35,9 @@ add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -fperm
 
 open_solution -reset "alexnet"
 #vc709
-set_part {xc7vx690tffg1761-2}
+#set_part {xc7vx690tffg1761-2}
 #zynq-7000 board
-#set_part {xc7z045ffg900-1} 
+set_part {xc7z045ffg900-1} 
 # zedboard
 #set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
