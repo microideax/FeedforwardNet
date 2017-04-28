@@ -9,7 +9,7 @@
 #include <ap_fixed.h>
 #include "config.h"
 //#include "weight_bias.h"
-#include "../../fpga_cnn/conv_lrn_pool_layer_one_dim.h"
+#include "../../fpga_cnn/conv_pool_layer_one_dim.h"
 #include "../../fpga_cnn/conv_layer_one_dim.h"
 #include "../../fpga_cnn/pool_layer_one_dim.h"
 #include "../../fpga_cnn/fc_layer_one_dim.h"
@@ -60,11 +60,13 @@ void inference_net(
 	//conv_layer<data_type,data_type_w,data_type_o, 227, 11, 0, 4, 3, 96, 1> C1;
 	//lrn_layer<data_type_o, 96 ,5 ,55> L1;
 	//pool_layer<data_type,data_type_w,data_type_o, 55, 3, 0, 2, 96> P1;
-    conv_lrn_pool_layer<data_type,data_type_w,data_type_o, 227, 11, 0, 4, 5, 3, 0, 2, 3, 96, 1> C1L1P1;
+	conv_pool_layer<data_type,data_type_w,data_type_o, 227, 11, 0, 4, 3, 0, 2, 3, 96, 1> C1P1;
+	lrn_layer<data_type_o, 96 ,5 ,27> L1;
 	//conv_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 96, 256, 2> C2;
 	//lrn_layer<data_type_o, 256, 5, 27> L2;
 	//pool_layer<data_type,data_type_w,data_type_o, 27, 3, 0, 2, 256> P2;
-    conv_lrn_pool_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 5, 3, 0, 2, 96, 256, 2> C2L2P2;
+	conv_pool_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 3, 0, 2, 96, 256, 2> C2P2;
+	lrn_layer<data_type_o, 256, 5, 13> L2;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 256, 384, 1> C3;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 384, 2> C4;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 256, 2> C5;
@@ -91,58 +93,60 @@ void inference_net(
 
 	//Forward propagation by layer
 	//C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
+	C1P1.conv_layer_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
 
-	//data_type_o output_min_lrn_1 = (data_type_o)0;
-    //data_type_o output_max_lrn_1 = (data_type_o)0;
-    //L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
-    //array_reset(output_1);
-	//for(int i = 0; i < 96*55*55; i++){
-    //        if(output_2[i] < output_min_lrn_1){
-    //            output_min_lrn_1 = output_2[i];
-    //        }
-    //        if(output_2[i] > output_max_lrn_1){
-    //            output_max_lrn_1 = output_2[i];
-    //        }
-//}
+	data_type_o output_min_lrn_1 = (data_type_o)0;
+    data_type_o output_max_lrn_1 = (data_type_o)0;
+    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
+    array_reset(output_1);
+	for(int i = 0; i < 96*27*27; i++){
+            if(output_2[i] < output_min_lrn_1){
+                output_min_lrn_1 = output_2[i];
+            }
+            if(output_2[i] > output_max_lrn_1){
+                output_max_lrn_1 = output_2[i];
+            }
+}
 
  #if _C_DEBUG_MODE_
  #if _KERNEL_DEBUG_
-	//ofstream output_range;
-    //output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    //output_range << "output range from lrn_1 layer .........................." << endl;
-    //output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
-    //output_range << endl;
-    //output_range.close();
+	ofstream output_range;
+    output_range.open("lrn_layer_output_range_a.txt", ios::app);
+    output_range << "output range from lrn_1 layer .........................." << endl;
+    output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
+    output_range << endl;
+    output_range.close();
  #endif
  #endif
 
     //P1.max_pooling_layer_a(activation_type, output_2, output_1);
-    C1L1P1.conv_layer_w_lrn_w_pool_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, nn_alpha_lrn[0], nn_beta_lrn[0], output_1);
     //array_reset(output_2);
 	//C2.conv_layer_a(activation_type, output_1, conv_2_weight_a, conv_2_bias_a, output_2);
     //array_reset(output_1);
-	//data_type_o output_min_lrn_2 = (data_type_o)0;
-    //data_type_o output_max_lrn_2 = (data_type_o)0;
-    //L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_2, output_1);
-	//for(int i = 0; i < 96*55*55; i++){
-    //        if(output_2[i] < output_min_lrn_2){
-    //            output_min_lrn_2 = output_2[i];
-    //        }
-    //        if(output_2[i] > output_max_lrn_2){
-    //            output_max_lrn_2 = output_2[i];
-    //        }
-//}
+	data_type_o output_min_lrn_2 = (data_type_o)0;
+    data_type_o output_max_lrn_2 = (data_type_o)0;
+    C2P2.conv_layer_w_pool_a(activation_type, output_2, conv_2_weight_a, conv_2_bias_a, output_1);
+    array_reset(output_2);
+    L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_1, output_2);
+    array_reset(output_1);
+	for(int i = 0; i < 96*27*27; i++){
+            if(output_2[i] < output_min_lrn_2){
+                output_min_lrn_2 = output_2[i];
+            }
+            if(output_2[i] > output_max_lrn_2){
+                output_max_lrn_2 = output_2[i];
+            }
+}
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-    //output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    //output_range << "output range from lrn_2 layer .........................." << endl;
-    //output_range << output_min_lrn_2 << "~~~" << output_max_lrn_2 << endl;
-    //output_range << endl;
-    //output_range.close();
+    output_range.open("lrn_layer_output_range_a.txt", ios::app);
+    output_range << "output range from lrn_2 layer .........................." << endl;
+    output_range << output_min_lrn_2 << "~~~" << output_max_lrn_2 << endl;
+    output_range << endl;
+    output_range.close();
 #endif
 #endif
-    C2L2P2.conv_layer_w_lrn_w_pool_a(activation_type, output_1, conv_2_weight_a, conv_2_bias_a, nn_alpha_lrn[1], nn_beta_lrn[1], output_2);
-    array_reset(output_1);
+    
     //P2.max_pooling_layer_a(activation_type, output_1, output_2);
     //array_reset(output_1);
 	C3.conv_layer_a(activation_type, output_2, conv_3_weight_a, conv_3_bias_a, output_1);
