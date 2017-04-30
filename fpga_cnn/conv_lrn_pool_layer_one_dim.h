@@ -10,6 +10,7 @@
 #include <fstream>
 #include "activation_functions.h"
 #include "array_reset.h"
+#include "pow_function.h"
 
 using namespace std;
 
@@ -256,8 +257,8 @@ public:
 		}
 
 		//debugging output
-//#if _C_DEBUG_MODE_
-//#if _KERNEL_DEBUG_
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "finished convolution and lrn and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_lrn_pool_layer_a.txt", ios::app);
@@ -315,8 +316,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-//#endif
-//#endif
+#endif
+#endif
 
 	}
 };

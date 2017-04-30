@@ -216,8 +216,8 @@ public:
 		}
 
 		//debugging output
-//#if _C_DEBUG_MODE_
-//#if _KERNEL_DEBUG_
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
 		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
@@ -261,8 +261,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-//#endif
-//#endif
+#endif
+#endif
 
 	}
 };
