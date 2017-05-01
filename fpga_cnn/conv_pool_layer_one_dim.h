@@ -27,28 +27,24 @@ public:
 	/************************************************************************************************/
 	void conv_kernel_a(
 		T *in_data,
-        W *kernel_weights,
-        W *kernel_bias,
-        G *out_data) {
+            W *kernel_weights,
+            G *out_data) {
 
 		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-                    G data_temp = 0;
+                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_;
+                     j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
                     for (int ii = (-_CONV_KERNEL_SIZE_ / 2); ii <= _CONV_KERNEL_SIZE_ / 2; ii = ii + 1) {
                         for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; jj = jj + 1) {
                             if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) &&
                                 (j + jj < _INPUT_SIZE_)) {//if overlapped
                                 T data = *(in_data+ _INPUT_SIZE_*(i + ii)+(j + jj));
                                 W weight = *(kernel_weights +(ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_+(jj + _CONV_KERNEL_SIZE_ / 2));
-//								*(out_data+ ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)+(
-//                                        (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
-                                data_temp += data * weight;
+								*(out_data+ ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)+(
+                                        (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
                             }
                         }
                     }
-                    *(out_data+ ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)+(
-                                        (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) = Relu_64(data_temp + *(kernel_bias));
                 }
             }
 		}
@@ -150,7 +146,6 @@ public:
         W *kernel_weights,
         W *kernel_bias,
         G *out_data3D) {
-
 		G out_data3d_temp[_OUT_CHANNEL_NUM_*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 			*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)];
 		//internal memory initiallization
@@ -167,7 +162,7 @@ public:
 				for (int a = c * _IN_CHANNEL_NUM_ / _GROUP_; a < c * _IN_CHANNEL_NUM_ / _GROUP_ + _IN_CHANNEL_NUM_ / _GROUP_; a++) {//input kernel loop
 					conv_kernel_a(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_,
 						kernel_weights+(b * _IN_CHANNEL_NUM_ / _GROUP_ + a % (_IN_CHANNEL_NUM_ / _GROUP_))*_CONV_KERNEL_SIZE_*_CONV_KERNEL_SIZE_,
-						kernel_bias+b,
+						//kernel_weights[b * _IN_CHANNEL_NUM_ + a],
 						out_data3d_temp + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 						*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1));
 				}
@@ -176,14 +171,14 @@ public:
 #if _ACT_RELU_
                         *(out_data3d_temp + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
                             *((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-                            +j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k)
+                            +j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k) 
                         = Relu_64((*(out_data3d_temp + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
                                 *((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
                                 + j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + k) + *(kernel_bias+b)));
 #else
 						*(out_data3d_temp + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 							*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-							+j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k)
+							+j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k) 
 							= f(activation_type, (*(out_data3d_temp + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 								*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 								+ j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + k) + *(kernel_bias+b)));
@@ -221,8 +216,8 @@ public:
 		}
 
 		//debugging output
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _C_DEBUG_MODE_
+//#if _KERNEL_DEBUG_
 		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
@@ -266,8 +261,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-#endif
-#endif
+//#endif
+//#endif
 
 	}
 };
