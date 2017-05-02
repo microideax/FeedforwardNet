@@ -13,4 +13,11 @@ void array_reset(T (&x)[size]) {
 }
 }
 
+template <typename T>
+void array_reset(T (&x), int size){
+    for(int i = 0; i < size; i++){
+        x[i] = (T)(0);
+    }
+}
+
 #endif

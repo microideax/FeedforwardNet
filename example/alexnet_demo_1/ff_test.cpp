@@ -637,6 +637,9 @@ int main() {
         fc_8_bias2D_int[i] = (data_type_w)(fc_8_bias2D[i]);
     }
 
+data_type_o output_1[96*27*27];
+data_type_o output_2[96*27*27];
+
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };
 	data_type   fc_8_out_int[1000*1*1];
@@ -697,7 +700,10 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_int);
+	fc_8_out_int,
+output_1,
+output_2
+);
 
     for(int i=0;i<1000;i++){
 		fc_8_out[i]=(float)(fc_8_out_int[i]);
@@ -708,7 +714,9 @@ int main() {
 #endif
 
 #if _BATCH_MODE_
-			fc_1_out_temp_int);
+			fc_1_out_temp_int,
+output_1,
+output_2);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
