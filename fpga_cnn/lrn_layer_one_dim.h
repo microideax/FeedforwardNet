@@ -78,7 +78,7 @@ public:
         cout << "Starting lrn layer ...." << endl;
 #endif
 #endif
-		assert(_LOCAL_SIZE_ % 2 == 1);//LRN only supports odd values for local_size
+//		assert(_LOCAL_SIZE_ % 2 == 1);//LRN only supports odd values for local_size
 		for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
 			lrn_local_a_across_channels(alpha, beta,a,in_data3D,out_data3D);
 			//lrn_local_a_within_channel(alpha, beta, in_data3D[a], out_data3D[a]);

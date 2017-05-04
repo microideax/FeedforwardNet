@@ -716,7 +716,6 @@ int main() {
 
 data_type_o output_1[96*55*55] = { 0 };
 data_type_o output_2[96*55*55] = { 0 };
->>>>>>> DMIR-YY/master
 
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };

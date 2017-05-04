@@ -12,6 +12,7 @@ add_files ../construct_net.h
 add_files ../../../fpga_cnn/conv_layer_one_dim.h
 add_files ../../../fpga_cnn/pool_layer_one_dim.h
 add_files ../../../fpga_cnn/fc_layer_one_dim.h
+add_files ../../../fpga_cnn/lrn_layer_one_dim.h
 add_files ../../../fpga_cnn/data_type.h
 #add_files ../../../fpga_cnn/dropout_layer.h
 add_files ../../../fpga_cnn/pow_function.h
@@ -47,3 +48,5 @@ create_clock -period 10 -name default
 csynth_design
 
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
+
+#export_design -rtl verilog -format ip_catalog

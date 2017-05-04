@@ -223,7 +223,7 @@ public:
 		}
 
 		//lrn...
-		assert(_LOCAL_SIZE_ % 2 == 1);//LRN only supports odd values for local_size
+//		assert(_LOCAL_SIZE_ % 2 == 1);//LRN only supports odd values for local_size
 		for (int a = 0; a < _OUT_CHANNEL_NUM_; a++) {//output kernel loop
 			lrn_local_a_across_channels(alpha, beta,a,out_data3d_temp_1,out_data3d_temp_2);
 		}
