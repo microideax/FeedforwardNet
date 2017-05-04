@@ -10,7 +10,6 @@
 #include <fstream>
 #include "activation_functions.h"
 #include "array_reset.h"
-#include "pow_function.h"
 
 using namespace std;
 
@@ -223,7 +222,10 @@ public:
 		}
 
 		//lrn...
-//		assert(_LOCAL_SIZE_ % 2 == 1);//LRN only supports odd values for local_size
+		if(_LOCAL_SIZE_ % 2 == 0){
+			cout << "LRN only supports odd values for local_size!" << endl;
+			getchar();
+		}
 		for (int a = 0; a < _OUT_CHANNEL_NUM_; a++) {//output kernel loop
 			lrn_local_a_across_channels(alpha, beta,a,out_data3d_temp_1,out_data3d_temp_2);
 		}
@@ -257,8 +259,8 @@ public:
 		}
 
 		//debugging output
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _C_DEBUG_MODE_
+//#if _KERNEL_DEBUG_
 		cout << "finished convolution and lrn and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_lrn_pool_layer_a.txt", ios::app);
@@ -316,8 +318,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-#endif
-#endif
+//#endif
+//#endif
 
 	}
 };

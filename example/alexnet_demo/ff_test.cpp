@@ -27,7 +27,8 @@
 #include "../../fpga_cnn/accuracy.h"
 #include "../../fpga_cnn/pow_function.h"
 #include "../../fpga_cnn/resize_image.h"
-
+#include "get_config_params.h"
+//#include "../fpga_cnn/set_mean.h"
 
 using namespace std;
 
@@ -49,13 +50,14 @@ int main() {
 
 	//load mean file *****************************
 	ifstream ifs1("net_mean.txt");
-	data_type channel_mean[3] = { 0 };
+	float channel_mean[3] = { 0 };
 	string str1;
 	string y1 = "[";
 	string y2 = "]";
 
 	if (!ifs1) {
 		cout << "mean data file not found !" << endl;
+		getchar();
 	}
 	int index = 0;
 	while (ifs1 >> str1) {
@@ -68,21 +70,22 @@ int main() {
 			str1.erase(p2, y2.length());
 		}
 		float f = atof(str1.c_str());
-		channel_mean[index] = (data_type)f;
+		channel_mean[index] = f;
 		index++;
 	}
 	ifs1.close();
 
 	//load val (image_name,image_class) set file *****************************
 	ifstream ifs("val.txt");
-	string val_name_class[3][2];
+	string val_name_class[10][2];
 	string str;
 
 	if (!ifs) {
 		cout << "val data file not found !" << endl;
+		getchar();
 	}
 	int num = 0;
-	while (ifs >> str && num < 6) {//num:3 pair (image_name,image_class)
+	while (ifs >> str&&num<20) {//num:4 pair (image_name,image_class)
 		if (num % 2 == 0) {//image_name
 			val_name_class[num / 2][0] = str;
 		}
@@ -101,9 +104,10 @@ int main() {
 #else
 	string image_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
 #endif
-	data_type in_data_3D_channel_swap[3][375][500] = { 0 };
+	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
-	data_type in_data_3D[3][227][227] = { 0 };
+	float in_data_3D[3][227][227] = { 0 };
+	data_type in_data_3D_int[3][227][227] = { 0 };
 	int w;
 	int h;
 	int channels;
@@ -116,20 +120,9 @@ int main() {
 	//STBI_rgb = 3,
 	//STBI_rgb_alpha = 4
 
-	/*ofstream image_a;
-	image_a.open("image_a.txt", ios::app);
-	for (int j = 0; j < h * w * 3; j++) {
-	image_a << (float)image_orig[j] << " ";
-	if (j%w == w-1) {
-	image_a << endl;
-	}
-	}
-	image_a << endl;
-	image_a.close();*/
-
 	for (int i = 0; i < 3; i++) {
 		for (int j = i; j < w * h * 3; j += 3) {
-			in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (data_type)image_orig[j];//range:0--255
+			in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j];//range:0--255
 		}
 	}
 
@@ -153,12 +146,29 @@ int main() {
 
 	cout << "testing point 2" << endl;
 
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 227; j++) {
+			for (int k = 0; k < 227; k++) {
+				in_data_3D_int[i][j][k] = (data_type)in_data_3D[i][j][k];
+			}
+		}
+	}
+
+	data_type output_min = (data_type)0;
+    data_type output_max = (data_type)0;
+
 	ofstream indata;
 	indata.open("in_data_crop_mean.txt", ios::app);
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 227; j++) {
 			for (int k = 0; k < 227; k++) {
-				indata << in_data_3D[i][j][k] << " ";
+				indata << in_data_3D_int[i][j][k] << " ";
+				if(in_data_3D_int[i][j][k] < output_min){
+					output_min = in_data_3D_int[i][j][k];
+				}
+				if(in_data_3D_int[i][j][k] > output_max){
+					output_max = in_data_3D_int[i][j][k];
+				}
 			}
 			indata << endl;
 		}
@@ -166,14 +176,21 @@ int main() {
 	}
 	indata << endl;
 	indata.close();
+	ofstream output_range;
+	output_range.open("input_layer_output_range_a.txt", ios::app);
+    output_range << "output range from input layer .........................." << endl;
+    output_range << output_min << "~~~" << output_max << endl;
+    output_range << endl;
+    output_range.close();
 #endif
 
 #if _BATCH_MODE_
 	//load val image set file *****************************
 	string root_dir = "./ILSVRC2012_img_val/";
-	data_type imagenet_test_data_channel_swap[3][3][1000][900] = { 0 };
-	data_type imagenet_test_data[3][3][227][227] = { 0 };
-	for (int image_num = 0; image_num < 3; image_num++) {
+	float imagenet_test_data_channel_swap[10][3][500][500] = { 0 };
+	float imagenet_test_data[10][3][227][227] = { 0 };
+	data_type imagenet_test_data_int[10][3][227][227] = { 0 };
+	for (int image_num = 0; image_num < 10; image_num++) {
 		string image_dir = root_dir + val_name_class[image_num][0];
 		int w;
 		int h;
@@ -187,20 +204,9 @@ int main() {
 		//STBI_rgb = 3,
 		//STBI_rgb_alpha = 4
 
-		/*ofstream image_a;
-		image_a.open("image_a.txt", ios::app);
-		for (int j = 0; j < h * w * 3; j++) {
-		image_a << (float)image_orig[j] << " ";
-		if (j%w == w-1) {
-		image_a << endl;
-		}
-		}
-		image_a << endl;
-		image_a.close();*/
-
 		for (int i = 0; i < 3; i++) {
 			for (int j = i; j < w * h * 3; j += 3) {
-				imagenet_test_data_channel_swap[image_num][2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (data_type)image_orig[j];//range:0--255
+				imagenet_test_data_channel_swap[image_num][2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j];//range:0--255
 			}
 		}
 
@@ -221,13 +227,22 @@ int main() {
 				}
 			}
 		}
+
+		for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 227; j++) {
+			for (int k = 0; k < 227; k++) {
+				imagenet_test_data_int[image_num][i][j][k] = (data_type)imagenet_test_data[image_num][i][j][k];
+			}
+		}
+	}
+
 		ofstream indata;
 		indata.open("in_data_crop_mean.txt", ios::app);
 		indata << "image_num: " << image_num << "**********" << endl;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 227; j++) {
 				for (int k = 0; k < 227; k++) {
-					indata << imagenet_test_data[image_num][i][j][k] << " ";
+					indata << imagenet_test_data_int[image_num][i][j][k] << " ";
 				}
 				indata << endl;
 			}
@@ -265,9 +280,9 @@ int main() {
 
 	// Prepare weights and bias for convolution layer 1
 	float conv_1_weight2D[288][11][11] = { 0 };
-	data_type          conv_1_weight2D_int[288][11][11] = {0};
+	data_type_w          conv_1_weight2D_int[288][11][11] = {0};
 	float conv_1_bias2D[96] = { 0 };
-	data_type          conv_1_bias2D_int[96] = {0};
+	data_type_w          conv_1_bias2D_int[96] = {0};
 	load_weight_conv(
 		weight_src,
 		conv_1_weight2D,
@@ -286,6 +301,9 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
+	data_type_w weight_min = (data_type)0;
+    data_type_w weight_max = (data_type)0;
+
 	for(int i = 0; i < 288; i++){
         for(int j = 0; j < 11; j++){
             for(int k = 0; k < 11; k++){
@@ -293,23 +311,35 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_1_weight2D_int[i][j][k] = (data_type)(conv_1_weight2D[i][j][k]);
-//                cout << conv_1_weight2D_int[i][j][k]<<"  ";
+                conv_1_weight2D_int[i][j][k] = (data_type_w)(conv_1_weight2D[i][j][k]);
+                if(conv_1_weight2D_int[i][j][k] < weight_min){
+					weight_min =conv_1_weight2D_int[i][j][k] ;
+				}
+				if(conv_1_weight2D_int[i][j][k] > weight_max){
+					weight_max =conv_1_weight2D_int[i][j][k] ;
+				}
             }
         }
     }
+    ofstream weight_range;
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv_1 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 96; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_1_bias2D_int[i] = (data_type)(conv_1_bias2D[i]);
+        conv_1_bias2D_int[i] = (data_type_w)(conv_1_bias2D[i]);
         cout << conv_1_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
 	// Prepare weights and bias for convolution layer 2
 	float conv_2_weight2D[12288][5][5] = { 0 };
-	data_type          conv_2_weight2D_int[12288][5][5] = {0};
+	data_type_w          conv_2_weight2D_int[12288][5][5] = {0};
 	float conv_2_bias2D[256] = { 0 };
-	data_type          conv_2_bias2D_int[256] = {0};
+	data_type_w          conv_2_bias2D_int[256] = {0};
 
 	load_weight_conv(
 		weight_src,
@@ -329,6 +359,9 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 12288; i++){
         for(int j = 0; j < 5; j++){
             for(int k = 0; k < 5; k++){
@@ -336,23 +369,34 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_2_weight2D_int[i][j][k] = (data_type)(conv_2_weight2D[i][j][k]);
-//                cout << conv_1_weight2D_int[i][j][k]<<"  ";
-            }
+                conv_2_weight2D_int[i][j][k] = (data_type_w)(conv_2_weight2D[i][j][k]);
+                if(conv_2_weight2D_int[i][j][k] < weight_min){
+					weight_min =conv_2_weight2D_int[i][j][k] ;
+				}
+				if(conv_2_weight2D_int[i][j][k] > weight_max){
+					weight_max =conv_2_weight2D_int[i][j][k] ;
+				}            
+			}
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv_2 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 256; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_2_bias2D_int[i] = (data_type)(conv_2_bias2D[i]);
+        conv_2_bias2D_int[i] = (data_type_w)(conv_2_bias2D[i]);
         cout << conv_2_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
 	// Prepare weights and bias for convolution layer 3
 	float conv_3_weight2D[98304][3][3] = { 0 };
-	data_type          conv_3_weight2D_int[98304][3][3] = { 0 };//
+	data_type_w          conv_3_weight2D_int[98304][3][3] = { 0 };//
 	float conv_3_bias2D[384] = { 0 };
-	data_type          conv_3_bias2D_int[384] = {0};
+	data_type_w          conv_3_bias2D_int[384] = {0};
 
 	load_weight_conv(
 		weight_src,
@@ -372,6 +416,9 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 98304; i++){
         for(int j = 0; j < 3; j++){
             for(int k = 0; k < 3; k++){
@@ -379,23 +426,34 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_3_weight2D_int[i][j][k] = (data_type)(conv_3_weight2D[i][j][k]);
-//                cout << conv_1_weight2D_int[i][j][k]<<"  ";
+                conv_3_weight2D_int[i][j][k] = (data_type_w)(conv_3_weight2D[i][j][k]);
+                if(conv_3_weight2D_int[i][j][k] < weight_min){
+					weight_min =conv_3_weight2D_int[i][j][k] ;
+				}
+				if(conv_3_weight2D_int[i][j][k] > weight_max){
+					weight_max =conv_3_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv_3 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 384; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_3_bias2D_int[i] = (data_type)(conv_3_bias2D[i]);
+        conv_3_bias2D_int[i] = (data_type_w)(conv_3_bias2D[i]);
         cout << conv_3_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
 	// Prepare weights and bias for convolution layer 4
 	float conv_4_weight2D[73728][3][3] = { 0 };
-	data_type          conv_4_weight2D_int[73728][3][3] = { 0 };//
+	data_type_w          conv_4_weight2D_int[73728][3][3] = { 0 };//
 	float conv_4_bias2D[384] = { 0 };
-	data_type          conv_4_bias2D_int[384] = {0};
+	data_type_w          conv_4_bias2D_int[384] = {0};
 
 	load_weight_conv(
 		weight_src,
@@ -415,6 +473,9 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 73728; i++){
         for(int j = 0; j < 3; j++){
             for(int k = 0; k < 3; k++){
@@ -422,23 +483,34 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_4_weight2D_int[i][j][k] = (data_type)(conv_4_weight2D[i][j][k]);
-//                cout << conv_1_weight2D_int[i][j][k]<<"  ";
+                conv_4_weight2D_int[i][j][k] = (data_type_w)(conv_4_weight2D[i][j][k]);
+                if(conv_4_weight2D_int[i][j][k] < weight_min){
+					weight_min =conv_4_weight2D_int[i][j][k] ;
+				}
+				if(conv_4_weight2D_int[i][j][k] > weight_max){
+					weight_max =conv_4_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv_4 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 384; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_4_bias2D_int[i] = (data_type)(conv_4_bias2D[i]);
+        conv_4_bias2D_int[i] = (data_type_w)(conv_4_bias2D[i]);
         cout << conv_4_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
 	// Prepare weights and bias for convolution layer 5
 	float conv_5_weight2D[49152][3][3] = { 0 };
-	data_type          conv_5_weight2D_int[49152][3][3] = {0};
+	data_type_w          conv_5_weight2D_int[49152][3][3] = {0};
 	float conv_5_bias2D[256] = { 0 };
-	data_type          conv_5_bias2D_int[256] = {0};
+	data_type_w          conv_5_bias2D_int[256] = {0};
 
 	load_weight_conv(
 		weight_src,
@@ -458,6 +530,9 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 49152; i++){
         for(int j = 0; j < 3; j++){
             for(int k = 0; k < 3; k++){
@@ -465,23 +540,34 @@ int main() {
 //                if(conv_1_weight2D[i][j][k] >= -0.04 && conv_1_weight2D[i][j][k] <= 0.04){
 //                    conv_1_weight2D[i][j][k] = 0;
 //                }
-                conv_5_weight2D_int[i][j][k] = (data_type)(conv_5_weight2D[i][j][k]);
-//                cout << conv_1_weight2D_int[i][j][k]<<"  ";
+                conv_5_weight2D_int[i][j][k] = (data_type_w)(conv_5_weight2D[i][j][k]);
+                if(conv_5_weight2D_int[i][j][k] < weight_min){
+					weight_min =conv_5_weight2D_int[i][j][k] ;
+				}
+				if(conv_5_weight2D_int[i][j][k] > weight_max){
+					weight_max =conv_5_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from conv_5 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 256; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
-        conv_5_bias2D_int[i] = (data_type)(conv_5_bias2D[i]);
+        conv_5_bias2D_int[i] = (data_type_w)(conv_5_bias2D[i]);
         cout << conv_5_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
 	// Prepare weights and bias for fc layer 6
 	float fc_6_weight2D[1048576][6][6] = { 0 };
-	data_type   fc_6_weight2D_int[1048576][6][6] = {0};
+	data_type_w   fc_6_weight2D_int[1048576][6][6] = {0};
 	float fc_6_bias2D[4096] = { 0 };
-	data_type   fc_6_bias2D_int[4096] = {0};
+	data_type_w   fc_6_bias2D_int[4096] = {0};
 	load_weight_fc(
 		weight_src,
 		fc_6_weight2D,
@@ -500,6 +586,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 1048576; i++){
         for(int j = 0; j < 6; j++){
             for(int k = 0; k < 6; k++){
@@ -507,21 +596,32 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_6_weight2D_int[i][j][k] = (data_type)(fc_6_weight2D[i][j][k]);
-//                cout << fc_1_weight2D_int[i][j][k]<<"  ";
+                fc_6_weight2D_int[i][j][k] = (data_type_w)(fc_6_weight2D[i][j][k]);
+                if(fc_6_weight2D_int[i][j][k] < weight_min){
+					weight_min =fc_6_weight2D_int[i][j][k] ;
+				}
+				if(fc_6_weight2D_int[i][j][k] > weight_max){
+					weight_max =fc_6_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from fc_6 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_6_bias2D_int[i] = (data_type)(fc_6_bias2D[i]);
+        fc_6_bias2D_int[i] = (data_type_w)(fc_6_bias2D[i]);
     }
 
 	// Prepare weights and bias for fc layer 7
 	float fc_7_weight2D[16777216][1][1] = { 0 };
-	data_type   fc_7_weight2D_int[16777216][1][1] = {0};
+	data_type_w   fc_7_weight2D_int[16777216][1][1] = {0};
 	float fc_7_bias2D[4096] = { 0 };
-	data_type   fc_7_bias2D_int[4096] = {0};
+	data_type_w   fc_7_bias2D_int[4096] = {0};
 	load_weight_fc(
 		weight_src,
 		fc_7_weight2D,
@@ -540,6 +640,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 16777216; i++){
         for(int j = 0; j < 1; j++){
             for(int k = 0; k < 1; k++){
@@ -547,21 +650,32 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_7_weight2D_int[i][j][k] = (data_type)(fc_7_weight2D[i][j][k]);
-//                cout << fc_1_weight2D_int[i][j][k]<<"  ";
+                fc_7_weight2D_int[i][j][k] = (data_type_w)(fc_7_weight2D[i][j][k]);
+                if(fc_7_weight2D_int[i][j][k] < weight_min){
+					weight_min =fc_7_weight2D_int[i][j][k] ;
+				}
+				if(fc_7_weight2D_int[i][j][k] > weight_max){
+					weight_max =fc_7_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from fc_7 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_7_bias2D_int[i] = (data_type)(fc_7_bias2D[i]);
+        fc_7_bias2D_int[i] = (data_type_w)(fc_7_bias2D[i]);
     }
 
 	// Prepare weights and bias for fc layer 8
 	float fc_8_weight2D[4096000][1][1] = { 0 };
-	data_type   fc_8_weight2D_int[4096000][1][1] = {0};
+	data_type_w   fc_8_weight2D_int[4096000][1][1] = {0};
 	float fc_8_bias2D[1000] = { 0 };
-	data_type   fc_8_bias2D_int[1000] = {0};
+	data_type_w   fc_8_bias2D_int[1000] = {0};
 	load_weight_fc(
 		weight_src,
 		fc_8_weight2D,
@@ -580,6 +694,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
+	weight_min = (data_type)0;
+    weight_max = (data_type)0;
+
 	for(int i = 0; i < 4096000; i++){
         for(int j = 0; j < 1; j++){
             for(int k = 0; k < 1; k++){
@@ -587,14 +704,25 @@ int main() {
 //                if(fc_1_weight2D[i][j][k] >= -0.05 && fc_1_weight2D[i][j][k] <= 0.05){
 //                    fc_1_weight2D[i][j][k] = 0;
 //                }
-                fc_8_weight2D_int[i][j][k] = (data_type)(fc_8_weight2D[i][j][k]);
-//                cout << fc_1_weight2D_int[i][j][k]<<"  ";
+                fc_8_weight2D_int[i][j][k] = (data_type_w)(fc_8_weight2D[i][j][k]);
+                if(fc_8_weight2D_int[i][j][k] < weight_min){
+					weight_min =fc_8_weight2D_int[i][j][k] ;
+				}
+				if(fc_8_weight2D_int[i][j][k] > weight_max){
+					weight_max =fc_8_weight2D_int[i][j][k] ;
+				} 
             }
         }
     }
+    weight_range.open("weight_range_a.txt", ios::app);
+    weight_range << "weight range from fc_8 layer .........................." << endl;
+    weight_range << weight_min << "~~~" << weight_max << endl;
+    weight_range << endl;
+    weight_range.close();
+
     for(int i = 0; i < 1000; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
-        fc_8_bias2D_int[i] = (data_type)(fc_8_bias2D[i]);
+        fc_8_bias2D_int[i] = (data_type_w)(fc_8_bias2D[i]);
     }
 
 #if _KERNEL_DEBUG_
@@ -606,7 +734,7 @@ int main() {
 #endif
 
 #if _BATCH_MODE_
-	float fc_1_out_a[3][1000][1][1] = { 0 };
+	float fc_1_out_a[10][1000][1][1] = { 0 };
 	float fc_1_out_temp[1000][1][1] = { 0 };
 	data_type   fc_1_out_temp_int[1000][1][1];
 	for(int i = 0; i < 1000; i++){
@@ -622,7 +750,7 @@ int main() {
 	start = clock();
 
 	//for (int i = 0; i < 10000; i++) {//test mnist dataset
-	for (int i = 0; i < 3; i++) {//test imagenet dataset
+	for (int i = 0; i < 10; i++) {//test imagenet dataset
 #endif
 
 								 //Inference network process
@@ -630,12 +758,12 @@ int main() {
 			relu, //activation function
 
 #if _KERNEL_DEBUG_
-			in_data_3D, //input pic data
+			in_data_3D_int, //input pic data
 #endif
 
 #if _BATCH_MODE_
 						//mnist_test_data[i], //input test mnist dataset
-			imagenet_test_data[i],//input test imagenet dataset
+			imagenet_test_data_int[i],//input test imagenet dataset
 #endif
 								  //layer weights and bias inputs
 			conv_1_weight2D_int,
@@ -698,7 +826,6 @@ int main() {
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
-	getchar();
 
 #if _HLS_MODE_
 	cout << "finished inference processing ............" << endl;

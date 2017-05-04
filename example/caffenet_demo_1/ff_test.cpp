@@ -639,6 +639,86 @@ int main() {
         fc_8_bias2D_int[i] = (data_type_w)(fc_8_bias2D[i]);
     }
 
+    data_type_w   conv_weight_port[2332704] = {0};
+    data_type_w   conv_bias_port[1376] = {0};
+    data_type_w   fc_weight_port[58621952] = {0};
+    data_type_w   fc_bias_port[9192] = {0};
+
+    int conv_weight_num=0;
+    for(int i = 0; i < 288*11*11; i++){
+    	conv_weight_port[conv_weight_num]=conv_1_weight2D_int[i];
+    	conv_weight_num++;
+    }
+    for(int i = 0; i < 12288*5*5; i++){
+    	conv_weight_port[conv_weight_num]=conv_2_weight2D_int[i];
+    	conv_weight_num++;
+    }
+    for(int i = 0; i < 98304*3*3; i++){
+    	conv_weight_port[conv_weight_num]=conv_3_weight2D_int[i];
+    	conv_weight_num++;
+    }
+    for(int i = 0; i < 73728*3*3; i++){
+    	conv_weight_port[conv_weight_num]=conv_4_weight2D_int[i];
+    	conv_weight_num++;
+    }
+    for(int i = 0; i < 49152*3*3; i++){
+    	conv_weight_port[conv_weight_num]=conv_5_weight2D_int[i];
+    	conv_weight_num++;
+    }
+
+    int conv_bias_num=0;
+    for(int i = 0; i < 96; i++){
+    	conv_bias_port[conv_bias_num]=conv_1_bias2D_int[i];
+    	conv_bias_num++;
+    }
+    for(int i = 0; i < 256; i++){
+    	conv_bias_port[conv_bias_num]=conv_2_bias2D_int[i];
+    	conv_bias_num++;
+    }
+    for(int i = 0; i < 384; i++){
+    	conv_bias_port[conv_bias_num]=conv_3_bias2D_int[i];
+    	conv_bias_num++;
+    }
+    for(int i = 0; i < 384; i++){
+    	conv_bias_port[conv_bias_num]=conv_4_bias2D_int[i];
+    	conv_bias_num++;
+    }
+    for(int i = 0; i < 256; i++){
+    	conv_bias_port[conv_bias_num]=conv_5_bias2D_int[i];
+    	conv_bias_num++;
+    }
+
+    int fc_weight_num=0;
+    for(int i = 0; i < 1048576*6*6; i++){
+    	fc_weight_port[fc_weight_num]=fc_6_weight2D_int[i];
+    	fc_weight_num++;
+    }
+    for(int i = 0; i < 16777216*1*1; i++){
+    	fc_weight_port[fc_weight_num]=fc_7_weight2D_int[i];
+    	fc_weight_num++;
+    }
+    for(int i = 0; i < 4096000*1*1; i++){
+    	fc_weight_port[fc_weight_num]=fc_8_weight2D_int[i];
+    	fc_weight_num++;
+    }
+
+    int fc_bias_num=0;
+    for(int i = 0; i < 4096; i++){
+    	fc_bias_port[fc_bias_num]=fc_6_bias2D_int[i];
+    	fc_bias_num++;
+    }
+    for(int i = 0; i < 4096; i++){
+    	fc_bias_port[fc_bias_num]=fc_7_bias2D_int[i];
+    	fc_bias_num++;
+    }
+    for(int i = 0; i < 1000; i++){
+    	fc_bias_port[fc_bias_num]=fc_8_bias2D_int[i];
+    	fc_bias_num++;
+    }
+
+    data_type_o output_1[96*55*55] = { 0 };
+    data_type_o output_2[96*55*55] = { 0 };
+
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };
 	data_type   fc_8_out_int[1000*1*1];
@@ -680,26 +760,32 @@ int main() {
 			imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
 								  //layer weights and bias inputs
-			conv_1_weight2D_int,
-			conv_1_bias2D_int,
-			conv_2_weight2D_int,
-			conv_2_bias2D_int,
-			conv_3_weight2D_int,
-			conv_3_bias2D_int,
-			conv_4_weight2D_int,
-			conv_4_bias2D_int,
-			conv_5_weight2D_int,
-			conv_5_bias2D_int,
-			fc_6_weight2D_int,
-			fc_6_bias2D_int,
-			fc_7_weight2D_int,
-			fc_7_bias2D_int,
-			fc_8_weight2D_int,
-			fc_8_bias2D_int,
+			//conv_1_weight2D_int,
+			//conv_1_bias2D_int,
+			//conv_2_weight2D_int,
+			//conv_2_bias2D_int,
+			//conv_3_weight2D_int,
+			//conv_3_bias2D_int,
+			//conv_4_weight2D_int,
+			//conv_4_bias2D_int,
+			//conv_5_weight2D_int,
+			//conv_5_bias2D_int,
+			//fc_6_weight2D_int,
+			//fc_6_bias2D_int,
+			//fc_7_weight2D_int,
+			//fc_7_bias2D_int,
+			//fc_8_weight2D_int,
+			//fc_8_bias2D_int,
+			conv_weight_port,
+            conv_bias_port,
+            fc_weight_port,
+            fc_bias_port,
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_int);
+	fc_8_out_int,
+	output_1,
+    output_2);
 
     for(int i=0;i<1000;i++){
 		fc_8_out[i]=(float)(fc_8_out_int[i]);
@@ -710,7 +796,9 @@ int main() {
 #endif
 
 #if _BATCH_MODE_
-			fc_1_out_temp_int);
+			fc_1_out_temp_int,
+	output_1,
+    output_2);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];

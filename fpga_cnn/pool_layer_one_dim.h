@@ -37,7 +37,12 @@ public:
 						for (int jj = -_POOL_KERNEL_SIZE_ / 2; jj <= _POOL_KERNEL_SIZE_ / 2; ++jj) {
 							if (i + ii >= 0 && i + ii< _INPUT_SIZE_
 								&& j + jj >= 0 && j + jj< _INPUT_SIZE_) {//if overlapped
-								max = (*(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) > max ? *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) : max);
+								if (ii == -_POOL_KERNEL_SIZE_ / 2 && jj == -_POOL_KERNEL_SIZE_ / 2) {
+									max = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
+								}
+								else {
+									max = (*(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) > max ? *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) : max);
+								}
 							}
 						}
 					}
@@ -54,7 +59,12 @@ public:
 						for (int jj = -_POOL_KERNEL_SIZE_ / 2; jj < _POOL_KERNEL_SIZE_ / 2; ++jj) {
 							if (i + ii >= 0 && i + ii< _INPUT_SIZE_
 								&& j + jj >= 0 && j + jj< _INPUT_SIZE_) {//if overlapped
-								max = (*(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) > max ? (*(in_data + _INPUT_SIZE_*(i + ii) + (j + jj))) : max);
+								if (ii == -_POOL_KERNEL_SIZE_ / 2 && jj == -_POOL_KERNEL_SIZE_ / 2) {
+									max = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
+								}
+								else {
+									max = (*(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) > max ? *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj)) : max);
+								}
 							}
 						}
 					}

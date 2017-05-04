@@ -57,6 +57,7 @@ int main() {
 	string y2 = "]";
 	if (!ifs1) {
 		cout << "mean data file not found !" << endl;
+		getchar();
 	}
 	int index = 0;
 	while (ifs1 >> str1) {
@@ -82,6 +83,7 @@ int main() {
 
 	if (!ifs) {
 		cout << "val data file not found !" << endl;
+		getchar();
 	}
 	int num = 0;
 	while (ifs >> str&&num<20) {//num:4 pair (image_name,image_class)
@@ -714,8 +716,8 @@ int main() {
     	fc_bias_num++;
     }
 
-data_type_o output_1[96*55*55] = { 0 };
-data_type_o output_2[96*55*55] = { 0 };
+    data_type_o output_1[96*55*55] = { 0 };
+    data_type_o output_2[96*55*55] = { 0 };
 
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };
@@ -782,8 +784,8 @@ data_type_o output_2[96*55*55] = { 0 };
 #if _KERNEL_DEBUG_
 	//output fc data
 	fc_8_out_int,
-output_1,
-output_2
+    output_1,
+    output_2
 );
 
     for(int i=0;i<1000;i++){
@@ -796,8 +798,8 @@ output_2
 
 #if _BATCH_MODE_
 			fc_1_out_temp_int,
-output_1,
-output_2);
+    output_1,
+    output_2);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
