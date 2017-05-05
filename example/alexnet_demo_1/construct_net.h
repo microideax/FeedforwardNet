@@ -26,22 +26,6 @@ void inference_net(
 	data_type in_data_3D[3*227*227],
 
 	// layer weights and bias inputs ------- Alexnet
-	//data_type_w        conv_1_weight_a[288*11*11],
-	//data_type_w        conv_1_bias_a[96],
-	//data_type_w        conv_2_weight_a[12288*5*5],
-	//data_type_w        conv_2_bias_a[256],
-	//data_type_w        conv_3_weight_a[98304*3*3],
-	//data_type_w        conv_3_bias_a[384],
-	//data_type_w        conv_4_weight_a[73728*3*3],
-	//data_type_w        conv_4_bias_a[384],
-	//data_type_w        conv_5_weight_a[49152*3*3],
-	//data_type_w        conv_5_bias_a[256],
-	//data_type_w        fc_6_weight_a[1048576*6*6],
-	//data_type_w        fc_6_bias_a[4096],
-	//data_type_w        fc_7_weight_a[16777216*1*1],
-	//data_type_w        fc_7_bias_a[4096],
-	//data_type_w        fc_8_weight_a[4096000*1*1],
-	//data_type_w        fc_8_bias_a[1000],
 	data_type_w *conv_weight_port,
 	data_type_w *conv_bias_port,
 	data_type_w *fc_weight_port,
@@ -90,10 +74,6 @@ void inference_net(
 	conv_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 96, 256, 2> C2;
 	lrn_layer<data_type_o, 256, 5, 27> L2;
 	pool_layer<data_type,data_type_w,data_type_o, 27, 3, 0, 2, 256> P2;
-
-
-
-
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 256, 384, 1> C3;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 384, 2> C4;
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 256, 2> C5;

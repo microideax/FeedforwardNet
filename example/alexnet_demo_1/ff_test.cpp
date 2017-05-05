@@ -757,23 +757,7 @@ data_type_o output_2[96*55*55] = { 0 };
 						//mnist_test_data[i], //input test mnist dataset
 			imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
-								  //layer weights and bias inputs
-			//conv_1_weight2D_int,
-			//conv_1_bias2D_int,
-			//conv_2_weight2D_int,
-			//conv_2_bias2D_int,
-			//conv_3_weight2D_int,
-			//conv_3_bias2D_int,
-			//conv_4_weight2D_int,
-			//conv_4_bias2D_int,
-			//conv_5_weight2D_int,
-			//conv_5_bias2D_int,
-			//fc_6_weight2D_int,
-			//fc_6_bias2D_int,
-			//fc_7_weight2D_int,
-			//fc_7_bias2D_int,
-			//fc_8_weight2D_int,
-			//fc_8_bias2D_int,
+            //layer weights and bias inputs
 			conv_weight_port,
             conv_bias_port,
             fc_weight_port,
