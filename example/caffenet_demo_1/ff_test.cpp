@@ -784,8 +784,9 @@ int main() {
 #if _KERNEL_DEBUG_
 	//output fc data
 	fc_8_out_int,
-	output_1,
-    output_2);
+output_1,
+output_2
+);
 
     for(int i=0;i<1000;i++){
 		fc_8_out[i]=(float)(fc_8_out_int[i]);
@@ -797,8 +798,8 @@ int main() {
 
 #if _BATCH_MODE_
 			fc_1_out_temp_int,
-	output_1,
-    output_2);
+output_1,
+output_2);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
@@ -839,4 +840,3 @@ int main() {
 	return 0;
 
 }
-

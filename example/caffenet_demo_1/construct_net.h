@@ -13,7 +13,6 @@
 #include "../../fpga_cnn/conv_layer_one_dim.h"
 #include "../../fpga_cnn/pool_layer_one_dim.h"
 #include "../../fpga_cnn/fc_layer_one_dim.h"
-//#include "../../fpga_cnn/dropout_layer.h"
 #include "../../fpga_cnn/lrn_layer_one_dim.h"
 #include "../../fpga_cnn/array_reset.h"
 
@@ -23,24 +22,6 @@ void inference_net(
 
 	// input pic data
 	data_type in_data_3D[3*227*227],
-
-	// layer weights and bias inputs ------- Alexnet
-	//data_type_w        conv_1_weight_a[288*11*11],
-	//data_type_w        conv_1_bias_a[96],
-	//data_type_w        conv_2_weight_a[12288*5*5],
-	//data_type_w        conv_2_bias_a[256],
-	//data_type_w        conv_3_weight_a[98304*3*3],
-	//data_type_w        conv_3_bias_a[384],
-	//data_type_w        conv_4_weight_a[73728*3*3],
-	//data_type_w        conv_4_bias_a[384],
-	//data_type_w        conv_5_weight_a[49152*3*3],
-	//data_type_w        conv_5_bias_a[256],
-	//data_type_w        fc_6_weight_a[1048576*6*6],
-	//data_type_w        fc_6_bias_a[4096],
-	//data_type_w        fc_7_weight_a[16777216*1*1],
-	//data_type_w        fc_7_bias_a[4096],
-	//data_type_w        fc_8_weight_a[4096000*1*1],
-	//data_type_w        fc_8_bias_a[1000],
 	data_type_w *conv_weight_port,
 	data_type_w *conv_bias_port,
 	data_type_w *fc_weight_port,
@@ -54,6 +35,24 @@ void inference_net(
 	data_type_o output_2[96*27*27]
 ) {
 
+#if _HLS_MODE_
+
+#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
+#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
+
+#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D
+
+#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port
+#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port
+#pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port
+#pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port
+
+#pragma HLS INTERFACE m_axi depth=50  port=fc_8_out_a
+
+#pragma HLS INTERFACE m_axi depth=55 port=output_1
+#pragma HLS INTERFACE m_axi depth=55 port=output_2
+
+#endif
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -80,100 +79,66 @@ void inference_net(
 	conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 384, 256, 2> C5;
 	pool_layer<data_type,data_type_w,data_type_o, 13, 3, 0, 2, 256> P5;
 	fc_layer<data_type,data_type_w,data_type_o, 256, 6, 4096> F6;
-	/*dropout_layer<float, 4096, 1> D6;*/
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
-	/*dropout_layer<float, 4096, 1> D7;*/
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 1000> F8;
 
 	//temp storage space
-	//data_type_o  output_1[96*55*55];
-    //data_type_o  output_2[96*55*55];
-    //data_type_o  output_1[96*27*27];
-    //data_type_o  output_2[96*27*27];
+    data_type_o  fc_8_out_buf[1000*1*1];
+    data_type  in_data_buf[3*227*227];
+//    data_type_o  output_1[96*27*27];
+//    data_type_o  output_2[96*27*27];
     
-	/*float  drop_6_out[4096][1][1] = { 0 };*/
-	//data_type  fc_7_out[4096][1][1];
-	/*float  drop_7_out[4096][1][1] = { 0 };*/
-
     //internal memory initiallization
     array_reset(output_1,96*27*27);
     array_reset(output_2,96*27*27);
 
-	//Forward propagation by layer
-	//C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
-	C1P1.conv_layer_w_pool_a(activation_type, in_data_3D, conv_weight_port, conv_bias_port, output_1);
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 227; j++){
+            for(int k = 0; k < 227; k++){
+                in_data_buf[i*227*227 + j*227 + k] = in_data_3D[i*227*227 + j*227 + k];
+	    }
+        }
+    }
 
-	data_type_o output_min_lrn_1 = (data_type_o)0;
-    data_type_o output_max_lrn_1 = (data_type_o)0;
+     //Forward propagation by layer
+    //C1.conv_layer_a(activation_type, in_data_3D, conv_1_weight_a, conv_1_bias_a, output_1);
+    //P1.max_pooling_layer_a(activation_type, output_2, output_1);
+    C1P1.conv_layer_w_pool_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_1);
     L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
     array_reset(output_1,96*27*27);
-	for(int i = 0; i < 96*27*27; i++){
-            if(output_2[i] < output_min_lrn_1){
-                output_min_lrn_1 = output_2[i];
-            }
-            if(output_2[i] > output_max_lrn_1){
-                output_max_lrn_1 = output_2[i];
-            }
-}
-
- #if _C_DEBUG_MODE_
- #if _KERNEL_DEBUG_
-	ofstream output_range;
-    output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    output_range << "output range from lrn_1 layer .........................." << endl;
-    output_range << output_min_lrn_1 << "~~~" << output_max_lrn_1 << endl;
-    output_range << endl;
-    output_range.close();
- #endif
- #endif
-
-    //P1.max_pooling_layer_a(activation_type, output_2, output_1);
     //array_reset(output_2);
-	//C2.conv_layer_a(activation_type, output_1, conv_2_weight_a, conv_2_bias_a, output_2);
+    //C2.conv_layer_a(activation_type, output_1, conv_2_weight_a, conv_2_bias_a, output_2);
     //array_reset(output_1);
-	data_type_o output_min_lrn_2 = (data_type_o)0;
-    data_type_o output_max_lrn_2 = (data_type_o)0;
     C2P2.conv_layer_w_pool_a(activation_type, output_2, conv_weight_port+288*11*11, conv_bias_port+96, output_1);
     array_reset(output_2,96*27*27);
     L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_1, output_2);
-    array_reset(output_1,96*27*27);
-	for(int i = 0; i < 96*27*27; i++){
-            if(output_2[i] < output_min_lrn_2){
-                output_min_lrn_2 = output_2[i];
-            }
-            if(output_2[i] > output_max_lrn_2){
-                output_max_lrn_2 = output_2[i];
-            }
-}
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
-    output_range.open("lrn_layer_output_range_a.txt", ios::app);
-    output_range << "output range from lrn_2 layer .........................." << endl;
-    output_range << output_min_lrn_2 << "~~~" << output_max_lrn_2 << endl;
-    output_range << endl;
-    output_range.close();
-#endif
-#endif
-    
+    array_reset(output_1,96*27*27);   
     //P2.max_pooling_layer_a(activation_type, output_1, output_2);
     //array_reset(output_1);
-	C3.conv_layer_a(activation_type, output_2, conv_weight_port+288*11*11+12288*5*5, conv_bias_port+96+256, output_1);
+    C3.conv_layer_a(activation_type, output_2, conv_weight_port+288*11*11+12288*5*5, conv_bias_port+96+256, output_1);
     array_reset(output_2,96*27*27);
-	C4.conv_layer_a(activation_type, output_1, conv_weight_port+288*11*11+12288*5*5+98304*3*3, conv_bias_port+96+256+384, output_2);
+    C4.conv_layer_a(activation_type, output_1, conv_weight_port+288*11*11+12288*5*5+98304*3*3, conv_bias_port+96+256+384, output_2);
     array_reset(output_1,96*27*27);
-	C5.conv_layer_a(activation_type, output_2, conv_weight_port+288*11*11+12288*5*5+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, output_1);
+/*
+    C5.conv_layer_a(activation_type, output_2, conv_weight_port+288*11*11+12288*5*5+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, output_1);
+    array_reset(output_2,96*27*27);   
+    P5.max_pooling_layer_a(activation_type, output_1, output_2);
+    array_reset(output_1,96*27*27);
+    F6.fc_layer_a(activation_type, output_2, fc_weight_port, fc_bias_port, output_1);
     array_reset(output_2,96*27*27);
-	P5.max_pooling_layer_a(activation_type, output_1, output_2);
+*/
+/*
+    F7.fc_layer_a(activation_type, output_1, fc_weight_port+1048576*6*6, fc_bias_port+4096, output_2);
     array_reset(output_1,96*27*27);
-	F6.fc_layer_a(activation_type, output_2, fc_weight_port, fc_bias_port, output_1);
-    array_reset(output_2,96*27*27);
-	/*D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);*/
-	F7.fc_layer_a(activation_type, output_1, fc_weight_port+1048576*6*6, fc_bias_port+4096, output_2);
-    array_reset(output_1,96*27*27);
-	/*D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);*/
-	F8.fc_layer_a_no_activation(output_2, fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_a);
+*/
+/*
+    F8.fc_layer_a_no_activation(output_2, fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
 
-	/******************************************************************************************/
+    for(int i = 0; i < 1000; i++){
+        fc_8_out_a[i] = fc_8_out_buf[i];
+    }
+*/
+/******************************************************************************************/
 
 
 #if _C_DEBUG_MODE_

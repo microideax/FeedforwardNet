@@ -9,9 +9,11 @@ set_top inference_net
 add_files ../../../fpga_cnn/activation_functions.h
 add_files ../config.h
 add_files ../construct_net.h
+add_files ../../../fpga_cnn/conv_pool_layer_one_dim.h
 add_files ../../../fpga_cnn/conv_layer_one_dim.h
 add_files ../../../fpga_cnn/pool_layer_one_dim.h
 add_files ../../../fpga_cnn/fc_layer_one_dim.h
+add_files ../../../fpga_cnn/lrn_layer_one_dim.h
 add_files ../../../fpga_cnn/data_type.h
 #add_files ../../../fpga_cnn/dropout_layer.h
 add_files ../../../fpga_cnn/pow_function.h
