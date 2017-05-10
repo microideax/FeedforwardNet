@@ -155,7 +155,7 @@ int main() {
 	}
 
 	data_type output_min = (data_type)0;
-    data_type output_max = (data_type)0;
+        data_type output_max = (data_type)0;
 
 	ofstream indata;
 	indata.open("in_data_crop_mean.txt", ios::app);
@@ -716,8 +716,8 @@ int main() {
     	fc_bias_num++;
     }
 
-    data_type_o output_1[96*27*27] = { 0 };
-    data_type_o output_2[96*27*27] = { 0 };
+//data_type_o output_1[96*27*27] = { 0 };
+//data_type_o output_2[96*27*27] = { 0 };
 
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };
@@ -759,7 +759,7 @@ int main() {
 						//mnist_test_data[i], //input test mnist dataset
 			imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
-								  //layer weights and bias inputs
+            //layer weights and bias inputs
 			//conv_1_weight2D_int,
 			//conv_1_bias2D_int,
 			//conv_2_weight2D_int,
@@ -776,16 +776,16 @@ int main() {
 			//fc_7_bias2D_int,
 			//fc_8_weight2D_int,
 			//fc_8_bias2D_int,
-			conv_weight_port,
+            conv_weight_port,
             conv_bias_port,
             fc_weight_port,
             fc_bias_port,
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_int,
-output_1,
-output_2
+	fc_8_out_int
+//output_1,
+//output_2
 );
 
     for(int i=0;i<1000;i++){

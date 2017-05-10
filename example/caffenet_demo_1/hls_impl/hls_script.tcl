@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_alexnet
+open_project hls_proj_caffenet
 
 set_top inference_net
 
@@ -35,7 +35,7 @@ add_files -tb ../net_mean.txt
 add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
-open_solution -reset "alexnet"
+open_solution -reset "caffenet"
 #vc709
 #set_part {xc7vx690tffg1761-2}
 #zynq-7000 board
@@ -49,3 +49,6 @@ create_clock -period 10 -name default
 csynth_design
 
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
+
+export_design -rtl verilog -format ip_catalog
+exit

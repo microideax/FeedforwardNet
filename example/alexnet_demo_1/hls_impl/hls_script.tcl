@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_alexnet_new
+open_project hls_proj_alexnet_test
 
 set_top inference_net
 
@@ -50,3 +50,4 @@ csynth_design
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
 
 export_design -rtl verilog -format ip_catalog
+exit

@@ -769,6 +769,8 @@ data_type_o output_2[96*55*55] = { 0 };
 output_1,
 output_2
 );
+    for (int i = 0; i < 10; i++)
+      cout << "At " << i << ", output1_tmp=" << output_1[i] << '\n';
 
     for(int i=0;i<1000;i++){
 		fc_8_out[i]=(float)(fc_8_out_int[i]);

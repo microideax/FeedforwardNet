@@ -91,9 +91,13 @@ void inference_net(
     //internal memory initiallization
 //    array_reset(output_1, 96*55*55);
 //    array_reset(output_2, 96*55*55);
-    for(int addr = 0; addr < 96*55*55; addr++){
-        output_1[addr] = data_type_o(0);
-        output_2[addr] = data_type_o(0);
+    //for(int addr = 0; addr < 96*55*55; addr++){
+    //    output_1[addr] = data_type_o(0);
+    //    output_2[addr] = data_type_o(0);
+    //}
+    for (int addr = 0; addr < 10; addr++) {
+      output_1[addr] = in_data_3D[addr];
+      output_2[addr] = addr;
     }
     for(int i = 0; i < 3; i++){
         for(int j = 0; j < 227; j++){
@@ -104,9 +108,10 @@ void inference_net(
     }
 
 	//Forward propagation by layer
-	C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_1);
-    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
+	//C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_1);
+    //L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_1, output_2);
 //    array_reset(output_1, 96*55*55);
+    /*
     for(int addr = 0; addr < 96*55*55; addr++){
         output_1[addr] = data_type_o(0);
     }
@@ -157,18 +162,19 @@ void inference_net(
     for(int addr = 0; addr < 96*55*55; addr++){
         output_2[addr] = data_type_o(0);
     }
-	/*D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);*/
+	//D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);
 	F7.fc_layer_a(activation_type, output_1, fc_weight_port+1048576*6*6, fc_bias_port+4096, output_2);
 //    array_reset(output_1, 96*55*55);
     for(int addr = 0; addr < 96*55*55; addr++){
         output_1[addr] = data_type_o(0);
     }
-	/*D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);*/
+	//D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);
 	F8.fc_layer_a_no_activation(output_2, fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
 
     for(int i = 0; i < 1000; i++){
         fc_8_out_a[i] = fc_8_out_buf[i];
     }
+    */
 	/******************************************************************************************/
 
 
