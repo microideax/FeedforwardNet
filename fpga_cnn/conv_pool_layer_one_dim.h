@@ -87,7 +87,7 @@ public:
 		//convolution...
 		for (int c = 0; c < _GROUP_; c++) {//group loop
 			for (int b = c * _OUT_CHANNEL_NUM_ / _GROUP_; b < c * _OUT_CHANNEL_NUM_ / _GROUP_ + _OUT_CHANNEL_NUM_ / _GROUP_; b++) {//output kernel loop
-				if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
+				//if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 					for (int m = 0;m<(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) 
 						+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1;m++) {
 						for (int n = 0; n<(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
@@ -134,61 +134,13 @@ public:
 							out_data_max = 0;
 						}
 					}
-				}
-				else {
-					for (int m = 0; m<(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-						+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; m++) {
-						for (int n = 0; n<(((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-							+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1; n++) {
-							int k = 0;
-							for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_ + m * _POOL_STRIDE_ * _CONV_STRIDE_;
-								k < _POOL_KERNEL_SIZE_ && (i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2); i += _CONV_STRIDE_) {
-								int l = 0;
-								for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_ + n * _POOL_STRIDE_ * _CONV_STRIDE_;
-									l < _POOL_KERNEL_SIZE_ && (j <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2); j += _CONV_STRIDE_) {
-									for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii < _CONV_KERNEL_SIZE_ / 2; ++ii) {
-										for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
-											if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) && (j + jj < _INPUT_SIZE_)) {//if overlapped
-												for (int a = c * _IN_CHANNEL_NUM_ / _GROUP_; a < c * _IN_CHANNEL_NUM_ / _GROUP_ + _IN_CHANNEL_NUM_ / _GROUP_; a++) {//input kernel loop
-													conv_kernel_a(in_data3D + a*_INPUT_SIZE_*_INPUT_SIZE_ + _INPUT_SIZE_*(i + ii) + (j + jj),
-														kernel_weights + (b * _IN_CHANNEL_NUM_ / _GROUP_ + a % (_IN_CHANNEL_NUM_ / _GROUP_))
-														*_CONV_KERNEL_SIZE_*_CONV_KERNEL_SIZE_ + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_ + (jj + _CONV_KERNEL_SIZE_ / 2),
-														out_data_max_temp);
-												}
-											}
-										}
-									}
-#if _ACT_RELU_
-                                    out_data_max_temp = Relu_64(out_data_max_temp + *(kernel_bias + b));
-#else
-									out_data_max_temp = f(activation_type, out_data_max_temp + *(kernel_bias + b));
-#endif
-									//max pooling...
-									if (k == 0 && l == 0) {
-										out_data_max = out_data_max_temp;
-									}
-									else {
-										out_data_max = out_data_max_temp > out_data_max ? out_data_max_temp : out_data_max;
-									}
-									out_data_max_temp = 0;
-									l++;
-								}
-								k++;
-							}
-							*(out_data3D + b*((((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-								+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1)*((((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-									+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1) + m*((((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-										+ _POOL_PADDING_ * 2 - _POOL_KERNEL_SIZE_) / _POOL_STRIDE_ + 1) + n) = out_data_max;
-							out_data_max = 0;
-						}
-					}
-				}
+				//}
 			}
 		}		
 
 		//debugging output
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
+//#if _C_DEBUG_MODE_
+//#if _KERNEL_DEBUG_
 		cout << "finished convolution and pooling...." << endl;
 		ofstream out_pool_a;
 		out_pool_a.open("conv_pool_layer_a.txt", ios::app);
@@ -218,8 +170,8 @@ public:
 		}
 		out_pool_a.close();
 		cout << endl;
-#endif
-#endif
+//#endif
+//#endif
 
 	}
 };
