@@ -45,7 +45,7 @@ public:
         //    }
         //}
 
-		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
+//		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
                 for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_;
                      j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
@@ -62,23 +62,23 @@ public:
                     }
                 }
             }
-		}
-		else {
-			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii < _CONV_KERNEL_SIZE_ / 2; ++ii) {
-						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
-							if (i + ii >= 0 && i + ii< _INPUT_SIZE_ && j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
-								T data = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
-								W weight = *(kernel_weights + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_ + (jj + _CONV_KERNEL_SIZE_ / 2));
-								*(out_data + ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_) + (
-									(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
-							}
-						}
-					}
-				}
-			}
-		}
+//		}
+//		else {
+//			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
+//				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
+//					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii < _CONV_KERNEL_SIZE_ / 2; ++ii) {
+//						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
+//							if (i + ii >= 0 && i + ii< _INPUT_SIZE_ && j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
+//								T data = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
+//								W weight = *(kernel_weights + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_ + (jj + _CONV_KERNEL_SIZE_ / 2));
+//								*(out_data + ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_) + (
+//									(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -194,66 +194,6 @@ public:
 
     }
 
-    /************************************************************************************************/
-    // convolution layer with array input and connection table
-    void conv_layer_a_table(
-            char activation_type,
-            bool has_connection_table,
-            T in_data3D[][_INPUT_SIZE_][_INPUT_SIZE_],  //in_data[6][
-            T kernel_weights[][_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_],
-            T kernel_bias[],
-            T out_data3D[][_INPUT_SIZE_ - _CONV_KERNEL_SIZE_ + 1][_INPUT_SIZE_ - _CONV_KERNEL_SIZE_ + 1]) {
-
-#if _C_DEBUG_MODE_
-        cout << "starting convolution ...." << endl;
-#endif
-
-        for (int b = 0; b < _OUT_CHANNEL_NUM_; b++) {//output kernel loop
-            for (int a = 0; a < _IN_CHANNEL_NUM_; a++) {//input kernel loop
-                if (tbl[a][b]) {
-                    conv_kernel_a(in_data3D[a],
-                                  kernel_weights[b * _IN_CHANNEL_NUM_ + a],
-						          out_data3D[b]);
-                } else { ; }
-            }
-            for (int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++) {
-                for (int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++) {
-                    out_data3D[b][j][k] = f(activation_type, (out_data3D[b][j][k] + kernel_bias[b]));
-                }
-            }
-        }
-
-        //debugging output
-#if _C_DEBUG_MODE_
-        cout << "finished convolution ...." << endl;
-        ofstream out_conv_a;
-        out_conv_a.open("conv_layer_a.txt", ios::app);
-
-        out_conv_a << "input 3D arry to conv layer ..................." << endl;
-        for (int i = 0; i < _IN_CHANNEL_NUM_; i++) {
-            for (int j = 0; j < _INPUT_SIZE_; j++) {
-                for (int k = 0; k < _INPUT_SIZE_; k++) {
-                    out_conv_a << in_data3D[i][j][k] << " ";
-                }
-                out_conv_a << endl;
-            }
-            out_conv_a << endl;
-        }
-        out_conv_a << endl;
-
-        for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
-            for (int j = 0; j < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; j++) {
-                for (int k = 0; k < (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1; k++) {
-                    out_conv_a << out_data3D[i][j][k] << " ";
-                }
-                out_conv_a << endl;
-            }
-            out_conv_a << endl;
-        }
-        out_conv_a.close();
-        cout << endl;
-#endif
-    }
 };
 
 #endif

@@ -15,11 +15,12 @@
 typedef ap_fixed<32,10> data_type;
 typedef ap_fixed<16,2> data_type_w;
 typedef ap_fixed<32,10> data_type_o;
+
 //typedef ap_fixed<32,8> data_type;
 //typedef float data_type;
 
 // C++ compilation debug mode
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 

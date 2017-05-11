@@ -55,9 +55,9 @@ public:
 				for (int k = 0; k < _INPUT_SIZE_; ++k) {
 					float data = 0;
 					for (int ii = -_LOCAL_SIZE_ / 2; ii <= _LOCAL_SIZE_ / 2; ++ii) {
-						if (a + ii >= 0 && a + ii<_IN_CHANNEL_NUM_) {//if in all channels
+						//if (a + ii >= 0 && a + ii<_IN_CHANNEL_NUM_) {//if in all channels
 							data += pow_ff((float)(*(in_data3D+(a+ii)*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k)), 2);
-						}
+						//}
 					}
 					*(out_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k) = (T)((((float)(*(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k))) * (pow_ff(1 + (alpha / _LOCAL_SIZE_) * data, -beta))));
 				}
