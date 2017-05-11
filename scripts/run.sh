@@ -9,5 +9,5 @@ do
 done
 
 
-#g++ -g -Wall -Wextra -pedantic -fpermissive -I ../../fpga_cnn -I /home/yaochen/work/caffe/include/ -O0 ff_test.cpp -o fftest
-clang++ -I ../ -I /home/yaochen/work/caffe/include/ -o0 ff_test.cpp -o fftest
+g++ -g -Wall -Wextra -pedantic -fpermissive -I /nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -I ../../fpga_cnn -I /home/yaochen/work/caffe/include/ -O3 ff_test.cpp -o fftest
+#clang++ -I ../ -I /home/yaochen/work/caffe/include/ -o0 ff_test.cpp -o fftest
