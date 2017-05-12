@@ -5,17 +5,19 @@
 #ifndef _CONSTRUCT_NET_H_
 #define _CONSTRUCT_NET_H_
 
+
 #include <iostream>
 #include <ap_fixed.h>
 #include "config.h"
-//#include "weight_bias.h"
-#include "../../fpga_cnn/conv_pool_layer_one_dim.h"
-#include "../../fpga_cnn/conv_layer_one_dim.h"
-#include "../../fpga_cnn/pool_layer_one_dim.h"
-#include "../../fpga_cnn/fc_layer_one_dim.h"
-//#include "../../fpga_cnn/dropout_layer.h"
-#include "../../fpga_cnn/lrn_layer_one_dim.h"
-#include "../../fpga_cnn/array_reset.h"
+#include "conv_layer_one_dim.h"
+//#include "conv_layer_one_dim.h"
+#include "conv_pool_layer_one_dim.h"
+#include "pool_layer_one_dim.h"
+#include "lrn_layer_one_dim.h"
+#include "fc_layer_one_dim.h"
+#include "array_reset.h"
+
+using namespace std;
 
 void inference_net(
 
@@ -25,22 +27,6 @@ void inference_net(
 	data_type *in_data_3D,
 
 	// layer weights and bias inputs ------- Alexnet
-	//data_type_w        conv_1_weight_a[288*11*11],
-	//data_type_w        conv_1_bias_a[96],
-	//data_type_w        conv_2_weight_a[12288*5*5],
-	//data_type_w        conv_2_bias_a[256],
-	//data_type_w        conv_3_weight_a[98304*3*3],
-	//data_type_w        conv_3_bias_a[384],
-	//data_type_w        conv_4_weight_a[73728*3*3],
-	//data_type_w        conv_4_bias_a[384],
-	//data_type_w        conv_5_weight_a[49152*3*3],
-	//data_type_w        conv_5_bias_a[256],
-	//data_type_w        fc_6_weight_a[1048576*6*6],
-	//data_type_w        fc_6_bias_a[4096],
-	//data_type_w        fc_7_weight_a[16777216*1*1],
-	//data_type_w        fc_7_bias_a[4096],
-	//data_type_w        fc_8_weight_a[4096000*1*1],
-	//data_type_w        fc_8_bias_a[1000],
 	data_type_w *conv_weight_port,
 	data_type_w *conv_bias_port,
 	data_type_w *fc_weight_port,

@@ -4,32 +4,26 @@
 
 #include <iostream>
 #include <cstring>
-//#include <cmath>
-//#include <vector>
 #include <fstream>
 #include <algorithm>
-//#include <iterator>
 #include <cstring>
 #include <sstream>
 #include <cstdlib>
 #include <time.h>
 #include <malloc.h>
 #include <ap_fixed.h>
-#include "config.h"
-#include "construct_net.h"
-#include "../../fpga_cnn/data_type.h"
-#include "../../fpga_cnn/image_converter.h"
-#include "../../fpga_cnn/weight_bias_one_dim.h"
-#include "../../fpga_cnn/conv_layer_one_dim.h"
-//#include "../fpga_cnn/data_quantize.h"
-#include "../../fpga_cnn/read_mnist_one_dim.h"
-#include "../../fpga_cnn/softmax_one_dim.h"
-#include "../../fpga_cnn/predict_one_dim.h"
-#include "../../fpga_cnn/accuracy_one_dim.h"
-#include "../../fpga_cnn/pow_function.h"
-#include "../../fpga_cnn/resize_image.h"
-//#include "get_config_params.h"
-//#include "../fpga_cnn/set_mean.h"
+
+#include "inference_net/config.h"
+#include "inference_net/construct_net.h"
+#include "inference_net/image_converter.h"
+#include "inference_net/weight_bias_one_dim.h"
+#include "inference_net/conv_layer_one_dim.h"
+#include "inference_net/softmax_one_dim.h"
+#include "inference_net/predict_one_dim.h"
+#include "inference_net/accuracy_one_dim.h"
+#include "inference_net/pow_function.h"
+#include "inference_net/resize_image.h"
+
 
 using namespace std;
 
@@ -158,10 +152,10 @@ int main() {
     memset(temp_out_2, 0, out_2_size);
 
 	//net weight src *****************************
-	const char* weight_src = "net_weights.txt";
+	const char* weight_src = "net_inputs/net_weights.txt";
 
 	//load mean file *****************************
-	ifstream ifs1("net_mean.txt");
+	ifstream ifs1("net_inputs/net_mean.txt");
 	float channel_mean[3] = { 0 };
 	string str1;
 	string y1 = "[";
@@ -187,7 +181,7 @@ int main() {
 	ifs1.close();
 
 	//load val (image_name,image_class) set file *****************************
-	ifstream ifs("val.txt");
+	ifstream ifs("net_inputs/val.txt");
 	string val_name[10];
 	float val_class[10];
 	string str;
