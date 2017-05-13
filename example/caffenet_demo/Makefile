@@ -14,4 +14,4 @@ FORCE:
 .PHONY: clean
 
 clean:
-	rm -f *.o *.txt
+	rm -f *.o *.txt ff_test

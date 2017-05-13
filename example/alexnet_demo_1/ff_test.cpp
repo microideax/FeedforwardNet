@@ -4,31 +4,26 @@
 
 #include <iostream>
 #include <cstring>
-//#include <cmath>
-//#include <vector>
 #include <fstream>
 #include <algorithm>
-//#include <iterator>
 #include <cstring>
 #include <sstream>
 #include <cstdlib>
 #include <time.h>
 #include <ap_fixed.h>
+
 #include "config.h"
 #include "construct_net.h"
 #include "../../fpga_cnn/data_type.h"
 #include "../../fpga_cnn/image_converter.h"
 #include "../../fpga_cnn/weight_bias_one_dim.h"
 #include "../../fpga_cnn/conv_layer_one_dim.h"
-//#include "../fpga_cnn/data_quantize.h"
 #include "../../fpga_cnn/read_mnist_one_dim.h"
 #include "../../fpga_cnn/softmax_one_dim.h"
 #include "../../fpga_cnn/predict_one_dim.h"
 #include "../../fpga_cnn/accuracy_one_dim.h"
 #include "../../fpga_cnn/pow_function.h"
 #include "../../fpga_cnn/resize_image.h"
-//#include "get_config_params.h"
-//#include "../fpga_cnn/set_mean.h"
 
 using namespace std;
 
@@ -745,23 +740,23 @@ data_type_o output_2[96*55*55] = { 0 };
 	for (int i = 0; i < 4; i++) {//test imagenet dataset
 #endif
 
-		//Inference network process
-		inference_net(
-			relu, //activation function
+	//Inference network process
+	inference_net(
+	relu, //activation function
 
 #if _KERNEL_DEBUG_
-			in_data_3D_int, //input pic data
+	in_data_3D_int, //input pic data
 #endif
 
 #if _BATCH_MODE_
-						//mnist_test_data[i], //input test mnist dataset
-			imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
+	//input test imagenet dataset
+	imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
-            //layer weights and bias inputs
-			conv_weight_port,
-            conv_bias_port,
-            fc_weight_port,
-            fc_bias_port,
+        //layer weights and bias inputs
+	conv_weight_port,
+        conv_bias_port,
+        fc_weight_port,
+        fc_bias_port,
 
 #if _KERNEL_DEBUG_
 	//output fc data

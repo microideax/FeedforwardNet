@@ -119,6 +119,7 @@ int main() {
         printf("fc_out_mem_int memory location = 0x%x \n", fc_out_mem_int);
     }
 #endif
+/*
     data_type_o *temp_out_1       = (data_type_o*)malloc(out_1_size);
     if (temp_out_1 == NULL){
         printf("False memory allocation of temp_out_1\n");
@@ -133,8 +134,8 @@ int main() {
     else {
         printf("temp_out_2 memory location = 0x%x \n", temp_out_2);
     }
-
-    cout<< "Initialize output space and temp storage space ... ... ... ..." << endl;
+*/
+//    cout<< "Initialize output space and temp storage space ... ... ... ..." << endl;
     //set output memory space to 0
 #if _KERNEL_DEBUG_
     cout << "FC8 mem init\n";
@@ -146,16 +147,24 @@ int main() {
 #endif
 
     //initial temp storage space to 0
+/*
     cout << "out_1 mem init\n";
     memset(temp_out_1, 0, out_1_size);
     cout << "out_2 mem init\n";
     memset(temp_out_2, 0, out_2_size);
-
+*/
 	//net weight src *****************************
+#if _HLS_MODE_
+	const char* weight_src = "net_weights.txt";
+#else
 	const char* weight_src = "net_inputs/net_weights.txt";
-
+#endif
 	//load mean file *****************************
+#if _HLS_MODE_
+	ifstream ifs1("net_mean.txt");
+#else
 	ifstream ifs1("net_inputs/net_mean.txt");
+#endif
 	float channel_mean[3] = { 0 };
 	string str1;
 	string y1 = "[";
@@ -181,7 +190,11 @@ int main() {
 	ifs1.close();
 
 	//load val (image_name,image_class) set file *****************************
+#if _HLS_MODE_
+	ifstream ifs("val.txt");
+#else
 	ifstream ifs("net_inputs/val.txt");
+#endif
 	string val_name[10];
 	float val_class[10];
 	string str;
@@ -208,7 +221,7 @@ int main() {
 #if _HLS_MODE_
 	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 #else
-	string image_dir = "./ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+	string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
 #endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
@@ -674,45 +687,27 @@ int main() {
 	for (int i = 0; i < 4; i++) {//test imagenet dataset
 #endif
 
-		//Inference network process
-		inference_net(
-			relu, //activation function
+	//Inference network process
+	inference_net(
+	relu, //activation function
 
 #if _KERNEL_DEBUG_
-			in_data_mem_port, //input pic data
+	in_data_mem_port, //input pic data
 #endif
 
 #if _BATCH_MODE_
-						//mnist_test_data[i], //input test mnist dataset
-			imagenet_test_data_mem_port + i * 3 * 227 * 227,//input test imagenet dataset
+        //input test imagenet dataset
+	imagenet_test_data_mem_port + i * 3 * 227 * 227,
 #endif
-								  //layer weights and bias inputs
-			//conv_1_weight2D_int,
-			//conv_1_bias2D_int,
-			//conv_2_weight2D_int,
-			//conv_2_bias2D_int,
-			//conv_3_weight2D_int,
-			//conv_3_bias2D_int,
-			//conv_4_weight2D_int,
-			//conv_4_bias2D_int,
-			//conv_5_weight2D_int,
-			//conv_5_bias2D_int,
-			//fc_6_weight2D_int,
-			//fc_6_bias2D_int,
-			//fc_7_weight2D_int,
-			//fc_7_bias2D_int,
-			//fc_8_weight2D_int,
-			//fc_8_bias2D_int,
-			conv_weight_mem_port,
-            conv_bias_mem_port,
-            fc_weight_mem_port,
-            fc_bias_mem_port,
+	//layer weights and bias inputs
+        conv_weight_mem_port,
+        conv_bias_mem_port,
+        fc_weight_mem_port,
+        fc_bias_mem_port,
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int,
-	temp_out_1,
-	temp_out_2);
+	fc_8_out_mem_int);
 
     for(int i=0;i<1000;i++){
 		fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
@@ -720,12 +715,12 @@ int main() {
 	softmax(fc_8_out,1000);
 
 	predict(fc_8_out,1000);
+
+cout<< "finished reading output data !!!!\n";
 #endif
 
 #if _BATCH_MODE_
-	fc_out_mem_int,
-	temp_out_1,
-	temp_out_2);
+	fc_out_mem_int);
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
@@ -752,6 +747,7 @@ int main() {
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
 
+/*
 #if _HLS_MODE_
 	cout << "finished inference processing ............" << endl;
 	ofstream predict_output;
@@ -762,7 +758,7 @@ int main() {
 	predict_output.close();
 	cout << endl;
 #endif
-
+*/
 	return 0;
 
 }
