@@ -1,5 +1,5 @@
 //This is the main function of a LeNet-5 model based application.
-//Application description: LeNet-5 image recognition with std image.
+//Application description: AlexNet image classification with std image.
 //Using stb_image instead of OpenCV to eliminate library dependency.
 
 #include <iostream>
@@ -137,7 +137,7 @@ int main() {
 
 	cout << "testing point 2" << endl;
 
-    int in_data_size=0;
+        int in_data_size=0;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < crop_h; j++) {
 			for (int k = 0; k < crop_w; k++) {
@@ -148,7 +148,7 @@ int main() {
 	}
 
 	data_type output_min = (data_type)0;
-    data_type output_max = (data_type)0;
+        data_type output_max = (data_type)0;
 
 	ofstream indata;
 	indata.open("in_data_crop_mean.txt", ios::app);
@@ -275,28 +275,13 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-	data_type_w weight_min = (data_type)0;
-    data_type_w weight_max = (data_type)0;
 
 	for(int i = 0; i < 288*11*11; i++){
                 conv_1_weight2D_int[i] = (data_type_w)(conv_1_weight2D[i]);
-                if(conv_1_weight2D_int[i] < weight_min){
-					weight_min =conv_1_weight2D_int[i] ;
-				}
-				if(conv_1_weight2D_int[i] > weight_max){
-					weight_max =conv_1_weight2D_int[i] ;
-				}
-    }
-    ofstream weight_range;
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from conv_1 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+       }
 
     for(int i = 0; i < 96; i++){
         conv_1_bias2D_int[i] = (data_type_w)(conv_1_bias2D[i]);
-        cout << conv_1_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
@@ -324,27 +309,13 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
 
 	for(int i = 0; i < 12288*5*5; i++){
                 conv_2_weight2D_int[i] = (data_type_w)(conv_2_weight2D[i]);
-                if(conv_2_weight2D_int[i] < weight_min){
-					weight_min =conv_2_weight2D_int[i] ;
-				}
-				if(conv_2_weight2D_int[i] > weight_max){
-					weight_max =conv_2_weight2D_int[i] ;
-				}            
     }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from conv_2 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
 
     for(int i = 0; i < 256; i++){
         conv_2_bias2D_int[i] = (data_type_w)(conv_2_bias2D[i]);
-        cout << conv_2_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
@@ -372,27 +343,12 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 98304*3*3; i++){
                 conv_3_weight2D_int[i] = (data_type_w)(conv_3_weight2D[i]);
-                if(conv_3_weight2D_int[i] < weight_min){
-					weight_min =conv_3_weight2D_int[i] ;
-				}
-				if(conv_3_weight2D_int[i] > weight_max){
-					weight_max =conv_3_weight2D_int[i] ;
-				} 
     }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from conv_3 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
 
     for(int i = 0; i < 384; i++){
         conv_3_bias2D_int[i] = (data_type_w)(conv_3_bias2D[i]);
-        cout << conv_3_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
@@ -420,28 +376,13 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 73728*3*3; i++){
                 conv_4_weight2D_int[i] = (data_type_w)(conv_4_weight2D[i]);
-                if(conv_4_weight2D_int[i] < weight_min){
-					weight_min =conv_4_weight2D_int[i] ;
-				}
-				if(conv_4_weight2D_int[i] > weight_max){
-					weight_max =conv_4_weight2D_int[i] ;
-				} 
-    }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from conv_4 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+        }
 
     for(int i = 0; i < 384; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
         conv_4_bias2D_int[i] = (data_type_w)(conv_4_bias2D[i]);
-        cout << conv_4_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
@@ -469,28 +410,13 @@ int main() {
 		in_number_conv);
 	in_number_conv++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 49152*3*3; i++){
                 conv_5_weight2D_int[i] = (data_type_w)(conv_5_weight2D[i]);
-                if(conv_5_weight2D_int[i] < weight_min){
-					weight_min =conv_5_weight2D_int[i] ;
-				}
-				if(conv_5_weight2D_int[i] > weight_max){
-					weight_max =conv_5_weight2D_int[i] ;
-				} 
-    }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from conv_5 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+        }
 
     for(int i = 0; i < 256; i++){
 //        conv_1_bias2D[i] = round(conv_1_bias2D[i] * 100)/100;
         conv_5_bias2D_int[i] = (data_type_w)(conv_5_bias2D[i]);
-        cout << conv_5_bias2D_int[i] << "  " ;
     }
     cout << endl;
 
@@ -517,23 +443,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 1048576*6*6; i++){
                 fc_6_weight2D_int[i] = (data_type_w)(fc_6_weight2D[i]);
-                if(fc_6_weight2D_int[i] < weight_min){
-					weight_min =fc_6_weight2D_int[i] ;
-				}
-				if(fc_6_weight2D_int[i] > weight_max){
-					weight_max =fc_6_weight2D_int[i] ;
-				} 
-    }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from fc_6 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+        }
 
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
@@ -563,23 +475,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 16777216*1*1; i++){
                 fc_7_weight2D_int[i] = (data_type_w)(fc_7_weight2D[i]);
-                if(fc_7_weight2D_int[i] < weight_min){
-					weight_min =fc_7_weight2D_int[i] ;
-				}
-				if(fc_7_weight2D_int[i] > weight_max){
-					weight_max =fc_7_weight2D_int[i] ;
-				} 
-    }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from fc_7 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+        }
 
     for(int i = 0; i < 4096; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
@@ -609,23 +507,9 @@ int main() {
 		in_number_fc);
 	in_number_fc++;
 
-	weight_min = (data_type)0;
-    weight_max = (data_type)0;
-
 	for(int i = 0; i < 4096000*1*1; i++){
                 fc_8_weight2D_int[i] = (data_type_w)(fc_8_weight2D[i]);
-                if(fc_8_weight2D_int[i] < weight_min){
-					weight_min =fc_8_weight2D_int[i] ;
-				}
-				if(fc_8_weight2D_int[i] > weight_max){
-					weight_max =fc_8_weight2D_int[i] ;
-				} 
-    }
-    weight_range.open("weight_range_a.txt", ios::app);
-    weight_range << "weight range from fc_8 layer .........................." << endl;
-    weight_range << weight_min << "~~~" << weight_max << endl;
-    weight_range << endl;
-    weight_range.close();
+        }
 
     for(int i = 0; i < 1000; i++){
 //        fc_1_bias2D[i] = round(fc_1_bias2D[i] * 100)/100;
@@ -686,6 +570,7 @@ int main() {
     	fc_weight_port[fc_weight_num]=fc_6_weight2D_int[i];
     	fc_weight_num++;
     }
+
     for(int i = 0; i < 16777216*1*1; i++){
     	fc_weight_port[fc_weight_num]=fc_7_weight2D_int[i];
     	fc_weight_num++;
@@ -761,9 +646,9 @@ data_type_o output_2[96*55*55] = { 0 };
 #if _KERNEL_DEBUG_
 	//output fc data
 	fc_8_out_int,
-output_1,
-output_2
-);
+        output_1,
+        output_2);
+
     for (int i = 0; i < 10; i++)
       cout << "At " << i << ", output1_tmp=" << output_1[i] << '\n';
     for (int i = 0; i < 10; i++)
@@ -778,9 +663,10 @@ output_2
 #endif
 
 #if _BATCH_MODE_
-			fc_1_out_temp_int,
-output_1,
-output_2);
+        fc_1_out_temp_int,
+        output_1,
+        output_2);
+
 		//test mnist dataset
 		/*for (int j = 0; j < 10; j++) {
 		fc_1_out_a[i][j] = fc_1_out_temp[j];
