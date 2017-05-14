@@ -42,7 +42,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 int main() {
 	
     cout<< "Calculating memory space ... ... ... ..." << endl;
-	// data size calculation
+    // data size calculation
     unsigned int in_data_mem_size = (3*227*227) * sizeof(data_type);
     unsigned int imagenet_test_data_mem_size = (4*3*227*227) * sizeof(data_type);
     unsigned int conv_weight_size = (288*11*11 + 12288*5*5 + 98304*3*3 + 73728*3*3 + 49152*3*3) * sizeof(data_type_w);
@@ -51,8 +51,6 @@ int main() {
     unsigned int fc_bias_size     = (4096 + 4096 + 1000) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (1000)*sizeof(data_type_o);
     unsigned int fc_out_size = (4*1000*1*1) * sizeof(data_type_o);
-    unsigned int out_1_size       = (96*55*55) * sizeof(data_type_o);
-    unsigned int out_2_size       = (96*55*55) * sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -119,24 +117,7 @@ int main() {
         printf("fc_out_mem_int memory location = 0x%x \n", fc_out_mem_int);
     }
 #endif
-/*
-    data_type_o *temp_out_1       = (data_type_o*)malloc(out_1_size);
-    if (temp_out_1 == NULL){
-        printf("False memory allocation of temp_out_1\n");
-    }
-    else {
-        printf("temp_out_1 memory location = 0x%x \n", temp_out_1);
-    }
-    data_type_o *temp_out_2       = (data_type_o*)malloc(out_2_size);
-    if (temp_out_2 == NULL){
-        printf("False memory allocation of temp_out_2\n");
-    }
-    else {
-        printf("temp_out_2 memory location = 0x%x \n", temp_out_2);
-    }
-*/
-//    cout<< "Initialize output space and temp storage space ... ... ... ..." << endl;
-    //set output memory space to 0
+
 #if _KERNEL_DEBUG_
     cout << "FC8 mem init\n";
     memset(fc_8_out_mem_int, 0, fc_8_out_size);
@@ -146,13 +127,6 @@ int main() {
     memset(fc_out_mem_int, 0, fc_out_size);
 #endif
 
-    //initial temp storage space to 0
-/*
-    cout << "out_1 mem init\n";
-    memset(temp_out_1, 0, out_1_size);
-    cout << "out_2 mem init\n";
-    memset(temp_out_2, 0, out_2_size);
-*/
 	//net weight src *****************************
 #if _HLS_MODE_
 	const char* weight_src = "net_weights.txt";
@@ -261,9 +235,9 @@ int main() {
 	}
 
 	cout << "Writing data to input data memory space ... ... ..." << endl;
-    cout << endl;
-    cout << endl;
-    int in_data_size=0;
+        cout << endl;
+        cout << endl;
+        int in_data_size=0;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < crop_h; j++) {
 			for (int k = 0; k < crop_w; k++) {
@@ -272,36 +246,8 @@ int main() {
 			}
 		}
 	}
-    cout << "Finished writing data to input data memory space ... ..." << endl;
+        cout << "Finished writing data to input data memory space ... ..." << endl;
 
-	data_type output_min = (data_type)0;
-    data_type output_max = (data_type)0;
-
-	ofstream indata;
-	indata.open("in_data_crop_mean.txt", ios::app);
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < crop_h; j++) {
-			for (int k = 0; k < crop_w; k++) {
-				indata << in_data_mem_port[i*crop_h*crop_w+j*crop_w+k] << " ";
-				if(in_data_mem_port[i*crop_h*crop_w+j*crop_w+k] < output_min){
-					output_min = in_data_mem_port[i*crop_h*crop_w+j*crop_w+k];
-				}
-				if(in_data_mem_port[i*crop_h*crop_w+j*crop_w+k] > output_max){
-					output_max = in_data_mem_port[i*crop_h*crop_w+j*crop_w+k];
-				}
-			}
-			indata << endl;
-		}
-		indata << endl;
-	}
-	indata << endl;
-	indata.close();
-	ofstream output_range;
-	output_range.open("input_layer_output_range_a.txt", ios::app);
-    output_range << "output range from input layer .........................." << endl;
-    output_range << output_min << "~~~" << output_max << endl;
-    output_range << endl;
-    output_range.close();
 #endif
 
 #if _BATCH_MODE_
@@ -313,7 +259,7 @@ int main() {
 	for (int image_num = 0; image_num < 4; image_num++) {
 		string image_dir = root_dir + val_name[image_num];
 		int crop_w = 227;
-	    int crop_h = 227;
+                int crop_h = 227;
 		int w;
 		int h;
 		int channels;
@@ -455,13 +401,13 @@ int main() {
 	float *conv_3_weight2D = (float*)malloc(98304*3*3 * sizeof(float));
     memset(conv_3_weight2D, 0, 98304 * 3 * 3 * sizeof(float));
     load_weight_conv(
-            weight_src,
-            conv_3_weight2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_3_weight2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     cout << "Loading conv weight 3 to memory space, starting at: " << conv_weight_num << '\n';
     for(int i = 0; i < 98304*3*3; i++){
         conv_weight_mem_port[conv_weight_num] = (data_type_w)conv_3_weight2D[i];
@@ -471,13 +417,13 @@ int main() {
     float *conv_3_bias2D = (float*)malloc(384 * sizeof(float));
     memset(conv_3_bias2D, 0, 384 * sizeof(float));
     load_bias_conv(
-            weight_src,
-            conv_3_bias2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_3_bias2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     in_number_conv++;
     cout << "Loading conv bias 3 to memory space, starting at: " << conv_bias_num << '\n';
     for(int i = 0; i < 384; i++){
@@ -490,13 +436,13 @@ int main() {
 	float *conv_4_weight2D = (float*)malloc(73728*3*3 * sizeof(float));
     memset(conv_4_weight2D, 0, 73728 * 3 * 3 * sizeof(float));
     load_weight_conv(
-            weight_src,
-            conv_4_weight2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_4_weight2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     cout << "Loading conv weight 4 to memory space, starting at: " << conv_weight_num << '\n';
     for(int i = 0; i < 73728*3*3; i++){
         conv_weight_mem_port[conv_weight_num] = (data_type_w)conv_4_weight2D[i];
@@ -506,13 +452,13 @@ int main() {
     float *conv_4_bias2D = (float*)malloc(384 * sizeof(float));
     memset(conv_4_bias2D, 0, 384 * sizeof(float));
     load_bias_conv(
-            weight_src,
-            conv_4_bias2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_4_bias2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     in_number_conv++;
     cout << "Loading conv bias 4 to memory space, starting at: " << conv_bias_num << '\n';
     for(int i = 0; i < 384; i++){
@@ -525,13 +471,13 @@ int main() {
 	float *conv_5_weight2D = (float*)malloc(49152*3*3 * sizeof(float));
     memset(conv_5_weight2D, 0, 49152 * 3 * 3 * sizeof(float));
     load_weight_conv(
-            weight_src,
-            conv_5_weight2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_5_weight2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     cout << "Loading conv weight 5 to memory space, starting at: " << conv_weight_num << '\n';
     for(int i = 0; i < 49152*3*3; i++){
         conv_weight_mem_port[conv_weight_num] = (data_type_w)conv_5_weight2D[i];
@@ -541,13 +487,13 @@ int main() {
     float *conv_5_bias2D = (float*)malloc(256 * sizeof(float));
     memset(conv_5_bias2D, 0, 256 * sizeof(float));
     load_bias_conv(
-            weight_src,
-            conv_5_bias2D,
-            weight_bias_record,
-            nn_channel_size_conv,
-            nn_in_number_conv,
-            nn_out_number_conv,
-            in_number_conv);
+        weight_src,
+        conv_5_bias2D,
+        weight_bias_record,
+        nn_channel_size_conv,
+        nn_in_number_conv,
+        nn_out_number_conv,
+        in_number_conv);
     in_number_conv++;
     cout << "Loading conv bias 5 to memory space, starting at: " << conv_bias_num << '\n';
     for(int i = 0; i < 256; i++) {
@@ -563,13 +509,13 @@ int main() {
 	float *fc_6_weight2D = (float*)malloc(1048576*6*6 * sizeof(float));
     memset(fc_6_weight2D, 0, 1048576 * 6 * 6 * sizeof(float));
     load_weight_fc(
-            weight_src,
-            fc_6_weight2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_6_weight2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     int fc_weight_num=0;
     cout << "Loading fc weight 6 to memory space, starting at: " << fc_weight_num << '\n';
     for(int i = 0; i < 1048576*6*6; i++){
@@ -580,13 +526,13 @@ int main() {
     float *fc_6_bias2D = (float*)malloc(4096 * sizeof(float));
     memset(fc_6_bias2D, 0, 4096 * sizeof(float));
     load_bias_fc(
-            weight_src,
-            fc_6_bias2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_6_bias2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     in_number_fc++;
     int fc_bias_num=0;
     cout << "Loading fc bias 6 to memory space, starting at: " << fc_bias_num << '\n';
@@ -600,13 +546,13 @@ int main() {
 	float *fc_7_weight2D = (float*)malloc(16777216*1*1 * sizeof(float));
     memset(fc_7_weight2D, 0, 16777216 * 1 * 1 * sizeof(float));
     load_weight_fc(
-            weight_src,
-            fc_7_weight2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_7_weight2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     cout << "Loading fc weight 7 to memory space, starting at: " << fc_weight_num << '\n';
     for(int i = 0; i < 16777216*1*1; i++){
         fc_weight_mem_port[fc_weight_num]=(data_type_w)fc_7_weight2D[i];
@@ -616,13 +562,13 @@ int main() {
     float *fc_7_bias2D = (float*)malloc(4096 * sizeof(float));
     memset(fc_7_bias2D, 0, 4096 * sizeof(float));
     load_bias_fc(
-            weight_src,
-            fc_7_bias2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_7_bias2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     in_number_fc++;
     cout << "Loading fc bias 7 to memory space, starting at: " << fc_bias_num << '\n';
     for(int i = 0; i < 4096; i++){
@@ -635,13 +581,13 @@ int main() {
 	float *fc_8_weight2D = (float*)malloc(4096000*1*1 * sizeof(float));
     memset(fc_8_weight2D, 0, 4096000 * 1 * 1 * sizeof(float));
     load_weight_fc(
-            weight_src,
-            fc_8_weight2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_8_weight2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     cout << "Loading fc weight 8 to memory space, starting at: " << fc_weight_num << '\n';
     for(int i = 0; i < 4096000*1*1; i++){
         fc_weight_mem_port[fc_weight_num]=(data_type_w)fc_8_weight2D[i];
@@ -651,13 +597,13 @@ int main() {
     float *fc_8_bias2D = (float*)malloc(1000 * sizeof(float));
     memset(fc_8_bias2D, 0, 1000 * sizeof(float));
     load_bias_fc(
-            weight_src,
-            fc_8_bias2D,
-            weight_bias_record,
-            nn_channel_size_fc,
-            nn_in_number_fc,
-            nn_out_number_fc,
-            in_number_fc);
+        weight_src,
+        fc_8_bias2D,
+        weight_bias_record,
+        nn_channel_size_fc,
+        nn_in_number_fc,
+        nn_out_number_fc,
+        in_number_fc);
     in_number_fc++;
     cout << "Loading fc bias 8 to memory space, starting at: " << fc_bias_num << '\n';
     for(int i = 0; i < 1000; i++){
@@ -683,16 +629,17 @@ int main() {
 	double totaltime;
 	start = clock();
 
-	//for (int i = 0; i < 10000; i++) {//test mnist dataset
 	for (int i = 0; i < 4; i++) {//test imagenet dataset
 #endif
 
 	//Inference network process
 	inference_net(
-	relu, //activation function
+	//activation function
+	relu, 
 
 #if _KERNEL_DEBUG_
-	in_data_mem_port, //input pic data
+    //input pic data
+	in_data_mem_port, 
 #endif
 
 #if _BATCH_MODE_
@@ -700,45 +647,32 @@ int main() {
 	imagenet_test_data_mem_port + i * 3 * 227 * 227,
 #endif
 	//layer weights and bias inputs
-        conv_weight_mem_port,
-        conv_bias_mem_port,
-        fc_weight_mem_port,
-        fc_bias_mem_port,
+    conv_weight_mem_port,
+    conv_bias_mem_port,
+    fc_weight_mem_port,
+    fc_bias_mem_port,
 
 #if _KERNEL_DEBUG_
 	//output fc data
 	fc_8_out_mem_int);
 
     for(int i=0;i<1000;i++){
-		fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
+        fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
 	}
 	softmax(fc_8_out,1000);
-
 	predict(fc_8_out,1000);
-
-cout<< "finished reading output data !!!!\n";
 #endif
 
 #if _BATCH_MODE_
 	fc_out_mem_int);
-		//test mnist dataset
-		/*for (int j = 0; j < 10; j++) {
-		fc_1_out_a[i][j] = fc_1_out_temp[j];
-		fc_1_out_temp[j] = 0;
-		}*/
-
-		//test imagenet dataset
-		for (int j = 0; j < 1000; j++) {
-					fc_out_a[i * 1000 + j] = (float)(fc_out_mem_int[j]);
-					fc_out_mem_int[j] = (data_type_o)(0);
+	//test imagenet dataset
+	for (int j = 0; j < 1000; j++) {
+		fc_out_a[i * 1000 + j] = (float)(fc_out_mem_int[j]);
+		fc_out_mem_int[j] = (data_type_o)(0);
 		}
 	}
-
 	softmax(fc_out_a,4,1000);
-
 	predict(fc_out_a,4,1000);
-
-	//accuracy(fc_1_out_a, mnist_test_label);//for mnist dataset
 	accuracy(fc_out_a,1000, val_class,4);//for imagenet dataset
 
 #endif
@@ -747,19 +681,6 @@ cout<< "finished reading output data !!!!\n";
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "predicted time is: " << totaltime << " s" << endl;
 
-/*
-#if _HLS_MODE_
-	cout << "finished inference processing ............" << endl;
-	ofstream predict_output;
-	predict_output.open("predict_output.txt", ios::app);
-	for (int i = 0; i < 10; i++) {
-		predict_output << fc_8_out[i] << " " << endl;
-	}
-	predict_output.close();
-	cout << endl;
-#endif
-*/
 	return 0;
 
 }
-
