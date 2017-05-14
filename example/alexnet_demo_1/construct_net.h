@@ -159,18 +159,20 @@ void inference_net(
         output_1[addr] = data_type_o(0);
     }
 	F6.fc_layer_a(activation_type, output_2, fc_weight_port, fc_bias_port, output_1);
-
+/*
 //    array_reset(output_2, 96*55*55);
     for(int addr = 0; addr < 96*55*55; addr++){
         output_2[addr] = data_type_o(0);
     }
+
 	//D6.dropout_layer_a(dropout_ratio, fc_6_out, drop_6_out);
 	F7.fc_layer_a(activation_type, output_1, fc_weight_port+1048576*6*6, fc_bias_port+4096, output_2);
+
 //    array_reset(output_1, 96*55*55);
     for(int addr = 0; addr < 96*55*55; addr++){
         output_1[addr] = data_type_o(0);
     }
-/*
+
 	//D7.dropout_layer_a(dropout_ratio, fc_7_out, drop_7_out);
 	F8.fc_layer_a_no_activation(output_2, fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
 
