@@ -157,7 +157,7 @@ void inference_net(
         output_1[addr] = data_type_o(0);
     }
     F6.fc_layer_a(activation_type, output_2, fc_weight_port, fc_bias_port, output_1);
-/*
+
 //    array_reset(output_2, 96*55*55);
     for(int addr = 0; addr < 96*55*55; addr++){
         output_2[addr] = data_type_o(0);
