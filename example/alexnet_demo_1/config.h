@@ -20,7 +20,7 @@ typedef ap_fixed<32,10> data_type_o;
 //typedef float data_type;
 
 // C++ compilation debug mode
-//#define _HLS_MODE_  1
+#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 

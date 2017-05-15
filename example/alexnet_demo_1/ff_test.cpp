@@ -627,25 +627,25 @@ data_type_o output_2[96*55*55] = { 0 };
 
 	//Inference network process
 	inference_net(
-	relu, //activation function
+	    relu, //activation function
 
 #if _KERNEL_DEBUG_
-	in_data_3D_int, //input pic data
+	    in_data_3D_int, //input pic data
 #endif
 
 #if _BATCH_MODE_
-	//input test imagenet dataset
-	imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
+	    //input test imagenet dataset
+	    imagenet_test_data_int + i * 3 * 227 * 227,//input test imagenet dataset
 #endif
         //layer weights and bias inputs
-	conv_weight_port,
+	    conv_weight_port,
         conv_bias_port,
         fc_weight_port,
         fc_bias_port,
 
 #if _KERNEL_DEBUG_
-	//output fc data
-	fc_8_out_int,
+	    //output fc data
+	    fc_8_out_int,
         output_1,
         output_2);
 
@@ -667,16 +667,10 @@ data_type_o output_2[96*55*55] = { 0 };
         output_1,
         output_2);
 
-		//test mnist dataset
-		/*for (int j = 0; j < 10; j++) {
-		fc_1_out_a[i][j] = fc_1_out_temp[j];
-		fc_1_out_temp[j] = 0;
-		}*/
-
 		//test imagenet dataset
 		for (int j = 0; j < 1000; j++) {
-					fc_1_out_a[i * 1000 + j] = (float)(fc_1_out_temp_int[j]);
-					fc_1_out_temp_int[j] = (data_type_o)(0);
+			fc_1_out_a[i * 1000 + j] = (float)(fc_1_out_temp_int[j]);
+			fc_1_out_temp_int[j] = (data_type_o)(0);
 		}
 	}
 

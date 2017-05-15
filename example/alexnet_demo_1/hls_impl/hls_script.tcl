@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_alexnet_up_to_fc2
+open_project hls_proj_alexnet_entire
 
 set_top inference_net
 
