@@ -131,7 +131,9 @@ int main() {
 #if _HLS_MODE_
 	const char* weight_src = "net_weights.txt";
 #else
+	cout << "net_inputs/net_weights.txt" << endl;
 	const char* weight_src = "net_inputs/net_weights.txt";
+	cout << "finished weight src !!!" << endl;
 #endif
 	//load mean file *****************************
 #if _HLS_MODE_
@@ -259,7 +261,7 @@ int main() {
 	for (int image_num = 0; image_num < 10; image_num++) {
 		string image_dir = root_dir + val_name[image_num];
 		int crop_w = 32;
-        int crop_h = 32;
+                int crop_h = 32;
 		int w;
 		int h;
 		int channels;

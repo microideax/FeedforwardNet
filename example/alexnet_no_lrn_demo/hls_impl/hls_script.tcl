@@ -2,38 +2,39 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj
+open_project hls_proj_alexnet_up_to_fc2
 
 set_top inference_net
 
-add_files ../inference_net/activation_functions.h
-add_files ../inference_net/config.h
-add_files ../inference_net/construct_net.h
-add_files ../inference_net/conv_pool_layer_one_dim.h
-add_files ../inference_net/conv_layer_one_dim.h
-add_files ../inference_net/pool_layer_one_dim.h
-add_files ../inference_net/fc_layer_one_dim.h
-add_files ../inference_net/data_type.h
-add_files ../inference_net/pow_function.h
+add_files ../../../fpga_cnn/activation_functions.h
+add_files ../config.h
+add_files ../construct_net.h
+add_files ../../../fpga_cnn/conv_layer_one_dim.h
+add_files ../../../fpga_cnn/pool_layer_one_dim.h
+add_files ../../../fpga_cnn/fc_layer_one_dim.h
+add_files ../../../fpga_cnn/lrn_layer_one_dim.h
+add_files ../../../fpga_cnn/data_type.h
+#add_files ../../../fpga_cnn/dropout_layer.h
+add_files ../../../fpga_cnn/pow_function.h
 
-add_files -tb ../inference_net/accuracy_one_dim.h
-add_files -tb ../inference_net/predict_one_dim.h
-add_files -tb ../inference_net/softmax_one_dim.h
-add_files -tb ../inference_net/weight_bias_one_dim.h
-add_files -tb ../inference_net/stb_image/stb_image.h
-add_files -tb ../inference_net/stb_image/stb_image_resize.h
-add_files -tb ../inference_net/stb_image/stb_image_write.h
+add_files -tb ../../../fpga_cnn/accuracy_one_dim.h
+add_files -tb ../../../fpga_cnn/predict_one_dim.h
+add_files -tb ../../../fpga_cnn/softmax_one_dim.h
+add_files -tb ../../../fpga_cnn/weight_bias_one_dim.h
+add_files -tb ../../../stb_image/stb_image.h
+add_files -tb ../../../stb_image/stb_image_resize.h
+add_files -tb ../../../stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
-add_files -tb ../net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG
-add_files -tb ../net_inputs/net_weights.txt
-add_files -tb ../net_inputs/val.txt
-add_files -tb ../net_inputs/net_mean.txt
+add_files -tb ../ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG
+add_files -tb ../net_weights.txt
+add_files -tb ../val.txt
+add_files -tb ../net_mean.txt
 
 add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2015.4/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
-open_solution -reset "caffenet"
+open_solution -reset "alexnet"
 #vc709
 #set_part {xc7vx690tffg1761-2}
 #zynq-7000 board

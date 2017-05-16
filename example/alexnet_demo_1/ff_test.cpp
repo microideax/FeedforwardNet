@@ -457,6 +457,7 @@ int main() {
 	data_type_w   fc_7_weight2D_int[16777216*1*1] = {0};
 	float fc_7_bias2D[4096] = { 0 };
 	data_type_w   fc_7_bias2D_int[4096] = {0};
+
 	load_weight_fc(
 		weight_src,
 		fc_7_weight2D,
@@ -506,7 +507,6 @@ int main() {
 		nn_out_number_fc,
 		in_number_fc);
 	in_number_fc++;
-
 	for(int i = 0; i < 4096000*1*1; i++){
                 fc_8_weight2D_int[i] = (data_type_w)(fc_8_weight2D[i]);
         }
@@ -649,9 +649,9 @@ data_type_o output_2[96*55*55] = { 0 };
         output_1,
         output_2);
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 50; i++)
       cout << "At " << i << ", output1_tmp=" << output_1[i] << '\n';
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 50; i++)
       cout << "At " << i << ", output2_tmp=" << output_2[i] << '\n';
 
     for(int i=0;i<1000;i++){
