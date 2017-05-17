@@ -51,6 +51,8 @@ int main() {
     unsigned int fc_bias_size     = (4096 + 4096 + 10) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (10)*sizeof(data_type_o);
     unsigned int fc_out_size = (10*10*1*1) * sizeof(data_type_o);
+    unsigned int out_1_size  = (96*16*16) * sizeof(data_type_o);
+    unsigned int out_2_size  = (96*16*16) * sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -99,6 +101,20 @@ int main() {
     else {
         printf("fc_bias_mem_port memory location = 0x%x \n", fc_bias_mem_port);
     }
+    data_type_o *temp_out_1  = (data_type_o*)malloc(out_1_size);
+    if (temp_out_1 == NULL){
+        printf("False memory allocation of temp_out_1\n");
+    }
+    else {
+        printf("temp_out_1 memory location = 0x%x \n", temp_out_1);
+    }
+    data_type_o *temp_out_2  = (data_type_o*)malloc(out_2_size);
+    if (temp_out_2 == NULL){
+        printf("False memory allocation of temp_out_2\n");
+    }
+    else {
+        printf("temp_out_2 memory location = 0x%x \n", temp_out_2);
+    }
 #if _KERNEL_DEBUG_
     data_type_o *fc_8_out_mem_int     = (data_type_o*)malloc(fc_8_out_size);
     if (fc_8_out_mem_int == NULL){
@@ -121,6 +137,8 @@ int main() {
 #if _KERNEL_DEBUG_
     cout << "FC8 mem init\n";
     memset(fc_8_out_mem_int, 0, fc_8_out_size);
+    memset(temp_out_1, 0, out_1_size);
+    memset(temp_out_2, 0, out_2_size);
 #endif
 #if _BATCH_MODE_
     cout << "FC out mem init\n";
@@ -656,7 +674,13 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int);
+	fc_8_out_mem_int,
+    temp_out_1,
+    temp_out_2);
+    for (int i = 0; i < 10; i++)
+        cout << "At " << i <<", output1_tmp=" << temp_out_1[i] << '\n';
+    for (int i = 0; i < 10; i++)
+        cout << "At " << i <<", output2_tmp=" << temp_out_2[i] << '\n';
 
     for(int i=0;i<10;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);

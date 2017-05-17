@@ -32,7 +32,11 @@ void inference_net(
 	data_type_w *fc_bias_port,
 
 	// output fc data
-	data_type_o fc_8_out_a[10*1*1]
+	data_type_o fc_8_out_a[10*1*1],
+
+    // temp output port
+    data_type_o  output_temp_1[96*16*16],
+    data_type_o  output_temp_2[96*16*16]
 ) {
 
 #if _HLS_MODE_
@@ -40,7 +44,7 @@ void inference_net(
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 #pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
 
-#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D
+#pragma HLS INTERFACE m_axi depth=32 port=in_data_3D
 
 #pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port
 #pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port
@@ -48,6 +52,8 @@ void inference_net(
 #pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port
 
 #pragma HLS INTERFACE m_axi depth=50  port=fc_8_out_a
+#pragma HLS INTERFACE m_axi depth=16  port=output_temp_1
+#pragma HLS INTERFACE m_axi depth=16  port=output_temp_2
 
 #endif
 
@@ -74,8 +80,8 @@ void inference_net(
 	//temp storage space
 	data_type_o in_data_buf[3*32*32];
 	data_type_o fc_8_out_buf[10];
-	data_type_o  output_temp_1[96*16*16];
-    data_type_o  output_temp_2[96*16*16];
+//	data_type_o  output_temp_1[96*16*16];
+//  data_type_o  output_temp_2[96*16*16];
     
 
         //internal memory initiallization
@@ -127,7 +133,6 @@ void inference_net(
 	for(int i = 0; i < 10; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];
 	}
-
 	/******************************************************************************************/
 
 
