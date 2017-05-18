@@ -17,3 +17,4 @@ nn_out_number_fc: 4096 4096 1000
 nn_channel_size_fc: 6 1 1 
 nn_local_size_lrn: 5 5 
 nn_alpha_lrn: 0.0001 0.0001 
+nn_beta_lrn: 0.75 0.75 
