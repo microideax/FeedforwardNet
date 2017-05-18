@@ -632,6 +632,9 @@ int main() {
     }
     free(fc_8_bias2D);
 
+    cout<<"Finished loading fc weight into memory! Total: " << fc_weight_num  << "... ... ..."<<endl;
+    cout<<"Finished loading fc bias into memory! Total: " << fc_bias_num  << "... ... ..."<<endl;
+
 #if _KERNEL_DEBUG_
 	float fc_8_out[10*1*1] = { 0 };
 	clock_t start, finish;

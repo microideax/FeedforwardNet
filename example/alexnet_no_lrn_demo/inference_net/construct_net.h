@@ -44,16 +44,16 @@ void inference_net(
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 #pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
 
-#pragma HLS INTERFACE m_axi depth=32 port=in_data_3D
+#pragma HLS INTERFACE m_axi depth=3072 port=in_data_3D
 
-#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port
-#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port
-#pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port
-#pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port
+#pragma HLS INTERFACE m_axi depth=2103840  port=conv_weight_port
+#pragma HLS INTERFACE m_axi depth=1376  port=conv_bias_port
+#pragma HLS INTERFACE m_axi depth=17866752  port=fc_weight_port
+#pragma HLS INTERFACE m_axi depth=8202  port=fc_bias_port
 
-#pragma HLS INTERFACE m_axi depth=50  port=fc_8_out_a
-#pragma HLS INTERFACE m_axi depth=16  port=output_temp_1
-#pragma HLS INTERFACE m_axi depth=16  port=output_temp_2
+#pragma HLS INTERFACE m_axi depth=10  port=fc_8_out_a
+#pragma HLS INTERFACE m_axi depth=24576  port=output_temp_1
+#pragma HLS INTERFACE m_axi depth=24576  port=output_temp_2
 
 #endif
 
@@ -100,6 +100,7 @@ void inference_net(
 
 	//Forward propagation by layer
 	C1P1.conv_layer_w_pool_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1);
+/*
     C2P2.conv_layer_w_pool_a(activation_type, output_temp_1, conv_weight_port+288*3*3, conv_bias_port+96, output_temp_2);
     	for(int addr = 0; addr < 96*16*16; addr++){
         	output_temp_1[addr] = data_type_o(0);
@@ -129,7 +130,7 @@ void inference_net(
         	output_temp_1[addr] = data_type_o(0);
     	}
 	F8.fc_layer_a_no_activation(output_temp_2, fc_weight_port+1048576*1*1+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
-
+*/
 	for(int i = 0; i < 10; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];
 	}

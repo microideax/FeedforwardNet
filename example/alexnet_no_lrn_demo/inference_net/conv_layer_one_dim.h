@@ -45,14 +45,11 @@ public:
         //    }
         //}
 
-//		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
 			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_;
-                     j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
+                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
                     for (int ii = (-_CONV_KERNEL_SIZE_ / 2); ii <= _CONV_KERNEL_SIZE_ / 2; ii = ii + 1) {
                         for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; jj = jj + 1) {
-                            if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) &&
-                                (j + jj < _INPUT_SIZE_)) {//if overlapped
+                            if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) && (j + jj < _INPUT_SIZE_)) {//if overlapped
                                 T data = *(in_data+ _INPUT_SIZE_*(i + ii)+(j + jj));
                                 W weight = *(kernel_weights +(ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_+(jj + _CONV_KERNEL_SIZE_ / 2));
 								*(out_data+ ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)+(
@@ -62,23 +59,6 @@ public:
                     }
                 }
             }
-//		}
-//		else {
-//			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-//				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-//					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii < _CONV_KERNEL_SIZE_ / 2; ++ii) {
-//						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
-//							if (i + ii >= 0 && i + ii< _INPUT_SIZE_ && j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
-//								T data = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
-//								W weight = *(kernel_weights + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_ + (jj + _CONV_KERNEL_SIZE_ / 2));
-//								*(out_data + ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_) + (
-//									(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -125,6 +105,11 @@ public:
         cout << "Starting convolution layer ...." << endl;
 #endif
 #endif
+
+#if _HLS_MODE_
+#pragma HLS
+#endif
+
 		for (int c = 0; c < _GROUP_; c++) {//group loop
 			for (int b = c * _OUT_CHANNEL_NUM_ / _GROUP_; b < c * _OUT_CHANNEL_NUM_ / _GROUP_ + _OUT_CHANNEL_NUM_ / _GROUP_; b++) {//output kernel loop
 				for (int a = c * _IN_CHANNEL_NUM_ / _GROUP_; a < c * _IN_CHANNEL_NUM_ / _GROUP_ + _IN_CHANNEL_NUM_ / _GROUP_; a++) {//input kernel loop
