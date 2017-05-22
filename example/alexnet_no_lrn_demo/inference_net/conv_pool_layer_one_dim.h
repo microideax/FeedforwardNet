@@ -34,32 +34,32 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-		//int conv_layer_count = 0;
-        //ofstream conv_kernel_a;
-        //conv_kernel_a.open("conv_kernel_a.txt", ios::app);
-		//conv_kernel_a << "input from conv layer .........................." << endl;
-        //for (int j = 0; j < _INPUT_SIZE_ ; j++) {
-        //    for (int k = 0; k < _INPUT_SIZE_ ; k++) {
-        //        conv_kernel_a << *in_data << " "; // i?
-        //    }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
-        //    for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
-        //        conv_kernel_a << *kernel_weights << " "; // i?
-        //   }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
-        //    for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
-        //        conv_kernel_a << out_data[j][k] << " "; //
-        //    }
-        //    conv_kernel_a << endl;
-        //}
-        //conv_kernel_a << endl;
-        //conv_kernel_a.close();
+//		int conv_layer_count = 0;
+//        ofstream conv_kernel_a;
+//        conv_kernel_a.open("conv_kernel_a.txt", ios::app);
+//		conv_kernel_a << "input from conv layer .........................." << endl;
+//        for (int j = 0; j < _INPUT_SIZE_ ; j++) {
+//            for (int k = 0; k < _INPUT_SIZE_ ; k++) {
+//                conv_kernel_a << *in_data << " "; // i?
+//            }
+//            conv_kernel_a << endl;
+//        }
+//        conv_kernel_a << endl;
+//        for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
+//            for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
+//                conv_kernel_a << *kernel_weights << " "; // i?
+//           }
+//            conv_kernel_a << endl;
+//        }
+//        conv_kernel_a << endl;
+//        for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
+//            for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
+//                conv_kernel_a << out_data[j][k] << " "; //
+//            }
+//            conv_kernel_a << endl;
+//        }
+//        conv_kernel_a << endl;
+//        conv_kernel_a.close();
 #endif
 #endif
 	}
@@ -72,10 +72,6 @@ public:
 		W *kernel_weights,
 		W *kernel_bias,
 		G *out_data3D) {
-		//T out_data3d_temp[_OUT_CHANNEL_NUM_*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-		//	*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)];
-		////internal memory initiallization
-		//array_reset(out_data3d_temp);
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_

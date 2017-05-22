@@ -17,7 +17,7 @@
 #include "inference_net/construct_net.h"
 #include "inference_net/image_converter.h"
 #include "inference_net/weight_bias_one_dim.h"
-#include "inference_net/conv_layer_one_dim.h"
+//#include "inference_net/conv_layer_one_dim.h"
 #include "inference_net/softmax_one_dim.h"
 #include "inference_net/predict_one_dim.h"
 #include "inference_net/accuracy_one_dim.h"
@@ -51,8 +51,8 @@ int main() {
     unsigned int fc_bias_size     = (4096 + 4096 + 10) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (10)*sizeof(data_type_o);
     unsigned int fc_out_size = (10*10*1*1) * sizeof(data_type_o);
-    unsigned int out_1_size  = (96*16*16) * sizeof(data_type_o);
-    unsigned int out_2_size  = (96*16*16) * sizeof(data_type_o);
+    unsigned int out_1_size  = (96*32*32) * sizeof(data_type_o);
+    unsigned int out_2_size  = (96*32*32) * sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -637,8 +637,8 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	float fc_8_out[10*1*1] = { 0 };
-	clock_t start, finish;
-	double totaltime;
+	clock_t start, finish, inf_start, inf_finish;
+	double totaltime, inf_time;
 	start = clock();
 #endif
 
@@ -680,6 +680,11 @@ int main() {
 	fc_8_out_mem_int,
     temp_out_1,
     temp_out_2);
+
+    finish = clock();
+    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+    cout <<"inference time is: " << totaltime << " s" << endl;
+
     for (int i = 0; i < 10; i++)
         cout << "At " << i <<", output1_tmp=" << temp_out_1[i] << '\n';
     for (int i = 0; i < 10; i++)
@@ -694,6 +699,11 @@ int main() {
 
 #if _BATCH_MODE_
 	fc_out_mem_int);
+
+	finish = clock();
+	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+	cout << "batch mode time cost is: " << totaltime << " s" << endl;
+
 	//test imagenet dataset
 	for (int j = 0; j < 10; j++) {
 		fc_out_a[i * 10 + j] = (float)(fc_out_mem_int[j]);
@@ -704,11 +714,9 @@ int main() {
 	predict(fc_out_a,10,10);
 	accuracy(fc_out_a,10, val_class,10);//for imagenet dataset
 
+
 #endif
 
-	finish = clock();
-	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "predicted time is: " << totaltime << " s" << endl;
 
 	return 0;
 
