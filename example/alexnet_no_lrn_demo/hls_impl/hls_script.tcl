@@ -47,11 +47,7 @@ set_part {xc7z045ffg900-1}
 create_clock -period 10 -name default
 
 #csim_design -clean -argv {net_weights.txt, 48870.png, val.txt, net_mean.txt}
-<<<<<<< HEAD
-
-=======
 #config_schedule -effort high
->>>>>>> FeedforwardNet/master
 csynth_design
 
 #cosim_design -argv {net_weights.txt, 48870.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
