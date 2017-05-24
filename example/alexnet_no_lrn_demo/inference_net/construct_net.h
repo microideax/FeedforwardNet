@@ -11,6 +11,8 @@
 
 #include "config.h"
 #include "conv_layer_one_dim_1.h"
+#include "conv_layer_one_dim_1_1.h"
+#include "conv_layer_one_dim_1_2.h"
 #include "conv_layer_one_dim_2.h"
 #include "conv_layer_one_dim_3.h"
 #include "conv_layer_one_dim_4.h"
@@ -66,14 +68,24 @@ void inference_net(
 #endif
 #endif
 
+
 	/******************************************************************************************/
 
 	//construct network ----- caffenet
 //	conv_pool_layer<data_type,data_type_w,data_type_o, 32, 3, 1, 1, 2, 0, 2, 3,  96,  1> C1P1;
-    conv_layer_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 96, 1> C1;
-    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 96> P1;
+//    conv_layer_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 96, 1> C1;
+    conv_layer_1_0<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_0;
+    conv_layer_1_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_1;
+    conv_layer_1_2<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_2;
+//    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 96> P1;
+    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_0;
+    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_1;
+    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_2;
 //	conv_pool_layer<data_type,data_type_w,data_type_o, 16, 3, 1, 1, 2, 0, 2, 96, 256, 2> C2P2;
     conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
     pool_layer<data_type, data_type_w, data_type_o, 16, 2, 0, 2, 256> P2;
 	conv_layer_3<data_type,data_type_w,data_type_o, 8, 3, 0, 1, 256, 384, 1> C3;
 	conv_layer_4<data_type,data_type_w,data_type_o, 6, 3, 0, 1, 384, 384, 2> C4;
@@ -84,89 +96,125 @@ void inference_net(
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 10> F8;
 
 	//temp storage space
-	data_type_o in_data_buf[3*32*32];
+//	data_type_o in_data_buf[3*32*32];
+    data_type_o in_buf_0[3*32*32];
+    data_type_o in_buf_1[3*32*32];
+    data_type_o in_buf_2[3*32*32];
 	data_type_o fc_8_out_buf[10];
+
 	data_type_o local_temp_1[96*32*32];
     data_type_o local_temp_2[96*32*32];
-    data_type_w weight_buffer[3*96*11*11];
-    data_type_w bias_buffer[4096];
 
+    data_type_o local_buf_0[32*32*32];
+    data_type_o local_buf_1[32*32*32];
+    data_type_o local_buf_2[32*32*32];
 
+    data_type_o local_buf_1_0[32*32*32];
+    data_type_o local_buf_1_1[32*32*32];
+    data_type_o local_buf_1_2[32*32*32];
+//    data_type_w weight_buffer[3*96*11*11];
+    data_type_w weight_buf_0[96*3*3];
+    data_type_w weight_buf_1[96*3*3];
+    data_type_w weight_buf_2[96*3*3];
+//    data_type_w bias_buffer[96];
+    data_type_w bias_buf_0[32];
+    data_type_w bias_buf_1[32];
+    data_type_w bias_buf_2[32];
+
+    LOAD_W: for(int i = 0; i < 96*3*3; i++){
+//#pragma HLS PIPELINE
+//        weight_buffer[i] = *(conv_weight_port + i);
+        weight_buf_0[i] = *(conv_weight_port + i);
+        weight_buf_1[i] = *(conv_weight_port + 96*3*3 + i);
+        weight_buf_2[i] = *(conv_weight_port + 2*96*3*3 + i);
+    }
+    LOAD_B: for(int i = 0; i < 32; i++){
+//#pragma HLS PIPELINE
+//        bias_buffer[i] = *(conv_bias_port + i);
+        bias_buf_0[i] = *(conv_bias_port + i);
+        bias_buf_1[i] = *(conv_bias_port + i + 32);
+        bias_buf_2[i] = *(conv_bias_port + i + 2*32);
+    }
+    TRANS_DATA: for(int i = 0; i < 3*32*32; i++) {
+#pragma HLS PIPELINE
+        in_buf_0[i] = *(in_data_3D + i);
+        in_buf_1[i] = *(in_data_3D + i);
+        in_buf_2[i] = *(in_data_3D + i);
+    }
+//#pragma HLS ARRAY_PARTITION variable=in_data_buf cyclic factor=3 dim=1 partition
+//#pragma HLS ARRAY_PARTITION variable=weight_buffer cyclic factor=3 dim=1 partition
+//#pragma HLS ARRAY_PARTITION variable=bias_buffer cyclic factor=3 dim=1 partition
     //internal memory initiallization
-    for(int addr = 0; addr < 96*32*32; addr++){
+    TEMP_RESET: for(int addr = 0; addr < 96*32*32; addr++){
 #pragma HLS PIPELINE
         local_temp_1[addr] = data_type_o(0);
         local_temp_2[addr] = data_type_o(0);
     }
-	for(int i = 0; i < 3; i++){
-	    for(int j = 0; j < 32; j++){
-		    for(int k = 0; k < 32; k++){
-#pragma HLS PIPELINE
-		        in_data_buf[i*32*32 + j*32 + k] = in_data_3D[i*32*32 + j*32 + k];
-	        }
-	    }
-	}
-    for(int i = 0; i < 288*11*11; i++){
-//        for(int j = 0; j < 11; j++){
-//            for(int k = 0; k < 11; k++){
-        weight_buffer[i] = *(conv_weight_port + i);
-//            }
-//        }
-    }
+
+    char act_0, act_1, act_2;
+//#pragma HLS PIPELINE
 
 	//Forward propagation by layer
 //	C1P1.conv_layer_w_pool_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1);
-    C1.conv_layer_a(activation_type, in_data_buf, weight_buffer, conv_bias_port, local_temp_1);
-    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-    for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
-        local_temp_1[addr] = data_type_o(0);
+//    C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, local_temp_1);
+
+    C1_0.conv_layer_a(act_0, in_buf_0, weight_buf_0, bias_buf_0, local_buf_0);
+    C1_1.conv_layer_a(act_1, in_buf_1, weight_buf_1, bias_buf_1, local_buf_1);
+    C1_2.conv_layer_a(act_2, in_buf_2, weight_buf_2, bias_buf_2, local_buf_2);
+
+//    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
+    P1_0.max_pooling_layer_a(activation_type, local_buf_0, local_buf_1_0);
+    P1_1.max_pooling_layer_a(activation_type, local_buf_1, local_buf_1_1);
+    P1_2.max_pooling_layer_a(activation_type, local_buf_2, local_buf_1_2);
+    RESET_0: for(int addr = 0; addr < 32*32*32; addr++) {
+        local_buf_0[addr] = 0;
+        local_buf_1[addr] = 0;
+        local_buf_2[addr] = 0;
     }
+    BUF_MERGE: for(int i = 0; i < 32*32*32; i++){
+        *(local_temp_2 + i) = local_buf_1_0[i];
+        *(local_temp_2 + i + 32*32*32) = local_buf_1_1[i];
+        *(local_temp_2 + i + 64*32*32) = local_buf_1_2[i];
+    }
+//    RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
+//        local_temp_1[addr] = data_type_o(0);
+//    }
 //    C2P2.conv_layer_w_pool_a(activation_type, output_temp_1, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_2);
-    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port, conv_bias_port, local_temp_1);
-    for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port, local_temp_1);
+    RESET_2: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_2[addr] = data_type_o(0);
     }
-    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-   	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    P2.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
+    RESET_3: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	C3.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3, conv_bias_port+96+256, local_temp_1);
-    for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_4: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_2[addr] = data_type_o(0);
   	}
 	C4.conv_layer_a(activation_type, local_temp_1, conv_weight_port+288*3*3+12288*3*3+98304*3*3, conv_bias_port+96+256+384, local_temp_2);
-  	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_5: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	C5.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, local_temp_1);
-   	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_6: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_2[addr] = data_type_o(0);
    	}
 	P5.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-   	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_7: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	F6.fc_layer_a(activation_type, local_temp_2, fc_weight_port, fc_bias_port, local_temp_1);
-   	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_8: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_2[addr] = data_type_o(0);
    	}
 	F7.fc_layer_a(activation_type, local_temp_1, fc_weight_port+1048576*1*1, fc_bias_port+4096, local_temp_2);
-   	for(int addr = 0; addr < 96*32*32; addr++){
-//#pragma HLS PIPELINE
+    RESET_9: for(int addr = 0; addr < 96*32*32; addr++){
        	local_temp_1[addr] = data_type_o(0);
    	}
 	F8.fc_layer_a_no_activation(local_temp_2, fc_weight_port+1048576*1*1+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
 
-	for(int i = 0; i < 10; i++){
-//#pragma HLS PIPELINE
+    RESET_10: for(int i = 0; i < 10; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];
 	}
 	/******************************************************************************************/
