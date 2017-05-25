@@ -36,11 +36,11 @@ void inference_net(
     data_type_w *fc_bias_port,
 
     // output fc data
-    data_type_o fc_8_out_a[10*1*1],
+    data_type_o fc_8_out_a[10*1*1]//,
 
     // temp output port
-    data_type_o  output_temp_1[96*32*32],
-    data_type_o  output_temp_2[96*32*32]
+    //data_type_o  output_temp_1[96*32*32],
+    //data_type_o  output_temp_2[96*32*32]
 ) {
 
 #if _HLS_MODE_
@@ -103,7 +103,7 @@ void inference_net(
 	data_type_o fc_8_out_buf[10];
 
 	data_type_o local_temp_1[96*32*32];
-    data_type_o local_temp_2[96*32*32];
+    data_type_o local_temp_2[96*16*16];
 
     data_type_o local_buf_0[32*32*32];
     data_type_o local_buf_1[32*32*32];
@@ -113,20 +113,20 @@ void inference_net(
     data_type_o local_buf_1_1[32*32*32];
     data_type_o local_buf_1_2[32*32*32];
 //    data_type_w weight_buffer[3*96*11*11];
-    data_type_w weight_buf_0[96*3*3];
-    data_type_w weight_buf_1[96*3*3];
-    data_type_w weight_buf_2[96*3*3];
+    data_type_w weight_buf_0[3*3*3*32];
+    data_type_w weight_buf_1[3*3*3*32];
+    data_type_w weight_buf_2[3*3*3*32];
 //    data_type_w bias_buffer[96];
     data_type_w bias_buf_0[32];
     data_type_w bias_buf_1[32];
     data_type_w bias_buf_2[32];
 
-    LOAD_W: for(int i = 0; i < 96*3*3; i++){
+    LOAD_W: for(int i = 0; i < 3*3*3*32; i++){
 //#pragma HLS PIPELINE
 //        weight_buffer[i] = *(conv_weight_port + i);
         weight_buf_0[i] = *(conv_weight_port + i);
-        weight_buf_1[i] = *(conv_weight_port + 96*3*3 + i);
-        weight_buf_2[i] = *(conv_weight_port + 2*96*3*3 + i);
+        weight_buf_1[i] = *(conv_weight_port + 3*3*3*32 + i);
+        weight_buf_2[i] = *(conv_weight_port + 3*3*3*32*2 + i);
     }
     LOAD_B: for(int i = 0; i < 32; i++){
 //#pragma HLS PIPELINE
@@ -145,7 +145,7 @@ void inference_net(
 //#pragma HLS ARRAY_PARTITION variable=weight_buffer cyclic factor=3 dim=1 partition
 //#pragma HLS ARRAY_PARTITION variable=bias_buffer cyclic factor=3 dim=1 partition
     //internal memory initiallization
-    TEMP_RESET: for(int addr = 0; addr < 96*32*32; addr++){
+    TEMP_RESET: for(int addr = 0; addr < 96*16*16; addr++){
 #pragma HLS PIPELINE
         local_temp_1[addr] = data_type_o(0);
         local_temp_2[addr] = data_type_o(0);
@@ -171,45 +171,45 @@ void inference_net(
         local_buf_1[addr] = 0;
         local_buf_2[addr] = 0;
     }
-    BUF_MERGE: for(int i = 0; i < 32*32*32; i++){
+    BUF_MERGE: for(int i = 0; i < 32*16*16; i++){
         *(local_temp_2 + i) = local_buf_1_0[i];
-        *(local_temp_2 + i + 32*32*32) = local_buf_1_1[i];
-        *(local_temp_2 + i + 64*32*32) = local_buf_1_2[i];
+        *(local_temp_2 + i + 32*16*16) = local_buf_1_1[i];
+        *(local_temp_2 + i + 64*16*16) = local_buf_1_2[i];
     }
 //    RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_1[addr] = data_type_o(0);
 //    }
 //    C2P2.conv_layer_w_pool_a(activation_type, output_temp_1, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_2);
-    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port, local_temp_1);
-    RESET_2: for(int addr = 0; addr < 96*32*32; addr++){
+    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_1);
+    RESET_2: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_2[addr] = data_type_o(0);
     }
     P2.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-    RESET_3: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_3: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	C3.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3, conv_bias_port+96+256, local_temp_1);
-    RESET_4: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_4: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_2[addr] = data_type_o(0);
   	}
 	C4.conv_layer_a(activation_type, local_temp_1, conv_weight_port+288*3*3+12288*3*3+98304*3*3, conv_bias_port+96+256+384, local_temp_2);
-    RESET_5: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_5: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	C5.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, local_temp_1);
-    RESET_6: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_6: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_2[addr] = data_type_o(0);
    	}
 	P5.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-    RESET_7: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_7: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_1[addr] = data_type_o(0);
    	}
 	F6.fc_layer_a(activation_type, local_temp_2, fc_weight_port, fc_bias_port, local_temp_1);
-    RESET_8: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_8: for(int addr = 0; addr < 96*16*16; addr++){
         local_temp_2[addr] = data_type_o(0);
    	}
 	F7.fc_layer_a(activation_type, local_temp_1, fc_weight_port+1048576*1*1, fc_bias_port+4096, local_temp_2);
-    RESET_9: for(int addr = 0; addr < 96*32*32; addr++){
+    RESET_9: for(int addr = 0; addr < 96*16*16; addr++){
        	local_temp_1[addr] = data_type_o(0);
    	}
 	F8.fc_layer_a_no_activation(local_temp_2, fc_weight_port+1048576*1*1+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);

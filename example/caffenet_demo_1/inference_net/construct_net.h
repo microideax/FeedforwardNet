@@ -11,7 +11,7 @@
 
 #include "config.h"
 #include "conv_pool_layer_one_dim.h"
-#include "conv_layer_one_dim_acc.h"
+#include "conv_layer_one_dim.h"
 #include "pool_layer_one_dim.h"
 #include "lrn_layer_one_dim.h"
 #include "fc_layer_one_dim.h"
