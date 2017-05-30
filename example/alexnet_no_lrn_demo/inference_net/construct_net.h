@@ -72,27 +72,32 @@ void inference_net(
 	/******************************************************************************************/
 
 	//construct network ----- caffenet
-//	conv_pool_layer<data_type,data_type_w,data_type_o, 32, 3, 1, 1, 2, 0, 2, 3,  96,  1> C1P1;
-//    conv_layer_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 96, 1> C1;
+    //-------------------------------conv layer 1 ----------------------------------//
     conv_layer_1_0<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_0;
     conv_layer_1_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_1;
     conv_layer_1_2<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_2;
-//    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 96> P1;
+    //-------------------------------pooling layer 1 -------------------------------//
     pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_0;
     pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_1;
     pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_2;
-//	conv_pool_layer<data_type,data_type_w,data_type_o, 16, 3, 1, 1, 2, 0, 2, 96, 256, 2> C2P2;
+    //-------------------------------conv layer 2 ----------------------------------//
     conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
-//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
-//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
-//    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+//    conv_layer_2_0<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+    //-------------------------------pooling layer 2 -------------------------------//
     pool_layer<data_type, data_type_w, data_type_o, 16, 2, 0, 2, 256> P2;
+    //-------------------------------conv layer 3 ----------------------------------//
 	conv_layer_3<data_type,data_type_w,data_type_o, 8, 3, 0, 1, 256, 384, 1> C3;
+    //-------------------------------conv layer 4 ----------------------------------//
 	conv_layer_4<data_type,data_type_w,data_type_o, 6, 3, 0, 1, 384, 384, 2> C4;
+    //-------------------------------conv layer 5 ----------------------------------//
 	conv_layer_5<data_type,data_type_w,data_type_o, 4, 3, 0, 1, 384, 256, 2> C5;
+    //-------------------------------pooling layer 3 -------------------------------//
 	pool_layer<data_type,data_type_w,data_type_o, 2, 2, 0, 2, 256> P5;
+    //-------------------------------fc layer 6 ------------------------------------//
 	fc_layer<data_type,data_type_w,data_type_o, 256, 1, 4096> F6;
+    //-------------------------------fc layer 7 ------------------------------------//
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
+    //-------------------------------fc layer 8 ------------------------------------//
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 10> F8;
 
 	//temp storage space
@@ -109,9 +114,9 @@ void inference_net(
     data_type_o local_buf_1[32*32*32];
     data_type_o local_buf_2[32*32*32];
 
-    data_type_o local_buf_1_0[32*32*32];
-    data_type_o local_buf_1_1[32*32*32];
-    data_type_o local_buf_1_2[32*32*32];
+    data_type_o local_buf_1_0[32*16*16];
+    data_type_o local_buf_1_1[32*16*16];
+    data_type_o local_buf_1_2[32*16*16];
 //    data_type_w weight_buffer[3*96*11*11];
     data_type_w weight_buf_0[96*3*3];
     data_type_w weight_buf_1[96*3*3];
@@ -120,6 +125,8 @@ void inference_net(
     data_type_w bias_buf_0[32];
     data_type_w bias_buf_1[32];
     data_type_w bias_buf_2[32];
+
+    data_type_w weight_buf[256*96*3*3];
 
     LOAD_W: for(int i = 0; i < 96*3*3; i++){
 //#pragma HLS PIPELINE
@@ -141,9 +148,7 @@ void inference_net(
         in_buf_1[i] = *(in_data_3D + i);
         in_buf_2[i] = *(in_data_3D + i);
     }
-//#pragma HLS ARRAY_PARTITION variable=in_data_buf cyclic factor=3 dim=1 partition
-//#pragma HLS ARRAY_PARTITION variable=weight_buffer cyclic factor=3 dim=1 partition
-//#pragma HLS ARRAY_PARTITION variable=bias_buffer cyclic factor=3 dim=1 partition
+
     //internal memory initiallization
     TEMP_RESET: for(int addr = 0; addr < 96*32*32; addr++){
 #pragma HLS PIPELINE
@@ -152,11 +157,8 @@ void inference_net(
     }
 
     char act_0, act_1, act_2;
-//#pragma HLS PIPELINE
 
 	//Forward propagation by layer
-//	C1P1.conv_layer_w_pool_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1);
-//    C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, local_temp_1);
 
     C1_0.conv_layer_a(act_0, in_buf_0, weight_buf_0, bias_buf_0, local_buf_0);
     C1_1.conv_layer_a(act_1, in_buf_1, weight_buf_1, bias_buf_1, local_buf_1);
