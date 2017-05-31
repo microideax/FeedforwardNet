@@ -26,7 +26,7 @@ public:
 	void fc_kernel_a(
 		T *in_data,
 		W *kernel_weights,
-		G& out_data) {
+		G &out_data) {
 		G sum = 0;
 		for (uint i = 0; i < _INPUT_SIZE_; i++)
 		{
@@ -41,38 +41,37 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-//		//cout << "array fc kernel output ...." << endl;
-//		ofstream fc_kernel_a;
-//		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
-//		fc_kernel_a << "fc kernel in data" << endl;
-//		for (int i = 0; i < _INPUT_SIZE_; i++) {
-//			for (int j = 0; j < _INPUT_SIZE_; j++) {
-//				fc_kernel_a << in_data[i][j] << " ";
-//			}
-//			fc_kernel_a << endl;
-//		}
-//		fc_kernel_a << endl;
-//		fc_kernel_a << "fc kernel in weight" << endl;
-//
-//		for (int i = 0; i < _INPUT_SIZE_; i++) {
-//			for (int j = 0; j < _INPUT_SIZE_; j++) {
-//				fc_kernel_a << kernel_weights[i][j] << " ";
-//			}
-//			fc_kernel_a << endl;
-//		}
-//        /*fc_kernel_a << kernel_weight << endl;
-//		fc_kernel_a << endl;*/
-//
-//		fc_kernel_a << "fc kernel out data" << endl;
-//		//for (int i = 0; i < 1; i++) {
-//		//    for (int j = 0; j < 1; j++) {
-//		fc_kernel_a << out_data << " ";
-//		//    }
-//		//    fc_kernel_a << endl;
-//		//}
-//		fc_kernel_a << endl;
-//		fc_kernel_a.close();
-////		cout << endl;
+		//cout << "array fc kernel output ...." << endl;
+		ofstream fc_kernel_a;
+		fc_kernel_a.open("fc_kernel_a.txt", ios::app);
+		fc_kernel_a << "fc kernel in data" << endl;
+		for (int i = 0; i < _INPUT_SIZE_; i++) {
+			for (int j = 0; j < _INPUT_SIZE_; j++) {
+				fc_kernel_a << *(in_data + i*_INPUT_SIZE_ + j) << " ";
+			}
+			fc_kernel_a << endl;
+		}
+		fc_kernel_a << endl;
+		fc_kernel_a << "fc kernel in weight" << endl;
+
+		for (int i = 0; i < _INPUT_SIZE_; i++) {
+			for (int j = 0; j < _INPUT_SIZE_; j++) {
+				fc_kernel_a << *(kernel_weights + i*_INPUT_SIZE_ + j) << " ";
+			}
+			fc_kernel_a << endl;
+		}
+        fc_kernel_a << endl;
+
+		fc_kernel_a << "fc kernel out data" << endl;
+//		for (int i = 0; i < 1; i++) {
+//		    for (int j = 0; j < 1; j++) {
+		        fc_kernel_a << out_data << " ";
+		//    }
+		//    fc_kernel_a << endl;
+		//}
+		fc_kernel_a << endl;
+		fc_kernel_a.close();
+//		cout << endl;
 #endif
 #endif
 	}
@@ -103,7 +102,7 @@ public:
 				*(out_data3D+b) += out_data_temp;
 			}
 #if _ACT_RELU_
-            *(out_data3D + b) = relu((*(out_data3D + b) + *(kernel_bias + b)));
+            *(out_data3D + b) = Relu_64((*(out_data3D + b) + *(kernel_bias + b)));
 #else
 			*(out_data3D + b) = f(activation_type, (*(out_data3D + b) + *(kernel_bias + b)));
 #endif
@@ -119,6 +118,7 @@ public:
 		for (int i = 0; i < _OUT_CHANNEL_NUM_; i++) {
 			fc_layer_a << *(out_data3D + i) << " ";
 		}
+		fc_layer_a << endl;
 		fc_layer_a.close();
 		cout << endl;
 #endif

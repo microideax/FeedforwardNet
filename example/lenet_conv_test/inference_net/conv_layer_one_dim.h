@@ -3,8 +3,8 @@
 //TODO-1: modify conv function to compute input arrays' dimensions that are not equal
 //TODO-2: add conv function with pooling (conv fusion pool)
 
-#ifndef _CONV_LAYER_4_H_
-#define _CONV_LAYER_4_H_
+#ifndef _CONV_LAYER_H_
+#define _CONV_LAYER_H_
 
 #include <iostream>
 #include <fstream>
@@ -16,13 +16,13 @@ using namespace std;
 extern const bool tbl[6][16];
 
 template <typename T, typename W, typename G, int _INPUT_SIZE_, int _CONV_KERNEL_SIZE_, int _CONV_PADDING_, int _CONV_STRIDE_, int _IN_CHANNEL_NUM_, int _OUT_CHANNEL_NUM_, int _GROUP_>
-class conv_layer_4 {
+class conv_layer {
 
 private:
     int conv_layer_number;
     int out_data_size;
 public:
-    conv_layer_4() : conv_layer_number(0) { out_data_size = (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1;
+    conv_layer() : conv_layer_number(0) { out_data_size = (_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1;
     };
 
     /************************************************************************************************/
@@ -31,17 +31,30 @@ public:
             W *kernel_weights,
             G *out_data) {
 
-        T in_data_temp[_INPUT_SIZE_][_INPUT_SIZE_];
-        W kernel_weights_temp[_IN_CHANNEL_NUM_][_CONV_KERNEL_SIZE_][_CONV_KERNEL_SIZE_];
-//        G out_data_par[(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1][(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1];
+        //T *in_data_par;
+        //T *kernel_weights_par;
 
-			imgH: for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
-                imgV: for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
-                    WindowH: for (int ii = (-_CONV_KERNEL_SIZE_ / 2); ii <= _CONV_KERNEL_SIZE_ / 2; ii = ii + 1) {
-                        WindowV: for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; jj = jj + 1) {
-                            if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) && (j + jj < _INPUT_SIZE_)) {//if overlapped
-                                T data = *(in_data + _INPUT_SIZE_*(i + ii)+(j + jj));
-                                W weight = *(kernel_weights + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_+(jj + _CONV_KERNEL_SIZE_ / 2));
+        //for (uint i = 0; i < _INPUT_SIZE_; i++) {
+        //    for (uint j = 0; j < _INPUT_SIZE_; j++) {
+        //        in_data_par = in_data;
+        //    }
+        //}
+        //for (uint i = 0; i < _CONV_KERNEL_SIZE_; i++) {
+        //    for (uint j = 0; j < _CONV_KERNEL_SIZE_; j++) {
+        //        kernel_weights_par = kernel_weights;
+        //    }
+        //}
+
+//		if (_CONV_KERNEL_SIZE_ % 2 != 0) {//_CONV_KERNEL_SIZE_ is an odd or even,the loop is different
+			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
+                for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_;
+                     j < _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
+                    for (int ii = (-_CONV_KERNEL_SIZE_ / 2); ii <= _CONV_KERNEL_SIZE_ / 2; ii = ii + 1) {
+                        for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj <= _CONV_KERNEL_SIZE_ / 2; jj = jj + 1) {
+                            if ((i + ii >= 0) && (i + ii < _INPUT_SIZE_) && (j + jj >= 0) &&
+                                (j + jj < _INPUT_SIZE_)) {//if overlapped
+                                T data = *(in_data+ _INPUT_SIZE_*(i + ii)+(j + jj));
+                                W weight = *(kernel_weights +(ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_+(jj + _CONV_KERNEL_SIZE_ / 2));
 								*(out_data+ ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)+(
                                         (j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
                             }
@@ -49,6 +62,23 @@ public:
                     }
                 }
             }
+//		}
+//		else {
+//			for (int i = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; i <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; i += _CONV_STRIDE_) {
+//				for (int j = _CONV_KERNEL_SIZE_ / 2 - _CONV_PADDING_; j <= _INPUT_SIZE_ + _CONV_PADDING_ - _CONV_KERNEL_SIZE_ / 2; j += _CONV_STRIDE_) {
+//					for (int ii = -_CONV_KERNEL_SIZE_ / 2; ii < _CONV_KERNEL_SIZE_ / 2; ++ii) {
+//						for (int jj = -_CONV_KERNEL_SIZE_ / 2; jj < _CONV_KERNEL_SIZE_ / 2; ++jj) {
+//							if (i + ii >= 0 && i + ii< _INPUT_SIZE_ && j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
+//								T data = *(in_data + _INPUT_SIZE_*(i + ii) + (j + jj));
+//								W weight = *(kernel_weights + (ii + _CONV_KERNEL_SIZE_ / 2)*_CONV_KERNEL_SIZE_ + (jj + _CONV_KERNEL_SIZE_ / 2));
+//								*(out_data + ((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)*((i - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_) + (
+//									(j - _CONV_KERNEL_SIZE_ / 2 + _CONV_PADDING_) / _CONV_STRIDE_)) += data * weight;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -57,21 +87,21 @@ public:
         conv_kernel_a.open("conv_kernel_a.txt", ios::app);
         for (int j = 0; j < _INPUT_SIZE_ ; j++) {
             for (int k = 0; k < _INPUT_SIZE_ ; k++) {
-                conv_kernel_a << in_data[j][k] << " "; // i?
+                conv_kernel_a << in_data[j*_INPUT_SIZE_ + k] << " "; // i?
             }
             conv_kernel_a << endl;
         }
         conv_kernel_a << endl;
         for (int j = 0; j < _CONV_KERNEL_SIZE_; j++) {
             for (int k = 0; k < _CONV_KERNEL_SIZE_; k++) {
-                conv_kernel_a << kernel_weights[j][k] << " "; // i?
+                conv_kernel_a << kernel_weights[j*_CONV_KERNEL_SIZE_ + k] << " "; // i?
             }
             conv_kernel_a << endl;
         }
         conv_kernel_a << endl;
         for (int j = 0; j < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; j++) {
             for (int k = 0; k < _INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1; k++) {
-                conv_kernel_a << out_data[j][k] << " "; //
+                conv_kernel_a << out_data[j*(_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_ + 1) + k] << " "; //
             }
             conv_kernel_a << endl;
         }
@@ -95,17 +125,12 @@ public:
         cout << "Starting convolution layer ...." << endl;
 #endif
 #endif
-
-//#pragma HLS ARRAY_PARTITION variable=in_data3D cyclic factor=3 dim=1 partition
-//#pragma HLS ARRAY_PARTITION variable=kernel_weights dim=1 factor=3
-
 		for (int c = 0; c < _GROUP_; c++) {//group loop
 			for (int b = c * _OUT_CHANNEL_NUM_ / _GROUP_; b < c * _OUT_CHANNEL_NUM_ / _GROUP_ + _OUT_CHANNEL_NUM_ / _GROUP_; b++) {//output kernel loop
 				for (int a = c * _IN_CHANNEL_NUM_ / _GROUP_; a < c * _IN_CHANNEL_NUM_ / _GROUP_ + _IN_CHANNEL_NUM_ / _GROUP_; a++) {//input kernel loop
-//#pragma HLS inline off
-//#pragma HLS UNROLL factor=32
 					conv_kernel_a(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_,
 						kernel_weights+(b * _IN_CHANNEL_NUM_ / _GROUP_ + a % (_IN_CHANNEL_NUM_ / _GROUP_))*_CONV_KERNEL_SIZE_*_CONV_KERNEL_SIZE_,
+						//kernel_weights[b * _IN_CHANNEL_NUM_ + a],
 						out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
 						*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1));
 				}
@@ -119,15 +144,12 @@ public:
                                 *((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
                                 + j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + k) + *(kernel_bias+b)));
 #else
-                        *(out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-                                       *((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-                          +j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k) = 0;
-//						*(out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-//							*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-//							+j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k)
-//							= f(activation_type, (*(out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-//								*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
-//								+ j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + k) + *(kernel_bias+b)));
+						*(out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
+							*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
+							+j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)+k) 
+							= f(activation_type, (*(out_data3D + b*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
+								*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1)
+								+ j*((_INPUT_SIZE_ + _CONV_PADDING_ * 2 - _CONV_KERNEL_SIZE_) / _CONV_STRIDE_ + 1) + k) + *(kernel_bias+b)));
 #endif
 					}
 				}

@@ -10,15 +10,10 @@
 #include <ap_fixed.h>
 
 #include "config.h"
-#include "conv_layer_one_dim_1.h"
-#include "conv_layer_one_dim_1_1.h"
-#include "conv_layer_one_dim_1_2.h"
-#include "conv_layer_one_dim_2.h"
-#include "conv_layer_one_dim_3.h"
-#include "conv_layer_one_dim_4.h"
-#include "conv_layer_one_dim_5.h"
+#include "conv_layer_one_dim.h"
 #include "pool_layer_one_dim.h"
 #include "fc_layer_one_dim.h"
+#include "conv_acc.h"
 
 using namespace std;
 
@@ -73,24 +68,21 @@ void inference_net(
 
 	//construct network ----- caffenet
     //-------------------------------conv layer 1 ----------------------------------//
-    conv_layer_1_0<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_0;
-    conv_layer_1_1<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_1;
-    conv_layer_1_2<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 32, 1> C1_2;
+    conv_layer<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 96, 1> C1;
+    conv_acc<data_type, data_type_w, data_type_o, 32, 3, 32, 32> ACC_1;
     //-------------------------------pooling layer 1 -------------------------------//
-    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_0;
-    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_1;
-    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 32> P1_2;
+    pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 96> P1;
     //-------------------------------conv layer 2 ----------------------------------//
-    conv_layer_2<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
+    conv_layer<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
 //    conv_layer_2_0<data_type, data_type_w, data_type_o, 16, 3, 1, 1, 96, 256, 2> C2;
     //-------------------------------pooling layer 2 -------------------------------//
     pool_layer<data_type, data_type_w, data_type_o, 16, 2, 0, 2, 256> P2;
     //-------------------------------conv layer 3 ----------------------------------//
-	conv_layer_3<data_type,data_type_w,data_type_o, 8, 3, 0, 1, 256, 384, 1> C3;
+	conv_layer<data_type,data_type_w,data_type_o, 8, 3, 0, 1, 256, 384, 1> C3;
     //-------------------------------conv layer 4 ----------------------------------//
-	conv_layer_4<data_type,data_type_w,data_type_o, 6, 3, 0, 1, 384, 384, 2> C4;
+	conv_layer<data_type,data_type_w,data_type_o, 6, 3, 0, 1, 384, 384, 2> C4;
     //-------------------------------conv layer 5 ----------------------------------//
-	conv_layer_5<data_type,data_type_w,data_type_o, 4, 3, 0, 1, 384, 256, 2> C5;
+	conv_layer<data_type,data_type_w,data_type_o, 4, 3, 0, 1, 384, 256, 2> C5;
     //-------------------------------pooling layer 3 -------------------------------//
 	pool_layer<data_type,data_type_w,data_type_o, 2, 2, 0, 2, 256> P5;
     //-------------------------------fc layer 6 ------------------------------------//
@@ -101,90 +93,37 @@ void inference_net(
 	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 10> F8;
 
 	//temp storage space
-//	data_type_o in_data_buf[3*32*32];
-    data_type_o in_buf_0[3*32*32];
-    data_type_o in_buf_1[3*32*32];
-    data_type_o in_buf_2[3*32*32];
+	data_type_o in_buf[3*32*32];
 	data_type_o fc_8_out_buf[10];
 
 	data_type_o local_temp_1[96*32*32];
     data_type_o local_temp_2[96*32*32];
+    data_type_o local_temp_3[96*32*32];
+    data_type_o local_temp_4[96*32*32];
 
-    data_type_o local_buf_0[32*32*32];
-    data_type_o local_buf_1[32*32*32];
-    data_type_o local_buf_2[32*32*32];
-
-    data_type_o local_buf_1_0[32*16*16];
-    data_type_o local_buf_1_1[32*16*16];
-    data_type_o local_buf_1_2[32*16*16];
-//    data_type_w weight_buffer[3*96*11*11];
-    data_type_w weight_buf_0[96*3*3];
-    data_type_w weight_buf_1[96*3*3];
-    data_type_w weight_buf_2[96*3*3];
-//    data_type_w bias_buffer[96];
-    data_type_w bias_buf_0[32];
-    data_type_w bias_buf_1[32];
-    data_type_w bias_buf_2[32];
-
-    data_type_w weight_buf[256*96*3*3];
-
-    LOAD_W: for(int i = 0; i < 96*3*3; i++){
-//#pragma HLS PIPELINE
-//        weight_buffer[i] = *(conv_weight_port + i);
-        weight_buf_0[i] = *(conv_weight_port + i);
-        weight_buf_1[i] = *(conv_weight_port + 96*3*3 + i);
-        weight_buf_2[i] = *(conv_weight_port + 2*96*3*3 + i);
-    }
-    LOAD_B: for(int i = 0; i < 32; i++){
-//#pragma HLS PIPELINE
-//        bias_buffer[i] = *(conv_bias_port + i);
-        bias_buf_0[i] = *(conv_bias_port + i);
-        bias_buf_1[i] = *(conv_bias_port + i + 32);
-        bias_buf_2[i] = *(conv_bias_port + i + 2*32);
-    }
     TRANS_DATA: for(int i = 0; i < 3*32*32; i++) {
-#pragma HLS PIPELINE
-        in_buf_0[i] = *(in_data_3D + i);
-        in_buf_1[i] = *(in_data_3D + i);
-        in_buf_2[i] = *(in_data_3D + i);
+        in_buf[i] = *(in_data_3D + i);
     }
-
     //internal memory initiallization
     TEMP_RESET: for(int addr = 0; addr < 96*32*32; addr++){
-#pragma HLS PIPELINE
         local_temp_1[addr] = data_type_o(0);
         local_temp_2[addr] = data_type_o(0);
     }
 
-    char act_0, act_1, act_2;
-
 	//Forward propagation by layer
-
-    C1_0.conv_layer_a(act_0, in_buf_0, weight_buf_0, bias_buf_0, local_buf_0);
-    C1_1.conv_layer_a(act_1, in_buf_1, weight_buf_1, bias_buf_1, local_buf_1);
-    C1_2.conv_layer_a(act_2, in_buf_2, weight_buf_2, bias_buf_2, local_buf_2);
-
-//    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
-    P1_0.max_pooling_layer_a(activation_type, local_buf_0, local_buf_1_0);
-    P1_1.max_pooling_layer_a(activation_type, local_buf_1, local_buf_1_1);
-    P1_2.max_pooling_layer_a(activation_type, local_buf_2, local_buf_1_2);
-    RESET_0: for(int addr = 0; addr < 32*32*32; addr++) {
-        local_buf_0[addr] = 0;
-        local_buf_1[addr] = 0;
-        local_buf_2[addr] = 0;
+    C1.conv_layer_a(activation_type, in_buf, conv_weight_port, conv_bias_port, local_temp_1);
+    ACC_1.conv_layer_acc(3, 3, 96, 32, 32, 1, 1, in_buf, conv_weight_port, conv_bias_port, local_temp_3);
+    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
+    P1.max_pooling_layer_a(activation_type, local_temp_3, local_temp_4);
+    RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
+        local_temp_1[addr] = data_type_o(0);
+        local_temp_3[addr] = data_type_o(0);
     }
-    BUF_MERGE: for(int i = 0; i < 32*32*32; i++){
-        *(local_temp_2 + i) = local_buf_1_0[i];
-        *(local_temp_2 + i + 32*32*32) = local_buf_1_1[i];
-        *(local_temp_2 + i + 64*32*32) = local_buf_1_2[i];
-    }
-//    RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
-//        local_temp_1[addr] = data_type_o(0);
-//    }
-//    C2P2.conv_layer_w_pool_a(activation_type, output_temp_1, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_2);
-    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port, local_temp_1);
+    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_1);
+    ACC_1.conv_layer_acc(96, 3, 256, 16, 16, 1, 1, local_temp_4, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_3);
     RESET_2: for(int addr = 0; addr < 96*32*32; addr++){
         local_temp_2[addr] = data_type_o(0);
+        local_temp_4[addr] = data_type_o(0);
     }
     P2.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
     RESET_3: for(int addr = 0; addr < 96*32*32; addr++){
