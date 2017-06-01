@@ -22,7 +22,7 @@ typedef ap_fixed<24,16> data_type;
 #define _ACT_RELU_ 1
 
 // C++ compilation debug mode
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 
