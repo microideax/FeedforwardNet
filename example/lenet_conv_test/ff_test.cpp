@@ -325,9 +325,7 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int,
-    temp_out_1,
-    temp_out_2);
+	fc_8_out_mem_int);
 
     finish = clock();
     totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
