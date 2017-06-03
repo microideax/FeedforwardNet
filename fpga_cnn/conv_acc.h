@@ -57,8 +57,11 @@ public:
             						}
             					}
             				}
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
                             ofstream conv_acc;
                             conv_acc.open("conv_indata.txt", ios::app);
+                            conv_acc <<"conv input: "<< endl;
                             for (int i = 0; i < Tn; i++) {
                                 for (int j = 0; j < (Tr-1)*S + K; j++) {
                                     for(int k = 0; k < (Tc-1)*S + K; k++){
@@ -69,7 +72,8 @@ public:
                                 conv_acc << endl;
                             }
                             conv_acc.close();
-
+#endif
+#endif
             				// load input weights
             				for(int i = m; i < m+Tm; i++){
             					for(int j = n; j < n+Tn; j++){
@@ -81,6 +85,8 @@ public:
             					}
                                 b_buf[i-m] = *(layer_bias + i);
             				}
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
                             ofstream conv_w;
                             conv_w.open("conv_in_weights.txt", ios::app);
                             for (int i = 0; i < Tm; i++) {
@@ -100,14 +106,18 @@ public:
                                 cout << endl;
                             }
                             conv_w.close();
-
+#endif
+#endif
                             // convolutional accelerator
             				for(int i=0; i<K; i++){
             					for(int j=0; j<K; j++){
             						for(int tr=0; tr+r<min(R, r+Tr); tr++){
             							for(int tc=0; tc+c<min(C, c+Tc); tc++){
+#pragma HLS PIPELINE
             								for(int tm=0; tm<Tm; tm++){ // unroll loop kernel
+#pragma HLS UNROLL
             									for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
+#pragma HLS UNROLL
             										out_buf[tm][tr][tc] += w_buf[tm][tn][i][j]*in_buf[tn][S*tr+i][S*tc+j];
             									}
             								}
@@ -118,23 +128,40 @@ public:
             			}
 
             			// transfer output data
+                        ofstream conv_out_buf;
+                        conv_out_buf.open("conv_out_buf.txt", ios::app);
+                        int flag1=0;
+                        int flag2=0;
+                        if(R<r+Tr){
+                            flag1=1;
+                        }if(C<c+Tc){
+                            flag2=1;
+                        }
             			for(int i = 0; i < Tm; i++){
-            				for(int j=0; j < Tr; j++){
-            					for(int k=0; k < Tc; k++){
+            				for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
+            					for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){
+                                    
                                     if ((out_buf[i][j][k] + b_buf[i]) >= 0) {
+                                        conv_out_buf << (out_buf[i][j][k] + b_buf[i]) << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = (out_buf[i][j][k] + b_buf[i]);
                                         out_buf[i][j][k] = 0;
                                     }
-                                    else
+                                    else{
+                                        conv_out_buf << 0 << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = 0;
                                         out_buf[i][j][k] = 0;
+                                    }
             					}
+                                conv_out_buf << endl;
             				}
+                            conv_out_buf << endl;
             			}
+                        conv_out_buf.close();
             		}
             	}
             }
-
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
             ofstream conv_out;
             conv_out.open("conv_out_data.txt", ios::app);
             for (int i = 0; i < M; i++) {
@@ -147,6 +174,8 @@ public:
                 conv_out << endl;
             }
             conv_out.close();
+#endif
+#endif
         }
 };
 

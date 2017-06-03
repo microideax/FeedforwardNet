@@ -103,19 +103,19 @@ void inference_net(
 	for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_1[addr] = data_type_o(0);
     	}
-        L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_temp_2, output_temp_1);
+    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_temp_2, output_temp_1);
     	for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_2[addr] = data_type_o(0);
     	}
-        C2.conv_layer_a(activation_type, output_temp_1, conv_weight_port+288*11*11, conv_bias_port+96, output_temp_2);
+    C2.conv_layer_a(activation_type, output_temp_1, conv_weight_port+288*11*11, conv_bias_port+96, output_temp_2);
     	for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_1[addr] = data_type_o(0);
     	}
-        P2.max_pooling_layer_a(activation_type, output_temp_2, output_temp_1);
+    P2.max_pooling_layer_a(activation_type, output_temp_2, output_temp_1);
         for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_2[addr] = data_type_o(0);
     	}
-        L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_temp_1, output_temp_2);
+    L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], output_temp_1, output_temp_2);
 	for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_1[addr] = data_type_o(0);
     	}

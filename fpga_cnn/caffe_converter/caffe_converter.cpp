@@ -74,7 +74,7 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
         int stride=1;
     // name，type，kernel size，pad，stride
         cout << "Layer " << i << ":" << src_net[i].name() << "\t" << src_net[i].type()<<endl;
-        if(src_net[i].type()=="Convolution"){//get conv_layers' kernel_size,num_output
+        if(src_net[i].type()=="Convolution"||src_net[i].type()=="ConvolutionRistretto"){//get conv_layers' kernel_size,num_output
             ConvolutionParameter conv_param = src_net[i].convolution_param();
             num_output=conv_param.num_output();
             cout << "num_output: " << num_output<<endl;
@@ -165,10 +165,15 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     vector<float> nn_alpha_lrn;
     vector<float> nn_beta_lrn;
     int num_output=0;
+    ofstream out;
+    out.open("net_config_params.txt",ios::app);
+    out<<"Network Structure: ";
     for (int i = 0; i < src_net.size(); i++) {
+        out<<src_net[i].type();
         int pad=0;
         int kernel_size=0;
         int stride=1;
+        bool tag=false;
         if(src_net[i].type()=="Convolution"){
             ConvolutionParameter conv_param = src_net[i].convolution_param();
             nn_in_data_size_conv.push_back(input_size);
@@ -177,6 +182,8 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             kernel_size=conv_param.kernel_size(0);
             nn_channel_size_conv.push_back(kernel_size);
             if (conv_param.pad_size()>0){
+                out<<"(padding";
+                tag=true;
                 pad=conv_param.pad(0);
             }
             nn_padding_conv.push_back(pad);
@@ -186,6 +193,14 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             nn_stride_conv.push_back(stride);
             input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
             nn_group_conv.push_back(conv_param.group());
+            if(conv_param.group()>1){
+                if(tag){
+                    out<<",group";
+                }else{
+                    out<<"(group";
+                    tag=true;
+                }
+            }
             //num_input=num_input/conv_param.group();
             nn_in_number_conv.push_back(num_input);
         }else if(src_net[i].type()=="InnerProduct"){
@@ -201,6 +216,10 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             PoolingParameter pooling_param = src_net[i].pooling_param();
             nn_in_data_size_pooling.push_back(input_size);
             nn_in_number_pooling.push_back(num_input);
+            if (pooling_param.pad()>0){
+                out<<"(padding";
+                tag=true;
+            }
             pad=pooling_param.pad();
             nn_padding_pooling.push_back(pad);
             kernel_size=pooling_param.kernel_size();
@@ -220,7 +239,13 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
             num_input=num_output;//set each layer's num_input equals to the last layer's num_output
         }
+        if(tag){
+            out<<")";
+        }
+        out<<" ";
     }
+    out<<endl;
+    out.close();
     vector<string> str_nn_config_params_name_int;
     str_nn_config_params_name_int.push_back("nn_in_data_size_conv: ");
     str_nn_config_params_name_int.push_back("nn_channel_size_conv: ");
@@ -266,7 +291,6 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     if(has_lrn_layer){
         nn_config_params_int.push_back(nn_local_size_lrn);
     }
-    ofstream out;
     out.open("net_config_params.txt",ios::app);
     for (int i = 0; i < nn_config_params_int.size(); i++) {
         out<<str_nn_config_params_name_int[i];
@@ -311,7 +335,11 @@ void create_net_from_caffe_net(const caffe::NetParameter& layer,int input_param[
             //int kernel_w = static_cast<int>(layer.layer(0).input_param().shape(0).dim(3));
             //cout<<"width:********************"<<kernel_w<<endl;
             //return input_param;
-        }
+        }//else if (layer.input_dim_size() > 0){
+         //   input_param[0] = static_cast<int>(layer.input_dim(1));
+         //   input_param[1] = static_cast<int>(layer.input_dim(2));
+         //   cout<<"no input shape: "<<endl;
+        //}
 }
 
 void read_proto_from_text(const std::string& prototxt,
@@ -347,19 +375,18 @@ void read_proto_from_binary(const std::string& protobinary,
 void create_net_from_caffe_prototxt(const std::string& caffeprototxt,int input_param[])
 {
     caffe::NetParameter np;
-
     read_proto_from_text(caffeprototxt, &np);
     create_net_from_caffe_net(np,input_param);
 }
 
 void reload_weight_from_caffe_protobinary(const std::string& caffebinary,int input_param[])
 {
-	caffe::NetParameter np;
+    caffe::NetParameter np;
 
-	read_proto_from_binary(caffebinary, &np);
+    read_proto_from_binary(caffebinary, &np);
     cout <<"net_name: "<<np.name()<<endl;
-    //cout<<np.layer(0).type()<<endl;
-	reload_weight_from_caffe_net(np,input_param);
+    //cout<<np.input()<<endl;
+    reload_weight_from_caffe_net(np,input_param);
 }
 
 void compute_mean(const string& mean_file)
@@ -394,7 +421,7 @@ void test_has_mean(const string& model_file,
           const string& mean_file) {
     int input_param[]={0,0};
     create_net_from_caffe_prototxt(model_file,input_param);
-	reload_weight_from_caffe_protobinary(trained_file,input_param);
+    reload_weight_from_caffe_protobinary(trained_file,input_param);
     compute_mean(mean_file);
     get_config_params_from_caffe_protobinary(trained_file,input_param);
 }
@@ -411,7 +438,7 @@ int main(int argc, char** argv) {
     cout<<"argc:"<<argc<<endl;
     int arg_channel = 1;
     string model_file = argv[arg_channel++];
-	string trained_file = argv[arg_channel++];
+    string trained_file = argv[arg_channel++];
     cout<<"model_file:"<<model_file<<endl;
     cout<<"trained_file:"<<trained_file<<endl;
     try  

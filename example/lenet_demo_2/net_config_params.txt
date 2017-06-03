@@ -1,3 +1,4 @@
+Network Structure: Data Convolution ReLU Pooling ReLU Convolution ReLU Pooling ReLU InnerProduct ReLU SoftmaxWithLoss 
 nn_in_data_size_conv: 28 14 
 nn_channel_size_conv: 5 5 
 nn_padding_conv: 2 0 
