@@ -685,6 +685,21 @@ int main() {
     totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
     cout <<"inference time is: " << totaltime << " s" << endl;
 
+    for(int i=0; i<10;i++){
+        cout << "conv weight "<<i << " =" << conv_weight_mem_port[i] << endl;
+    }
+    for(int i=0; i<10;i++){
+        cout << "conv bias "<<i << " =" << conv_bias_mem_port[i] << endl;
+    }
+    for(int i=0; i<10;i++){
+        cout << "fc weight "<<i << " =" << fc_weight_mem_port[i] << endl;
+    }
+    for(int i=0; i<10;i++){
+        cout << "fc bias "<<i << " =" << fc_bias_mem_port[i] << endl;
+    }
+
+
+
     for (int i = 0; i < 10; i++)
         cout << "At " << i <<", output1_tmp=" << temp_out_1[i] << '\n';
     for (int i = 0; i < 10; i++)
@@ -699,7 +714,6 @@ int main() {
 
 #if _BATCH_MODE_
 	fc_out_mem_int);
-
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
 	cout << "batch mode time cost is: " << totaltime << " s" << endl;
@@ -713,8 +727,6 @@ int main() {
 	softmax(fc_out_a,10,10);
 	predict(fc_out_a,10,10);
 	accuracy(fc_out_a,10, val_class,10);//for imagenet dataset
-
-
 #endif
 
 
