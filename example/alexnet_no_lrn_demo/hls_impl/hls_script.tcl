@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project sepConv1opt
+open_project convAcc_nopar
 
 set_top inference_net
 
@@ -10,15 +10,12 @@ add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
 add_files ../inference_net/conv_pool_layer_one_dim.h
-add_files ../inference_net/conv_layer_one_dim_1.h
-add_files ../inference_net/conv_layer_one_dim_2.h
-add_files ../inference_net/conv_layer_one_dim_3.h
-add_files ../inference_net/conv_layer_one_dim_4.h
-add_files ../inference_net/conv_layer_one_dim_5.h
+add_files ../inference_net/conv_acc.h
+add_files ../inference_net/conv_layer_one_dim.h
 add_files ../inference_net/pool_layer_one_dim.h
 add_files ../inference_net/fc_layer_one_dim.h
 add_files ../inference_net/data_type.h
-add_files ../inference_net/pow_function.h
+#add_files ../inference_net/pow_function.h
 
 add_files -tb ../inference_net/accuracy_one_dim.h
 add_files -tb ../inference_net/predict_one_dim.h

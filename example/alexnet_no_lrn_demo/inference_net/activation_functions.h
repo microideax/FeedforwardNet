@@ -23,11 +23,11 @@ template<typename T>
 T relu(T data){
 //    return (T(0) >= data ? T(0) : data);
     if (data > T(0)){
-        cout << "data in range  " << data << " ====> " << data << endl;
+//        cout << "data in range  " << data << " ====> " << data << endl;
         return data;
     }
     else {
-        cout << "data out range  " << data << " ====> " << 0 << endl;
+        //cout << "data out range  " << data << " ====> " << 0 << endl;
         return 0;
     }
 }
