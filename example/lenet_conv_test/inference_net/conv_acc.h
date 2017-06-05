@@ -44,20 +44,40 @@ public:
             W w_buf[Tm][Tn][K][K];
             W b_buf[Tm];
 
+            for(int i = 0; i < Tm; i++){
+                for(int j = 0; j < Tr; j++){
+                    for(int k = 0; k < Tc; k++){
+                        out_buf[i][j][k] = G(0);
+                    }
+                }
+            }
+            for(int i = 0; i < Tm; i++){
+                for(int j = 0; j < Tn; j++){
+                    for(int k = 0; k < K; k++){
+                        for(int l = 0; l < K; l++){
+                            w_buf[i][j][k][l] = W(0);
+                        }
+                    }
+                }
+            }
+            for(int i = 0; i < Tm; i++){
+                b_buf[i]= W(0);
+            }
+
             for(int r = 0; r < R; r += Tr){
                 for(int c = 0; c < C; c += Tc){
                     for(int m = 0; m < M; m += Tm){
                         for(int n = 0; n < N; n += Tn){
-
+                            
                             // load input data
-                            for(int i = n; i < n+Tn; i++){
+                            for(int i = n; i < min(N, n+Tn); i++){
                                 for(int j = r*S - P; j < (r+Tr-1)*S + K - P; j++){
                                     for(int k = c*S - P; k < (c+Tc-1)*S + K - P; k++){
                                         if(j < 0 || j >= ((R-1)*S + K - 2*P) || k < 0 || k >= ((C-1)*S + K - 2*P)){
-                                            in_buf[i-n][j-r*S+P][k-c*S+P] = 0;}
+                                            in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);}
                                         else{
                                             in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);}
-//            							    in_buf[i-n][j-r*S][k-c*S] = *(in_data + i*((R-1)*S+K)*((C-1)*S+K) + j*((C-1)*S+K) +k);
+//                                          in_buf[i-n][j-r*S][k-c*S] = *(in_data + i*((R-1)*S+K)*((C-1)*S+K) + j*((C-1)*S+K) +k);
                                     }
                                 }
                             }
@@ -79,8 +99,8 @@ public:
 #endif
 #endif
                             // load input weights
-                            for(int i = m; i < m+Tm; i++){
-                                for(int j = n; j < n+Tn; j++){
+                            for(int i = m; i < min(M, m+Tm); i++){
+                                for(int j = n; j < min(N, n+Tn); j++){
                                     for(int k1 = 0; k1 < K; k1++){
                                         for(int k2 = 0; k2 < K; k2++){
                                             w_buf[i-m][j-n][k1][k2] = *(layer_weights + i*N*K*K + j*K*K + k1*K + k2);
@@ -98,16 +118,16 @@ public:
                                     for(int k = 0; k < K; k++){
                                         for(int l = 0; l < K; l++){
                                             conv_w << w_buf[i][j][k][l] << " ";
-                                            cout << w_buf[i][j][k][l] << " ";
+                                            //cout << w_buf[i][j][k][l] << " ";
                                         }
                                         conv_w << endl;
-                                        cout << endl;
+                                        //cout << endl;
                                     }
                                     conv_w << endl;
-                                    cout << endl;
+                                    //cout << endl;
                                 }
                                 conv_w << endl;
-                                cout << endl;
+                                //cout << endl;
                             }
                             conv_w.close();
 #endif
@@ -125,11 +145,11 @@ public:
                                     for(int tr=0; tr+r<min(R, r+Tr); tr++){
                                         for(int tc=0; tc+c<min(C, c+Tc); tc++){
 #pragma HLS PIPELINE
-                                            for(int tm=0; tm<Tm; tm++){ // unroll loop kernel
+                                            for(int tm=m; tm<min(M, m+Tm); tm++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                                for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
+                                                for(int tn=n; tn<min(N, n+Tn); tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                                    out_buf[tm][tr][tc] += w_buf[tm][tn][i][j]*in_buf[tn][S*tr+i][S*tc+j];
+                                                    out_buf[tm-m][tr][tc] += w_buf[tm-m][tn-n][i][j]*in_buf[tn-n][S*tr+i][S*tc+j];
                                                 }
                                             }
                                         }
@@ -151,16 +171,15 @@ public:
                         for(int i = 0; i < Tm; i++){
                             for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
                                 for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){
-
                                     if ((out_buf[i][j][k] + b_buf[i]) >= 0) {
                                         conv_out_buf << (out_buf[i][j][k] + b_buf[i]) << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = (out_buf[i][j][k] + b_buf[i]);
-                                        out_buf[i][j][k] = 0;
+                                        out_buf[i][j][k] = G(0);
                                     }
                                     else{
                                         conv_out_buf << 0 << " ";
-                                        *(out_data + (i + m) * R * C + (j + r) * C + k + c) = 0;
-                                        out_buf[i][j][k] = 0;
+                                        *(out_data + (i + m) * R * C + (j + r) * C + k + c) = G(0);
+                                        out_buf[i][j][k] = G(0);
                                     }
                                 }
                                 conv_out_buf << endl;
@@ -175,6 +194,7 @@ public:
 #if _KERNEL_DEBUG_
             ofstream conv_out;
             conv_out.open("conv_out_data.txt", ios::app);
+            conv_out <<"conv output: "<< endl;
             for (int i = 0; i < M; i++) {
                 for (int j = 0; j < R; j++) {
                     for(int k = 0; k < C; k++){

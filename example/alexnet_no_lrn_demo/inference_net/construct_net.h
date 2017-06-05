@@ -70,7 +70,7 @@ void inference_net(
 	//construct network ----- caffenet
     //-------------------------------conv layer 1 ----------------------------------//
     conv_layer<data_type, data_type_w, data_type_o, 32, 3, 1, 1, 3, 96, 1> C1;
-    conv_acc<data_type, data_type_w, data_type_o, 96, 3, 32, 32> ACC_1;
+    conv_acc<data_type, data_type_w, data_type_o, 32, 3, 16, 16> ACC_1;
     //-------------------------------pooling layer 1 -------------------------------//
 
     pool_layer<data_type, data_type_w, data_type_o, 32, 2, 0, 2, 96> P1;
@@ -98,8 +98,8 @@ void inference_net(
 //	data_type_o in_buf[3*32*32];
 	data_type_o fc_8_out_buf[10];
 
-      data_type_o local_temp_1[96*32*32];
-    data_type_o local_temp_2[96*32*32];
+//	data_type_o local_temp_1[96*32*32];
+//    data_type_o local_temp_2[96*32*32];
 //    data_type_o local_temp_3[96*32*32];
 //    data_type_o local_temp_4[96*32*32];
 
@@ -108,40 +108,25 @@ void inference_net(
 //    }
     //internal memory initiallization
     TEMP_RESET: for(int addr = 0; addr < 96*32*32; addr++){
-        local_temp_1[addr] = data_type_o(0);
-        local_temp_2[addr] = data_type_o(0);
+
+//        local_temp_1[addr] = data_type_o(0);
+//        local_temp_2[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
         output_temp_2[addr] = data_type_o(0);
     }
 
 	//Forward propagation by layer
-    C1.conv_layer_a(activation_type, in_data_3D, conv_weight_port, conv_bias_port, local_temp_1);
+
+//    C1.conv_layer_a(activation_type, in_buf, conv_weight_port, conv_bias_port, local_temp_1);
     ACC_1.conv_layer_acc(3, 3, 96, 32, 32, 1, 1, in_data_3D, conv_weight_port, conv_bias_port, output_temp_1);
-   /* 
-    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
+    /*
+//    P1.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
     P1.max_pooling_layer_a(activation_type, output_temp_1, output_temp_2);
     RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
-        local_temp_1[addr] = data_type_o(0);
+//        local_temp_1[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
     }
-*/
-ofstream output_1;
-output_1.open("output_temp_2.txt", ios::app);
-output_1 << "output temp 2 :" << endl;
-for(int i =0; i<96*32*32; i++){
-    output_1 << *(output_temp_1 + i) << endl;
-}
-output_1.close();
-
-ofstream local_1;
-local_1.open("local_temp_2.txt", ios::app);
-local_1 << "local temp 2 :" << endl;
-for(int i =0; i<96*32*32; i++){
-    local_1 << *(local_temp_1 + i) << endl;
-}
-local_1.close();
-/*
-    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_1);
+//    C2.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3, conv_bias_port+96, local_temp_1);
     ACC_1.conv_layer_acc(96, 3, 256, 16, 16, 1, 1, output_temp_2, conv_weight_port+288*3*3, conv_bias_port+96, output_temp_1);
     RESET_2: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_2[addr] = data_type_o(0);
@@ -152,49 +137,49 @@ local_1.close();
     RESET_3: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_1[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
-    }
+   	}
 //	C3.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3, conv_bias_port+96+256, local_temp_1);
     ACC_1.conv_layer_acc(256, 3, 384, 6, 6, 1, 0, output_temp_2, conv_weight_port+288*3*3+12288*3*3, conv_bias_port+96+256, output_temp_1);
     RESET_4: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_2[addr] = data_type_o(0);
         output_temp_2[addr] = data_type_o(0);
-    }
+  	}
 //	C4.conv_layer_a(activation_type, local_temp_1, conv_weight_port+288*3*3+12288*3*3+98304*3*3, conv_bias_port+96+256+384, local_temp_2);
     ACC_1.conv_layer_acc(384, 3, 384, 4, 4, 1, 0, output_temp_1, conv_weight_port+288*3*3+12288*3*3+98304*3*3, conv_bias_port+96+256+384, output_temp_2);
     RESET_5: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_1[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
-    }
+   	}
 //	C5.conv_layer_a(activation_type, local_temp_2, conv_weight_port+288*3*3+12288*3*3+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, local_temp_1);
     ACC_1.conv_layer_acc(384, 3, 256, 2, 2, 1, 0, output_temp_2, conv_weight_port+288*3*3+12288*3*3+98304*3*3+73728*3*3, conv_bias_port+96+256+384+384, output_temp_1);
     RESET_6: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_2[addr] = data_type_o(0);
         output_temp_2[addr] = data_type_o(0);
-    }
+   	}
 //	P5.max_pooling_layer_a(activation_type, local_temp_1, local_temp_2);
     P5.max_pooling_layer_a(activation_type, output_temp_1, output_temp_2);
     RESET_7: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_1[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
-    }
+   	}
 //	F6.fc_layer_a(activation_type, local_temp_2, fc_weight_port, fc_bias_port, local_temp_1);
     F6.fc_layer_a(activation_type, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1);
     RESET_8: for(int addr = 0; addr < 96*32*32; addr++){
 //        local_temp_2[addr] = data_type_o(0);
         output_temp_2[addr] = data_type_o(0);
-    }
+   	}
 //	F7.fc_layer_a(activation_type, local_temp_1, fc_weight_port+1048576*1*1, fc_bias_port+4096, local_temp_2);
     F7.fc_layer_a(activation_type, output_temp_1, fc_weight_port+1048576*1*1, fc_bias_port+4096, output_temp_2);
     RESET_9: for(int addr = 0; addr < 96*32*32; addr++){
 //       	local_temp_1[addr] = data_type_o(0);
         output_temp_1[addr] = data_type_o(0);
-    }
-
+   	}
+*/
 //	F8.fc_layer_a_no_activation(local_temp_2, fc_weight_port+1048576*1*1+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
     F8.fc_layer_a_no_activation(output_temp_2, fc_weight_port+1048576*1*1+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
     RESET_10: for(int i = 0; i < 10; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];
-    }*/
+    }
 	/******************************************************************************************/
 
 
