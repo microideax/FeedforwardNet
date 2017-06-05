@@ -132,13 +132,7 @@ public:
                             conv_w.close();
 #endif
 #endif
-                            for(int i=0; i<Tm; i++){
-                                for(int j=0; j<Tr; j++){
-                                    for(int k=0; k<Tc; k++){
-                                        out_buf[i][j][k] = 0;
-                                    }
-                                }
-                            }
+                            
                             // convolutional accelerator
                             for(int i=0; i<K; i++){
                                 for(int j=0; j<K; j++){

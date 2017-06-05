@@ -124,7 +124,7 @@ void inference_net(
 
     //--------------------------conv layer 2---------------------------//
     C2.conv_layer_a(activation_type, output_temp_1, conv_weight_port+150, conv_bias_port+6, output_temp_0);
-    convAcc2.conv_layer_acc(6, 5, 16, 10, 10, 1, 0, conv_acc_temp_1, conv_weight_port+150, conv_bias_port+6, conv_acc_temp_0);
+    convAcc1.conv_layer_acc(6, 5, 16, 10, 10, 1, 0, conv_acc_temp_1, conv_weight_port+150, conv_bias_port+6, conv_acc_temp_0);
     RESET_2: for(int addr = 0; addr < 96*16*16; addr++){
         output_temp_1[addr] = data_type_o(0);
         conv_acc_temp_1[addr] = 0;

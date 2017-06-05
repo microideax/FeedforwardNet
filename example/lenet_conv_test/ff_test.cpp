@@ -137,7 +137,7 @@ int main() {
 #if _KERNEL_DEBUG_
     //input data array
     data_type in_data_3D[784] = { 0 };
-    ifstream ifs("./net_inputs/input_1.txt");
+    ifstream ifs("./net_inputs/input_3_28.txt");
     string str;
     int count = 0;
     while (ifs >> str)
