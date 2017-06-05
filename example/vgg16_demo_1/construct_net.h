@@ -22,7 +22,7 @@ void inference_net(
 
 	// input pic data
 	data_type in_data_3D[3*224*224],
-
+/*
 	// layer weights and bias inputs ------- vgg16
 	data_type_w        conv_1_1_weight_a[192*3*3],
 	data_type_w        conv_1_1_bias_a[64],
@@ -56,9 +56,19 @@ void inference_net(
 	data_type_w        fc_7_bias_a[4096],
 	data_type_w        fc_8_weight_a[4096000*1*1],
 	data_type_w        fc_8_bias_a[1000],
-
+*/
+	/********************************************************/
+    data_type_w *conv_weight_port,
+    data_type_w *conv_bias_port,
+    data_type_w *fc_weight_port,
+    data_type_w *fc_bias_port,
+    /********************************************************/
 	// output fc data
-	data_type fc_8_out_a[1000*1*1]
+	data_type_o fc_8_out_a[1000*1*1],
+
+    //temp output port
+    data_type_o output_temp_1[],
+    data_type_o output_temp_2[]
 ) {
 
 

@@ -14,6 +14,7 @@
 #include "pool_layer_one_dim.h"
 #include "fc_layer_one_dim.h"
 #include "conv_acc.h"
+#include "max_pool_acc.h"
 
 using namespace std;
 
@@ -66,15 +67,17 @@ void inference_net(
 
     //construct network ----- lenet
     //-------------------------------conv layer 1 ----------------------------------//
-    //conv_layer<data_type, data_type_w, data_type_o, 28, 5, 2, 1, 1, 6, 1> C1;
+    conv_layer<data_type, data_type_w, data_type_o, 28, 5, 2, 1, 1, 6, 1> C1;
     conv_acc<data_type, data_type_w, data_type_o, 6, 1, 28, 28> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
     //-------------------------------pooling layer 1 -------------------------------//
+    max_pool_acc<data_type, data_type_w, data_type_o, 2, 2, 4, 4> poolAcc1;
     pool_layer<data_type, data_type_w, data_type_o, 28, 2, 0, 2, 6> P1;
     //-------------------------------conv layer 2 ----------------------------------//
-    //conv_layer<data_type, data_type_w, data_type_o, 14, 5, 0, 1, 6, 16, 1> C2;
+    conv_layer<data_type, data_type_w, data_type_o, 14, 5, 0, 1, 6, 16, 1> C2;
     conv_acc<data_type, data_type_w, data_type_o, 16, 6, 10, 10> convAcc2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
     //-------------------------------pooling layer 2 -------------------------------//
     pool_layer<data_type, data_type_w, data_type_o, 10, 2, 0, 2, 16> P2;
+    max_pool_acc<data_type, data_type_w, data_type_o, 1, 1, 2, 2> poolAcc2; 
     //-------------------------------conv layer 3 ----------------------------------//
     fc_layer<data_type,data_type_w,data_type_o, 16, 5, 10> F5;
 
@@ -92,40 +95,49 @@ void inference_net(
         fc_8_out_buf[i] = data_type_o(0);
     }
     data_type_o  conv_acc_temp_0[96*32*32];
-    data_type_o  conv_acc_temp_1[96*16*16];
+    data_type_o  conv_acc_temp_1[96*32*32];
+    data_type_o  output_temp_0[96*32*32];
+    data_type_o  output_temp_1[96*32*32];
     RESET_temp_0: for(int addr = 0; addr < 96*32*32; addr++){
         conv_acc_temp_0[addr] = data_type_o(0);
+        output_temp_0[addr] = data_type_o(0);
     }
-    RESET_temp_1: for(int addr = 0; addr < 96*16*16; addr++){
+    RESET_temp_1: for(int addr = 0; addr < 96*32*32; addr++){
         conv_acc_temp_1[addr] = 0;
+        output_temp_1[addr] = data_type_o(0);
     }
 
     char act;
 
     //Forward propagation by layer
-//    C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1);
+    //--------------------------conv layer 1---------------------------//
+    C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_0);
     convAcc1.conv_layer_acc(1, 5, 6, 28, 28, 1, 2, in_data_buf,conv_weight_port, conv_bias_port, conv_acc_temp_0);
 
-//    P1.max_pooling_layer_a(activation_type, output_temp_1, output_temp_2);
-    P1.max_pooling_layer_a(activation_type, conv_acc_temp_0, conv_acc_temp_1);
+    //--------------------------pool layer 1---------------------------//
+    poolAcc1.max_pool_layer_acc(6, 2, 6, 14, 14, 2, 0, conv_acc_temp_0, conv_acc_temp_1);
+    P1.max_pooling_layer_a(activation_type, output_temp_0, output_temp_1);
     RESET_1: for(int addr = 0; addr < 96*32*32; addr++){
-        //output_temp_1[addr] = data_type_o(0);
+        output_temp_0[addr] = data_type_o(0);
         conv_acc_temp_0[addr] = data_type_o(0);
     }
-//    C2.conv_layer_a(activation_type, output_temp_2, conv_weight_port+150, conv_bias_port+6, output_temp_1);
+
+    //--------------------------conv layer 2---------------------------//
+    C2.conv_layer_a(activation_type, output_temp_1, conv_weight_port+150, conv_bias_port+6, output_temp_0);
     convAcc2.conv_layer_acc(6, 5, 16, 10, 10, 1, 0, conv_acc_temp_1, conv_weight_port+150, conv_bias_port+6, conv_acc_temp_0);
     RESET_2: for(int addr = 0; addr < 96*16*16; addr++){
-        //output_temp_2[addr] = data_type_o(0);
+        output_temp_1[addr] = data_type_o(0);
         conv_acc_temp_1[addr] = 0;
     }
-//    P2.max_pooling_layer_a(activation_type, output_temp_1, output_temp_2);
-    P2.max_pooling_layer_a(activation_type, conv_acc_temp_0, conv_acc_temp_1);
+
+    //--------------------------pool layer 2---------------------------//
+    P2.max_pooling_layer_a(activation_type, output_temp_0, output_temp_1);
+    poolAcc1.max_pool_layer_acc(16, 2, 16, 5, 5, 2, 0, conv_acc_temp_0, conv_acc_temp_1);
     RESET_3: for(int addr = 0; addr < 96*32*32; addr++){
-        //output_temp_1[addr] = data_type_o(0);
+        output_temp_0[addr] = data_type_o(0);
         conv_acc_temp_0[addr] = data_type_o(0);
     }
     F5.fc_layer_a(activation_type, conv_acc_temp_1, fc_weight_port, fc_bias_port, fc_8_out_buf);
-//    F5.fc_layer_a(activation_type, output_temp_2, fc_weight_port, fc_bias_port, fc_8_out_buf);
 
     RESET_10: for(int i = 0; i < 10; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];

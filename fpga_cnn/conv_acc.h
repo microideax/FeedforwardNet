@@ -22,13 +22,13 @@ public:
 
 ///////////////////////------------------conv accelerator----------------//////////////////////////
 	void conv_layer_acc(
-        int N, //input feature number
+                int N, //input feature number
 		int K, //input kernel size
 		int M, // output feature number
 		int R, // output Row
 		int C, // output column
 		int S, // stride size
-        int P, // padding size
+                int P, // padding size
 		T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
 		W *layer_weights, //w[M][N][K][K]
 		W *layer_bias, // b[M]
@@ -128,36 +128,32 @@ public:
             			}
 
             			// transfer output data
-                        ofstream conv_out_buf;
-                        conv_out_buf.open("conv_out_buf.txt", ios::app);
+//                        ofstream conv_out_buf;
+//                        conv_out_buf.open("conv_out_buf.txt", ios::app);
                         int flag1=0;
                         int flag2=0;
-                        if(R<r+Tr){
-                            flag1=1;
-                        }if(C<c+Tc){
-                            flag2=1;
-                        }
-            			for(int i = 0; i < Tm; i++){
-            				for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
-            					for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){
-                                    
+                        if(R<r+Tr){ flag1=1; }
+                        if(C<c+Tc){ flag2=1; }
+            	        for(int i = 0; i < Tm; i++){
+        		    for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
+            		        for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){    
                                     if ((out_buf[i][j][k] + b_buf[i]) >= 0) {
-                                        conv_out_buf << (out_buf[i][j][k] + b_buf[i]) << " ";
+//                                        conv_out_buf << (out_buf[i][j][k] + b_buf[i]) << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = (out_buf[i][j][k] + b_buf[i]);
                                         out_buf[i][j][k] = 0;
                                     }
                                     else{
-                                        conv_out_buf << 0 << " ";
+//                                        conv_out_buf << 0 << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = 0;
                                         out_buf[i][j][k] = 0;
                                     }
-            					}
-                                conv_out_buf << endl;
-            				}
-                            conv_out_buf << endl;
             			}
-                        conv_out_buf.close();
+//                                conv_out_buf << endl;
+            		    }
+//                            conv_out_buf << endl;
             		}
+//                        conv_out_buf.close();
+            	    }
             	}
             }
 #if _C_DEBUG_MODE_
