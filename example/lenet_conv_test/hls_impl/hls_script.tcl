@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_conv_1
+open_project hls_conv_pool
 
 set_top inference_net
 
@@ -10,6 +10,7 @@ add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
 add_files ../inference_net/conv_acc.h
+add_files ../inference_net/max_pool_acc.h
 add_files ../inference_net/pool_layer_one_dim.h
 add_files ../inference_net/fc_layer_one_dim.h
 add_files ../inference_net/data_type.h
@@ -24,10 +25,8 @@ add_files -tb ../inference_net/stb_image/stb_image_resize.h
 add_files -tb ../inference_net/stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
-add_files -tb ../net_inputs/cifar10_val/48870.png
+add_files -tb ../net_inputs/input_3_28.txt
 add_files -tb ../net_inputs/net_weights.txt
-add_files -tb ../net_inputs/val.txt
-add_files -tb ../net_inputs/net_mean.txt
 
 add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2016.4/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 

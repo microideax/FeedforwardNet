@@ -39,10 +39,16 @@ public:
         G *out_data){ // out[M][R][C]
 
             //buffer local data before computation
-            T in_buf[Tn][(Tr-1)*S + K][(Tc-1)*S + K];
+            //T in_buf[Tn][(Tr-1)*S + K][(Tc-1)*S + K];
+            T in_buf[Tn][(Tr-1)*5 + 5][(Tc-1)*5 + 5];
             G out_buf[Tm][Tr][Tc];
             W w_buf[Tm][Tn][K][K];
             W b_buf[Tm];
+
+#pragma HLS ARRAY_PARTITION variable=in_buf factor=8 dim=1
+#pragma HLS ARRAY_PARTITION variable=out_buf factor=8 dim=1
+#pragma HLS ARRAY_PARTITION variable=w_buf factor=8 dim=1
+#pragma HLS ARRAY_PARTITION variable=b_buf complete
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
