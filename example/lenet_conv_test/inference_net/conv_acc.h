@@ -44,6 +44,8 @@ public:
             W w_buf[Tm][Tn][K][K];
             W b_buf[Tm];
 
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
             for(int i = 0; i < Tm; i++){
                 for(int j = 0; j < Tr; j++){
                     for(int k = 0; k < Tc; k++){
@@ -63,7 +65,8 @@ public:
             for(int i = 0; i < Tm; i++){
                 b_buf[i]= W(0);
             }
-
+#endif
+#endif
             for(int r = 0; r < R; r += Tr){
                 for(int c = 0; c < C; c += Tc){
                     for(int m = 0; m < M; m += Tm){
@@ -81,6 +84,7 @@ public:
                                     }
                                 }
                             }
+
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                             ofstream conv_acc;
@@ -118,7 +122,6 @@ public:
                                     for(int k = 0; k < K; k++){
                                         for(int l = 0; l < K; l++){
                                             conv_w << w_buf[i][j][k][l] << " ";
-                                            //cout << w_buf[i][j][k][l] << " ";
                                         }
                                         conv_w << endl;
                                         //cout << endl;
@@ -153,8 +156,7 @@ public:
                         }
 
                         // transfer output data
-                        ofstream conv_out_buf;
-                        conv_out_buf.open("conv_out_buf.txt", ios::app);
+
                         int flag1=0;
                         int flag2=0;
                         if(R<r+Tr){
@@ -166,24 +168,36 @@ public:
                             for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
                                 for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){
                                     if ((out_buf[i][j][k] + b_buf[i]) >= 0) {
-                                        conv_out_buf << (out_buf[i][j][k] + b_buf[i]) << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = (out_buf[i][j][k] + b_buf[i]);
                                         out_buf[i][j][k] = G(0);
                                     }
                                     else{
-                                        conv_out_buf << 0 << " ";
                                         *(out_data + (i + m) * R * C + (j + r) * C + k + c) = G(0);
                                         out_buf[i][j][k] = G(0);
                                     }
+                                }
+                            }
+                        }
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
+                        ofstream conv_out_buf;
+                        conv_out_buf.open("conv_out_buf.txt", ios::app);
+                        for(int i = 0; i < ((M<m+Tm)?(M%Tm):Tm); i++){
+                            for(int j=0; j < ((R<r+Tr) ? (R%Tr):Tr); j++){
+                                for(int k=0; k < ((C<c+Tc) ? (C%Tc):Tc); k++){
+                                    conv_out_buf << *(out_data + (i + m) * R * C + (j + r) * C + k + c) << " ";
                                 }
                                 conv_out_buf << endl;
                             }
                             conv_out_buf << endl;
                         }
                         conv_out_buf.close();
+#endif
+#endif
                     }
                 }
             }
+
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
             ofstream conv_out;
