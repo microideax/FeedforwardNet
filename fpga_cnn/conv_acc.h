@@ -46,6 +46,8 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
+            cout << "Starting conv_acc layer ...." << endl;
+            //buffer local data initiallization:must do it!
             for(int i = 0; i < Tm; i++){
                 for(int j = 0; j < Tr; j++){
                     for(int k = 0; k < Tc; k++){
@@ -90,10 +92,10 @@ public:
                             ofstream conv_acc;
                             conv_acc.open("conv_in_data.txt", ios::app);
                             conv_acc <<"conv input: "<< endl;
-                            for (int i = 0; i < std::min(Tn,n); i++) {
+                            for (int i = n; i < min(N, n+Tn); i++) {
                                 for (int j = 0; j < (Tr-1)*S + K; j++) {
                                     for(int k = 0; k < (Tc-1)*S + K; k++){
-                                        conv_acc << in_buf[i][j][k] << " ";
+                                        conv_acc << in_buf[i-n][j][k] << " ";
                                     }
                                     conv_acc << endl;
                                 }
@@ -117,20 +119,17 @@ public:
 #if _KERNEL_DEBUG_
                             ofstream conv_w;
                             conv_w.open("conv_in_weights.txt", ios::app);
-                            for (int i = 0; i < Tm; i++) {
-                                for (int j = 0; j < Tn; j++) {
+                            for (int i = m; i < min(M, m+Tm); i++) {
+                                for (int j = n; j < min(N, n+Tn); j++) {
                                     for(int k = 0; k < K; k++){
                                         for(int l = 0; l < K; l++){
-                                            conv_w << w_buf[i][j][k][l] << " ";
+                                            conv_w << w_buf[i-m][j-n][k][l] << " ";
                                         }
                                         conv_w << endl;
-                                        //cout << endl;
                                     }
                                     conv_w << endl;
-                                    //cout << endl;
                                 }
                                 conv_w << endl;
-                                //cout << endl;
                             }
                             conv_w.close();
 #endif
@@ -139,14 +138,14 @@ public:
                             // convolutional accelerator
                             for(int i=0; i<K; i++){
                                 for(int j=0; j<K; j++){
-                                    for(int tr=0; tr+r<min(R, r+Tr); tr++){
-                                        for(int tc=0; tc+c<min(C, c+Tc); tc++){
+                                    for(int tr=r; tr<min(R, r+Tr); tr++){
+                                        for(int tc=c; tc<min(C, c+Tc); tc++){
 #pragma HLS PIPELINE
                                             for(int tm=m; tm<min(M, m+Tm); tm++){ // unroll loop kernel
 #pragma HLS UNROLL
                                                 for(int tn=n; tn<min(N, n+Tn); tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                                    out_buf[tm-m][tr][tc] += w_buf[tm-m][tn-n][i][j]*in_buf[tn-n][S*tr+i][S*tc+j];
+                                                    out_buf[tm-m][tr-r][tc-c] += w_buf[tm-m][tn-n][i][j]*in_buf[tn-n][S*(tr-r)+i][S*(tc-c)+j];
                                                 }
                                             }
                                         }
@@ -156,24 +155,16 @@ public:
                         }
 
                         // transfer output data
-
-                        int flag1=0;
-                        int flag2=0;
-                        if(R<r+Tr){
-                            flag1=1;
-                        }if(C<c+Tc){
-                            flag2=1;
-                        }
-                        for(int i = 0; i < Tm; i++){
-                            for(int j=0; j < (flag1>0?(R%Tr):Tr); j++){
-                                for(int k=0; k < (flag2>0?(C%Tc):Tc); k++){
-                                    if ((out_buf[i][j][k] + b_buf[i]) >= 0) {
-                                        *(out_data + (i + m) * R * C + (j + r) * C + k + c) = (out_buf[i][j][k] + b_buf[i]);
-                                        out_buf[i][j][k] = G(0);
+                        for(int i = m; i < min(M, m+Tm); i++){
+                            for(int j=r; j < min(R, r+Tr); j++){
+                                for(int k=c; k < min(C, c+Tc); k++){
+                                    if ((out_buf[i-m][j-r][k-c] + b_buf[i-m]) >= 0) {
+                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c] + b_buf[i-m]);
+                                        out_buf[i-m][j-r][k-c] = G(0);
                                     }
                                     else{
-                                        *(out_data + (i + m) * R * C + (j + r) * C + k + c) = G(0);
-                                        out_buf[i][j][k] = G(0);
+                                        *(out_data + i * R * C + j * C + k) = G(0);
+                                        out_buf[i-m][j-r][k-c] = G(0);
                                     }
                                 }
                             }
@@ -182,10 +173,11 @@ public:
 #if _KERNEL_DEBUG_
                         ofstream conv_out_buf;
                         conv_out_buf.open("conv_out_buf.txt", ios::app);
-                        for(int i = 0; i < ((M<m+Tm)?(M%Tm):Tm); i++){
-                            for(int j=0; j < ((R<r+Tr) ? (R%Tr):Tr); j++){
-                                for(int k=0; k < ((C<c+Tc) ? (C%Tc):Tc); k++){
-                                    conv_out_buf << *(out_data + (i + m) * R * C + (j + r) * C + k + c) << " ";
+                        conv_out_buf <<"conv out buf: "<< endl;
+                        for(int i = m; i < min(M, m+Tm); i++){
+                            for(int j=r; j < min(R, r+Tr); j++){
+                                for(int k=c; k < min(C, c+Tc); k++){
+                                    conv_out_buf << *(out_data + i * R * C + j * C + k) << " ";
                                 }
                                 conv_out_buf << endl;
                             }
@@ -200,6 +192,8 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
+            cout << "Finished conv_acc layer ...." << endl;
+            cout << endl;
             ofstream conv_out;
             conv_out.open("conv_out_data.txt", ios::app);
             conv_out <<"conv output: "<< endl;

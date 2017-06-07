@@ -11,7 +11,7 @@
 
 using namespace std;
 
-template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>
+template <typename T, typename W, typename G, int Tn, int Tr, int Tc>
 class max_pool_acc {
 
 private:
@@ -24,7 +24,6 @@ public:
     void max_pool_layer_acc(
             int N, //input feature number
             int K, //input kernel size
-            int M, // output feature number
             int R, // output Row
             int C, // output column
             int S, // stride size, always equal to K
@@ -33,7 +32,12 @@ public:
             G *out_data) { // out[M][R][C]
 
 //stride size S=K
-
+        
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
+            cout << "Starting max_pool_acc layer ...." << endl;
+#endif
+#endif
         //buffer local data before computation
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
@@ -42,7 +46,7 @@ public:
             for (int c = 0; c < C; c += Tc) {
                 for (int n = 0; n < N; n += Tn) {
                     // load input data
-                    for (int i = n; i < n + Tn; i++) {
+                    for (int i = n; i < min(N, n+Tn); i++) {
                         for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
                             for (int k = c * S - P; k < (c + Tc - 1) * S + K - P; k++) {
                                 if (j < 0 || j >= ((R - 1) * S + K - 2 * P) || k < 0 || k >= ((C - 1) * S + K - 2 * P)) {
@@ -61,10 +65,10 @@ public:
                     ofstream pool_in_data;
                     pool_in_data.open("pool_in_data.txt", ios::app);
                     pool_in_data <<"pool input: "<< endl;
-                    for (int i = 0; i < Tn; i++) {
+                    for (int i = n; i < min(N, n+Tn); i++) {
                         for (int j = 0; j < (Tr-1)*S + K; j++) {
                             for(int k = 0; k < (Tc-1)*S + K; k++){
-                                pool_in_data << in_buf[i][j][k] << " ";
+                                pool_in_data << in_buf[i-n][j][k] << " ";
                             }
                             pool_in_data << endl;
                         }
@@ -74,33 +78,25 @@ public:
 #endif
 
                     // max pooling computation core
-                    for (int tr = 0; tr + r < min(R, r + Tr); tr++) {
-                        for (int tc = 0; tc + c < min(C, c + Tc); tc++) {
-                            for (int tn = 0; tn < Tn; tn++) { // unroll loop kernel
+                    for(int tr=r; tr<min(R, r+Tr); tr++){
+                        for(int tc=c; tc<min(C, c+Tc); tc++){
+                            for (int tn=n; tn<min(N, n+Tn); tn++) { // unroll loop kernel
                                 T max = 0;
                                 for (int i = 0; i < K; i++) {
                                     for (int j = 0; j < K; j++) {
-                                        max = (max > in_buf[tn][S * tr + i][S * tc + j]) ? max : in_buf[tn][S * tr + i][S * tc + j];
+                                        max = (max > in_buf[tn-n][S * (tr-r) + i][S * (tc-c) + j]) ? max : in_buf[tn-n][S * (tr-r) + i][S * (tc-c) + j];
                                     }
                                 }
-                                out_buf[tn][tr][tc] = max;
+                                out_buf[tn-n][tr-r][tc-c] = max;
                             }
                         }
                     }
 
                     // transfer output data
-                    int flag1 = 0;
-                    int flag2 = 0;
-                    if (R < r + Tr) {
-                        flag1 = 1;
-                    }
-                    if (C < c + Tc) {
-                        flag2 = 1;
-                    }
-                    for (int i = 0; i < Tn; i++) {
-                        for (int j = 0; j < (flag1 > 0 ? (R % Tr) : Tr); j++) {
-                            for (int k = 0; k < (flag2 > 0 ? (C % Tc) : Tc); k++) {
-                                *(out_data + (i + n) * R * C + (j + r) * C + k + c) = out_buf[i][j][k];
+                    for(int i = n; i < min(N, n+Tn); i++){
+                        for(int j=r; j < min(R, r+Tr); j++){
+                            for(int k=c; k < min(C, c+Tc); k++){
+                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
                             }
                         }
                     }
@@ -110,10 +106,11 @@ public:
                     // transfer output data
                     ofstream pool_out_buf;
                     pool_out_buf.open("pool_out_buf.txt", ios::app);
-                    for (int i = 0; i < Tn; i++) {
-                        for (int j = 0; j < ((R<r+Tr) ? (R % Tr) : Tr); j++) {
-                            for (int k = 0; k < ((C<c+Tc) ? (C % Tc) : Tc); k++) {
-                                pool_out_buf << out_buf[i][j][k] << " ";
+                    pool_out_buf <<"pool out buf: "<< endl;
+                    for(int i = n; i < min(N, n+Tn); i++){
+                        for(int j=r; j < min(R, r+Tr); j++){
+                            for(int k=c; k < min(C, c+Tc); k++){
+                                pool_out_buf << out_buf[i-n][j-r][k-c] << " ";
                             }
                             pool_out_buf << endl;
                         }
@@ -128,8 +125,11 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
+        cout << "Finished max_pool_acc layer ...." << endl;
+        cout << endl;
         ofstream pool_out;
         pool_out.open("pool_out_data.txt", ios::app);
+        pool_out <<"pool output: "<< endl;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < R; j++) {
                 for(int k = 0; k < C; k++){
