@@ -137,7 +137,7 @@ int main() {
 #if _KERNEL_DEBUG_
     //input data array
     data_type in_data_3D[784] = { 0 };
-    ifstream ifs("./net_inputs/input_1.txt");
+    ifstream ifs("./net_inputs/input_3_28.txt");
     string str;
     int count = 0;
     while (ifs >> str)
@@ -325,7 +325,9 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int);
+	fc_8_out_mem_int,
+    temp_out_1,
+    temp_out_2);
 
     finish = clock();
     totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
