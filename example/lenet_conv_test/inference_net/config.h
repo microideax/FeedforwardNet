@@ -19,7 +19,7 @@ typedef float data_type_o;
 typedef float data_type_w;
 
 // C++ compilation debug mode
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 

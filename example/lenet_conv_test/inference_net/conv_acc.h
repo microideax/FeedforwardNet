@@ -9,10 +9,6 @@
 #include <fstream>
 #include "activation_functions.h"
 
-#if _C_DEBUG_MODE_
-#include <algorithm>
-#endif
-
 using namespace std;
 
 template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>
@@ -45,10 +41,10 @@ public:
             W w_buf[Tm][Tn][K][K];
             W b_buf[Tm];
 
-#pragma HLS ARRAY_PARTITION variable=in_buf factor=8 dim=1
-#pragma HLS ARRAY_PARTITION variable=out_buf factor=8 dim=1
-#pragma HLS ARRAY_PARTITION variable=w_buf factor=8 dim=1
-#pragma HLS ARRAY_PARTITION variable=b_buf complete
+//#pragma HLS ARRAY_PARTITION variable=in_buf factor=8 dim=1
+//#pragma HLS ARRAY_PARTITION variable=out_buf factor=8 dim=1
+//#pragma HLS ARRAY_PARTITION variable=w_buf factor=8 dim=1
+//#pragma HLS ARRAY_PARTITION variable=b_buf complete
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -81,11 +77,11 @@ public:
                         for(int n = 0; n < N; n += Tn){
                             
                             // load input data
-                            for(int i = n; i < min(N, n+Tn); i++){
+                            for(int i = n; i < n+Tn; i++){
                                 for(int j = r*S - P; j < (r+Tr-1)*S + K - P; j++){
                                     for(int k = c*S - P; k < (c+Tc-1)*S + K - P; k++){
                                         if(j < 0 || j >= ((R-1)*S + K - 2*P) || k < 0 || k >= ((C-1)*S + K - 2*P)){
-                                            in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);}
+                                            in_buf[i-n][j-r*S+P][k-c*S+P] = 0;}
                                         else{
                                             in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);}
 //                                          in_buf[i-n][j-r*S][k-c*S] = *(in_data + i*((R-1)*S+K)*((C-1)*S+K) + j*((C-1)*S+K) +k);
@@ -110,9 +106,10 @@ public:
                             conv_acc.close();
 #endif
 #endif
+                            
                             // load input weights
-                            for(int i = m; i < min(M, m+Tm); i++){
-                                for(int j = n; j < min(N, n+Tn); j++){
+                            for(int i = m; i < m+Tm; i++){
+                                for(int j = n; j < n+Tn; j++){
                                     for(int k1 = 0; k1 < K; k1++){
                                         for(int k2 = 0; k2 < K; k2++){
                                             w_buf[i-m][j-n][k1][k2] = *(layer_weights + i*N*K*K + j*K*K + k1*K + k2);
@@ -144,14 +141,18 @@ public:
                             // convolutional accelerator
                             for(int i=0; i<K; i++){
                                 for(int j=0; j<K; j++){
-                                    for(int tr=r; tr<min(R, r+Tr); tr++){
-                                        for(int tc=c; tc<min(C, c+Tc); tc++){
+//                                    for(int tr=r; tr<min(R, r+Tr); tr++){
+                                    for(int tr=0; tr<Tr; tr++){
+//                                        for(int tc=c; tc<min(C, c+Tc); tc++){
+                                        for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-                                            for(int tm=m; tm<min(M, m+Tm); tm++){ // unroll loop kernel
+//                                            for(int tm=m; tm<min(M, m+Tm); tm++){ // unroll loop kernel
+                                            for(int tm=0; tm<Tm; tm++){
 #pragma HLS UNROLL
-                                                for(int tn=n; tn<min(N, n+Tn); tn++){ // unroll loop kernel
+//                                                for(int tn=n; tn<min(N, n+Tn); tn++){ // unroll loop kernel
+                                                for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                                    out_buf[tm-m][tr-r][tc-c] += w_buf[tm-m][tn-n][i][j]*in_buf[tn-n][S*(tr-r)+i][S*(tc-c)+j];
+                                                    out_buf[tm][tr][tc] = ((i==0&&j==0&&n==0)?b_buf[tm]:out_buf[tm][tr][tc])+w_buf[tm][tn][i][j]*in_buf[tn][S*tr+i][S*tc+j];
                                                 }
                                             }
                                         }
@@ -160,21 +161,24 @@ public:
                             }
                         }
 
+//                        int TM = (M<(m+Tm))?M:(m+Tm); //min(M, m+Tm);
+//                        int TR = (R<(r+Tr))?R:(r+Tr); //min(R, r+Tr);
+//                        int TC = (C<(c+Tc))?C:(c+Tc); //min(C, c+Tc);
                         // transfer output data
-                        for(int i = m; i < min(M, m+Tm); i++){
-                            for(int j=r; j < min(R, r+Tr); j++){
-                                for(int k=c; k < min(C, c+Tc); k++){
-                                    if ((out_buf[i-m][j-r][k-c] + b_buf[i-m]) >= 0) {
-                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c] + b_buf[i-m]);
-                                        out_buf[i-m][j-r][k-c] = G(0);
-                                    }
-                                    else{
-                                        *(out_data + i * R * C + j * C + k) = G(0);
-                                        out_buf[i-m][j-r][k-c] = G(0);
+                        for(int i = 0; i < Tm; i++) {
+                            for (int j = 0; j < Tr; j++) {
+                                for (int k = 0; k < Tc; k++) {
+                                    if (out_buf[i][j][k] >= 0) {
+                                        *(out_data + (i+m) * R * C + (j+r) * C + k + c) = (out_buf[i][j][k]);
+//                                        out_buf[i][j][k] = 0;
+                                    } else {
+                                        *(out_data + (i+m) * R * C + (j+r) * C + k + c) = 0;
+//                                        out_buf[i][j][k] = 0;
                                     }
                                 }
                             }
                         }
+
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                         ofstream conv_out_buf;
