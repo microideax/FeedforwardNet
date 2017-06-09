@@ -43,10 +43,10 @@ void inference_net(
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 #pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
 
-#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D
+#pragma HLS INTERFACE m_axi depth=154587 port=in_data_3D
 
-#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port
-#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port
+#pragma HLS INTERFACE m_axi depth=2332704  port=conv_weight_port
+#pragma HLS INTERFACE m_axi depth=1376     port=conv_bias_port
 #pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port
 #pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port
 
@@ -65,14 +65,14 @@ void inference_net(
 
 	//construct network --------------alexnet
 	//conv_layer<data_type,data_type_w,data_type_o, 227, 11, 0, 4, 3, 96, 1> C1;
-	conv_acc<data_type, data_type_w, data_type_o, 48, 3, 55, 55> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	lrn_layer<data_type_o, 96 ,5 ,55> L1;
+	conv_acc<data_type, data_type_w, data_type_o, 64, 7, 55, 55> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	lrn_layer<data_type_o, 96 ,5 ,55> L1;
 	//pool_layer<data_type,data_type_w,data_type_o, 55, 3, 0, 2, 96> P1;
-	max_pool_acc<data_type, data_type_w, data_type_o, 96, 20, 20> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	max_pool_acc<data_type, data_type_w, data_type_o, 96, 20, 20> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 	//conv_layer<data_type,data_type_w,data_type_o, 27, 5, 2, 1, 96, 256, 2> C2;
 	//conv_acc<data_type, data_type_w, data_type_o, 20, 24, 27, 27> convAcc2_1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 	//conv_acc<data_type, data_type_w, data_type_o, 20, 24, 27, 27> convAcc2_2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	lrn_layer<data_type_o, 256, 5, 27> L2;
+//	lrn_layer<data_type_o, 256, 5, 27> L2;
 	//pool_layer<data_type,data_type_w,data_type_o, 27, 3, 0, 2, 256> P2;
 	//max_pool_acc<data_type, data_type_w, data_type_o, 256, 13, 13> maxPoolAcc2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 	//conv_layer<data_type,data_type_w,data_type_o, 13, 3, 1, 1, 256, 384, 1> C3;
@@ -87,24 +87,24 @@ void inference_net(
 	//max_pool_acc<data_type, data_type_w, data_type_o, 256, 6, 6> maxPoolAcc5;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 	//fc_layer<data_type,data_type_w,data_type_o, 256, 6, 4096> F6;
 	//conv_acc<data_type, data_type_w, data_type_o, 4096, 256, 1, 1> fcAcc6;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
+//	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
 	//conv_acc<data_type, data_type_w, data_type_o, 4096, 4096, 1, 1> fcAcc7;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 1000> F8;
+//	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 1000> F8;
 	//conv_acc<data_type, data_type_w, data_type_o, 1000, 4096, 1, 1> fcAcc8;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 
 	//temp storage space
-	data_type in_data_buf[3*227*227];
-	data_type_o fc_8_out_buf[1000];
+//	data_type in_data_buf[3*227*227];
+	data_type_o  fc_8_out_buf[1000];
 	data_type_o  output_temp_1[96*55*55];
     data_type_o  output_temp_2[96*55*55];
-    
+    /*
     TRANS_DATA: for(int i = 0; i < 3; i++){
 	    for(int j = 0; j < 227; j++){
 		for(int k = 0; k < 227; k++){
 		    in_data_buf[i*227*227 + j*227 + k] = in_data_3D[i*227*227 + j*227 + k];
 	        }
 	    }
-	}
+	}*/
 
     //internal memory initiallization:must do it!
     RESET_fc_8_out_buf: for(int i = 0; i < 1000; i++){
@@ -117,8 +117,8 @@ void inference_net(
 
 	//Forward propagation by layer
 	//C1.conv_layer_a(activation_type, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1);
-	convAcc1.conv_layer_acc(3, 11, 96, 55, 55, 4, 0, in_data_buf,conv_weight_port, conv_bias_port, output_temp_1);
-
+	convAcc1.conv_layer_acc(3, 11, 96, 55, 55, 4, 0, in_data_3D,conv_weight_port, conv_bias_port, output_temp_1);
+/*
     L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_temp_1, output_temp_2);
     	for(int addr = 0; addr < 96*55*55; addr++){
         	output_temp_1[addr] = data_type_o(0);
@@ -178,7 +178,7 @@ void inference_net(
     	}
 	F8.fc_layer_a_no_activation(output_temp_2, fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
 	//fcAcc8.conv_layer_acc(4096, 1, 1000, 1, 1, 1, 0, output_temp_2,fc_weight_port+1048576*6*6+16777216*1*1, fc_bias_port+4096+4096, fc_8_out_buf);
-
+*/
 	for(int i = 0; i < 1000; i++){
 	    fc_8_out_a[i] = fc_8_out_buf[i];
 	}

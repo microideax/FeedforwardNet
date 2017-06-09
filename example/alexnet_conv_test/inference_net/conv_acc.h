@@ -39,7 +39,7 @@ public:
         G *out_data){ // out[M][R][C]
 
             //buffer local data before computation
-            T in_buf[Tn][(Tr-1)*S + K][(Tc-1)*S + K];
+            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
             G out_buf[Tm][Tr][Tc];
             W w_buf[Tm][Tn][K][K];
             W b_buf[Tm];
@@ -105,6 +105,7 @@ public:
 #endif
 #endif
                             // load input weights
+                            /*
                             for(int i = m; i < min(M, m+Tm); i++){
                                 for(int j = n; j < min(N, n+Tn); j++){
                                     for(int k1 = 0; k1 < K; k1++){
@@ -114,7 +115,7 @@ public:
                                     }
                                 }
                                 b_buf[i-m] = *(layer_bias + i);
-                            }
+                            }*/
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                             ofstream conv_w;
@@ -134,17 +135,17 @@ public:
                             conv_w.close();
 #endif
 #endif
-                            
+                            /*
                             // convolutional accelerator
                             for(int i=0; i<K; i++){
                                 for(int j=0; j<K; j++){
                                     for(int tr=r; tr<min(R, r+Tr); tr++){
                                         for(int tc=c; tc<min(C, c+Tc); tc++){
-#pragma HLS PIPELINE
+//#pragma HLS PIPELINE
                                             for(int tm=m; tm<min(M, m+Tm); tm++){ // unroll loop kernel
-#pragma HLS UNROLL
+//#pragma HLS UNROLL
                                                 for(int tn=n; tn<min(N, n+Tn); tn++){ // unroll loop kernel
-#pragma HLS UNROLL
+//#pragma HLS UNROLL
                                                     out_buf[tm-m][tr-r][tc-c] += w_buf[tm-m][tn-n][i][j]*in_buf[tn-n][S*(tr-r)+i][S*(tc-c)+j];
                                                 }
                                             }
@@ -152,9 +153,11 @@ public:
                                     }
                                 }
                             }
+                            */
                         }
 
                         // transfer output data
+                        /*
                         for(int i = m; i < min(M, m+Tm); i++){
                             for(int j=r; j < min(R, r+Tr); j++){
                                 for(int k=c; k < min(C, c+Tc); k++){
@@ -168,7 +171,7 @@ public:
                                     }
                                 }
                             }
-                        }
+                        }*/
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                         ofstream conv_out_buf;
