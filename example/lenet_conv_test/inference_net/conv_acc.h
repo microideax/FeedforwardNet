@@ -42,9 +42,9 @@ public:
             W b_buf[Tm];
 
 //#pragma HLS ARRAY_PARTITION variable=in_buf factor=8 dim=1
-//#pragma HLS ARRAY_PARTITION variable=out_buf factor=8 dim=1
-//#pragma HLS ARRAY_PARTITION variable=w_buf factor=8 dim=1
-//#pragma HLS ARRAY_PARTITION variable=b_buf complete
+//#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+//#pragma HLS ARRAY_PARTITION variable=w_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=b_buf complete
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_

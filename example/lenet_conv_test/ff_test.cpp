@@ -167,7 +167,7 @@ int main() {
 	for (int i = 0; i < 1; i++) {
 		for (int j = 0; j < 28; j++) {
 			for (int k = 0; k < 28; k++) {
-				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
+				temp_out_2[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
 				in_data_size++;
 			}
 		}

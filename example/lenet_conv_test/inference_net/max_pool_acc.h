@@ -42,9 +42,13 @@ public:
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
 
+//#pragma HLS ARRAY_PARTITION variable=in_buf factor=8 dim=1
+//#pragma HLS ARRAY_PARTITION variable=out_buf factor=8 dim=1
+
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
                 for (int n = 0; n < N; n += Tn) {
+
                     // load input data
                     for (int i = n; i < min(N, n+Tn); i++) {
                         for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
