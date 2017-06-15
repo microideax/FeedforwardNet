@@ -46,7 +46,10 @@ public:
             for (int c = 0; c < C; c += Tc) {
                 for (int n = 0; n < N; n += Tn) {
                     // load input data
-                    for (int i = n; i < min(N, n+Tn); i++) {
+                    for (int i = n; i < n+Tn; i++) {
+                        if(N < n+Tn && i == N%Tn){
+                            break;
+                        }
                         for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
                             for (int k = c * S - P; k < (c + Tc - 1) * S + K - P; k++) {
                                 if (j < 0 || j >= ((R - 1) * S + K - 2 * P) || k < 0 || k >= ((C - 1) * S + K - 2 * P)) {
@@ -78,9 +81,21 @@ public:
 #endif
 
                     // max pooling computation core
-                    for(int tr=r; tr<min(R, r+Tr); tr++){
-                        for(int tc=c; tc<min(C, c+Tc); tc++){
-                            for (int tn=n; tn<min(N, n+Tn); tn++) { // unroll loop kernel
+                    for(int tr=r; tr<r+Tr; tr++){
+//#pragma HLS UNROLL
+                        if(R < r+Tr && tr == R%Tr){
+                            break;
+                        }
+                        for(int tc=c; tc<c+Tc; tc++){
+#pragma HLS UNROLL
+                            if(C < c+Tc && tc == C%Tc){
+                                break;
+                            }
+                            for (int tn=n; tn<n+Tn; tn++) { // unroll loop kernel
+#pragma HLS UNROLL
+                                if(N < n+Tn && tn == N%Tn){
+                                    break;
+                                }
                                 T max = 0;
                                 for (int i = 0; i < K; i++) {
                                     for (int j = 0; j < K; j++) {
@@ -93,9 +108,18 @@ public:
                     }
 
                     // transfer output data
-                    for(int i = n; i < min(N, n+Tn); i++){
-                        for(int j=r; j < min(R, r+Tr); j++){
-                            for(int k=c; k < min(C, c+Tc); k++){
+                    for(int i = n; i < n+Tn; i++){
+                        if(N < n+Tn && i == N%Tn){
+                            break;
+                        }
+                        for(int j=r; j < r+Tr; j++){
+                            if(R < r+Tr && j == R%Tr){
+                                break;
+                            }
+                            for(int k=c; k < c+Tc; k++){
+                                if(C < c+Tc && k == C%Tc){
+                                    break;
+                                }
                                 *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
                             }
                         }
