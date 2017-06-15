@@ -1,0 +1,62 @@
+{
+	"import":
+		[
+		   "#ifndef _CONFIG_H_",
+		   "#define _CONFIG_H_"
+		],
+
+	"type_definition":
+		[
+		   "data_type",
+		   "data_type_w",
+		   "data_type_o" 
+		],
+	"preprocessor":
+		[
+ 		   "//#define _BATCH_MODE_ 1",
+		   "#ifdef _BATCH_MODE_",
+		   "#define _KERNEL_DEBUG_ 0",
+		   "#else",
+		   "#define _KERNEL_DEBUG_ 1",
+		   "#endif",
+		   "#ifdef _HLS_MODE_",
+ 		   "#define _C_DEBUG_MODE_ 0",
+		   "#else",
+		   "#define _C_DEBUG_MODE_ 1",
+		   "#endif"
+		],
+	"var":
+		[
+		    {"type":"int", "name":"weight_bias_record", "value":"0"},
+		    {"type":"int", "name":"weight_bias_count_1", "value":"0"},
+		    {"type":"int", "name":"weight_bias_count_2", "value":"0"}
+		],
+
+	"params":
+		[
+		    {"type":"int", "name":"nn_in_data_size_conv"},	
+		    {"type":"int", "name":"nn_in_number_conv"},	    
+		    {"type":"int", "name":"nn_out_number_conv"},
+		    {"type":"int", "name":"nn_channel_size_conv"},
+		    {"type":"int", "name":"nn_padding_conv"},
+		    {"type":"int", "name":"nn_group_conv"},
+	
+		    {"type":"int", "name":"nn_in_data_size_pooling"},	 
+		    {"type":"int", "name":"nn_in_number_pooling"},	
+		    {"type":"int", "name":"nn_channel_size_pooling"},
+
+		    {"type":"int", "name":"nn_in_data_size_fc"},	   
+		    {"type":"int", "name":"nn_in_number_fc"},	   
+		    {"type":"int", "name":"nn_out_number_fc"},	   
+		    {"type":"int", "name":"nn_channel_size_fc"},
+	  
+		    {"type":"int", "name":"nn_local_size_lrn"},	  
+		    {"type":"float", "name":"nn_alpha_lrn"},	  
+		    {"type":"float", "name":"nn_beta_lrn"}	  
+		],
+	"end":
+	[
+	  "#endif //FFNET_CONFIG_H_"
+	]
+
+}

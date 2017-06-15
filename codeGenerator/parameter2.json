@@ -1,0 +1,106 @@
+{
+	"import":
+		{
+		  "include":
+			[	
+			  	"#include <iostream>",
+				"#include <cstring>",
+				"#include <fstream>",
+				"#include <algorithm>",
+				"#include <cstring>",
+				"#include <sstream>",
+				"#include <cstdlib>",
+				"#include <time.h>",
+				"#include <malloc.h>",
+				"#include <ap_fixed.h>",
+				"#include \"inference_net/config.h\"",
+				"#include \"inference_net/construct_net.h\"",
+				"#include \"inference_net/image_converter.h\"",
+				"#include \"inference_net/weight_bias_one_dim.h\"",
+				"#include \"inference_net/softmax_one_dim.h\"",
+				"#include \"inference_net/predict_one_dim.h\"",
+				"#include \"inference_net/accuracy_one_dim.h\"",
+				"#include \"inference_net/pow_function.h\"",
+				"#include \"inference_net/resize_image.h\""
+			],
+		    "namespace":
+			[
+				"using namespace std;"
+			]
+		 },
+	"function":
+		{
+		  "main":
+			[
+				{
+			 		"return_type":"int",
+		 			"function_name":"main",
+					"parameters":""
+				}
+			],
+		   "loadfile":
+			[
+				{
+					"return_type":"const unsigned char *",
+		 			"function_name":"loadfile",
+					"parameters":
+						[
+							{"name":"file", "type":"const std::string &"},
+							{"name":"size", "type":"int &"}
+						]				
+				}
+			
+			]
+		},
+	
+	"out":
+		[
+		  "cout<< \"Calculating memory space ... ... ... ...\" << endl;",
+		  "printf(\"False memory allocation of ",
+		  "cout << \"FC mem init\\n\";",
+		  "cout << \"net_inputs/net_weights.txt\" << endl;",
+		  "cout << \"finished weight src !!!\" << endl;",
+		  "cout << \"mean data file not found !\" << endl;",
+		  "cout << \"val data file not found !\" << endl;",
+		  "cout <<\"inference time is: \" << totaltime << \" s\" << endl;",
+		  "cout << \"At \" << i <<\", output1_tmp=\" << temp_out_1[i] << '\\n';",
+		  "cout << \"At \" << i <<\", output2_tmp=\" << temp_out_2[i] << '\\n';",
+		  "cout << \"Writing data to input data memory space ... ... ...\" << endl;",
+		  "cout << endl;",
+		  "cout << \"Finished writing data to input data memory space ... ...\" << endl;"
+		],
+	"body":
+		{
+		   "var_init":
+			[
+				{"type" : "unsigned int", "name" : "in_data_mem_size", "size" : "data_type", "memory" : "in_data_mem_port", "location" : "in data memory location"},
+				{"type" : "unsigned int", "name" : "conv_weight_size", "size" : "data_type_w", "memory" : "conv_weight_mem_port", "location" : "conv weight memory location"},
+				{"type" : "unsigned int", "name" : "conv_bias_size", "size" : "data_type_w", "memory" : "conv_bias_mem_port", "location" : "conv bias memory location"},
+				{"type" : "unsigned int", "name" : "fc_weight_size", "size" : "data_type_w", "memory" : "fc_weight_mem_port", "location" : "fc_weight_mem_port memory location"},
+				{"type" : "unsigned int", "name" : "fc_bias_size", "size" : "data_type_w", "memory" : "fc_bias_mem_port", "location" : "fc_bias_mem_port memory location"},
+				{"type" : "unsigned int", "name" : "fc_out_size", "size" : "data_type_o", "memory" : "fc_out_mem_int", "location" : "fc_out_mem_int memory location"},
+				{"type" : "unsigned int", "name" : "out_1_size", "size" : "data_type_o", "memory" : "temp_out_1", "location" : "temp_out_1 memory location"},
+				{"type" : "unsigned int", "name" : "out_2_size", "size" : "data_type_o", "memory" : "temp_out_2", "location" : "temp_out_2 memory location"}			
+			]
+		
+
+		},
+	"comments":
+		[
+			"//net weight src *****************************",
+			"//load mean file *****************************",
+			"//load val (image_name,image_class) set file *****************************",
+			"//load val image file *****************************",
+			"//Inference network process",
+			"//activation function",
+			"//input pic data",
+			"//layer weights and bias inputs",
+			"//output fc data",
+			"//resize_image(in_data_3D_channel_swap, h, w, in_data_3D);//in_data after crop",
+			"// data size calculation",
+			"// assign memory space to different ports"
+		]
+
+	
+	
+}

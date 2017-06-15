@@ -1,0 +1,66 @@
+{
+    "import":
+        [
+            "#ifndef _CONSTRUCT_NET_H_",
+            "#define _CONSTRUCT_NET_H_",
+            "#include <iostream>",
+            "#include <fstream>",
+            "#include <algorithm>",
+            "#include <ap_fixed.h>",
+            "#include \"config.h\"",
+            "#include \"data_type.h\"",
+            "#include \"weight_bias_one_dim.h\"",
+            "#include \"activation_functions.h\""
+        ],
+    "head":
+        {
+         "return_type":"void",
+         "function_name":"inference_net",
+         "intput_parameters":
+            [
+                {"pType":"char", "pName":"activation_type"},
+                {"pType":"data_type", "pName":"in_data_3D"},
+                {"pType":"data_type_w *", "pName":"conv_weight_port"},
+                {"pType":"data_type_w *", "pName":"conv_bias_port"},
+                {"pType":"data_type_w *", "pName":"fc_weight_port"},
+                {"pType":"data_type_w *", "pName":"fc_bias_port"},
+                {"pType":"data_type_o", "pName":"fc_out_a"},
+                {"pType":"data_type_o", "pName":"output_temp_1"},
+                {"pType":"data_type_o", "pName":"output_temp_2"}
+            ]
+        },
+    "body":
+        {
+         "output start of process":
+	    [],
+         "intermediate_result_statement":
+            [
+                {"pType":"data_type_o", "pName":"in_data_buf"},
+                {"pType":"data_type_o", "pName":"fc_out_buf"}
+
+            ]
+        },
+    
+    "pragma":
+	 
+	    [	"#if _HLS_MODE_",
+
+	 	"#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS",
+	 	"#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS",
+		"#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D",
+		"#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port",
+		"#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port",
+		"#pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port",
+		"#pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port",
+		"#pragma HLS INTERFACE m_axi depth=50  port=fc_out_a",
+		"#pragma HLS INTERFACE m_axi depth=55 port=output_1",
+		"#pragma HLS INTERFACE m_axi depth=55 port=output_2",
+		"#endif"
+	    ],
+	 
+
+    "end":
+	[
+	  "#endif //_CONSTRUCT_NET_H_"
+	]
+}
