@@ -1,6 +1,7 @@
-//This is the main function of a LeNet-5 model based application.
-//Application description: LeNet-5 image recognition with std image.
-//Using stb_image instead of OpenCV to eliminate library dependency.
+
+//This is the main function of a LeNet-5 model based application
+//Application description: LeNet-5 image recognition with std image
+//Using stb_image instead of OpenCV to eliminate library dependency
 
 #include <iostream>
 #include <cstring>
@@ -39,7 +40,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 	return (unsigned char *)data;
 }
 
-int main() {
+int main(int argc, char** argv) {
 	
     cout<< "Calculating memory space ... ... ... ..." << endl;
     // data size calculation
@@ -137,7 +138,8 @@ int main() {
 #if _KERNEL_DEBUG_
     //input data array
     data_type in_data_3D[784] = { 0 };
-    ifstream ifs("./net_inputs/input_3_28.txt");
+    //ifstream ifs("./net_inputs/input_3_28.txt");
+    ifstream ifs(argv[1]);
     string str;
     int count = 0;
     while (ifs >> str)
@@ -167,7 +169,7 @@ int main() {
 	for (int i = 0; i < 1; i++) {
 		for (int j = 0; j < 28; j++) {
 			for (int k = 0; k < 28; k++) {
-				temp_out_2[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
+				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
 				in_data_size++;
 			}
 		}
@@ -325,9 +327,7 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int,
-    temp_out_1,
-    temp_out_2);
+	fc_8_out_mem_int);
 
     finish = clock();
     totaltime = (double)(finish - start) / CLOCKS_PER_SEC;

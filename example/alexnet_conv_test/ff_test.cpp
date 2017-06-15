@@ -1,3 +1,4 @@
+
 //This is the main function of a LeNet-5 model based application.
 //Application description: LeNet-5 image recognition with std image.
 //Using stb_image instead of OpenCV to eliminate library dependency.
@@ -39,7 +40,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 	return (unsigned char *)data;
 }
 
-int main() {
+int main(int argc, char** argv) {
 	
     cout<< "Calculating memory space ... ... ... ..." << endl;
     // data size calculation
@@ -51,8 +52,6 @@ int main() {
     unsigned int fc_bias_size     = (4096 + 4096 + 1000) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (1000)*sizeof(data_type_o);
     unsigned int fc_out_size = (4*1000*1*1) * sizeof(data_type_o);
-    unsigned int out_1_size  = (96*55*55) * sizeof(data_type_o);
-    unsigned int out_2_size  = (96*55*55) * sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -110,20 +109,6 @@ int main() {
         printf("fc_8_out_mem_int memory location = 0x%x \n", fc_8_out_mem_int);
     }
 #endif
-    data_type_o *temp_out_1 = (data_type_o*)malloc(out_1_size);
-    if (temp_out_1 == NULL){
-        printf("False memory allocation of temp_out_1\n");
-    }
-    else {
-        printf("temp_out_1 memory location = 0x%x \n", temp_out_1);
-    }
-    data_type_o *temp_out_2 = (data_type_o*)malloc(out_2_size);
-    if (temp_out_2 == NULL){
-        printf("False memory allocation of temp_out_1\n");
-    }
-    else {
-        printf("temp_out_1 memory location = 0x%x \n", temp_out_2);
-    }
 #if _BATCH_MODE_
     data_type_o *fc_out_mem_int = (data_type_o*)malloc(fc_out_size);
     if (fc_out_mem_int == NULL){
@@ -137,8 +122,6 @@ int main() {
 #if _KERNEL_DEBUG_
     cout << "FC8 mem init\n";
     memset(fc_8_out_mem_int, 0, fc_8_out_size);
-    memset(temp_out_1, 0, out_1_size);
-    memset(temp_out_2, 0, out_2_size);
 #endif
 #if _BATCH_MODE_
     cout << "FC out mem init\n";
@@ -213,7 +196,8 @@ int main() {
 #if _HLS_MODE_
 	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 #else
-	string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+	//string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+	string image_dir = argv[1];
 #endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
@@ -253,13 +237,13 @@ int main() {
 	}
 
 	cout << "Writing data to input data memory space ... ... ..." << endl;
-    cout << endl;
-    cout << endl;
-    int in_data_size=0;
+        cout << endl;
+        cout << endl;
+        int in_data_size=0;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < crop_h; j++) {
 			for (int k = 0; k < crop_w; k++) {
-                temp_out_1[in_data_size] = (data_type)in_data_3D[i][j][k];
+				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];
 				in_data_size++;
 			}
 		}
@@ -379,7 +363,7 @@ int main() {
         conv_bias_num++;
     }
     free(conv_1_bias2D);
-/*
+
 	// Prepare weights and bias for convolution layer 2
 	float *conv_2_weight2D = (float*)malloc(12288*5*5 * sizeof(float));
     memset(conv_2_weight2D, 0, 12288 * 5 * 5 * sizeof(float));
@@ -629,7 +613,7 @@ int main() {
         fc_bias_num++;
     }
     free(fc_8_bias2D);
-*/
+
 #if _KERNEL_DEBUG_
 	float fc_8_out[1000*1*1] = { 0 };
 	clock_t start, finish;
@@ -672,24 +656,13 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int,
-    temp_out_1,
-    temp_out_2);
+	fc_8_out_mem_int);
 
     for(int i=0;i<1000;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
 	}
 	softmax(fc_8_out,1000);
 	predict(fc_8_out,1000);
-
-    for(int i=0; i< 20; i++){
-        cout<< "output_temp_1[" << i << "] = " << temp_out_1[i] << endl;
-    }
-    for(int i=0; i< 1000; i++){
-        if (temp_out_2[i] != 0) {
-            cout << "output_temp_2[" << i << "] = " << temp_out_2[i] << endl;
-        }
-    }
 #endif
 
 #if _BATCH_MODE_
@@ -712,4 +685,5 @@ int main() {
 
 	return 0;
 
+>>>>>>> DMIR-YY/master
 }
