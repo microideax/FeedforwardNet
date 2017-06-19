@@ -46,5 +46,5 @@ csynth_design
 
 cosim_design -argv {net_weights.txt, input_1.txt} -trace_level none -rtl verilog -tool xsim
 
-export_design -flow impl -format ip_catalog
+export_design -flow syn -rtl verilog -format ip_catalog
 exit
