@@ -51,7 +51,9 @@ int main(int argc, char** argv) {
     unsigned int fc_weight_size   = (1048576*6*6 + 16777216 + 4096000) * sizeof(data_type_w);
     unsigned int fc_bias_size     = (4096 + 4096 + 1000) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (1000)*sizeof(data_type_o);
-    unsigned int fc_out_size = (4*1000*1*1) * sizeof(data_type_o);
+    unsigned int fc_out_size      = (4*1000*1*1) * sizeof(data_type_o);
+    unsigned int out_size_1       = (96*55*55)*sizeof(data_type_o);
+    unsigned int out_size_2       = (96*55*55)*sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -107,6 +109,20 @@ int main(int argc, char** argv) {
     }
     else {
         printf("fc_8_out_mem_int memory location = 0x%x \n", fc_8_out_mem_int);
+    }
+    data_type_o *temp_out_1     = (data_type_o*)malloc(out_size_1);
+    if (temp_out_1 == NULL){
+        printf("False memory allocation of temp out 1\n");
+    }
+    else {
+        printf("temp out 1 memory location = 0x%x \n", temp_out_1);
+    }
+    data_type_o *temp_out_2     = (data_type_o*)malloc(out_size_2);
+    if (temp_out_2 == NULL){
+        printf("False memory allocation of temp out 2\n");
+    }
+    else {
+        printf("temp out 2 memory location = 0x%x \n", temp_out_2);
     }
 #endif
 #if _BATCH_MODE_
@@ -656,7 +672,9 @@ int main(int argc, char** argv) {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int);
+	fc_8_out_mem_int,
+    temp_out_1,
+    temp_out_2);
 
     for(int i=0;i<1000;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
@@ -685,5 +703,4 @@ int main(int argc, char** argv) {
 
 	return 0;
 
->>>>>>> DMIR-YY/master
 }

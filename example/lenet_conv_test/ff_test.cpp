@@ -138,8 +138,13 @@ int main(int argc, char** argv) {
 #if _KERNEL_DEBUG_
     //input data array
     data_type in_data_3D[784] = { 0 };
-    //ifstream ifs("./net_inputs/input_3_28.txt");
-    ifstream ifs(argv[1]);
+#if _HLS_MODE_
+    ifstream ifs("input_1.txt");
+#else
+    ifstream ifs("./net_inputs/input_1.txt");
+//    ifstream ifs(argv[1]);
+#endif
+
     string str;
     int count = 0;
     while (ifs >> str)
@@ -169,7 +174,7 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < 1; i++) {
 		for (int j = 0; j < 28; j++) {
 			for (int k = 0; k < 28; k++) {
-				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
+				temp_out_2[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];
 				in_data_size++;
 			}
 		}
@@ -327,7 +332,9 @@ int main(int argc, char** argv) {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int);
+    fc_8_out_mem_int,
+    temp_out_1,
+    temp_out_2);
 
     finish = clock();
     totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
@@ -341,7 +348,9 @@ int main(int argc, char** argv) {
 #endif
 
 #if _BATCH_MODE_
-	fc_out_mem_int);
+	fc_out_mem_int,
+	temp_out_1,
+	temp_out_2);
 
 	finish = clock();
 	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
