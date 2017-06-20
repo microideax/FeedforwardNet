@@ -17,7 +17,7 @@
 #include "inference_net/construct_net.h"
 #include "inference_net/image_converter.h"
 #include "inference_net/weight_bias_one_dim.h"
-//#include "inference_net/conv_layer_one_dim.h"
+#include "inference_net/conv_layer_one_dim.h"
 #include "inference_net/softmax_one_dim.h"
 #include "inference_net/predict_one_dim.h"
 #include "inference_net/accuracy_one_dim.h"
@@ -39,7 +39,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 	return (unsigned char *)data;
 }
 
-int main() {
+int main(int argc, char** argv) {
 	
     cout<< "Calculating memory space ... ... ... ..." << endl;
     // data size calculation
@@ -51,8 +51,6 @@ int main() {
     unsigned int fc_bias_size     = (4096 + 4096 + 10) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (10)*sizeof(data_type_o);
     unsigned int fc_out_size = (10*10*1*1) * sizeof(data_type_o);
-    unsigned int out_1_size  = (96*32*32) * sizeof(data_type_o);
-    unsigned int out_2_size  = (96*32*32) * sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -101,20 +99,6 @@ int main() {
     else {
         printf("fc_bias_mem_port memory location = 0x%x \n", fc_bias_mem_port);
     }
-    data_type_o *temp_out_1  = (data_type_o*)malloc(out_1_size);
-    if (temp_out_1 == NULL){
-        printf("False memory allocation of temp_out_1\n");
-    }
-    else {
-        printf("temp_out_1 memory location = 0x%x \n", temp_out_1);
-    }
-    data_type_o *temp_out_2  = (data_type_o*)malloc(out_2_size);
-    if (temp_out_2 == NULL){
-        printf("False memory allocation of temp_out_2\n");
-    }
-    else {
-        printf("temp_out_2 memory location = 0x%x \n", temp_out_2);
-    }
 #if _KERNEL_DEBUG_
     data_type_o *fc_8_out_mem_int     = (data_type_o*)malloc(fc_8_out_size);
     if (fc_8_out_mem_int == NULL){
@@ -137,8 +121,6 @@ int main() {
 #if _KERNEL_DEBUG_
     cout << "FC8 mem init\n";
     memset(fc_8_out_mem_int, 0, fc_8_out_size);
-    memset(temp_out_1, 0, out_1_size);
-    memset(temp_out_2, 0, out_2_size);
 #endif
 #if _BATCH_MODE_
     cout << "FC out mem init\n";
@@ -149,9 +131,7 @@ int main() {
 #if _HLS_MODE_
 	const char* weight_src = "net_weights.txt";
 #else
-	cout << "net_inputs/net_weights.txt" << endl;
 	const char* weight_src = "net_inputs/net_weights.txt";
-	cout << "finished weight src !!!" << endl;
 #endif
 	//load mean file *****************************
 #if _HLS_MODE_
@@ -215,7 +195,8 @@ int main() {
 #if _HLS_MODE_
 	string image_dir = "48870.png";//validation dataset dir
 #else
-	string image_dir = "./net_inputs/cifar10_val/48870.png";
+	//string image_dir = "./net_inputs/cifar10_val/48870.png";
+	string image_dir = argv[1];
 #endif
 	float in_data_3D_channel_swap[3][32][32] = { 0 };
 	//input data array
@@ -279,7 +260,7 @@ int main() {
 	for (int image_num = 0; image_num < 10; image_num++) {
 		string image_dir = root_dir + val_name[image_num];
 		int crop_w = 32;
-                int crop_h = 32;
+        int crop_h = 32;
 		int w;
 		int h;
 		int channels;
@@ -632,13 +613,10 @@ int main() {
     }
     free(fc_8_bias2D);
 
-    cout<<"Finished loading fc weight into memory! Total: " << fc_weight_num  << "... ... ..."<<endl;
-    cout<<"Finished loading fc bias into memory! Total: " << fc_bias_num  << "... ... ..."<<endl;
-
 #if _KERNEL_DEBUG_
 	float fc_8_out[10*1*1] = { 0 };
-	clock_t start, finish, inf_start, inf_finish;
-	double totaltime, inf_time;
+	clock_t start, finish;
+	double totaltime;
 	start = clock();
 #endif
 
@@ -677,33 +655,7 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int,
-    temp_out_1,
-    temp_out_2);
-
-    finish = clock();
-    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-    cout <<"inference time is: " << totaltime << " s" << endl;
-
-    for(int i=0; i<10;i++){
-        cout << "conv weight "<<i << " =" << conv_weight_mem_port[i] << endl;
-    }
-    for(int i=0; i<10;i++){
-        cout << "conv bias "<<i << " =" << conv_bias_mem_port[i] << endl;
-    }
-    for(int i=0; i<10;i++){
-        cout << "fc weight "<<i << " =" << fc_weight_mem_port[i] << endl;
-    }
-    for(int i=0; i<10;i++){
-        cout << "fc bias "<<i << " =" << fc_bias_mem_port[i] << endl;
-    }
-
-
-
-    for (int i = 0; i < 10; i++)
-        cout << "At " << i <<", output1_tmp=" << temp_out_1[i] << '\n';
-    for (int i = 0; i < 10; i++)
-        cout << "At " << i <<", output2_tmp=" << temp_out_2[i] << '\n';
+	fc_8_out_mem_int);
 
     for(int i=0;i<10;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
@@ -714,10 +666,6 @@ int main() {
 
 #if _BATCH_MODE_
 	fc_out_mem_int);
-	finish = clock();
-	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "batch mode time cost is: " << totaltime << " s" << endl;
-
 	//test imagenet dataset
 	for (int j = 0; j < 10; j++) {
 		fc_out_a[i * 10 + j] = (float)(fc_out_mem_int[j]);
@@ -727,8 +675,12 @@ int main() {
 	softmax(fc_out_a,10,10);
 	predict(fc_out_a,10,10);
 	accuracy(fc_out_a,10, val_class,10);//for imagenet dataset
+
 #endif
 
+	finish = clock();
+	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+	cout << "predicted time is: " << totaltime << " s" << endl;
 
 	return 0;
 

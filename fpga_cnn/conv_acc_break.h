@@ -95,10 +95,7 @@ public:
                             ofstream conv_acc;
                             conv_acc.open("conv_in_data.txt", ios::app);
                             conv_acc <<"conv input: "<< endl;
-                            for (int i = n; i < n+Tn; i++) {
-                                if(N < n+Tn && i == N){
-                                    break;
-                                }
+                            for (int i = n; i < min(N, n+Tn); i++) {
                                 for (int j = 0; j < (Tr-1)*S + K; j++) {
                                     for(int k = 0; k < (Tc-1)*S + K; k++){
                                         conv_acc << in_buf[i-n][j][k] << " ";
@@ -131,14 +128,8 @@ public:
 #if _KERNEL_DEBUG_
                             ofstream conv_w;
                             conv_w.open("conv_in_weights.txt", ios::app);
-                            for (int i = m; i < m+Tm; i++) {
-                                if(M < m+Tm && i == M){
-                                    break;
-                                }
-                                for (int j = n; j < n+Tn; j++) {
-                                    if(N < n+Tn && j == N){
-                                        break;
-                                    }
+                            for (int i = m; i < min(M, m+Tm); i++) {
+                                for (int j = n; j < min(N, n+Tn); j++) {
                                     for(int k = 0; k < K; k++){
                                         for(int l = 0; l < K; l++){
                                             conv_w << w_buf[i-m][j-n][k][l] << " ";
@@ -213,18 +204,9 @@ public:
                         ofstream conv_out_buf;
                         conv_out_buf.open("conv_out_buf.txt", ios::app);
                         conv_out_buf <<"conv out buf: "<< endl;
-                        for(int i = m; i < m+Tm; i++){
-                            if(M < m+Tm && i == M){
-                                break;
-                            }
-                            for(int j=r; j < r+Tr; j++){
-                                if(R < r+Tr && j == R){
-                                    break;
-                                }
-                                for(int k=c; k < c+Tc; k++){
-                                    if(C < c+Tc && k == C){
-                                        break;
-                                    }
+                        for(int i = m; i < min(M, m+Tm); i++){
+                            for(int j=r; j < min(R, r+Tr); j++){
+                                for(int k=c; k < min(C, c+Tc); k++){
                                     conv_out_buf << *(out_data + i * R * C + j * C + k) << " ";
                                 }
                                 conv_out_buf << endl;

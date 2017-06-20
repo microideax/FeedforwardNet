@@ -1,3 +1,4 @@
+
 //This is the main function of a LeNet-5 model based application.
 //Application description: LeNet-5 image recognition with std image.
 //Using stb_image instead of OpenCV to eliminate library dependency.
@@ -39,7 +40,7 @@ const unsigned char * loadfile(const std::string &file, int &size)
 	return (unsigned char *)data;
 }
 
-int main() {
+int main(int argc, char** argv) {
 	
     cout<< "Calculating memory space ... ... ... ..." << endl;
     // data size calculation
@@ -50,7 +51,9 @@ int main() {
     unsigned int fc_weight_size   = (1048576*6*6 + 16777216 + 4096000) * sizeof(data_type_w);
     unsigned int fc_bias_size     = (4096 + 4096 + 1000) * sizeof(data_type_w);
     unsigned int fc_8_out_size    = (1000)*sizeof(data_type_o);
-    unsigned int fc_out_size = (4*1000*1*1) * sizeof(data_type_o);
+    unsigned int fc_out_size      = (4*1000*1*1) * sizeof(data_type_o);
+    unsigned int out_size_1       = (96*55*55)*sizeof(data_type_o);
+    unsigned int out_size_2       = (96*55*55)*sizeof(data_type_o);
 
     // assign memory space to different ports
 #if _KERNEL_DEBUG_
@@ -106,6 +109,20 @@ int main() {
     }
     else {
         printf("fc_8_out_mem_int memory location = 0x%x \n", fc_8_out_mem_int);
+    }
+    data_type_o *temp_out_1     = (data_type_o*)malloc(out_size_1);
+    if (temp_out_1 == NULL){
+        printf("False memory allocation of temp out 1\n");
+    }
+    else {
+        printf("temp out 1 memory location = 0x%x \n", temp_out_1);
+    }
+    data_type_o *temp_out_2     = (data_type_o*)malloc(out_size_2);
+    if (temp_out_2 == NULL){
+        printf("False memory allocation of temp out 2\n");
+    }
+    else {
+        printf("temp out 2 memory location = 0x%x \n", temp_out_2);
     }
 #endif
 #if _BATCH_MODE_
@@ -195,7 +212,8 @@ int main() {
 #if _HLS_MODE_
 	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 #else
-	string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+	//string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+	string image_dir = argv[1];
 #endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
@@ -654,7 +672,9 @@ int main() {
 
 #if _KERNEL_DEBUG_
 	//output fc data
-	fc_8_out_mem_int);
+	fc_8_out_mem_int,
+    temp_out_1,
+    temp_out_2);
 
     for(int i=0;i<1000;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
