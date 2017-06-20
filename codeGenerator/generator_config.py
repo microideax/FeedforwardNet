@@ -49,9 +49,13 @@ def generate_type_definition(type_json, arr):
 	return type_str
 
 def generate_preprocessor(prep_json):
-	prep_str = EOL * 2
-	prep_str += "// C++ compilation debug mode" + EOL
-	for prep_sen in prep_json:
+	comm = "// C++ compilation debug mode" + EOL
+	prep_str = EOL 
+
+	prep_str += comm
+	prep_str += prep_json[0] + EOL*2
+	prep_str += comm
+	for prep_sen in prep_json[1:]:
         	prep_str += prep_sen + EOL
 	return prep_str
 
@@ -75,8 +79,6 @@ def generate_body(body_json, arr):
 				data1 = arr[arr.index("nn_group_conv")+1] 
 				arr2 = data1.split()
 				for i in range(len(arr1)):
-					print(i)
-					print("ooo")
 					arr1[i] = str(int(arr1[i])/int(arr2[i]))			
 			
 		

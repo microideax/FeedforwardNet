@@ -121,7 +121,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
 			shifts += prefix + "int " + shift_b + "_conv" + str(conv_counter + 1) + EQUAL + cb + EOS + EOL
 			shw = " + " + shift_w + "_conv" + str(conv_counter + 1)
 			shb = " + " + shift_b + "_conv" + str(conv_counter + 1)
-		function_calls += generate_function_calls("C", "conv_layer_a", str(conv_counter + 1), ["activation_type", in_data,
+		function_calls += generate_function_calls("C", "conv", layers_order[i+1], str(conv_counter + 1), [in_data,
 				  w_port + shw,  b_port + shb, out_data])
 		conv_counter = conv_counter + 1
 		
@@ -130,7 +130,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
 		body_str += " L" + str(lrn_counter+1) + EOS + EOL
 		alpha1 = alpha + ARRAY_BEGIN + str(lrn_counter) + ARRAY_END
 		beta1 = beta + ARRAY_BEGIN + str(lrn_counter) + ARRAY_END
-		function_calls += generate_function_calls("L", "lrn_layer_a", str(lrn_counter+1), [alpha1, beta1, in_data, out_data])
+		function_calls += generate_function_calls("L", "lrn", layers_order[i+1], str(lrn_counter+1), [alpha1, beta1, in_data, out_data])
                 lrn_counter = lrn_counter + 1
 		
         elif l.lower() == "pooling": 
@@ -140,10 +140,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
  		last =  nn_in_number_pooling_values[pool_counter]
 		last1 = (int(nn_in_data_size_pooling_values[pool_counter]) + int(nn_padding_pooling_values[pool_counter]) * 2 -\
                         int(nn_channel_size_pooling_values[pool_counter]))/int(nn_stride_pooling_values[pool_counter]) + 1
-		function_calls += generate_function_calls("P", "max_pooling_layer_a", str(pool_counter + 1), ["activation_type", in_data, out_data])
-		print("kkkkk")
-		print(pool_counter)
-		print(in_data)
+		function_calls += generate_function_calls("P", "max_pooling", layers_order[i+1], str(pool_counter + 1), [in_data, out_data])
                 pool_counter = pool_counter + 1 
 
         elif l.lower() == "innerproduct" or l.lower() == "inner_product":
@@ -161,8 +158,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
 				if ll.lower() == "innerproduct":
 					b = True
 					break
-		fn_name = "fc_layer_a" 
-		activ_fn = "activation_type"
+
 		shw = ""
 		shb = ""
 		if fc_counter != 0:
@@ -173,21 +169,11 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
 
 		if b == False:
 			out_data = "fc_" + n + "_out_buf"
-			fn_name = "fc_layer_a_no_activation"
-			activ_fn = None	
-		function_calls += generate_function_calls("F", fn_name, str(fc_counter + 1), [activ_fn, in_data, fc_w_port + shw, fc_b_port + shb, out_data])
+
+		function_calls += generate_function_calls("F", "fc", layers_order[i+1], str(fc_counter + 1), [in_data, fc_w_port + shw, fc_b_port + shb, out_data])
                 fc_counter = fc_counter + 1  	
-	print("aaaa")	
-	print(conv_counter)
-	print(l)
-	print("bbbb")
+
 	if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "pooling" or (l.lower() == "innerproduct" and b == True):
-		print("I am")
-		print("outttt")
-		print(conv_counter)
-		print(pool_counter)
-		print(out_data)
-		print(out_data1)
 		if out_data == out_data1:
 			
 			in_data = out_data1
@@ -196,7 +182,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
 			in_data = out_data2
 			out_data = out_data1
 		if conv_counter != 1 or lrn_counter != 0 or pool_counter != 0 or fc_counter != 0:
-			function_calls += prefix + helping_functions.generate_for_loop("addr", "int", "0", prms[prms_str.index("maximum")] , [in_data + "[addr] = data_type_o(0);"], 1, 					          1)
+			function_calls += prefix + helping_functions.generate_for_loop("addr", "int", "0", prms[prms_str.index("maximum")] , [out_data + "[addr] = data_type_o(0);"], 1, 					          1)
 		
 	
  
@@ -211,7 +197,7 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
     body_str += EOL*2
     """temp storage space define"""
 
-    body_str += prefix + "data_type_o in_data_buf[" + nn_in_number_conv_values[0] + "*" + str(data_type_param_x_y) + "*" + str(data_type_param_x_y) + "]" + EOS + EOL
+    body_str += prefix + "data_type_o in_data_buf[" + nn_in_number_conv_values[0] + "*" + nn_in_data_size_conv_values[0] + "*" + nn_in_data_size_conv_values[0] + "]" + EOS + EOL
     body_str += prefix + "data_type_o fc_" + n + "_out_buf[" + str(nn_out_number_fc_values[len(nn_out_number_fc_values)-1]) + "]" + EOS + EOL 
 
     body_str += EOL * 2
@@ -220,11 +206,11 @@ def generate_body(body_json, arr2, prefix=SEPARATER):
                 EOS + EOL + prefix*2 +"output_temp_2[addr] = data_type_o(0)" + EOS], 1, 1)
 
     body_str += prefix + helping_functions.generate_for_loop("i", "int", "0", nn_in_number_conv_values[0], 
-		[helping_functions.generate_for_loop("j", "int", "0", str(data_type_param_x_y), 
-		[helping_functions.generate_for_loop("k", "int", "0", str(data_type_param_x_y), 
-		["in_data_buf[i*" + str(data_type_param_x_y) + "*" + str(data_type_param_x_y) +" + " + "j*" +\
-		str(data_type_param_x_y) + "+ k] = in_data_3D[i*" + str(data_type_param_x_y) + "*" +\
-		str(data_type_param_x_y) + " + j*" + str(data_type_param_x_y) + " + k];"], 3, 1)], 2, 1)], 1, 1)
+		[helping_functions.generate_for_loop("j", "int", "0", nn_in_data_size_conv_values[0], 
+		[helping_functions.generate_for_loop("k", "int", "0", nn_in_data_size_conv_values[0], 
+		["in_data_buf[i*" + nn_in_data_size_conv_values[0] + "*" + nn_in_data_size_conv_values[0] +" + " + "j*" +\
+		nn_in_data_size_conv_values[0] + "+ k] = in_data_3D[i*" + nn_in_data_size_conv_values[0] + "*" +\
+		nn_in_data_size_conv_values[0] + " + j*" + nn_in_data_size_conv_values[0] + " + k];"], 3, 1)], 2, 1)], 1, 1)
     body_str += EOL + shifts + EOL
     body_str += function_calls
 
@@ -250,8 +236,15 @@ def generate_layer_init(name, params, prefix=SEPARATER):
     str1 += CLASS_END
     return str1
 
-def generate_function_calls(nm1, nm2, count, args, prefix=SEPARATER):
-    str1 = prefix + nm1 + count + CALL_SYMBOL + nm2 + PARAMETER_BEGIN 
+def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
+    str1 = prefix + nm1 + count + CALL_SYMBOL + tp
+    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L":
+	
+	str1 += "_layer_a" + PARAMETER_BEGIN
+	if nm1 != "L":
+		str1 += "activation_type, "
+    else:
+	str1 += "_layer_a_no_activation" + PARAMETER_BEGIN
     for i, l in enumerate(args):
 	if l != None:
         	if (i+1) == len(args):
@@ -284,8 +277,6 @@ def generate_header(head_json, arr):
 	if s["pName"] == "in_data_3D":
 		head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + ARRAY_BEGIN + nn_in_number_conv[0] + "*" +\
 			    nn_in_data_size_values[0] + "*" + nn_in_data_size_values[0] + ARRAY_END + COMMA + EOL
-		print("ooooooooooooofff")
-		print(nn_in_data_size_values[0])
         elif s["pName"] == "fc_out_a":
         	head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
         elif s["pName"] == "activation_type":

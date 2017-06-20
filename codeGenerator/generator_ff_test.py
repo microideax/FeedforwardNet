@@ -76,6 +76,19 @@ def generate_fn_load(prefix=SEPARATER):
 	return fn_bd
 
 def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
+	print "Please enter the path to test image \n"
+        img_path = raw_input()
+	col_gray = ""
+	while (col_gray != "color" and col_gray != "grayscale"):
+		print "Please enter the type of image (color, grayscale) \n"
+        	col_gray = raw_input()
+		if col_gray == "color":
+			chn = 3
+		elif col_gray == "grayscale":
+			chn = 1
+		else:
+			print "Please enter \"color\" for colored image and \"grayscale\" for 	grayscaled one "
+
 
 	sz = "sizeof"
 	ms = "memset"
@@ -179,47 +192,68 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str1 += PREP_ENDIF + EOL
 	body_str1 += prefix + "string val_name[10];" + EOL + prefix + "float val_class[10];" +\
 		     EOL + prefix + "string str;" + EOL
-	body_str1 += prefix + helping_functions.generate_if("!ifs1", [out_json[6], "getchar();"], "", 1)
+	body_str1 += prefix + helping_functions.generate_if("!ifs", [out_json[6], "getchar();"], "", 1)
 	body_str1 += prefix + "int num = 0;" + EOL
 	body_str1 += prefix + helping_functions.generate_while("ifs >> str&&num<20", 
 				             [helping_functions.generate_if("num % 2 == 1", ["val_class[num / 2] = int(atof(str.c_str()));"], 
 					     ["val_name[num / 2] = str;"], 2), "num++;"], 1)
 	body_str1 += prefix + "ifs.close();" + EOL*2
-
-	body_str1 += prefix + comm_json[3] + EOL
-	body_str1 += KERNEL + EOL + HLS + EOL +\
-   		     prefix + "string image_dir = \"48870.png\";" + EOL + PREP_ELSE + EOL +\
-		     prefix + "string image_dir = \"./net_inputs/cifar10_val/48870.png\";" + EOL +\
-		     PREP_ENDIF + EOL
 	indata_mem = arr1[arr1_str.index("in_data_mem_size")].split(" * ")
-	body_str1 += prefix + "float in_data_3D_channel_swap[" + indata_mem[0] + ARRAY_END +\
-		     ARRAY_BEGIN + indata_mem[1] + ARRAY_END + ARRAY_BEGIN + indata_mem[2] +"] = { 0 };" +\
-		     EOL + prefix + "float in_data_3D[" + indata_mem[0] + ARRAY_END +\
-		     ARRAY_BEGIN + indata_mem[1] + ARRAY_END + ARRAY_BEGIN + indata_mem[2] +\
-		     "] = { 0 };" + EOL +\
-		     prefix + "int crop_w = " + arrr[1] + ";"+ EOL + prefix + "int crop_h = " +\
-		     arrr[1] + ";" + EOL + prefix + "int w;" + EOL + prefix + "int h;" + EOL +\
-		     prefix + "int channels;" +\
-		     EOL + prefix + "int size;" + EOL + prefix +\
-		     "const unsigned char * data = loadfile(image_dir, size);" + EOL +\
-		     prefix + "const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 3);" +\
-		     EOL 
-	body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", "i", "w*h*3", 
-		     ["in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j]; //range:0--255"], 2, 3)], 1, 1)
-	body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "h", 
-		     [helping_functions.generate_for_loop("k", "int", 0, "w", ["in_data_3D_channel_swap[i][j][k] /= 255;// range:0--1"], 3, 1)], 2, 3)], 1, 1)
-	body_str1 += prefix + comm_json[9] + EOL
-	body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
-		     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D_channel_swap[i][j][k] * 255 - channel_mean[i];"], 
-		     3, 1)], 2, 3)], 1, 1)
-	body_str1 += prefix + out_json[10] + EOL
-	body_str1 += prefix + out_json[11] + EOL + prefix + out_json[11] + EOL +\
-		     prefix + "int in_data_size=0;" + EOL +\
-		     prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
-		     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];",
-		     "in_data_size++;"], 3, 1)], 2, 3)], 1, 1) 
-	body_str1 += prefix + out_json[12] + EOL*2
-	body_str1 += PREP_ENDIF + EOL*2
+   	if chn == 3:
+
+		print "Please enter the height of the image \n"
+        	height = raw_input()
+		print "Please enter the width of the image \n"
+        	width = raw_input()
+
+		
+		body_str1 += prefix + comm_json[3] + EOL
+		body_str1 += KERNEL + EOL + HLS + EOL +\
+	   		     prefix + "string image_dir = \"48870.png\";" + EOL + PREP_ELSE + EOL +\
+			     prefix + "string image_dir = \"./net_inputs/" + img_path + "\"" + EOS + EOL +\
+			     PREP_ENDIF + EOL
+		
+		body_str1 += prefix + "float in_data_3D_channel_swap[3" + ARRAY_END +\
+			     ARRAY_BEGIN + height + ARRAY_END + ARRAY_BEGIN + width +"] = { 0 };" +\
+			     EOL + prefix + "float in_data_3D[3" + ARRAY_END +\
+			     ARRAY_BEGIN + indata_mem[1] + ARRAY_END + ARRAY_BEGIN + indata_mem[2] +\
+			     "] = { 0 };" + EOL +\
+			     prefix + "int crop_w = " + arrr[1] + ";"+ EOL + prefix + "int crop_h = " +\
+			     arrr[1] + ";" + EOL + prefix + "int w;" + EOL + prefix + "int h;" + EOL +\
+			     prefix + "int channels;" +\
+			     EOL + prefix + "int size;" + EOL + prefix +\
+			     "const unsigned char * data = loadfile(image_dir, size);" + EOL +\
+			     prefix + "const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 3);" +\
+			     EOL 
+	
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", "i", "w*h*3", 
+			     ["in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j]; //range:0--255"], 2, 3)], 1, 1)
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "h", 
+			     [helping_functions.generate_for_loop("k", "int", 0, "w", ["in_data_3D_channel_swap[i][j][k] /= 255;// range:0--1"], 3, 1)], 2, 1)], 1, 1)
+		body_str1 += prefix + comm_json[9] + EOL
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
+			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D_channel_swap[i][j][k] * 255 - channel_mean[i];"], 
+			     3, 1)], 2, 1)], 1, 1)
+		body_str1 += prefix + out_json[10] + EOL
+		body_str1 += prefix + out_json[11] + EOL + prefix + out_json[11] + EOL +\
+			     prefix + "int in_data_size=0;" + EOL +\
+			     prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
+			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];",
+			     "in_data_size++;"], 3, 1)], 2, 1)], 1, 1) 
+		body_str1 += prefix + out_json[12] + EOL*2
+		body_str1 += PREP_ENDIF + EOL*2
+	else:
+		body_str1 += KERNEL + EOL + prefix + "data_type in_data_3D[1][" +\
+			     indata_mem[1] + ARRAY_END + ARRAY_BEGIN + indata_mem[2] +"]" + "= { 0 };" + EOL
+		body_str1 += prefix + "ifstream ifs2(\"./net_inputs/" + img_path + "\");" + EOL
+		body_str1 += prefix + "string str2;" + EOL + prefix + "int count = 0;" + EOL
+ 		body_str1 += prefix + helping_functions.generate_while("ifs2 >> str2", ["float f = atof(str2.c_str());",
+		"in_data_3D[0][count /" + indata_mem[2] + "][count % " + indata_mem[2] + "] =(data_type)f;"
+		"count++;"], 1)
+		body_str1 += prefix + "ofstream indata;" + EOL + prefix + "indata.open(\"in_data.txt\", ios::app);"+ EOL
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << in_data_3D[i][j][k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
+		body_str1 += prefix + "indata.close();" + EOL + PREP_ENDIF + EOL*2
+
 	body_str1 += prefix + "char tan_h = 't';" + EOL +\
 		     prefix + "char relu = 'r';" + EOL +\
 		     prefix + "char none = 'i';" + EOL +\
@@ -268,8 +302,8 @@ def generate_w_b(nm, arr, s, c, s1, prefix=SEPARATER):
 	if c == 0:
 		wb_str += prefix + "int " + s1 + "_" + s + "_num=0;" + EOL
 		
-	if s == "bias":
-		wb_str += prefix + "in_number_conv++;" + EOL
+	if s == "bias":		
+			wb_str += prefix + "in_number_" + s1 +"++;" + EOL
 	wb_str += prefix + "cout << \"Loading " + s1 + " " + s + " " + str(c + 1) + " to memory space, starting at: \" <<" + s1 + "_" + s +"_num << '\\n';" + EOL
 	wb_str += prefix + helping_functions.generate_for_loop("i", "int", 0, arr[c], 
 	                               [s1 + "_" + s + "_mem_port[" + s1 + "_" + s +"_num] = (data_type_w)" + nm + "[i];", 
@@ -290,7 +324,7 @@ def generate_weights_biases(length, s, arr1, arr2, prefix=SEPARATER):
 		wb_str += generate_w_b(b_name, arr2, "bias", c, s)
 
 	wb_str += prefix + "cout<<\"Finished loading " + s + " weight into memory! Total: \" <<" + s +"_weight_num  << \"... ... ...\"<<endl;" + EOL
-	wb_str += prefix +  "cout<<\"Finished loading " + s + "bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
+	wb_str += prefix +  "cout<<\"Finished loading " + s + " bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
 
 	return wb_str
 
