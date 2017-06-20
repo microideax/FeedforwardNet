@@ -9,6 +9,10 @@
 #include <fstream>
 #include "activation_functions.h"
 
+#if _C_DEBUG_MODE_
+#include <algorithm>
+#endif
+
 using namespace std;
 
 template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>

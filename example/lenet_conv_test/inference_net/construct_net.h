@@ -44,7 +44,7 @@ void inference_net(
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 #pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
 
-#pragma HLS INTERFACE m_axi depth=3072 port=in_data_3D
+#pragma HLS INTERFACE m_axi depth=784 port=in_data_3D
 
 #pragma HLS INTERFACE m_axi depth=2550  port=conv_weight_port
 #pragma HLS INTERFACE m_axi depth=156  port=conv_bias_port
@@ -70,7 +70,7 @@ void inference_net(
     /******************************************************************************************/
     //construct network ----- lenet
     //-------------------------------conv acc 1 ----------------------------------//
-    conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+    conv_acc<data_type, data_type_w, data_type_o, 64, 7, 14, 19> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
     //conv_acc<data_type, data_type_w, data_type_o, 5, 4, 1, 1> fcAcc1;
     fc_layer<float, float, float, 16, 5, 10> F5;
     //-------------------------------pooling acc 1 -------------------------------//

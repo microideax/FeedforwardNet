@@ -38,15 +38,17 @@ public:
         W *layer_bias, // b[M]
         G *out_data){ // out[M][R][C]
 
+//#pragma HLS DATAFLOW
             //buffer local data before computation
-            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
+            T in_buf[Tn][(Tr-1)*1 + 5][(Tc-1)*1 + 5];
             G out_buf[Tm][Tr][Tc];
-            W w_buf[Tm][Tn][11][11];
+            W w_buf[Tn][Tm][5][5];
             W b_buf[Tm];
 
-//#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
-//#pragma HLS ARRAY_PARTITION variable=w_buf complete dim=1
-//#pragma HLS ARRAY_PARTITION variable=b_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=w_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=w_buf complete dim=2
+#pragma HLS ARRAY_PARTITION variable=b_buf complete dim=1
 #pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
 
 #if _C_DEBUG_MODE_
@@ -60,8 +62,8 @@ public:
                     }
                 }
             }
-            for(int i = 0; i < Tm; i++){
-                for(int j = 0; j < Tn; j++){
+            for(int i = 0; i < Tn; i++){
+                for(int j = 0; j < Tm; j++){
                     for(int k = 0; k < K; k++){
                         for(int l = 0; l < K; l++){
                             w_buf[i][j][k][l] = W(0);
@@ -123,7 +125,7 @@ public:
                                     }
                                     for(int k1 = 0; k1 < K; k1++){
                                         for(int k2 = 0; k2 < K; k2++){
-                                            w_buf[i-m][j-n][k1][k2] = *(layer_weights + i*N*K*K + j*K*K + k1*K + k2);
+                                            w_buf[j-n][i-m][k1][k2] = *(layer_weights + i*N*K*K + j*K*K + k1*K + k2);
                                         }
                                     }
                                 }
@@ -158,18 +160,24 @@ public:
                                         }
                                         for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }
                                             for(int tm = 0; tm < Tm; tm++){
+#pragma HLS UNROLL
                                                 if(M < m+Tm && tm+m == M){
                                                     break;
                                                 }
                                                 for(int tn=0; tn<Tn; tn++){
+#pragma HLS UNROLL
                                                     if(N < n+Tn && tn+n == N){
                                                         break;
                                                     }
-                                                    out_buf[tm][tr][tc] += w_buf[tm][tn][i][j]*in_buf[tn][S*(tr-r)+i][S*(tc)+j];
+				                                    if(((i==0&&j==0)&&m==0))
+					                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr-r)+i][S*(tc)+j];
+					                                else
+                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] +  w_buf[tn][tm][i][j]*in_buf[tn][S*(tr-r)+i][S*(tc)+j];
                                                 }
                                             }
                                         }
@@ -191,14 +199,16 @@ public:
                                     if(C < c+Tc && k == C){
                                         break;
                                     }
-                                    if ((out_buf[i-m][j-r][k-c] + b_buf[i-m]) >= 0) {
-                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c] + b_buf[i-m]);
+                                    if (out_buf[i-m][j-r][k-c] > G(0)) {
+                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c]);
                                         out_buf[i-m][j-r][k-c] = G(0);
                                     }
                                     else{
                                         *(out_data + i * R * C + j * C + k) = G(0);
                                         out_buf[i-m][j-r][k-c] = G(0);
                                     }
+//				                   *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
+//				                   out_buf[i-m][j-r][k-c] = 0;
                                 }
                             }
                         }
