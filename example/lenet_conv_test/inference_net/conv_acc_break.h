@@ -180,7 +180,7 @@ public:
                                                     if(N < n+Tn && tn+n == N){
                                                         break;
                                                     }
-		                                            if(((i==0&&j==0)&&m==0))
+		                                            if(((i==0&&j==0)&&n==0))
 						                                out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
 					                                else
                                                         out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];

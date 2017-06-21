@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
 #if _HLS_MODE_
     ifstream ifs("input_1.txt");
 #else
-    ifstream ifs("./net_inputs/input_1.txt");
+    ifstream ifs("./net_inputs/input_3_28.txt");
 //    ifstream ifs(argv[1]);
 #endif
 
