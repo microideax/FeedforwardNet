@@ -37,7 +37,7 @@ def generate(generated_file_name="construct_net.h"):
     end_s = generate_end(json_data["end"])
 
     function_str = import_s + header_s + pragma_s + body_s + end_s
-    print function_str
+  
 
 
     with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:

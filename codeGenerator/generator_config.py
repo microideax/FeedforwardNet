@@ -29,7 +29,6 @@ def generate(generated_file_name="config.h"):
 	str1 += generate_var(json_data["var"])	
 	str1 += generate_body(json_data["params"], arr)
 	str1 += generate_end(json_data["end"])
-	print str1
 	with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:
         	generated_file.write(str1)
 	return str1
