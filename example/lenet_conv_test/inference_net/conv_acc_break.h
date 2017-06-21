@@ -38,18 +38,23 @@ public:
         W *layer_bias, // b[M]
         G *out_data){ // out[M][R][C]
 
-//#pragma HLS DATAFLOW
-            //buffer local data before computation
+#if _HLS_MODE_
+#pragma HLS DATAFLOW
+#endif
+
+            /***************local data buffer******************************/
             T in_buf[Tn][(Tr-1)*1 + 5][(Tc-1)*1 + 5];
             G out_buf[Tm][Tr][Tc];
             W w_buf[Tn][Tm][5][5];
             W b_buf[Tm];
 
+#if _HLS_MODE_
 #pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
 #pragma HLS ARRAY_PARTITION variable=w_buf complete dim=1
 #pragma HLS ARRAY_PARTITION variable=w_buf complete dim=2
 #pragma HLS ARRAY_PARTITION variable=b_buf complete dim=1
 #pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+#endif
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -92,7 +97,6 @@ public:
                                             in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);}
                                         else{
                                             in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);}
-//                                          in_buf[i-n][j-r*S][k-c*S] = *(in_data + i*((R-1)*S+K)*((C-1)*S+K) + j*((C-1)*S+K) +k);
                                     }
                                 }
                             }
@@ -115,12 +119,12 @@ public:
 #endif
 #endif
                             // load input weights
-                            for(int i = m; i < m+Tm; i++){
-                                if(M < m+Tm && i == M){
+                            for(int j = n; j < n+Tn; j++){
+                                if(N < n+Tn && j == N){
                                     break;
                                 }
-                                for(int j = n; j < n+Tn; j++){
-                                    if(N < n+Tn && j == N){
+                                for(int i = m; i < m+Tm; i++){
+                                    if(M < m+Tm && i == M){
                                         break;
                                     }
                                     for(int k1 = 0; k1 < K; k1++){
@@ -129,6 +133,9 @@ public:
                                         }
                                     }
                                 }
+                            }
+                            //load input bias
+                            for(int i = m; i < m+Tm; i++){
                                 b_buf[i-m] = *(layer_bias + i);
                             }
 #if _C_DEBUG_MODE_
@@ -150,7 +157,6 @@ public:
                             conv_w.close();
 #endif
 #endif
-
                             // convolutional accelerator
                             for(int i=0; i<K; i++){
                                 for(int j=0; j<K; j++){
@@ -174,10 +180,10 @@ public:
                                                     if(N < n+Tn && tn+n == N){
                                                         break;
                                                     }
-				                                    if(((i==0&&j==0)&&m==0))
-					                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr-r)+i][S*(tc)+j];
+		                                            if(((i==0&&j==0)&&m==0))
+						                                out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
 					                                else
-                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] +  w_buf[tn][tm][i][j]*in_buf[tn][S*(tr-r)+i][S*(tc)+j];
+                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                 }
                                             }
                                         }
