@@ -20,9 +20,15 @@ copy_file(){
 	fi
 }
 
-read -p "Please enter the path to folder with test images: "  test_img_folder
+printf "Please make sure the net_weights.txt and net_config_params.txt have already generated in caffe_converter folder\n\n"
+
+read -p "Please enter test image path: "  test_img_folder
 
 prm_file_name="net_config_params.txt"
+
+if [ -f $prm_file_name ] ; then
+    rm $prm_file_name
+fi
 
 copy_file "../fpga_cnn/caffe_converter/$prm_file_name" "." 1
 

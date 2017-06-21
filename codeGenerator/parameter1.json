@@ -57,7 +57,7 @@
 		],
 	"end":
 	[
-	  "#endif //FFNET_CONFIG_H_"
+	  "#endif"
 	]
 
 }

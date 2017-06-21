@@ -76,18 +76,20 @@ def generate_fn_load(prefix=SEPARATER):
 	return fn_bd
 
 def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
-	print "Please enter the path to test image \n"
+	print "Please enter the path to test image:"
         img_path = raw_input()
+	print "Please enter the image name:"
+	img_name = raw_input()
 	col_gray = ""
 	while (col_gray != "color" and col_gray != "grayscale"):
-		print "Please enter the type of image (color, grayscale) \n"
+		print "Please enter color specification input (color, grayscale)"
         	col_gray = raw_input()
 		if col_gray == "color":
 			chn = 3
 		elif col_gray == "grayscale":
 			chn = 1
 		else:
-			print "Please enter \"color\" for colored image and \"grayscale\" for 	grayscaled one "
+			print "Please enter \"color\" for colored image and \"grayscale\" for grayscaled one "
 
 
 	sz = "sizeof"
@@ -201,9 +203,9 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	indata_mem = arr1[arr1_str.index("in_data_mem_size")].split(" * ")
    	if chn == 3:
 
-		print "Please enter the height of the image \n"
+		print "Please enter the height of the image:"
         	height = raw_input()
-		print "Please enter the width of the image \n"
+		print "Please enter the width of the image:"
         	width = raw_input()
 
 		
