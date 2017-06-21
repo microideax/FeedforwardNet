@@ -1,14 +1,15 @@
 For auto generation the user should  
-- make sure thr net_config_params.txt and net_weights.txt has been generated and they are
-located at FeedforwardNet/fpga_cnn/caffe_converter folder  
-- Change the directory to codeGenerator folder  
-- Run generator:  
-  ./run_generator.sh  
-It will run python scripts for generation of construct_net.h, config.h and ff_test.cpp files  
-- You will be prompted to enter the path to the folder with test images:  
-“Please enter test image path: ”  
-- Then you will be prompted to enter the types of input data, weights and output data.  
-“Please enter the type of input: ”  
+
+1. make sure the net_config_params.txt and net_weights.txt has been generated and they are located at FeedforwardNet/fpga_cnn/caffe_converter folder.
+2. Navigate codeGenerator folder  
+3. Run generator with   ./run_generator.sh  
+    It will run python scripts for generation of construct_net.h, config.h and ff_test.cpp files  
+    Follow the steps as this example.       
+
+For example: 
+       (1) Please enter test image path:   
+       - Then you will be prompted to enter the types of input data, weights and output data.  
+        “Please enter the type of input: ”  
 “Please enter the type of weights: ”  
 “Please enter the type of output: ”  
 - Next the path to test img is asked:  
