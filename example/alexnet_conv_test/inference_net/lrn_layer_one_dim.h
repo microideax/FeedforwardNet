@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <math.h>
 //#include "config.h"
-#include "pow_function.h"
+//#include "pow_function.h"
 //#include "activation_functions.h"
 
 using namespace std;
@@ -35,11 +35,11 @@ public:
 				for (int ii = - _LOCAL_SIZE_ / 2; ii <= _LOCAL_SIZE_ / 2; ++ii) {
 					for (int jj = - _LOCAL_SIZE_ / 2; jj <= _LOCAL_SIZE_ / 2; ++jj) {
 						if (i + ii >= 0 && i + ii<_INPUT_SIZE_&&j + jj >= 0 && j + jj<_INPUT_SIZE_) {//if overlapped
-							data += pow_ff(in_data[i + ii][j + jj], 2);
+							data += pow(in_data[i + ii][j + jj], 2);
 						}
 					}
 				}
-				out_data[i][j] = in_data[i][j] * pow_ff(1+( alpha / _LOCAL_SIZE_ ) * data, - beta) ;
+				out_data[i][j] = in_data[i][j] * pow(1+( alpha / _LOCAL_SIZE_ ) * data, - beta) ;
 			}
 		}
 	}
@@ -56,10 +56,10 @@ public:
 					float data = 0;
 					for (int ii = -_LOCAL_SIZE_ / 2; ii <= _LOCAL_SIZE_ / 2; ++ii) {
 						if (a + ii >= 0 && a + ii<_IN_CHANNEL_NUM_) {//if in all channels
-							data += pow_ff((float)(*(in_data3D+(a+ii)*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k)), 2);
+							data += pow((float)(*(in_data3D+(a+ii)*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k)), 2);
 						}
 					}
-					*(out_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k) = (T)((((float)(*(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k))) * (pow_ff(1 + (alpha / _LOCAL_SIZE_) * data, -beta))));
+					*(out_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k) = (T)((((float)(*(in_data3D+a*_INPUT_SIZE_*_INPUT_SIZE_+j*_INPUT_SIZE_+k))) * (pow(1 + (alpha / _LOCAL_SIZE_) * data, -beta))));
 				}
 			}
 		//}
