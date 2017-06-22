@@ -259,7 +259,8 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < crop_h; j++) {
 			for (int k = 0; k < crop_w; k++) {
-				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];
+//				in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];
+                temp_out_1[in_data_size] = (data_type)in_data_3D[i][j][k];
 				in_data_size++;
 			}
 		}
@@ -676,6 +677,10 @@ int main(int argc, char** argv) {
     temp_out_1,
     temp_out_2);
 
+    finish = clock();
+    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
+    cout << "predicted time is: " << totaltime << " s" << endl;
+
     for(int i=0;i<1000;i++){
         fc_8_out[i]=(float)(fc_8_out_mem_int[i]);
 	}
@@ -697,9 +702,6 @@ int main(int argc, char** argv) {
 
 #endif
 
-	finish = clock();
-	totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
-	cout << "predicted time is: " << totaltime << " s" << endl;
 
 	return 0;
 
