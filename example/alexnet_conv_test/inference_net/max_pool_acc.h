@@ -47,7 +47,7 @@ public:
                 for (int n = 0; n < N; n += Tn) {
                     // load input data
                     for (int i = n; i < n+Tn; i++) {
-                        if(N < n+Tn && i == N%Tn){
+                        if(N < n+Tn && i == N){
                             break;
                         }
                         for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
@@ -83,17 +83,17 @@ public:
                     // max pooling computation core
                     for(int tr=r; tr<r+Tr; tr++){
 //#pragma HLS UNROLL
-                        if(R < r+Tr && tr == R%Tr){
+                        if(R < r+Tr && tr == R){
                             break;
                         }
                         for(int tc=c; tc<c+Tc; tc++){
 #pragma HLS UNROLL
-                            if(C < c+Tc && tc == C%Tc){
+                            if(C < c+Tc && tc == C){
                                 break;
                             }
                             for (int tn=n; tn<n+Tn; tn++) { // unroll loop kernel
 #pragma HLS UNROLL
-                                if(N < n+Tn && tn == N%Tn){
+                                if(N < n+Tn && tn == N){
                                     break;
                                 }
                                 T max = 0;
@@ -109,15 +109,15 @@ public:
 
                     // transfer output data
                     for(int i = n; i < n+Tn; i++){
-                        if(N < n+Tn && i == N%Tn){
+                        if(N < n+Tn && i == N){
                             break;
                         }
                         for(int j=r; j < r+Tr; j++){
-                            if(R < r+Tr && j == R%Tr){
+                            if(R < r+Tr && j == R){
                                 break;
                             }
                             for(int k=c; k < c+Tc; k++){
-                                if(C < c+Tc && k == C%Tc){
+                                if(C < c+Tc && k == C){
                                     break;
                                 }
                                 *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
