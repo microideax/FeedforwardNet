@@ -212,8 +212,8 @@ int main(int argc, char** argv) {
 #if _HLS_MODE_
 	string image_dir = "ILSVRC2012_val_00000003.JPEG";//validation dataset dir
 #else
-	//string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
-	string image_dir = argv[1];
+	string image_dir = "./net_inputs/ILSVRC2012_img_val/ILSVRC2012_val_00000003.JPEG";
+//	string image_dir = argv[1];
 #endif
 	float in_data_3D_channel_swap[3][375][500] = { 0 };
 	//input data array
