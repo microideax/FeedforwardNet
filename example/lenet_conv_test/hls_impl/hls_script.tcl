@@ -40,7 +40,7 @@ set_part {xc7z045ffg900-1}
 #set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
-csim_design -clean -argv {net_weights.txt, input_1.txt}
+#csim_design -clean -argv {net_weights.txt, input_1.txt}
 #config_schedule -effort high
 csynth_design
 
