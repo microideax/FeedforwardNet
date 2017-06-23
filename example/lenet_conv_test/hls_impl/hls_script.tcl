@@ -44,7 +44,7 @@ csim_design -clean -argv {net_weights.txt, input_1.txt}
 #config_schedule -effort high
 csynth_design
 
-cosim_design -argv {net_weights.txt, input_1.txt} -trace_level none -rtl verilog -tool xsim
+#cosim_design -argv {net_weights.txt, input_1.txt} -trace_level none -rtl verilog -tool xsim
 
 export_design -flow syn -rtl verilog -format ip_catalog
 exit

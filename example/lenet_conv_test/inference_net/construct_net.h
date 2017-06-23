@@ -109,11 +109,11 @@ void inference_net(
         output_temp_0[addr] = data_type_o(0);
     }
     //--------------------------fc layer 1-----------------------------//
-//    fcAcc1.conv_layer_acc(16, 5, 10, 1, 1, 5, 0, output_temp_1, fc_weight_port, fc_bias_port, output_temp_0);
-    F5.fc_layer_a('r', output_temp_1, fc_weight_port, fc_bias_port, fc_8_out_buf);
+    convAcc1.conv_layer_acc(16, 5, 10, 1, 1, 5, 0, output_temp_1, fc_weight_port, fc_bias_port, output_temp_0);
+//    F5.fc_layer_a('r', output_temp_1, fc_weight_port, fc_bias_port, fc_8_out_buf);
 
     RESET_10: for(int i = 0; i < 10; i++){
-	    fc_8_out_a[i] = fc_8_out_buf[i];
+	    fc_8_out_a[i] = output_temp_0[i];
     }
 	/******************************************************************************************/
 
