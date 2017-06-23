@@ -142,11 +142,11 @@ public:
 #if _KERNEL_DEBUG_
                             ofstream conv_w;
                             conv_w.open("conv_in_weights.txt", ios::app);
-                            for (int i = m; i < min(M, m+Tm); i++) {
-                                for (int j = n; j < min(N, n+Tn); j++) {
+                            for (int j = n; j < min(N, n+Tn); j++) {
+                                for (int i = m; i < min(M, m+Tm); i++) {
                                     for(int k = 0; k < K; k++){
                                         for(int l = 0; l < K; l++){
-                                            conv_w << w_buf[i-m][j-n][k][l] << " ";
+                                            conv_w << w_buf[j-n][i-m][k][l] << " ";
                                         }
                                         conv_w << endl;
                                     }
@@ -180,9 +180,9 @@ public:
                                                     if(N < n+Tn && tn+n == N){
                                                         break;
                                                     }
-		                                            if(((i==0&&j==0)&&n==0))
-						                                out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
-					                                else
+                                                    if(i==0&&j==0&&tn==0&&n==0)
+                                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
+                                                    else
                                                         out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                 }
                                             }
@@ -213,8 +213,8 @@ public:
                                         *(out_data + i * R * C + j * C + k) = G(0);
                                         out_buf[i-m][j-r][k-c] = G(0);
                                     }
-//				                   *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
-//				                   out_buf[i-m][j-r][k-c] = 0;
+//                                 *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
+//                                 out_buf[i-m][j-r][k-c] = 0;
                                 }
                             }
                         }
