@@ -36,7 +36,9 @@ public:
         T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
         W *layer_weights, //w[M][N][K][K]
         W *layer_bias, // b[M]
-        G *out_data){ // out[M][R][C]
+        G *out_data,
+        int weight_offset,
+        int bias_offset){ // out[M][R][C]
 
 #if _HLS_MODE_
 #pragma HLS DATAFLOW
@@ -129,14 +131,14 @@ public:
                                     }
                                     for(int k1 = 0; k1 < K; k1++){
                                         for(int k2 = 0; k2 < K; k2++){
-                                            w_buf[j-n][i-m][k1][k2] = *(layer_weights + i*N*K*K + j*K*K + k1*K + k2);
+                                            w_buf[j-n][i-m][k1][k2] = *(layer_weights + weight_offset + i*N*K*K + j*K*K + k1*K + k2);
                                         }
                                     }
                                 }
                             }
                             //load input bias
                             for(int i = m; i < m+Tm; i++){
-                                b_buf[i-m] = *(layer_bias + i);
+                                b_buf[i-m] = *(layer_bias + bias_offset + i);
                             }
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
