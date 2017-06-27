@@ -10,13 +10,14 @@
 #include <ap_fixed.h>
 
 #include "config.h"
-#include "conv_pool_layer_one_dim.h"
-#include "conv_layer_one_dim.h"
-#include "pool_layer_one_dim.h"
+//#include "conv_pool_layer_one_dim.h"
+//#include "conv_layer_one_dim.h"
+//#include "pool_layer_one_dim.h"
 //#include "lrn_layer_one_dim.h"
 #include "fc_layer_one_dim.h"
 #include "conv_acc_break.h"
 #include "max_pool_acc.h"
+#include "acc_instance.h"
 
 using namespace std;
 
@@ -29,10 +30,10 @@ void inference_net(
 	data_type in_data_3D[3*227*227],
 
 	// layer weights and bias inputs
-	data_type_w *conv_weight_port,
-	data_type_w *conv_bias_port,
-	data_type_w *fc_weight_port,
-	data_type_w *fc_bias_port,
+	data_type_w conv_weight_port[2332704],
+	data_type_w conv_bias_port[1376],
+	data_type_w fc_weight_port[58621952],
+	data_type_w fc_bias_port[13288],
 
 	// output fc data
 	data_type_o  fc_8_out_a[1000*1*1],
@@ -67,15 +68,13 @@ void inference_net(
 	/******************************************************************************************/
 
 	//construct network --------------alexnet
-	conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 //	lrn_layer<data_type_o, 96 ,5 ,55> L1;
-	max_pool_acc<data_type, data_type_w, data_type_o, 96, 20, 20> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	max_pool_acc<data_type, data_type_w, data_type_o, 96, 20, 20> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 //	lrn_layer<data_type_o, 256, 5, 27> L2;
 //	fc_layer<data_type,data_type_w,data_type_o, 256, 6, 4096> F6;
 //	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
 //	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 1000> F8;
-
-#pragma HLS allocation instances=conv_layer_acc limit=1 function
 
     //temp storage space
 	data_type_o  fc_8_out_buf[1000];
@@ -107,16 +106,20 @@ void inference_net(
     int shift_weight_fc3     = 1048576*6*6+16777216*1*1;
 	int shift_bias_fc3       = 8192;
 
+#pragma HLS ALLOCATION instances=conv_layer_new limit=1 function
+
 	//Forward propagation by layer
     // conv 1
-    convAcc1.conv_layer_acc(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2);
+//    convAcc1.conv_layer_acc(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2);
+    conv_layer_new(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2);
 //    Reset_1: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
 //    L1.lrn_layer_a(nn_alpha_lrn[0], nn_beta_lrn[0], output_temp_2, output_temp_1);
 //    Reset_2: for(int addr = 0; addr < 96*55*55; addr++){ output_temp_2[addr] = data_type_o(0); }
 //    maxPoolAcc1.max_pool_layer_acc(96, 3, 27, 27, 2, 0, ex_buf_2, ex_buf_1);
 //    Reset_3: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
     // conv 2
-    convAcc1.conv_layer_acc(48, 5, 128, 27, 27, 1, 2, ex_buf_2,          conv_weight_port+shift_weight_conv2_1, conv_bias_port+shift_bias_conv2_1, ex_buf_1);
+//    convAcc1.conv_layer_acc(48, 5, 128, 27, 27, 1, 2, ex_buf_2,          conv_weight_port+shift_weight_conv2_1, conv_bias_port+shift_bias_conv2_1, ex_buf_1);
+    conv_layer_new(48, 5, 128, 27, 27, 1, 2, ex_buf_2,          conv_weight_port+shift_weight_conv2_1, conv_bias_port+shift_bias_conv2_1, ex_buf_1);
 /*
     convAcc1.conv_layer_acc(48, 5, 128, 27, 27, 1, 2, ex_buf_1+48*27*27, conv_weight_port+shift_weight_conv2_2, conv_bias_port+shift_bias_conv2_2, ex_buf_2+128*27*27);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }

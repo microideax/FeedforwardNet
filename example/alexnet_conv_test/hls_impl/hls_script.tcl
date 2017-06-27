@@ -46,5 +46,5 @@ csynth_design
 
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
 
-export_design -flow syn -rtl verilog -format ip_catalog
+#export_design -flow syn -rtl verilog -format ip_catalog
 exit
