@@ -81,28 +81,32 @@ public:
 #endif
 
                     // max pooling computation core
-                    for(int tr=r; tr<r+Tr; tr++){
+                    for(int tr=0; tr<Tr; tr++){
 //#pragma HLS UNROLL
-                        if(R < r+Tr && tr == R){
+                        if(R < r+Tr && tr+r == R){
                             break;
                         }
-                        for(int tc=c; tc<c+Tc; tc++){
+                        for(int tc=0; tc<Tc; tc++){
 #pragma HLS UNROLL
-                            if(C < c+Tc && tc == C){
+                            if(C < c+Tc && tc+c == C){
                                 break;
                             }
-                            for (int tn=n; tn<n+Tn; tn++) { // unroll loop kernel
+                            for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                if(N < n+Tn && tn == N){
+                                if(N < n+Tn && tn+n == N){
                                     break;
                                 }
                                 T max = 0;
                                 for (int i = 0; i < K; i++) {
                                     for (int j = 0; j < K; j++) {
-                                        max = (max > in_buf[tn-n][S * (tr-r) + i][S * (tc-c) + j]) ? max : in_buf[tn-n][S * (tr-r) + i][S * (tc-c) + j];
+                                        if(i==0&&j==0){
+                                            max = in_buf[tn][S * (tr)][S * (tc)];
+                                        }else{
+                                            max = (max > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? max : in_buf[tn][S * (tr) + i][S * (tc) + j];
+                                        }
                                     }
                                 }
-                                out_buf[tn-n][tr-r][tc-c] = max;
+                                out_buf[tn][tr][tc] = max;
                             }
                         }
                     }
@@ -120,7 +124,14 @@ public:
                                 if(C < c+Tc && k == C){
                                     break;
                                 }
-                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
+                                if (out_buf[i-n][j-r][k-c] > G(0)) {
+                                    *(out_data + i * R * C + j * C + k) = (out_buf[i-n][j-r][k-c]);
+                                    out_buf[i-n][j-r][k-c] = G(0);
+                                }
+                                else{
+                                    *(out_data + i * R * C + j * C + k) = G(0);
+                                    out_buf[i-n][j-r][k-c] = G(0);
+                                }
                             }
                         }
                     }
