@@ -40,9 +40,9 @@ public:
         int weight_offset,
         int bias_offset){ // out[M][R][C]
 
-//#if _HLS_MODE_
-//#pragma HLS DATAFLOW
-//#endif
+#if _HLS_MODE_
+#pragma HLS DATAFLOW
+#endif
 
             /***************local data buffer******************************/
             T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
@@ -90,15 +90,20 @@ public:
                             
                             // load input data
                             for(int i = n; i < n+Tn; i++){
-                                if(N < n+Tn && i == N){
-                                    break;
-                                }
+                                //if(N < n+Tn && i == N){
+                                //    break;
+                                //}
                                 for(int j = r*S - P; j < (r+Tr-1)*S + K - P; j++){
                                     for(int k = c*S - P; k < (c+Tc-1)*S + K - P; k++){
                                         if(j < 0 || j >= ((R-1)*S + K - 2*P) || k < 0 || k >= ((C-1)*S + K - 2*P)){
                                             in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);}
                                         else{
-                                            in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);}
+                                            if(N < n+Tn && i >= N){
+                                                in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);
+                                            }else{
+                                                in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
+                                            }
+                                            }
                                     }
                                 }
                             }
@@ -167,28 +172,25 @@ public:
                                             break;
                                         }
                                         for(int tc=0; tc<Tc; tc++){
-//#pragma HLS DEPENDENCE variable=out_buf inter false
-#pragma HLS PIPELINE II=1
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }
                                             for(int tm = 0; tm < Tm; tm++){
 #pragma HLS UNROLL
-                                                if(M < m+Tm && tm+m == M){
-                                                    break;
-                                                }
+                                                //if(M < m+Tm && tm+m == M){
+                                                //    break;
+                                                //}
                                                 for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                                    T in_temp = in_buf[tn][S*(tr)+i][S*(tc)+j];
-                                                    G out_temp = 0;
-//                                                    if(N < n+Tn && tn+n == N){
-//                                                        break;
-//                                                    }
+                                                    //if(N < n+Tn && tn+n == N){
+                                                    //    break;
+                                                    //}
                                                     if(i==0&&j==0&&tn==0&&n==0)
-                                                        out_temp = b_buf[tm] + w_buf[tn][tm][i][j]*in_temp;
+                                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                     else
-                                                        out_temp = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_temp;
-                                                    out_buf[tm][tr][tc] = out_temp;
+                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                 }
                                             }
                                         }
