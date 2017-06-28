@@ -167,7 +167,7 @@ public:
                                             break;
                                         }
                                         for(int tc=0; tc<Tc; tc++){
-#pragma HLS DEPENDENCE variable=out_buf inter false
+//#pragma HLS DEPENDENCE variable=out_buf inter false
 #pragma HLS PIPELINE II=1
                                             if(C < c+Tc && tc+c == C){
                                                 break;
@@ -179,13 +179,16 @@ public:
                                                 }
                                                 for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                                    if(N < n+Tn && tn+n == N){
-                                                        break;
-                                                    }
+                                                    T in_temp = in_buf[tn][S*(tr)+i][S*(tc)+j];
+                                                    G out_temp = 0;
+//                                                    if(N < n+Tn && tn+n == N){
+//                                                        break;
+//                                                    }
                                                     if(i==0&&j==0&&tn==0&&n==0)
-                                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
+                                                        out_temp = b_buf[tm] + w_buf[tn][tm][i][j]*in_temp;
                                                     else
-                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
+                                                        out_temp = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_temp;
+                                                    out_buf[tm][tr][tc] = out_temp;
                                                 }
                                             }
                                         }

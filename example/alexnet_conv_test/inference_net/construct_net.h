@@ -155,12 +155,13 @@ void inference_net(
     convAcc1.conv_layer_acc(4096, 1, 1000, 1, 1, 1, 0, ex_buf_1, fc_weight_port+shift_weight_fc3, fc_bias_port+shift_bias_fc3, ex_buf_2, 0, 0);
   */  
 
+/*
     // conv 1
     conv_layer_new(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, 0, 0);
     Reset_1: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
     max_pool_layer_new(96, 3, 27, 27, 2, 0, ex_buf_2, ex_buf_1);
     Reset_3: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
-
+*/
     // conv 2
     conv_layer_new(48, 5, 128, 27, 27, 1, 2, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv2_1, shift_bias_conv2_1);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
@@ -170,12 +171,13 @@ void inference_net(
     // conv 3
     conv_layer_new(256, 3, 384, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv3, shift_bias_conv3);
     // conv 4
+/*
     conv_layer_new(192, 3, 192, 13, 13, 1, 1, ex_buf_2, conv_weight_port, conv_bias_port, ex_buf_1, shift_weight_conv4_1, shift_bias_conv4_1);
     conv_layer_new(192, 3, 192, 13, 13, 1, 1, ex_buf_2+192*13*13, conv_weight_port, conv_bias_port, ex_buf_1+192*13*13, shift_weight_conv4_2, shift_bias_conv4_2);
     // conv 5
     conv_layer_new(192, 3, 128, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv5_1, shift_bias_conv5_1);
     convAcc1.conv_layer_acc(192, 3, 128, 13, 13, 1, 1, ex_buf_1+192*13*13, conv_weight_port, conv_bias_port, ex_buf_2+128*13*13, shift_weight_conv5_2, shift_bias_conv5_2);
-
+*/
     for(int i = 0; i < 1000; i++){
 	    fc_8_out_a[i] = ex_buf_2[i];
 	}

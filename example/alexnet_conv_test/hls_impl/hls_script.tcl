@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_conv_1
+open_project hls_proj_conv_2
 
 set_top inference_net
 
