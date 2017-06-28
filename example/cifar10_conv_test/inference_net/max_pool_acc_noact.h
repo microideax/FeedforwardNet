@@ -2,8 +2,8 @@
 // Created by Yao Chen on 27/05/2017
 //
 
-#ifndef _MAX_POOL_ACC_H_
-#define _MAX_POOL_ACC_H_
+#ifndef _MAX_POOL_ACC_NOACT_H_
+#define _MAX_POOL_ACC_NOACT_H_
 
 #include <iostream>
 #include <fstream>
@@ -12,16 +12,16 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tn, int Tr, int Tc>
-class max_pool_acc {
+class max_pool_acc_noact {
 
 private:
     int pool_layer_number;
 
 public:
-    max_pool_acc() : pool_layer_number(0) {pool_layer_number = 0;};
+    max_pool_acc_noact() : pool_layer_number(0) {pool_layer_number = 0;};
 
 ///////////////////////------------------pooling accelerator----------------//////////////////////////
-    void max_pool_layer_acc(
+    void max_pool_layer_acc_noact(
             int R_IN,// input Row
             int C_IN,// input column
             int N, //input feature number
@@ -37,7 +37,7 @@ public:
         
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Starting max_pool_acc layer ...." << endl;
+            cout << "Starting max_pool_acc_noact layer ...." << endl;
 #endif
 #endif
         //buffer local data before computation
@@ -162,7 +162,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        cout << "Finished max_pool_acc layer ...." << endl;
+        cout << "Finished max_pool_acc_noact layer ...." << endl;
         cout << endl;
         ofstream pool_out;
         pool_out.open("pool_out_data.txt", ios::app);
