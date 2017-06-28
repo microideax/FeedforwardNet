@@ -8,7 +8,7 @@
 #include "conv_acc_break.h"
 #include "config.h"
 
-conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+conv_acc<data_type, data_type_w, data_type_o, 16, 4, 13, 13> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 
 void conv_layer_new(
         int N, //input feature number
@@ -27,6 +27,23 @@ void conv_layer_new(
 
     convAcc1.conv_layer_acc(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset);
 
-}
+};
+
+
+max_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16> maxPoolAcc1;
+
+void max_pool_layer_new(
+        int N,
+        int K,
+	int R,
+	int C,
+	int S,
+	int P,
+	data_type *in_data,
+	data_type_o *out_data){
+
+    maxPoolAcc1.max_pool_layer_acc(N, K, R, C, S, P, in_data, out_data);
+
+};
 
 #endif //FFNET_ACC_INSTANCE_H_H

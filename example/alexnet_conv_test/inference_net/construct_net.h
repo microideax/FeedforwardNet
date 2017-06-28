@@ -68,10 +68,10 @@ void inference_net(
 	/******************************************************************************************/
 
 	//construct network --------------alexnet
-	conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	lrn_layer<data_type_o, 96 ,5 ,55> L1;
-	max_pool_acc<data_type, data_type_w, data_type_o, 96, 20, 20> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
-	lrn_layer<data_type_o, 256, 5, 27> L2;
+//	conv_acc<data_type, data_type_w, data_type_o, 16, 4, 16, 16> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	lrn_layer<data_type_o, 96 ,5 ,55> L1;
+//	max_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16> maxPoolAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+//	lrn_layer<data_type_o, 256, 5, 27> L2;
 //	fc_layer<data_type,data_type_w,data_type_o, 256, 6, 4096> F6;
 //	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 4096> F7;
 //	fc_layer<data_type,data_type_w,data_type_o, 4096, 1, 1000> F8;
@@ -108,6 +108,7 @@ void inference_net(
 
 #pragma HLS ALLOCATION instances=conv_layer_new limit=1 function
 
+/*    
 	//Forward propagation by layer
     // conv 1
 //    convAcc1.conv_layer_acc(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2);
@@ -152,6 +153,29 @@ void inference_net(
     // fc 3
     //F8.fc_layer_a_no_activation(output_temp_1, fc_weight_port+shift_weight_fc3, fc_bias_port+shift_bias_fc3, fc_8_out_buf);
     convAcc1.conv_layer_acc(4096, 1, 1000, 1, 1, 1, 0, ex_buf_1, fc_weight_port+shift_weight_fc3, fc_bias_port+shift_bias_fc3, ex_buf_2, 0, 0);
+  */  
+
+    // conv 1
+    conv_layer_new(3, 11, 96, 55, 55, 4, 0, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, 0, 0);
+    Reset_1: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
+    max_pool_layer_new(96, 3, 27, 27, 2, 0, ex_buf_2, ex_buf_1);
+    Reset_3: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
+
+    // conv 2
+    conv_layer_new(48, 5, 128, 27, 27, 1, 2, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv2_1, shift_bias_conv2_1);
+    for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
+    max_pool_layer_new(256, 3, 13, 13, 2, 0, ex_buf_2, ex_buf_1);
+    for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
+
+    // conv 3
+    conv_layer_new(256, 3, 384, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv3, shift_bias_conv3);
+    // conv 4
+    conv_layer_new(192, 3, 192, 13, 13, 1, 1, ex_buf_2, conv_weight_port, conv_bias_port, ex_buf_1, shift_weight_conv4_1, shift_bias_conv4_1);
+    conv_layer_new(192, 3, 192, 13, 13, 1, 1, ex_buf_2+192*13*13, conv_weight_port, conv_bias_port, ex_buf_1+192*13*13, shift_weight_conv4_2, shift_bias_conv4_2);
+    // conv 5
+    conv_layer_new(192, 3, 128, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv5_1, shift_bias_conv5_1);
+    convAcc1.conv_layer_acc(192, 3, 128, 13, 13, 1, 1, ex_buf_1+192*13*13, conv_weight_port, conv_bias_port, ex_buf_2+128*13*13, shift_weight_conv5_2, shift_bias_conv5_2);
+
     for(int i = 0; i < 1000; i++){
 	    fc_8_out_a[i] = ex_buf_2[i];
 	}
