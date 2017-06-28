@@ -5,6 +5,7 @@
 #include <memory>
 #include <ctime>
 #include <limits>
+#include <math.h>
 #include "caffe.pb.h"
 #include "layer_factory_impl.h"
 //#ifdef _MSC_VER
@@ -112,7 +113,7 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
             pad=pooling_param.pad();
             kernel_size=pooling_param.kernel_size();
             stride=pooling_param.stride();
-            input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
+            input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
             cout << "kernel size: " << kernel_size<<endl;
             cout << "pooling_output_size: " << input_size<<endl;
             //num_output=input_param.crop_size();
@@ -226,7 +227,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             nn_channel_size_pooling.push_back(kernel_size);
             stride=pooling_param.stride();
             nn_stride_pooling.push_back(stride);
-            input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
+            input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
         }else if(src_net[i].type()=="LRN"){
             has_lrn_layer=true;
             int local_size=src_net[i].lrn_param().local_size();
