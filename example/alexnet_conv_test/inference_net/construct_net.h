@@ -125,7 +125,6 @@ void inference_net(
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
     L2.lrn_layer_a(nn_alpha_lrn[1], nn_beta_lrn[1], ex_buf_1, ex_buf_2);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
-
     maxPoolAcc1.max_pool_layer_acc(256, 3, 13, 13, 2, 0, ex_buf_2, ex_buf_1);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
     // conv 3
@@ -141,7 +140,6 @@ void inference_net(
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
     maxPoolAcc1.max_pool_layer_acc(256, 3, 6, 6, 2, 0, ex_buf_2, ex_buf_1);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
-
     //fc 1
     //F6.fc_layer_a(activation_type, output_temp_1, fc_weight_port, fc_bias_port, output_temp_2);
     convAcc1.conv_layer_acc(256, 6, 4096, 1, 1, 6, 0, ex_buf_1, fc_weight_port, fc_bias_port, ex_buf_2, 0, 0);

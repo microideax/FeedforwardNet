@@ -2,8 +2,8 @@
 // Created by Yao Chen on 27/05/2017
 // 
 
-#ifndef _CONV_ACC_H_
-#define _CONV_ACC_H_
+#ifndef _CONV_ACC_NOACT_H_
+#define _CONV_ACC_NOACT_H_
 
 #include <iostream>
 #include <fstream>
@@ -16,16 +16,16 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>
-class conv_acc {
+class conv_acc_noact {
 
 private:
     int conv_layer_number;
 
 public:
-    conv_acc() : conv_layer_number(0) {conv_layer_number = 0;};
+    conv_acc_noact() : conv_layer_number(0) {conv_layer_number = 0;};
 
 ///////////////////////------------------conv accelerator----------------//////////////////////////
-    void conv_layer_acc(
+    void conv_layer_acc_noact(
         int N, //input feature number
         int K, //input kernel size
         int M, // output feature number
@@ -40,14 +40,14 @@ public:
         int weight_offset,
         int bias_offset){ // out[M][R][C]
 
-//#if _HLS_MODE_
-//#pragma HLS DATAFLOW
-//#endif
+#if _HLS_MODE_
+#pragma HLS DATAFLOW
+#endif
 
             /***************local data buffer******************************/
-            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
+            T in_buf[Tn][(Tr-1)*S + K][(Tc-1)*S + K];
             G out_buf[Tm][Tr][Tc];
-            W w_buf[Tn][Tm][11][11];
+            W w_buf[Tn][Tm][K][K];
             W b_buf[Tm];
 
 #if _HLS_MODE_
@@ -60,7 +60,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Starting conv_acc layer ...." << endl;
+            cout << "Starting conv_acc_noact layer ...." << endl;
             //buffer local data initiallization:must do it!
             for(int i = 0; i < Tm; i++){
                 for(int j = 0; j < Tr; j++){
@@ -167,8 +167,8 @@ public:
                                             break;
                                         }
                                         for(int tc=0; tc<Tc; tc++){
-//#pragma HLS DEPENDENCE variable=out_buf inter false
-#pragma HLS PIPELINE II=1
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }
@@ -179,16 +179,13 @@ public:
                                                 }
                                                 for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                                    T in_temp = in_buf[tn][S*(tr)+i][S*(tc)+j];
-                                                    G out_temp = 0;
-//                                                    if(N < n+Tn && tn+n == N){
-//                                                        break;
-//                                                    }
+                                                    if(N < n+Tn && tn+n == N){
+                                                        break;
+                                                    }
                                                     if(i==0&&j==0&&tn==0&&n==0)
-                                                        out_temp = b_buf[tm] + w_buf[tn][tm][i][j]*in_temp;
+                                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                     else
-                                                        out_temp = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_temp;
-                                                    out_buf[tm][tr][tc] = out_temp;
+                                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                 }
                                             }
                                         }
@@ -210,16 +207,9 @@ public:
                                     if(C < c+Tc && k == C){
                                         break;
                                     }
-                                    if (out_buf[i-m][j-r][k-c] > G(0)) {
-                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c]);
-                                        out_buf[i-m][j-r][k-c] = G(0);
-                                    }
-                                    else{
-                                        *(out_data + i * R * C + j * C + k) = G(0);
-                                        out_buf[i-m][j-r][k-c] = G(0);
-                                    }
-//                                 *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
-//                                 out_buf[i-m][j-r][k-c] = 0;
+                                    
+                                    *(out_data + i * R * C + j * C + k) = out_buf[i-m][j-r][k-c];
+                                    out_buf[i-m][j-r][k-c] = G(0);
                                 }
                             }
                         }
@@ -246,7 +236,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Finished conv_acc layer ...." << endl;
+            cout << "Finished conv_acc_noact layer ...." << endl;
             cout << endl;
             ofstream conv_out;
             conv_out.open("conv_out_data.txt", ios::app);
