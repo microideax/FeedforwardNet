@@ -237,7 +237,8 @@ int main() {
    for (int i = 0; i < 3; i++) {
       for (int j = 0; j < crop_h; j++) {
          for (int k = 0; k < crop_w; k++) {
-            in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];
+//            in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];
+            temp_out_2[in_data_size] = (data_type)in_data_3D[i][j][k];
             in_data_size++;
          }
 

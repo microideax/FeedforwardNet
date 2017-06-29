@@ -60,8 +60,8 @@ void   inference_net(
    //fc_layer<data_type, data_type_w, data_type_o, 64, 4, 10> F1;
 
 
-   data_type_o in_data_buf[3*32*32];
-   data_type_o fc_4_out_buf[10];
+//   data_type_o in_data_buf[3*32*32];
+//   data_type_o fc_4_out_buf[10];
 
 
 //   for (int addr = 0; addr < 32768; addr++) {
@@ -86,7 +86,7 @@ void   inference_net(
 
     // conv-1
 //    convAcc1.conv_layer_acc_noact(3, 5, 32, 32, 32, 1, 2, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1, 0, 0);
-    conv_layer_new_noact(3, 5, 32, 32, 32, 1, 2, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
+    conv_layer_new_noact(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
 //    maxPoolAcc1.max_pool_layer_acc(32,32,32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
     max_pool_layer_new(32, 32, 32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
     clean_1: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0); }
