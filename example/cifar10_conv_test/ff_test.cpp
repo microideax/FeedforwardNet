@@ -191,7 +191,7 @@ int main() {
    //load val image file *****************************
 #if _KERNEL_DEBUG_
 #if _HLS_MODE_
-   string image_dir = "48870.png";
+   string image_dir = "50000.png";
 #else
    string image_dir = "./net_inputs/ILSVRC2012_img_val/50000.png";
 #endif
