@@ -16,7 +16,7 @@
 #include "inference_net/softmax_one_dim.h"
 #include "inference_net/predict_one_dim.h"
 #include "inference_net/accuracy_one_dim.h"
-#include "inference_net/pow_function.h"
+//#include "inference_net/pow_function.h"
 #include "inference_net/resize_image.h"
 
 

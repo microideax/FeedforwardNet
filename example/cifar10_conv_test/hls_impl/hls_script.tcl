@@ -6,7 +6,7 @@ open_project hls_proj_cifar
 
 set_top inference_net
 
-add_files ../inference_net/activation_functions.h
+#add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
 add_files ../inference_net/conv_acc_break.h
@@ -46,7 +46,7 @@ create_clock -period 10 -name default
 
 csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
 
-#csynth_design
+csynth_design
 
 #cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
 

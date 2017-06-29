@@ -47,9 +47,9 @@ public:
 #endif
 
             /***************local data buffer******************************/
-            T in_buf[Tn][(Tr-1)*S + K][(Tc-1)*S + K];
+            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
             G out_buf[Tm][Tr][Tc];
-            W w_buf[Tn][Tm][K][K];
+            W w_buf[Tn][Tm][11][11];
             W b_buf[Tm];
 
 #if _HLS_MODE_
