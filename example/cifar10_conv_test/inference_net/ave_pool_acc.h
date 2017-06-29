@@ -2,8 +2,8 @@
 // Created by Yao Chen on 27/05/2017
 //
 
-#ifndef _MAX_POOL_ACC_H_
-#define _MAX_POOL_ACC_H_
+#ifndef _AVE_POOL_ACC_H_
+#define _AVE_POOL_ACC_H_
 
 #include <iostream>
 #include <fstream>

@@ -23,9 +23,11 @@ void conv_layer_new(
         data_type_w *layer_bias, // b[M]
         data_type_o *out_data,
         int weight_offset,
-        int bias_offset) {
+        int bias_offset,
+	    int in_offset,
+	    int out_offset) {
 
-    convAcc1.conv_layer_acc(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset);
+    convAcc1.conv_layer_acc(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
 
 };
 

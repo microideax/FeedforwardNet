@@ -161,13 +161,13 @@ void inference_net(
     Reset_3: for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
 */
     // conv 2
-    conv_layer_new(48, 5, 128, 27, 27, 1, 2, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv2_1, shift_bias_conv2_1);
+    conv_layer_new(48, 5, 128, 27, 27, 1, 2, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv2_1, shift_bias_conv2_1, 0, 0);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_1[addr] = data_type_o(0); }
     max_pool_layer_new(256, 3, 13, 13, 2, 0, ex_buf_2, ex_buf_1);
     for(int addr = 0; addr < 96*55*55; addr++){ ex_buf_2[addr] = data_type_o(0); }
 
     // conv 3
-    conv_layer_new(256, 3, 384, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv3, shift_bias_conv3);
+    conv_layer_new(256, 3, 384, 13, 13, 1, 1, ex_buf_1, conv_weight_port, conv_bias_port, ex_buf_2, shift_weight_conv3, shift_bias_conv3, 0, 0);
     // conv 4
 /*
     conv_layer_new(192, 3, 192, 13, 13, 1, 1, ex_buf_2, conv_weight_port, conv_bias_port, ex_buf_1, shift_weight_conv4_1, shift_bias_conv4_1);

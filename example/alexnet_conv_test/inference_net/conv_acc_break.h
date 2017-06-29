@@ -38,7 +38,9 @@ public:
         W *layer_bias, // b[M]
         G *out_data,
         int weight_offset,
-        int bias_offset){ // out[M][R][C]
+        int bias_offset,
+	int in_offset,
+	int out_offset){ // out[M][R][C]
 
 #if _HLS_MODE_
 #pragma HLS DATAFLOW
@@ -101,7 +103,7 @@ public:
                                             if(N < n+Tn && i >= N){
                                                 in_buf[i-n][j-r*S+P][k-c*S+P] = T(0);
                                             }else{
-                                                in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
+                                                in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + in_offset + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
                                             }
                                             }
                                     }
@@ -213,11 +215,11 @@ public:
                                         break;
                                     }
                                     if (out_buf[i-m][j-r][k-c] > G(0)) {
-                                        *(out_data + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c]);
+                                        *(out_data + out_offset + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c]);
                                         out_buf[i-m][j-r][k-c] = G(0);
                                     }
                                     else{
-                                        *(out_data + i * R * C + j * C + k) = G(0);
+                                        *(out_data + out_offset + i * R * C + j * C + k) = G(0);
                                         out_buf[i-m][j-r][k-c] = G(0);
                                     }
 //                                 *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
@@ -233,7 +235,7 @@ public:
                         for(int i = m; i < min(M, m+Tm); i++){
                             for(int j=r; j < min(R, r+Tr); j++){
                                 for(int k=c; k < min(C, c+Tc); k++){
-                                    conv_out_buf << *(out_data + i * R * C + j * C + k) << " ";
+                                    conv_out_buf << *(out_data + out_offset + i * R * C + j * C + k) << " ";
                                 }
                                 conv_out_buf << endl;
                             }
@@ -256,7 +258,7 @@ public:
             for (int i = 0; i < M; i++) {
                 for (int j = 0; j < R; j++) {
                     for(int k = 0; k < C; k++){
-                        conv_out << *(out_data + i*R*C + j*C + k) << " ";
+                        conv_out << *(out_data + out_offset + i*R*C + j*C + k) << " ";
                     }
                     conv_out << endl;
                 }
