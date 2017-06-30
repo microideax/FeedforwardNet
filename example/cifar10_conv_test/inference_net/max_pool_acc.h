@@ -22,6 +22,8 @@ public:
 
 ///////////////////////------------------pooling accelerator----------------//////////////////////////
     void max_pool_layer_acc(
+            int R_IN,// input Row
+            int C_IN,// input column
             int N, //input feature number
             int K, //input kernel size
             int R, // output Row
@@ -39,26 +41,33 @@ public:
 #endif
 #endif
         //buffer local data before computation
+        //int TR=(((Tr - 1) * S + K)>R_IN?R_IN:((Tr - 1) * S + K));
+        //int TC=(((Tc - 1) * S + K)>C_IN?C_IN:((Tc - 1) * S + K));
+        int TR=0;
+        int TC=0;
+
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
 
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
+                TR=((r * S + (Tr - 1) * S + K)>R_IN?(R_IN - r * S):((Tr - 1) * S + K));
+                TC=((c * S + (Tc - 1) * S + K)>C_IN?(C_IN - c * S):((Tc - 1) * S + K));
                 for (int n = 0; n < N; n += Tn) {
                     // load input data
                     for (int i = n; i < n+Tn; i++) {
                         if(N < n+Tn && i == N){
                             break;
                         }
-                        for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
-                            for (int k = c * S - P; k < (c + Tc - 1) * S + K - P; k++) {
-                                if (j < 0 || j >= ((R - 1) * S + K - 2 * P) || k < 0 || k >= ((C - 1) * S + K - 2 * P)) {
+                        for (int j = r * S - P; j < r * S + TR - P; j++) {
+                            for (int k = c * S - P; k < c * S + TC - P; k++) {
+                                if (j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {
                                     in_buf[i - n][j - r * S + P][k - c * S + P] = 0;
                                 } else {
                                     in_buf[i - n][j - r * S + P][k - c * S + P] = *(in_data +
-                                                                                    i * ((R - 1) * S + K - 2 * P) *
-                                                                                    ((C - 1) * S + K - 2 * P) +
-                                                                                    j * ((C - 1) * S + K - 2 * P) + k);
+                                                                                    i * (R_IN - 2 * P) *
+                                                                                    (C_IN - 2 * P) +
+                                                                                    j * (C_IN - 2 * P) + k);
                                 }
                             }
                         }
@@ -69,8 +78,8 @@ public:
                     pool_in_data.open("pool_in_data.txt", ios::app);
                     pool_in_data <<"pool input: "<< endl;
                     for (int i = n; i < min(N, n+Tn); i++) {
-                        for (int j = 0; j < (Tr-1)*S + K; j++) {
-                            for(int k = 0; k < (Tc-1)*S + K; k++){
+                        for (int j = 0; j < TR; j++) {
+                            for(int k = 0; k < TC; k++){
                                 pool_in_data << in_buf[i-n][j][k] << " ";
                             }
                             pool_in_data << endl;
@@ -97,8 +106,8 @@ public:
                                     break;
                                 }
                                 T max = 0;
-                                for (int i = 0; i < K; i++) {
-                                    for (int j = 0; j < K; j++) {
+                                for (int i = 0; i < ((S * (tr) + K)>TR?(TR-S * (tr)):K); i++) {
+                                    for (int j = 0; j < ((S * (tc) + K)>TC?(TC-S * (tc)):K); j++) {
                                         if(i==0&&j==0){
                                             max = in_buf[tn][S * (tr)][S * (tc)];
                                         }else{

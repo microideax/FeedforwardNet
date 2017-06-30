@@ -12,16 +12,16 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tn, int Tr, int Tc>
-class max_pool_acc {
+class ave_pool_acc {
 
 private:
     int pool_layer_number;
 
 public:
-    max_pool_acc() : pool_layer_number(0) {pool_layer_number = 0;};
+    ave_pool_acc() : pool_layer_number(0) {pool_layer_number = 0;};
 
 ///////////////////////------------------pooling accelerator----------------//////////////////////////
-    void max_pool_layer_acc(
+    void ave_pool_layer_acc(
             int N, //input feature number
             int K, //input kernel size
             int R, // output Row
@@ -35,7 +35,7 @@ public:
         
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Starting max_pool_acc layer ...." << endl;
+            cout << "Starting ave_pool_acc layer ...." << endl;
 #endif
 #endif
         //buffer local data before computation
@@ -80,33 +80,30 @@ public:
 #endif
 #endif
 
-                    // max pooling computation core
-                    for(int tr=0; tr<Tr; tr++){
+                    // ave pooling computation core
+                    for(int tr=r; tr<r+Tr; tr++){
 //#pragma HLS UNROLL
-                        if(R < r+Tr && tr+r == R){
+                        if(R < r+Tr && tr == R){
                             break;
                         }
-                        for(int tc=0; tc<Tc; tc++){
+                        for(int tc=c; tc<c+Tc; tc++){
 #pragma HLS UNROLL
-                            if(C < c+Tc && tc+c == C){
+                            if(C < c+Tc && tc == C){
                                 break;
                             }
-                            for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
+                            for (int tn=n; tn<n+Tn; tn++) { // unroll loop kernel
 #pragma HLS UNROLL
-                                if(N < n+Tn && tn+n == N){
+                                if(N < n+Tn && tn == N){
                                     break;
                                 }
-                                T max = 0;
+                                T sum = 0;
                                 for (int i = 0; i < K; i++) {
                                     for (int j = 0; j < K; j++) {
-                                        if(i==0&&j==0){
-                                            max = in_buf[tn][S * (tr)][S * (tc)];
-                                        }else{
-                                            max = (max > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? max : in_buf[tn][S * (tr) + i][S * (tc) + j];
-                                        }
+                                        sum += in_buf[tn-n][S * (tr-r) + i][S * (tc-c) + j];
                                     }
                                 }
-                                out_buf[tn][tr][tc] = max;
+                                sum = (T)(sum / (K * K));
+                                out_buf[tn-n][tr-r][tc-c] = sum;
                             }
                         }
                     }
@@ -124,14 +121,7 @@ public:
                                 if(C < c+Tc && k == C){
                                     break;
                                 }
-                                if (out_buf[i-n][j-r][k-c] > G(0)) {
-                                    *(out_data + i * R * C + j * C + k) = (out_buf[i-n][j-r][k-c]);
-                                    out_buf[i-n][j-r][k-c] = G(0);
-                                }
-                                else{
-                                    *(out_data + i * R * C + j * C + k) = G(0);
-                                    out_buf[i-n][j-r][k-c] = G(0);
-                                }
+                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
                             }
                         }
                     }
@@ -160,7 +150,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        cout << "Finished max_pool_acc layer ...." << endl;
+        cout << "Finished ave_pool_acc layer ...." << endl;
         cout << endl;
         ofstream pool_out;
         pool_out.open("pool_out_data.txt", ios::app);
