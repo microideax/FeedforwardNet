@@ -98,7 +98,7 @@ public:
                                     break;
                                 }
                                 for(int tc=0; tc<Tc; tc++){
-#pragma HLS UNROLL
+#pragma HLS PIPELINE
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }

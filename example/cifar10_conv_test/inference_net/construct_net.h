@@ -87,9 +87,9 @@ void   inference_net(
 
     // conv-1
 //    convAcc1.conv_layer_acc_noact(3, 5, 32, 32, 32, 1, 2, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1, 0, 0);
-    conv_layer_new_noact(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
+    conv_layer_new(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
 //    maxPoolAcc1.max_pool_layer_acc(32,32,32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
-    max_pool_layer_new(32, 32, 32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
+    max_pool_layer_new_noact(32, 32, 32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
     clean_1: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0); }
 
     // conv-2
@@ -110,7 +110,7 @@ void   inference_net(
 
     // fc_1
 //    convAcc1.conv_layer_acc_noact(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0);
-    conv_layer_new_noact(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
+    conv_layer_new(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
     for (int i = 0; i < 10; i++) { fc_out_a[i] = output_temp_1[i];  }
 
     cout << "Finished forward network process .........................." << endl;
