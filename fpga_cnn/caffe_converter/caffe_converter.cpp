@@ -170,7 +170,15 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     out.open("net_config_params.txt",ios::app);
     out<<"Network Structure: ";
     for (int i = 0; i < src_net.size(); i++) {
-        out<<src_net[i].type();
+        if(src_net[i].type()=="Pooling"){
+            if(src_net[i].pooling_param().pool()==0){
+                out<<"Max"<<src_net[i].type();
+            }else if(src_net[i].pooling_param().pool()==1){
+                out<<"Ave"<<src_net[i].type();
+            }
+        }else{
+            out<<src_net[i].type();
+        }
         int pad=0;
         int kernel_size=0;
         int stride=1;
