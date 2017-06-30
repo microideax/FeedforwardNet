@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "activation_functions.h"
+//#include "activation_functions.h"
 
 #if _C_DEBUG_MODE_
 #include <algorithm>
@@ -105,6 +105,7 @@ public:
                                             }else{
                                                 in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + in_offset + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
                                             }
+                                        }
                                     }
                                 }
                             }

@@ -19,6 +19,7 @@ void predict(float x[], int label_size) {
 		ofstream predict_a;
 		predict_a.open("predict_a.txt", ios::app);
 		predict_a << "predicted class and probabilities is:  " << predict_label << "  " << max << endl;
+		cout << "predicted class and probabilities is: " << predict_label << "  " << max << endl;
 		predict_a << endl;
 		predict_a.close();
 		cout << endl;
