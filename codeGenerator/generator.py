@@ -238,7 +238,7 @@ def generate_layer_init(name, params, prefix=SEPARATER):
 
 def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
     str1 = prefix + nm1 + count + CALL_SYMBOL + tp
-    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L":
+    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L" or nm1 == "C":
 	
 	str1 += "_layer_a" + PARAMETER_BEGIN
 	if nm1 != "L":

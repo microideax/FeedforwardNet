@@ -78,6 +78,12 @@ def params_values(s, arr2):
     	values = data.split()
     	return values
 
+def prompt(text):
+	pr = ""
+	while pr == "":
+		pr = raw_input(text)
+	return pr
+
 def extraction(arr):
 	arr1 = []
 	arr2 = []	

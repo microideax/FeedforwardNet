@@ -76,3 +76,4 @@ copy_file "../fpga_cnn/resize_image.h" "../example/test_demo/inference_net/" 1
 python generator.py $prm_file_name 
 python generator_config.py $prm_file_name
 python generator_ff_test.py $prm_file_name
+python generator_acc_instance.py $prm_file_name
