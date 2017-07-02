@@ -46,8 +46,16 @@ public:
         int TR=0;
         int TC=0;
 
-        T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
+//        T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
+        T in_buf[Tn][(Tr - 1) * 2 + 3][(Tc - 1) * 2 + 3];
         G out_buf[Tn][Tr][Tc];
+
+#if _HLS_MODE_
+#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+#endif
+
+#if _C_DEBUG_MODE_
         //buffer local data initiallization:must do it!
         for(int i = 0; i < Tn; i++){
             for(int j = 0; j < Tr; j++){
@@ -56,6 +64,7 @@ public:
                 }
             }
         }
+#endif
 
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
@@ -101,7 +110,6 @@ public:
                     for (int i = 0; i < K; i++) {
                         for (int j = 0; j < K; j++) {
                             for(int tr=0; tr<Tr; tr++){
-//#pragma HLS UNROLL
                                 if(R < r+Tr && tr+r == R){
                                     break;
                                 }
