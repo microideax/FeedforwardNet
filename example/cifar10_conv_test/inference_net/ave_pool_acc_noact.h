@@ -120,16 +120,17 @@ public:
                                     }
                                     for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
 #pragma HLS UNROLL
+                                        G ave_temp = 0;
                                         if(N < n+Tn && tn+n == N){
                                             break;
                                         }
-                                
                                         if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                             break;
                                         }
-                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
+//                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
+                                        ave_temp += in_buf[tn][S * (tr) + i][S * (tc) + j];
                                         if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
-                                            out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
+                                            out_buf[tn][tr][tc] = (T)(ave_temp / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
                                         }
                                     }
                                 }
