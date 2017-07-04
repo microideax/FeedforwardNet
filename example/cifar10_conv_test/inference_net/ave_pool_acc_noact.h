@@ -46,16 +46,8 @@ public:
         int TR=0;
         int TC=0;
 
-//        T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
-        T in_buf[Tn][(Tr - 1) * 2 + 3][(Tc - 1) * 2 + 3];
+        T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
-
-#if _HLS_MODE_
-#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
-#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
-#endif
-
-#if _C_DEBUG_MODE_
         //buffer local data initiallization:must do it!
         for(int i = 0; i < Tn; i++){
             for(int j = 0; j < Tr; j++){
@@ -64,7 +56,6 @@ public:
                 }
             }
         }
-#endif
 
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
@@ -110,27 +101,27 @@ public:
                     for (int i = 0; i < K; i++) {
                         for (int j = 0; j < K; j++) {
                             for(int tr=0; tr<Tr; tr++){
+//#pragma HLS UNROLL
                                 if(R < r+Tr && tr+r == R){
                                     break;
                                 }
                                 for(int tc=0; tc<Tc; tc++){
-#pragma HLS PIPELINE
+#pragma HLS UNROLL
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }
                                     for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                        G ave_temp = 0;
                                         if(N < n+Tn && tn+n == N){
                                             break;
                                         }
+                                
                                         if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                             break;
                                         }
-//                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
-                                        ave_temp += in_buf[tn][S * (tr) + i][S * (tc) + j];
+                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
                                         if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
-                                            out_buf[tn][tr][tc] = (T)(ave_temp / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
+                                            out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
                                         }
                                     }
                                 }
