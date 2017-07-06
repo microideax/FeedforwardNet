@@ -20,24 +20,24 @@ def generate(generated_file_name="acc_instance.h"):
 
 	arr = helping_functions.read_params(sys.argv[1])
 	layers_fun = layers(arr[1])
-	print(layers_fun)
+	
 	str = "#ifndef _ACC_INSTANCE_H_" + EOL + "#define _ACC_INSTANCE_H_" + EOL * 2
 	import_str = ""
 	body_str = ""
 	conv_layer_new_body = ""
 	
-	includes = ["#include \"conv_acc_break.h\"", "#include \"conv_acc_break_noact.h\"", "#include \"max_pool_acc.h\"", "#include \"ave_pool_acc.h\"", "#include \"ave_pool_acc_noact.h\""]	
-	fn_names = ["conv_layer_new", "conv_layer_new_noact", "max_pool_layer_new", "ave_pool_layer_new", "ave_pool_layer_new_noact"]
+	includes = ["#include \"conv_acc_break.h\"", "#include \"conv_acc_break_noact.h\"", "#include \"max_pool_acc.h\"", "#include \"ave_pool_acc.h\"", "#include \"max_pool_acc_noact.h\"", "#include \"ave_pool_acc_noact.h\""]	
+	fn_names = ["conv_layer_new", "conv_layer_new_noact", "max_pool_layer_new", "ave_pool_layer_new", "max_pool_layer_new_noact", "ave_pool_layer_new_noact"]
 	rn_tp = "void"
 	arg_t_list = [["int", "int", "int", "int", "int", "int", "int", "data_type", "data_type_w", "data_type_w", "data_type_o", "int", "int", "int", "int"],
 		    ["int", "int", "int", "int", "int", "int", "int", "int", "data_type", "data_type_o"]]
 	arg_n_list = [["N", "K", "M", "R", "C", "S", "P", "*in_data", "*layer_weights", "*layer_bias", "*out_data", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
 		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "*in_data", "*out_data"]]
-	acc_params = [["16", "4", "13", "13"], ["32", "3", "32", "32"], ["16", "16", "16"], ["16", "16", "16"], ["16", "16", "16"]]
-	init_nm = ["conv_acc", "conv_acc_noact", "max_pool_acc", "ave_pool_acc", "ave_pool_acc_noact"]
+	acc_params = [["16", "4", "13", "13"], ["32", "3", "32", "32"], ["16", "16", "16"], ["16", "16", "16"], ["16", "16", "16"], ["16", "16", "16"]]
+	init_nm = ["conv_acc", "conv_acc_noact", "max_pool_acc", "ave_pool_acc", "max_pool_acc_noact", "ave_pool_acc_noact"]
 	prm = "data_type, data_type_w, data_type_o"
-	init_names = ["convAcc2", "convAcc1", "maxPoolAcc1", "avePoolAcc1", "avePoolAccNoact1"]
-	acc_fn_names = ["conv_layer_acc", "conv_layer_acc_noact", "max_pool_layer_acc", "ave_pool_layer_acc", "ave_pool_layer_acc_noact"]
+	init_names = ["convAcc2", "convAcc1", "maxPoolAcc1", "avePoolAcc1", "maxPoolAccNoact1", "avePoolAccNoact1"]
+	acc_fn_names = ["conv_layer_acc", "conv_layer_acc_noact", "max_pool_layer_acc", "ave_pool_layer_acc", "max_pool_layer_acc_noact", "ave_pool_layer_acc_noact"]
 
 	for i, l in enumerate(layers_fun):
 		if l != 0:
@@ -64,12 +64,12 @@ def generate(generated_file_name="acc_instance.h"):
 	with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:
         	generated_file.write(str)
 
-	print(str)
+
 	return str
 
 
 def layers(arr):
-	""""layer_exist = [conv_act, conv_no_act, pool_max, pool_ave, pool_no_act]"""
+	""""layer_exist = [conv_act, conv_no_act, pool_max_act, pool_ave_act, pool_max_no_act, pool_ave_no_act]"""
 	layer_exist = [0, 0, 0, 0, 0]
 	arr = arr.split()
 	for i, a in enumerate(arr):
@@ -78,17 +78,18 @@ def layers(arr):
 				layer_exist[0] = 1
 			else:
 				layer_exist[1] = 1
-		if arr[i].lower().startswith("pooling"):
+
+		
+		if arr[i].lower() == "avepooling":
+			if (i != (len(arr) - 1) and arr[i+1].lower() != "relu") or (i == len(arr) - 1):
+				layer_exist[5] = 1
+			else:
+				layer_exist[3] = 1
+		if arr[i].lower() == "maxpooling":
 			if (i != (len(arr) - 1) and arr[i+1].lower() != "relu") or (i == len(arr) - 1):
 				layer_exist[4] = 1
-			elif i != (len(arr) - 1) and arr[i+1].lower().startswith("relu"):
-				a = arr[i].split("(")
-				if a[1].lower().startswith("max"):
-					layer_exist[2] = 1
-					print(layer_exist[2])
-				elif a[1].lower().startswith("average"):
-					layer_exist[3] = 1
-
+			else:
+				layer_exist[2] = 1
 
 	return layer_exist
 
