@@ -114,7 +114,7 @@ void max_pool_layer_new_noact(
 //
 //};
 
-ave_pool_acc_noact<data_type, data_type_w, data_type_o, 16, 16,16> avePoolAccNoact1;
+ave_pool_acc_noact<data_type, data_type_w, data_type_o, 4, 4, 4> avePoolAccNoact1;
 
 void ave_pool_layer_new_noact(
         int R_in,

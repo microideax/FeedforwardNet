@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_maxpool
+open_project II_test_ave
 
 set_top inference_net
 
@@ -50,5 +50,5 @@ csynth_design
 
 #cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
-export_design -flow syn -rtl verilog -format ip_catalog
+#export_design -flow syn -rtl verilog -format ip_catalog
 exit

@@ -48,7 +48,14 @@ public:
 
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
+
+#if _HLS_MODE_
+#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+#endif
         //buffer local data initiallization:must do it!
+
+
         for(int i = 0; i < Tn; i++){
             for(int j = 0; j < Tr; j++){
                 for(int k = 0; k < Tc; k++){
@@ -56,6 +63,8 @@ public:
                 }
             }
         }
+
+
 
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
@@ -106,7 +115,8 @@ public:
                                     break;
                                 }
                                 for(int tc=0; tc<Tc; tc++){
-#pragma HLS UNROLL
+#pragma HLS PIPELINE
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }
