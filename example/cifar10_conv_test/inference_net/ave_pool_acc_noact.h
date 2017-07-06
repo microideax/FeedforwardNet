@@ -28,7 +28,7 @@ public:
             int K, //input kernel size
             int R, // output Row
             int C, // output column
-            int S, // stride size, always equal to K
+            int S, // stride size
             int P, // padding size
             T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
             G *out_data) { // out[M][R][C]
@@ -116,15 +116,15 @@ public:
                                 }
                                 for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-#pragma HLS DEPENDENCE variable=out_buf inter false
+//#pragma HLS DEPENDENCE variable=out_buf inter false
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }
                                     for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                        if(N < n+Tn && tn+n == N){
-                                            break;
-                                        }
+//                                        if(N < n+Tn && tn+n == N){
+//                                            break;
+//                                        }
                                 
                                         if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                             break;
@@ -162,7 +162,7 @@ public:
 #if _KERNEL_DEBUG_
                     // transfer output data
                     ofstream pool_out_buf;
-                    pool_out_buf.open("pool_out_buf.txt", ios::app);
+                    pool_out_buf.open("ave_pool_out_buf.txt", ios::app);
                     pool_out_buf <<"pool out buf: "<< endl;
                     for(int i = n; i < min(N, n+Tn); i++){
                         for(int j=r; j < min(R, r+Tr); j++){
@@ -185,7 +185,7 @@ public:
         cout << "Finished ave_pool_acc_noact layer ...." << endl;
         cout << endl;
         ofstream pool_out;
-        pool_out.open("pool_out_data.txt", ios::app);
+        pool_out.open("ave_pool_out_data.txt", ios::app);
         pool_out <<"pool output: "<< endl;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < R; j++) {

@@ -175,7 +175,7 @@ public:
                                         }
                                         for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-#pragma HLS DEPENDENCE variable=out_buf inter false
+//#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }

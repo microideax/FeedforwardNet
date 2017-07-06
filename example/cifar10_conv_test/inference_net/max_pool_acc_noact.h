@@ -104,9 +104,9 @@ public:
                                     }
                                     for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
 #pragma HLS UNROLL
-                                        if(N < n+Tn && tn+n == N){
-                                            break;
-                                        }
+//                                        if(N < n+Tn && tn+n == N){
+//                                            break;
+//                                        }
                                 
                                         if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                             break;
@@ -145,7 +145,7 @@ public:
 #if _KERNEL_DEBUG_
                     // transfer output data
                     ofstream pool_out_buf;
-                    pool_out_buf.open("pool_out_buf.txt", ios::app);
+                    pool_out_buf.open("max_pool_out_buf.txt", ios::app);
                     pool_out_buf <<"pool out buf: "<< endl;
                     for(int i = n; i < min(N, n+Tn); i++){
                         for(int j=r; j < min(R, r+Tr); j++){
@@ -168,7 +168,7 @@ public:
         cout << "Finished max_pool_acc_noact layer ...." << endl;
         cout << endl;
         ofstream pool_out;
-        pool_out.open("pool_out_data.txt", ios::app);
+        pool_out.open("max_pool_out_data.txt", ios::app);
         pool_out <<"pool output: "<< endl;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < R; j++) {
