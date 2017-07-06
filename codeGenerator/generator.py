@@ -39,7 +39,7 @@ def generate(generated_file_name="construct_net.h"):
     
     function_str = import_s + header_s + pragma_s + body_s + end_s
   
-    with open("../example/" + generated_file_name, "w") as generated_file:
+    with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:
         generated_file.write(function_str)
 
 
@@ -109,6 +109,8 @@ def generate_body(arr2, prefix=SEPARATER):
     conv_bias = 0
     fc_weight = 0
     fc_bias = 0
+    fc_weight = 0
+    fc_bias = 0
     cw = ""
     cb = ""
     cc = 1
@@ -116,8 +118,8 @@ def generate_body(arr2, prefix=SEPARATER):
     for i, l in enumerate(layers_order):
 	if l.lower().startswith("convolution"):
 		last = nn_out_number_conv_values[conv_counter]
-		last1 = (int(nn_in_data_size_conv_values[conv_counter]) + int(nn_padding_conv_values[conv_counter]) * 2 -\
-                        int(nn_channel_size_conv_values[conv_counter]))/int(nn_stride_conv_values[conv_counter]) + 1;
+		last1 = int(math.ceil((int(nn_in_data_size_conv_values[conv_counter]) + int(nn_padding_conv_values[conv_counter]) * 2 -\
+                        int(nn_channel_size_conv_values[conv_counter]))/float(nn_stride_conv_values[conv_counter]) + 1));
 		
 		for k in range(int(nn_group_conv_values[conv_counter])):
 			in_shift = "0"
@@ -163,26 +165,27 @@ def generate_body(arr2, prefix=SEPARATER):
 		function_calls += generate_function_calls("L", "lrn", layers_order[i+1], str(lrn_counter+1), [alpha1, beta1, in_data, out_data])
                 lrn_counter = lrn_counter + 1
 		
-        elif l.lower() == "pooling": 
+        elif l.lower() == "avepooling" or l.lower() == "maxpooling": 
  		last =  nn_in_number_pooling_values[pool_counter]
-		
-		fun = "max_pool_acc_noact"
+		if l.lower() == "avepooling":
+			fun = "ave_pool_layer_new_noact"
+		if l.lower() == "maxpooling":
+			fun = "max_pool_layer_new_noact"
 		if layers_order[i+1].lower() == "relu":
-			a = l.split("(")
-			if a[1].lower() == "max":
+			
+			if l.lower() == "maxpooling":
 				fun = "max_pool_layer_new"
-			if a[1].lower() == "average":
+			if l.lower() == "avepooling":
 				fun = "ave_pool_layer_new"
-		last2 = (int(nn_in_data_size_pooling_values[pool_counter]) + int(nn_padding_pooling_values[pool_counter]) * 2 -\
-                        int(nn_channel_size_pooling_values[pool_counter]))/int(nn_stride_pooling_values[pool_counter]) + 1
+		last2 = int(math.ceil((int(nn_in_data_size_pooling_values[pool_counter]) + int(nn_padding_pooling_values[pool_counter]) * 2 -\
+                        int(nn_channel_size_pooling_values[pool_counter]))/float(nn_stride_pooling_values[pool_counter]) + 1))
 		function_calls += generate_function_calls1(fun, [str(last1), str(last1), nn_in_number_pooling_values[pool_counter], nn_channel_size_pooling_values[pool_counter], str(last2), str(last2), nn_stride_pooling_values[pool_counter], nn_padding_pooling_values[pool_counter], in_data, out_data])
 		last1 = last2
                 pool_counter = pool_counter + 1 
 
         elif l.lower() == "innerproduct" or l.lower() == "inner_product":
 		last = nn_out_number_fc_values[fc_counter]
-		fc_weight = 0
-		fc_bias = 0
+		
 		if fc_counter>0:
 			fc_weight += int(nn_in_number_fc_values[fc_counter])*int(nn_in_number_fc_values[fc_counter-1])*\
 				     int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
@@ -204,7 +207,7 @@ def generate_body(arr2, prefix=SEPARATER):
 
                 fc_counter = fc_counter + 1  	
 
-	if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "pooling" or (l.lower() == "innerproduct" and b == True):
+	if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" or l.lower() == "avepooling" or (l.lower() == "innerproduct" and b == True):
 		if out_data == out_data1:
 			
 			in_data = out_data1
@@ -214,7 +217,7 @@ def generate_body(arr2, prefix=SEPARATER):
 			out_data = out_data1
 		
 		function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", prms[prms_str.index("maximum")] , out_data + "[addr] = data_type_o(0);") + EOL
-		
+		clean_count = clean_count + 1
 	
  
 	if l.lower() == "innerproduct" and b == False:
@@ -227,10 +230,11 @@ def generate_body(arr2, prefix=SEPARATER):
     pragma = "#pragma HLS ALLOCATION instances=conv_layer_new limit=1 function" + EOL*2
     body_str += pragma
     body_str += function_calls
-    
-    body_str += "cout << \"Finished forward network process ..........................\" << endl;" + EOL +\
-	        "cout << \"...........................................................\" << endl;" + EOL
-    body_str += BODY_END
+    body_str += EOL*2 + c_debug + EOL + ker_debug + EOL 
+    body_str += prefix + "cout << \"Finished forward network process ..........................\" << endl;" + EOL +\
+	        prefix + "cout << \"...........................................................\" << endl;" + EOL
+    body_str += end_deb + EOL + end_deb + EOL
+    body_str += BODY_END + EOL
     return body_str, counters
 
 

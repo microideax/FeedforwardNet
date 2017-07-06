@@ -8,9 +8,8 @@
             "#include <algorithm>",
             "#include <ap_fixed.h>",
             "#include \"config.h\"",
-            "#include \"data_type.h\"",
-            "#include \"weight_bias_one_dim.h\"",
-            "#include \"activation_functions.h\""
+	    "#include \"data_type.h\"",
+	    "#include \"acc_instance.h\""
         ],
     "head":
         {
@@ -27,17 +26,6 @@
                 {"pType":"data_type_o", "pName":"fc_out_a"},
                 {"pType":"data_type_o", "pName":"output_temp_1"},
                 {"pType":"data_type_o", "pName":"output_temp_2"}
-            ]
-        },
-    "body":
-        {
-         "output start of process":
-	    [],
-         "intermediate_result_statement":
-            [
-                {"pType":"data_type_o", "pName":"in_data_buf"},
-                {"pType":"data_type_o", "pName":"fc_out_buf"}
-
             ]
         },
     
