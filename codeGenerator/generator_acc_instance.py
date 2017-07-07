@@ -20,8 +20,6 @@ def generate(generated_file_name="acc_instance.h"):
 
 	arr = helping_functions.read_params(sys.argv[1])
 	layers_fun = layers(arr[1])
-	print("Iiii")
-	print(layers_fun)
 	str = "#ifndef _ACC_INSTANCE_H_" + EOL + "#define _ACC_INSTANCE_H_" + EOL * 2
 	import_str = ""
 	body_str = ""

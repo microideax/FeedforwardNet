@@ -90,32 +90,34 @@ public:
 #endif
 
                     // max pooling computation core
-                    for(int tr=0; tr<Tr; tr++){
+                    for (int i = 0; i < K; i++) {
+                        for (int j = 0; j < K; j++) {
+                            for(int tr=0; tr<Tr; tr++){
 //#pragma HLS UNROLL
-                        if(R < r+Tr && tr+r == R){
-                            break;
-                        }
-                        for(int tc=0; tc<Tc; tc++){
-#pragma HLS UNROLL
-                            if(C < c+Tc && tc+c == C){
-                                break;
-                            }
-                            for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
-#pragma HLS UNROLL
-                                if(N < n+Tn && tn+n == N){
+                                if(R < r+Tr && tr+r == R){
                                     break;
                                 }
-                                T max = 0;
-                                for (int i = 0; i < ((S * (tr) + K)>TR?(TR-S * (tr)):K); i++) {
-                                    for (int j = 0; j < ((S * (tc) + K)>TC?(TC-S * (tc)):K); j++) {
+                                for(int tc=0; tc<Tc; tc++){
+#pragma HLS PIPELINE
+                                    if(C < c+Tc && tc+c == C){
+                                        break;
+                                    }
+                                    for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
+#pragma HLS UNROLL
+                                        if(N < n+Tn && tn+n == N){
+                                            break;
+                                        }
+                                
+                                        if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
+                                            break;
+                                        }
                                         if(i==0&&j==0){
-                                            max = in_buf[tn][S * (tr)][S * (tc)];
+                                            out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];
                                         }else{
-                                            max = (max > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? max : in_buf[tn][S * (tr) + i][S * (tc) + j];
+                                            out_buf[tn][tr][tc] = (out_buf[tn][tr][tc] > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? out_buf[tn][tr][tc] : in_buf[tn][S * (tr) + i][S * (tc) + j];
                                         }
                                     }
                                 }
-                                out_buf[tn][tr][tc] = max;
                             }
                         }
                     }

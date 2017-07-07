@@ -233,7 +233,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		body_str1 += prefix + out_json[11] + EOL + prefix + out_json[11] + EOL +\
 			     prefix + "int in_data_size=0;" + EOL +\
 			     prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
-			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_mem_port[in_data_size] = (data_type)in_data_3D[i][j][k];",
+			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["temp_out_2[in_data_size] = (data_type)in_data_3D[i][j][k];",
 			     "in_data_size++;"], 3, 1)], 2, 1)], 1, 1) 
 		body_str1 += prefix + out_json[12] + EOL*2
 		body_str1 += PREP_ENDIF + EOL*2

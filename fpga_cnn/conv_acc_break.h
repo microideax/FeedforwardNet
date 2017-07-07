@@ -105,7 +105,7 @@ public:
                                             }else{
                                                 in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + in_offset + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
                                             }
-                                            }
+                                        }
                                     }
                                 }
                             }
@@ -175,7 +175,7 @@ public:
                                         }
                                         for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-#pragma HLS DEPENDENCE variable=out_buf inter false
+//#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }
