@@ -53,9 +53,8 @@ public:
 #pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
 #pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
 #endif
+
         //buffer local data initiallization:must do it!
-
-
         for(int i = 0; i < Tn; i++){
             for(int j = 0; j < Tr; j++){
                 for(int k = 0; k < Tc; k++){
@@ -68,23 +67,23 @@ public:
 
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
-                TR=((r * S + (Tr - 1) * S + K)>R_IN?(R_IN - r * S):((Tr - 1) * S + K));
-                TC=((c * S + (Tc - 1) * S + K)>C_IN?(C_IN - c * S):((Tc - 1) * S + K));
+//                TR=((r * S + (Tr - 1) * S + K)>R_IN?(R_IN - r * S):((Tr - 1) * S + K));
+//                TC=((c * S + (Tc - 1) * S + K)>C_IN?(C_IN - c * S):((Tc - 1) * S + K));
                 for (int n = 0; n < N; n += Tn) {
                     // load input data
                     for (int i = n; i < n+Tn; i++) {
                         if(N < n+Tn && i == N){
                             break;
                         }
-                        for (int j = r * S - P; j < r * S + TR - P; j++) {
-                            for (int k = c * S - P; k < c * S + TC - P; k++) {
-                                if (j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {
+                        for (int j = r * S - P; j < (r + Tr - 1)*S + K; j++) {
+                            for (int k = c * S - P; k < (c + Tc - 1)*S + K; k++) {
+                                if (j < 0 || j >= ((R-1)*S + K - 2 * P) || k < 0 || k >= ((C-1)*S + K - 2 * P)) {
                                     in_buf[i - n][j - r * S + P][k - c * S + P] = 0;
                                 } else {
                                     in_buf[i - n][j - r * S + P][k - c * S + P] = *(in_data +
-                                                                                    i * (R_IN - 2 * P) *
-                                                                                    (C_IN - 2 * P) +
-                                                                                    j * (C_IN - 2 * P) + k);
+                                                                                    i * ((R-1)*S + K - 2 * P) *
+                                                                                    ((C-1)*S + K - 2 * P) +
+                                                                                    j * ((C-1)*S + K - 2 * P) + k);
                                 }
                             }
                         }
@@ -116,7 +115,7 @@ public:
                                 }
                                 for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-//#pragma HLS DEPENDENCE variable=out_buf inter false
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }
@@ -126,34 +125,15 @@ public:
 //                                            break;
 //                                        }
                                 
-                                        if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
-                                            break;
-                                        }
-                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
-                                        if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
-                                            out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
-                                        }
+//                                        if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
+//                                            break;
+//                                        }
+                                        out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j]/(K*K);
+//                                        if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
+//                                            out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
+//                                        }
                                     }
                                 }
-                            }
-                        }
-                    }
-
-                    // transfer output data
-                    for(int i = n; i < n+Tn; i++){
-                        if(N < n+Tn && i == N){
-                            break;
-                        }
-                        for(int j=r; j < r+Tr; j++){
-                            if(R < r+Tr && j == R){
-                                break;
-                            }
-                            for(int k=c; k < c+Tc; k++){
-                                if(C < c+Tc && k == C){
-                                    break;
-                                }
-                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
-                                out_buf[i-n][j-r][k-c] = G(0);
                             }
                         }
                     }
@@ -176,6 +156,25 @@ public:
                     pool_out_buf.close();
 #endif
 #endif
+
+                    // transfer output data
+                    for(int i = n; i < n+Tn; i++){
+                        if(N < n+Tn && i == N){
+                            break;
+                        }
+                        for(int j=r; j < r+Tr; j++){
+                            if(R < r+Tr && j == R){
+                                break;
+                            }
+                            for(int k=c; k < c+Tc; k++){
+                                if(C < c+Tc && k == C){
+                                    break;
+                                }
+                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
+                                out_buf[i-n][j-r][k-c] = G(0);
+                            }
+                        }
+                    }
                 }
             }
         }

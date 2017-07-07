@@ -49,6 +49,11 @@ public:
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
 
+#if _HLS_MODE_
+#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+#endif
+
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
                 TR=((r * S + (Tr - 1) * S + K)>R_IN?(R_IN - r * S):((Tr - 1) * S + K));
@@ -98,7 +103,8 @@ public:
                                     break;
                                 }
                                 for(int tc=0; tc<Tc; tc++){
-#pragma HLS PIPELINE
+#pragma HLS PIPELINE                                    
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                     if(C < c+Tc && tc+c == C){
                                         break;
                                     }
@@ -122,25 +128,6 @@ public:
                         }
                     }
 
-                    // transfer output data
-                    for(int i = n; i < n+Tn; i++){
-                        if(N < n+Tn && i == N){
-                            break;
-                        }
-                        for(int j=r; j < r+Tr; j++){
-                            if(R < r+Tr && j == R){
-                                break;
-                            }
-                            for(int k=c; k < c+Tc; k++){
-                                if(C < c+Tc && k == C){
-                                    break;
-                                }
-                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
-                                out_buf[i-n][j-r][k-c] = G(0);
-                            }
-                        }
-                    }
-
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                     // transfer output data
@@ -159,6 +146,24 @@ public:
                     pool_out_buf.close();
 #endif
 #endif
+                    // transfer output data
+                    for(int i = n; i < n+Tn; i++){
+                        if(N < n+Tn && i == N){
+                            break;
+                        }
+                        for(int j=r; j < r+Tr; j++){
+                            if(R < r+Tr && j == R){
+                                break;
+                            }
+                            for(int k=c; k < c+Tc; k++){
+                                if(C < c+Tc && k == C){
+                                    break;
+                                }
+                                *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
+                                out_buf[i-n][j-r][k-c] = G(0);
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project II_test_ave
+open_project II_test_conv
 
 set_top inference_net
 
@@ -44,11 +44,11 @@ set_part {xc7z045ffg900-1}
 #set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
-#csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
+csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
 
 csynth_design
 
-#cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
+cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 #export_design -flow syn -rtl verilog -format ip_catalog
 exit

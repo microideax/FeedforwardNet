@@ -380,6 +380,15 @@ int main() {
    temp_out_1,
    temp_out_2);
 
+    ofstream temp_1_out;
+    temp_1_out.open("temp_1_out.txt", ios::app);
+    for (int i = 0; i < 32768; i++) {
+        temp_1_out << temp_out_1[i] << " ";
+    }
+    temp_1_out.close();
+
+
+
    finish = clock();
    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
    cout <<"inference time is: " << totaltime << " s" << endl;

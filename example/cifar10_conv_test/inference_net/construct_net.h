@@ -85,12 +85,13 @@ void   inference_net(
     int shift_weight_conv3 = 28000;
     int shift_bias_conv3 = 64;
 
+    /*
     // conv-1
     conv_layer_new(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
 //    maxPoolAcc1.max_pool_layer_acc(32,32,32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
-
-    max_pool_layer_new_noact(32, 32, 32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
-
+*/
+    max_pool_layer_new_noact(32, 32, 32, 3, 16, 16, 2, 0, output_temp_2, output_temp_1);
+/*
     clean_1: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0); }
 
     // conv-2
@@ -100,7 +101,7 @@ void   inference_net(
 //    avePoolAcc1.ave_pool_layer_acc_noact(16,16,32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
 
     ave_pool_layer_new_noact(16, 16, 32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
-/*
+
     clean_3: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
 
     //conv-3
