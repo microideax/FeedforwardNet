@@ -20,7 +20,8 @@ def generate(generated_file_name="acc_instance.h"):
 
 	arr = helping_functions.read_params(sys.argv[1])
 	layers_fun = layers(arr[1])
-	
+	print("Iiii")
+	print(layers_fun)
 	str = "#ifndef _ACC_INSTANCE_H_" + EOL + "#define _ACC_INSTANCE_H_" + EOL * 2
 	import_str = ""
 	body_str = ""
@@ -42,7 +43,7 @@ def generate(generated_file_name="acc_instance.h"):
 	for i, l in enumerate(layers_fun):
 		if l != 0:
 			import_str += includes[i] + EOL
-			if i > (len(layers_fun)/2 - 1):
+			if i > 1:
 				j = 1
 			else:
 				j = 0
@@ -70,10 +71,10 @@ def generate(generated_file_name="acc_instance.h"):
 
 def layers(arr):
 	""""layer_exist = [conv_act, conv_no_act, pool_max_act, pool_ave_act, pool_max_no_act, pool_ave_no_act]"""
-	layer_exist = [0, 0, 0, 0, 0]
+	layer_exist = [0, 0, 0, 0, 0, 0]
 	arr = arr.split()
 	for i, a in enumerate(arr):
-		if arr[i].lower().startswith("convolution"):
+		if arr[i].lower().startswith("convolution") or arr[i].lower().startswith("innerproduct"):
 			if i != len(arr) and arr[i+1].lower() == "relu":
 				layer_exist[0] = 1
 			else:

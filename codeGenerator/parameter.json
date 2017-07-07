@@ -6,7 +6,6 @@
             "#include <iostream>",
             "#include <fstream>",
             "#include <algorithm>",
-            "#include <ap_fixed.h>",
             "#include \"config.h\"",
 	    "#include \"data_type.h\"",
 	    "#include \"acc_instance.h\""
