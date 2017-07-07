@@ -29,6 +29,10 @@ def read_params(file_name):
 	return arr
 
 
+def prompt(s):
+	var = raw_input(s)
+	return var
+
 
 def generate_for_loop(counter, counter_type, begin, end, for_body, lc, inc, prefix=SEPARATER):
 

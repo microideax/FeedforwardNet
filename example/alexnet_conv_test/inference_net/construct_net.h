@@ -7,7 +7,7 @@
 
 
 #include <iostream>
-#include <ap_fixed.h>
+//#include <ap_fixed.h>
 
 #include "config.h"
 //#include "conv_pool_layer_one_dim.h"

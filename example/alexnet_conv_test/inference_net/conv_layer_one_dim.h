@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "activation_functions.h"
+//#include "activation_functions.h"
 //#include "config.h"
 
 using namespace std;

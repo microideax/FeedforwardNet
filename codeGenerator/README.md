@@ -12,9 +12,10 @@ For example:
                    Please enter the type of output: float   
              (3) Please enter the path to test image: img/lenet_2conv2max_input.txt     
              (4) Please enter the image name: lenet_2conv2max_input.txt   
-             (5) Please enter color specification input (color, grayscale): grayscale    
-             (6) Please enter the height of the image: 375     
-             (7) Please enter the width of the image: 500     
+             (5) Please enter color specification input (color, grayscale): grayscale   
+		If the image is colored, you will be asked to enter image dimensions:       
+                   - Please enter the height of the image: 375          
+                   - Please enter the width of the image: 500          
            
 As the result, the test_demo folder is generated. The folder contains all necessary libraries and files
 with 3 generated files, construct_net.h, config.h and ff_test.cpp.  

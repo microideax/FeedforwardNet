@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <malloc.h>
-#include <ap_fixed.h>
+//#include <ap_fixed.h>
 
 #include "inference_net/config.h"
 #include "inference_net/construct_net.h"

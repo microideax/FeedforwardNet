@@ -32,16 +32,6 @@ fi
 
 copy_file "../fpga_cnn/caffe_converter/$prm_file_name" "." 1
 
-if grep -q "conv" "$prm_file_name"; 
-then
-copy_file "../fpga_cnn/conv_layer_one_dim.h" "../example/test_demo/inference_net/" 1
-fi
-
-if grep -q "pool" "$prm_file_name"; 
-then
-copy_file "../fpga_cnn/pool_layer_one_dim.h" "../example/test_demo/inference_net/" 1
-fi
-
 if grep -q "lrn" "$prm_file_name"; 
 then
 copy_file "../fpga_cnn/lrn_layer_one_dim.h" "../example/test_demo/inference_net/" 1
@@ -72,6 +62,15 @@ copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/accuracy_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/resize_image.h" "../example/test_demo/inference_net/" 1
+
+
+copy_file "../fpga_cnn/conv_acc_break.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/conv_acc_break_noact.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/ave_pool_acc.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/ave_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/max_pool_acc.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/max_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
+
 
 python generator.py $prm_file_name 
 python generator_config.py $prm_file_name

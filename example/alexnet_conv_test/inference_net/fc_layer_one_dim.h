@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "activation_functions.h"
+//#include "activation_functions.h"
 
 
 using namespace std;
