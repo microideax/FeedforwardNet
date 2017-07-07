@@ -227,7 +227,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			     [helping_functions.generate_for_loop("k", "int", 0, "w", ["in_data_3D_channel_swap[i][j][k] /= 255;// range:0--1"], 3, 1)], 2, 1)], 1, 1)
 		body_str1 += prefix + comm_json[9] + EOL
 		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
-			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D_channel_swap[i][j][k] * 255 - channel_mean[i];"], 
+			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D[i][j][k] * 255 - channel_mean[i];"], 
 			     3, 1)], 2, 1)], 1, 1)
 		body_str1 += prefix + out_json[10] + EOL
 		body_str1 += prefix + out_json[11] + EOL + prefix + out_json[11] + EOL +\
