@@ -19,10 +19,10 @@ def generate(generated_file_name="config.h"):
 
 	str1 = ""
 	str1 += generate_import(json_data["import"])
-
-	t1 = raw_input("Please enter the type of input: ")
-	t2 = raw_input("Please enter the type of weights: ")
-	t3 = raw_input("Please enter the type of output: ")
+	
+	t1 = helping_functions.prompt("Please enter the type of input: ")
+	t2 = helping_functions.prompt("Please enter the type of weights: ")
+	t3 = helping_functions.prompt("Please enter the type of output: ")
 	arr1 = [t1, t2, t3]
 	str1 += generate_type_definition(json_data["type_definition"], arr1)
 	str1 += generate_preprocessor(json_data["preprocessor"])

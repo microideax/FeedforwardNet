@@ -46,6 +46,14 @@ def generate_for_loop(counter, counter_type, begin, end, for_body, lc, inc, pref
    for_l += prefix*lc + BODY_END + EOL 
    return for_l	
 
+def generate_for_loop1(counter, counter_type, begin, end, for_body, prefix=SEPARATER):
+   for_l = FOR + SPACE + PARAMETER_BEGIN + counter_type + SPACE + counter +  EQUAL + str(begin) +\
+           EOS + SPACE + counter + LESS + str(end) + EOS + SPACE + counter + INCREMENT 
+   for_l += PARAMETER_END + SPACE + BODY_BEGIN + prefix
+   for_l += for_body 
+   for_l += prefix + BODY_END + EOL 
+   return for_l	
+
 def generate_while(cond, body, k, prefix=SEPARATER):
 	w_str = "while "
 	w_str += PARAMETER_BEGIN + cond + PARAMETER_END + SPACE + BODY_BEGIN + EOL
