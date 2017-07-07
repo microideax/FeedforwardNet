@@ -47,7 +47,7 @@ public:
 #endif
 
             /***************local data buffer******************************/
-            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
+            T in_buf[Tn][(Tr-1)*7 + 11][(Tc-1)*7 + 11];
             G out_buf[Tm][Tr][Tc];
             W w_buf[Tn][Tm][11][11];
             W b_buf[Tm];
@@ -175,7 +175,7 @@ public:
                                         }
                                         for(int tc=0; tc<Tc; tc++){
 #pragma HLS PIPELINE
-//#pragma HLS DEPENDENCE variable=out_buf inter false
+#pragma HLS DEPENDENCE variable=out_buf inter false
                                             if(C < c+Tc && tc+c == C){
                                                 break;
                                             }

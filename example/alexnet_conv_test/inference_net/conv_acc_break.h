@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "activation_functions.h"
+//#include "activation_functions.h"
 
 #if _C_DEBUG_MODE_
 #include <algorithm>
@@ -39,15 +39,15 @@ public:
         G *out_data,
         int weight_offset,
         int bias_offset,
-	int in_offset,
-	int out_offset){ // out[M][R][C]
+    int in_offset,
+    int out_offset){ // out[M][R][C]
 
 #if _HLS_MODE_
 #pragma HLS DATAFLOW
 #endif
 
             /***************local data buffer******************************/
-            T in_buf[Tn][(Tr-1)*4 + 11][(Tc-1)*4 + 11];
+            T in_buf[Tn][(Tr-1)*6 + 11][(Tc-1)*6 + 11];
             G out_buf[Tm][Tr][Tc];
             W w_buf[Tn][Tm][11][11];
             W b_buf[Tm];
@@ -105,7 +105,7 @@ public:
                                             }else{
                                                 in_buf[i-n][j-r*S+P][k-c*S+P] = *(in_data + in_offset + i*((R-1)*S+K - 2*P)*((C-1)*S+K - 2*P) + j*((C-1)*S+K - 2*P) +k);
                                             }
-                                            }
+                                        }
                                     }
                                 }
                             }

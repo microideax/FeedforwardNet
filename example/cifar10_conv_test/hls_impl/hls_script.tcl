@@ -2,11 +2,11 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project hls_proj_cifar
+open_project II_test_conv
 
 set_top inference_net
 
-add_files ../inference_net/activation_functions.h
+#add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
 add_files ../inference_net/conv_acc_break.h
@@ -46,9 +46,9 @@ create_clock -period 10 -name default
 
 csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
 
-#csynth_design
+csynth_design
 
-#cosim_design -argv {weights_alexnet, alexnet_input.txt} -trace_level none -rtl verilog -tool xsim
+cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 #export_design -flow syn -rtl verilog -format ip_catalog
 exit

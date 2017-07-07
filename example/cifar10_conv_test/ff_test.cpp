@@ -16,7 +16,7 @@
 #include "inference_net/softmax_one_dim.h"
 #include "inference_net/predict_one_dim.h"
 #include "inference_net/accuracy_one_dim.h"
-#include "inference_net/pow_function.h"
+//#include "inference_net/pow_function.h"
 #include "inference_net/resize_image.h"
 
 
@@ -379,6 +379,15 @@ int main() {
    fc_4_out_mem_int,
    temp_out_1,
    temp_out_2);
+
+    ofstream temp_1_out;
+    temp_1_out.open("temp_1_out.txt", ios::app);
+    for (int i = 0; i < 32768; i++) {
+        temp_1_out << temp_out_1[i] << " ";
+    }
+    temp_1_out.close();
+
+
 
    finish = clock();
    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;

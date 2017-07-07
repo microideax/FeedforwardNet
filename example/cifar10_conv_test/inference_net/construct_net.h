@@ -26,21 +26,22 @@ void   inference_net(
    data_type_w *conv_bias_port,
    data_type_w *fc_weight_port,
    data_type_w *fc_bias_port,
-   data_type_o   fc_4_out_a[10*1*1],
+   data_type_o   fc_out_a[10*1*1],
    data_type_o   output_temp_1[32768],
    data_type_o   output_temp_2[32768])   {
 
 #if _HLS_MODE_
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 #pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS
-#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D
-#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port
-#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port
-#pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port
-#pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port
-#pragma HLS INTERFACE m_axi depth=50  port=fc_out_a
-#pragma HLS INTERFACE m_axi depth=55 port=output_1
-#pragma HLS INTERFACE m_axi depth=55 port=output_2
+
+#pragma HLS INTERFACE m_axi depth=3072  port=in_data_3D
+#pragma HLS INTERFACE m_axi depth=79200 port=conv_weight_port
+#pragma HLS INTERFACE m_axi depth=128   port=conv_bias_port
+#pragma HLS INTERFACE m_axi depth=10240 port=fc_weight_port
+#pragma HLS INTERFACE m_axi depth=10    port=fc_bias_port
+#pragma HLS INTERFACE m_axi depth=10    port=fc_out_a
+#pragma HLS INTERFACE m_axi depth=32768 port=output_temp_1
+#pragma HLS INTERFACE m_axi depth=32768 port=output_temp_2
 #endif
 
 
@@ -84,11 +85,13 @@ void   inference_net(
     int shift_weight_conv3 = 28000;
     int shift_bias_conv3 = 64;
 
+    /*
     // conv-1
-//    convAcc1.conv_layer_acc_noact(3, 5, 32, 32, 32, 1, 2, in_data_buf, conv_weight_port, conv_bias_port, output_temp_1, 0, 0);
-    conv_layer_new_noact(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
+    conv_layer_new(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
 //    maxPoolAcc1.max_pool_layer_acc(32,32,32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
-    max_pool_layer_new(32, 32, 32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
+*/
+    max_pool_layer_new_noact(32, 32, 32, 3, 16, 16, 2, 0, output_temp_2, output_temp_1);
+/*
     clean_1: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0); }
 
     // conv-2
@@ -96,7 +99,9 @@ void   inference_net(
     conv_layer_new(32, 5, 32, 16, 16, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, shift_weight_conv2, shift_bias_conv2, 0, 0);
     clean_2: for (int addr = 0; addr < 32768; addr++) { output_temp_2[addr] = data_type_o(0);  }
 //    avePoolAcc1.ave_pool_layer_acc_noact(16,16,32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
+
     ave_pool_layer_new_noact(16, 16, 32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
+
     clean_3: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
 
     //conv-3
@@ -109,8 +114,9 @@ void   inference_net(
 
     // fc_1
 //    convAcc1.conv_layer_acc_noact(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0);
-    conv_layer_new_noact(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
-    for (int i = 0; i < 10; i++) { fc_4_out_a[i] = output_temp_1[i];  }
+    conv_layer_new(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
+*/
+    for (int i = 0; i < 10; i++) { fc_out_a[i] = output_temp_1[i];  }
 
     cout << "Finished forward network process .........................." << endl;
     cout << "..........................................................." << endl;

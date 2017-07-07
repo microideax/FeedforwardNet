@@ -49,6 +49,11 @@ public:
         T in_buf[Tn][(Tr - 1) * S + K][(Tc - 1) * S + K];
         G out_buf[Tn][Tr][Tc];
 
+#if _HLS_MODE_
+#pragma HLS ARRAY_PARTITION variable=in_buf complete dim=1
+#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
+#endif
+
         for (int r = 0; r < R; r += Tr) {
             for (int c = 0; c < C; c += Tc) {
                 TR=((r * S + (Tr - 1) * S + K)>R_IN?(R_IN - r * S):((Tr - 1) * S + K));
@@ -90,36 +95,57 @@ public:
 #endif
 
                     // max pooling computation core
-                    for(int tr=0; tr<Tr; tr++){
+                    for (int i = 0; i < K; i++) {
+                        for (int j = 0; j < K; j++) {
+                            for(int tr=0; tr<Tr; tr++){
 //#pragma HLS UNROLL
-                        if(R < r+Tr && tr+r == R){
-                            break;
-                        }
-                        for(int tc=0; tc<Tc; tc++){
-#pragma HLS UNROLL
-                            if(C < c+Tc && tc+c == C){
-                                break;
-                            }
-                            for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
-#pragma HLS UNROLL
-                                if(N < n+Tn && tn+n == N){
+                                if(R < r+Tr && tr+r == R){
                                     break;
                                 }
-                                T max = 0;
-                                for (int i = 0; i < ((S * (tr) + K)>TR?(TR-S * (tr)):K); i++) {
-                                    for (int j = 0; j < ((S * (tc) + K)>TC?(TC-S * (tc)):K); j++) {
+                                for(int tc=0; tc<Tc; tc++){
+#pragma HLS PIPELINE                                    
+#pragma HLS DEPENDENCE variable=out_buf inter false
+                                    if(C < c+Tc && tc+c == C){
+                                        break;
+                                    }
+                                    for(int tn=0; tn<Tn; tn++){ // unroll loop kernel
+#pragma HLS UNROLL
+//                                        if(N < n+Tn && tn+n == N){
+//                                            break;
+//                                        }
+                                
+                                        if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
+                                            break;
+                                        }
                                         if(i==0&&j==0){
-                                            max = in_buf[tn][S * (tr)][S * (tc)];
+                                            out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];
                                         }else{
-                                            max = (max > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? max : in_buf[tn][S * (tr) + i][S * (tc) + j];
+                                            out_buf[tn][tr][tc] = (out_buf[tn][tr][tc] > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? out_buf[tn][tr][tc] : in_buf[tn][S * (tr) + i][S * (tc) + j];
                                         }
                                     }
                                 }
-                                out_buf[tn][tr][tc] = max;
                             }
                         }
                     }
 
+#if _C_DEBUG_MODE_
+#if _KERNEL_DEBUG_
+                    // transfer output data
+                    ofstream pool_out_buf;
+                    pool_out_buf.open("max_pool_out_buf.txt", ios::app);
+                    pool_out_buf <<"pool out buf: "<< endl;
+                    for(int i = n; i < min(N, n+Tn); i++){
+                        for(int j=r; j < min(R, r+Tr); j++){
+                            for(int k=c; k < min(C, c+Tc); k++){
+                                pool_out_buf << out_buf[i-n][j-r][k-c] << " ";
+                            }
+                            pool_out_buf << endl;
+                        }
+                        pool_out_buf << endl;
+                    }
+                    pool_out_buf.close();
+#endif
+#endif
                     // transfer output data
                     for(int i = n; i < n+Tn; i++){
                         if(N < n+Tn && i == N){
@@ -134,28 +160,10 @@ public:
                                     break;
                                 }
                                 *(out_data + i * R * C + j * C + k) = out_buf[i-n][j-r][k-c];
+                                out_buf[i-n][j-r][k-c] = G(0);
                             }
                         }
                     }
-
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
-                    // transfer output data
-                    ofstream pool_out_buf;
-                    pool_out_buf.open("pool_out_buf.txt", ios::app);
-                    pool_out_buf <<"pool out buf: "<< endl;
-                    for(int i = n; i < min(N, n+Tn); i++){
-                        for(int j=r; j < min(R, r+Tr); j++){
-                            for(int k=c; k < min(C, c+Tc); k++){
-                                pool_out_buf << out_buf[i-n][j-r][k-c] << " ";
-                            }
-                            pool_out_buf << endl;
-                        }
-                        pool_out_buf << endl;
-                    }
-                    pool_out_buf.close();
-#endif
-#endif
                 }
             }
         }
@@ -165,7 +173,7 @@ public:
         cout << "Finished max_pool_acc_noact layer ...." << endl;
         cout << endl;
         ofstream pool_out;
-        pool_out.open("pool_out_data.txt", ios::app);
+        pool_out.open("max_pool_out_data.txt", ios::app);
         pool_out <<"pool output: "<< endl;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < R; j++) {

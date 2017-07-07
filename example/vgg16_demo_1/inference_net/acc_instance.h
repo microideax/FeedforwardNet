@@ -10,7 +10,7 @@
 #include "max_pool_acc.h"
 #include "config.h"
 
-conv_acc<data_type, data_type_w, data_type_o, 16, 4, 13, 13> convAcc1;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+conv_acc<data_type, data_type_w, data_type_o, 64, 3, 24, 24> convAcc2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 
 void conv_layer_new(
         int N, //input feature number
@@ -26,18 +26,18 @@ void conv_layer_new(
         data_type_o *out_data,
         int weight_offset,
         int bias_offset,
-        int in_offset,
-        int out_offset) {
+	    int in_offset,
+	    int out_offset) {
 
-    convAcc1.conv_layer_acc(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
+    convAcc2.conv_layer_acc(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
 
 };
 
-conv_acc_noact<data_type, data_type_w, data_type_o, 32, 3, 32, 32> convAcc2;
+conv_acc_noact<data_type, data_type_w, data_type_o, 32, 3, 32, 32> convAcc1;
 
 void conv_layer_new_noact(
-        int N,
-        int K,
+	    int N,
+	    int K,
         int M, // output feature number
         int R, // output Row
         int C, // output column
@@ -49,29 +49,30 @@ void conv_layer_new_noact(
         data_type_o *out_data,
         int weight_offset,
         int bias_offset,
-        int in_offset,
-        int out_offset) {
+	    int in_offset,
+	    int out_offset) {
 
-    convAcc2.conv_layer_acc_noact(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
+    convAcc1.conv_layer_acc_noact(N, K, M, R, C, S, P, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
 
 };
 
-max_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16> maxPoolAcc1;
+
+max_pool_acc<data_type, data_type_w, data_type_o, 64, 12, 12> maxPoolAcc1;
 
 void max_pool_layer_new(
-        int R_in,
+		int R_in,
         int C_in,
         int N,
         int K,
-        int R,
-        int C,
-        int S,
-        int P,
-        data_type *in_data,
-        data_type_o *out_data){
+	    int R,
+	    int C,
+	    int S,
+	    int P,
+	    data_type *in_data,
+	    data_type_o *out_data){
 
     maxPoolAcc1.max_pool_layer_acc(R_in, C_in, N, K, R, C, S, P, in_data, out_data);
 
 };
 
-#endif //FFNET_ACC_INSTANCE_H_H
+#endif //_ACC_INSTANCE_H_
