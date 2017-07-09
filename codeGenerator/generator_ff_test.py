@@ -248,11 +248,11 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		"count++;"], 1)
 		body_str1 += prefix + "int in_data_size=0;" + EOL
 		body_str1 += prefix + "ofstream indata;" + EOL + prefix + "indata.open(\"in_data.txt\", ios::app);"+ EOL
-		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << in_data_3D[i * 784 + 28 * j + k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << in_data_3D[i *" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
 		body_str1 += prefix + "indata.close();" + EOL*2
 
 		body_str1 += prefix + "cout << \"Writing data to input data memory space ... ... ...\" << endl;" + EOL
-		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["temp_out_2[in_data_size] = (data_type)in_data_3D[i * 784 + 28 * j + k];", "in_data_size++;"], 3, 1)], 2, 1)], 1, 1)
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["temp_out_2[in_data_size] = (data_type)in_data_3D[i*" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k];", "in_data_size++;"], 3, 1)], 2, 1)], 1, 1)
 		body_str1 += prefix + "cout << \"Finished writing data to input data memory space ... ...\" << endl;" + EOL + PREP_ENDIF + EOL
 
 	body_str1 += prefix + "char tan_h = 't';" + EOL +\
