@@ -56,14 +56,14 @@ copy_file "../fpga_cnn/softmax_one_dim.h" "../example/test_demo/inference_net/" 
 copy_file "../fpga_cnn/weight_bias_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/image_converter.h" "../example/test_demo/inference_net/" 1
 
-copy_file "$test_img_folder" "../example/test_demo/net_inputs/" 2
-mv ../example/test_demo/net_inputs/img ../example/test_demo/net_inputs/test_imgs
+copy_file "$test_img_folder" "../example/test_demo/net_inputs/test_imgs" 2
+
 
 
 copy_file "../fpga_cnn/caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
 copy_file "../fpga_cnn/caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
 
-copy_file "$val_path" "../example/test_demo/net_inputs/" 1
+copy_file "$val_path" "../example/test_demo/net_inputs/val.txt" 1
 
 copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1
