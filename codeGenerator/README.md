@@ -11,10 +11,9 @@ For example:
 		 ../example/caffe_demos/lenet/lenet_2conv2max_relu/val.txt             
              (3)   Please enter the type of input: float   
                    Please enter the type of weights: float   
-                   Please enter the type of output: float   
-             (4) Please enter the path to test image: img/lenet_2conv2max_input.txt     
-             (5) Please enter the image name: lenet_2conv2max_input.txt   
-             (6) Please enter color specification input (color, grayscale): grayscale   
+                   Please enter the type of output: float       
+             (4) Please enter the image name: lenet_2conv2max_input.txt   
+             (5) Please enter color specification input (color, grayscale): grayscale   
 		If the image is colored, you will be asked to enter image dimensions:       
                    - Please enter the height of the image: 375          
                    - Please enter the width of the image: 500          
