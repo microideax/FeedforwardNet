@@ -78,7 +78,7 @@ void conv_layer_new(
 //
 //};
 
-max_pool_acc_noact<data_type, data_type_w, data_type_o, 16, 16, 16> maxPoolAcc1noact;
+max_pool_acc_noact<data_type, data_type_w, data_type_o, 4, 4, 4> maxPoolAcc1noact;
 
 void max_pool_layer_new_noact(
         int R_in,
