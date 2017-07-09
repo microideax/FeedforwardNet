@@ -295,8 +295,6 @@ def generate_header(head_json, arr):
     nn_out_number_fc = prms[prms_str.index("nn_out_number_fc")]	
     
     fc_nm = "fc_" + n + "_out_a"
-
-    data_type_param_x_y = int(nn_in_data_size_values[0]) + 2 * int(nn_padding_conv[0])
 	
     for s in head_json["intput_parameters"]:
 	if s["pName"] == "in_data_3D":

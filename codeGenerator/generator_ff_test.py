@@ -76,7 +76,7 @@ def generate_fn_load(prefix=SEPARATER):
 	return fn_bd
 
 def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
-        img_path = helping_functions.prompt("Please enter the path to test image: ")
+        
 	img_name = helping_functions.prompt("Please enter the image name: ")
 	col_gray = ""
 	while (col_gray != "color" and col_gray != "grayscale"):
@@ -205,7 +205,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		body_str1 += prefix + comm_json[3] + EOL
 		body_str1 += KERNEL + EOL + HLS + EOL +\
 	   		     prefix + "string image_dir = \"" + img_name + "\";" + EOL + PREP_ELSE + EOL +\
-			     prefix + "string image_dir = \"./net_inputs/" + img_path + "\"" + EOS + EOL +\
+			     prefix + "string image_dir = \"./net_inputs/test_imgs/" + img_name + "\"" + EOS + EOL +\
 			     PREP_ENDIF + EOL
 		
 		body_str1 += prefix + "float in_data_3D_channel_swap[3" + ARRAY_END +\
@@ -240,7 +240,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	else:
 		body_str1 += KERNEL + EOL + prefix + "data_type in_data_3D[1][" +\
 			     indata_mem[1] + ARRAY_END + ARRAY_BEGIN + indata_mem[2] +"]" + "= { 0 };" + EOL
-		body_str1 += prefix + "ifstream ifs2(\"./net_inputs/" + img_path + "\");" + EOL
+		body_str1 += prefix + "ifstream ifs2(\"./net_inputs/test_imgs/" + img_name + "\");" + EOL
 		body_str1 += prefix + "string str2;" + EOL + prefix + "int count = 0;" + EOL
  		body_str1 += prefix + helping_functions.generate_while("ifs2 >> str2", ["float f = atof(str2.c_str());",
 		"in_data_3D[0][count /" + indata_mem[2] + "][count % " + indata_mem[2] + "] =(data_type)f;"
