@@ -6,7 +6,9 @@ For auto generation the user should
   
 For example:   
              (1)   Please enter test image path:    
-                 ../example/caffe_demos/lenet/lenet_2conv2max_relu/img   
+                 ../example/caffe_demos/lenet/lenet_2conv2max_relu/img                               
+	     (2)   Please enter the path to val.txt:                          
+		 ../example/caffe_demos/lenet/lenet_2conv2max_relu/val.txt             
              (2)   Please enter the type of input: float   
                    Please enter the type of weights: float   
                    Please enter the type of output: float   
