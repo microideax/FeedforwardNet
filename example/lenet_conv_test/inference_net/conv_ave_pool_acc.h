@@ -2,12 +2,12 @@
 // Created by Yao Chen on 27/05/2017
 // 
 
-#ifndef _CONV_ACC_H_
-#define _CONV_ACC_H_
+#ifndef _CONV_AVE_POOL_ACC_H_
+#define _CONV_AVE_POOL_ACC_H_
 
 #include <iostream>
 #include <fstream>
-//#include "activation_functions.h"
+#include "activation_functions.h"
 
 #if _C_DEBUG_MODE_
 #include <algorithm>
@@ -16,22 +16,26 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>
-class conv_acc {
+class conv_ave_pool_acc {
 
 private:
     int conv_layer_number;
 
 public:
-    conv_acc() : conv_layer_number(0) {conv_layer_number = 0;};
+    conv_ave_pool_acc() : conv_layer_number(0) {conv_layer_number = 0;};
 
 ///////////////////////------------------conv accelerator----------------//////////////////////////
-    void conv_layer_acc(
+    void conv_ave_pool_layer_acc(
         int N, //input feature number
         int K, //input kernel size
+        int K_P, //pooling input kernel size
         int M, // output feature number
         int R, // output Row
         int C, // output column
+        int R_P, // pooling output Row
+        int C_P, // pooling output column
         int S, // stride size
+        int S_P, //pooling stride size
         int P, // padding size
         T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
         W *layer_weights, //w[M][N][K][K]
@@ -49,6 +53,7 @@ public:
             /***************local data buffer******************************/
             T in_buf[Tn][(Tr-1)*1 + 5][(Tc-1)*1 + 5];
             G out_buf[Tm][Tr][Tc];
+            G out_buf_temp[Tm][Tr/2][Tc/2];
             W w_buf[Tn][Tm][5][5];
             W b_buf[Tm];
 
@@ -62,12 +67,19 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Starting conv_acc layer ...." << endl;
+            cout << "Starting conv_ave_pool_acc layer ...." << endl;
             //buffer local data initiallization:must do it!
             for(int i = 0; i < Tm; i++){
                 for(int j = 0; j < Tr; j++){
                     for(int k = 0; k < Tc; k++){
                         out_buf[i][j][k] = G(0);
+                    }
+                }
+            }
+            for(int i = 0; i < Tm; i++){
+                for(int j = 0; j < Tr/2; j++){
+                    for(int k = 0; k < Tc/2; k++){
+                        out_buf_temp[i][j][k] = G(0);
                     }
                 }
             }
@@ -201,32 +213,42 @@ public:
                             }
                         }
 
-                        // transfer output data
-                        for(int i = m; i < m+Tm; i++){
-                            if(M < m+Tm && i == M){
-                                break;
-                            }
-                            for(int j=r; j < r+Tr; j++){
-                                if(R < r+Tr && j == R){
+                        // ave pooling & transfer output data
+                        int TR=0;//true pooling input row
+                        int TC=0;//true pooling input col
+                        for (int i = 0; i < K_P; i++) {
+                        for (int j = 0; j < K_P; j++) {
+                            for(int tr=0; tr < Tr; tr+=S_P){
+                                TR=((r+Tr>=R)?(R-r):Tr);
+                                if(R < r+Tr && tr+r == R){
                                     break;
                                 }
-                                for(int k=c; k < c+Tc; k++){
-                                    if(C < c+Tc && k == C){
+                                for(int tc=0; tc < Tc; tc+=S_P){
+                                    TC=((c+Tc>=C)?(C-c):Tc);
+                                    if(C < c+Tc && tc+c == C){
                                         break;
                                     }
-                                    if (out_buf[i-m][j-r][k-c] > G(0)) {
-                                        *(out_data + out_offset + i * R * C + j * C + k) = (out_buf[i-m][j-r][k-c]);
-                                        out_buf[i-m][j-r][k-c] = G(0);
+                                    for(int tm = 0; tm < Tm; tm++){
+                                    if(M < m+Tm && tm + m == M){
+                                       break;
                                     }
-                                    else{
-                                        *(out_data + out_offset + i * R * C + j * C + k) = G(0);
-                                        out_buf[i-m][j-r][k-c] = G(0);
+                                    if((tr + i)>=TR){
+                                            break;
+                                        }
+                                    if((tc + j)>=TC){
+                                            break;
+                                        }
+                                    out_buf_temp[tm][tr/S_P][tc/S_P] += relu(out_buf[tm][tr + i][tc + j]);
+                                    if(i+1==((tr + K_P)>TR?(TR-tr):K_P)&&j+1==((tc + K_P)>TC?(TC-tc):K_P)){
+                                        out_buf_temp[tm][tr/S_P][tc/S_P] = (T)(out_buf_temp[tm][tr/S_P][tc/S_P] / (((tr + K_P)>TR?(TR-tr):K_P) * ((tc + K_P)>TC?(TC-tc):K_P)));
+                                        *(out_data + out_offset + (tm + m) * R_P * C_P + (tr/S_P+r/S_P) * C_P + tc/S_P+c/S_P) = relu(out_buf_temp[tm][tr/S_P][tc/S_P]);
+                                        out_buf_temp[tm][tr/S_P][tc/S_P] = G(0);
                                     }
-//                                 *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
-//                                 out_buf[i-m][j-r][k-c] = 0;
                                 }
                             }
                         }
+                    }
+                }
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
                         ofstream conv_out_buf;
@@ -235,7 +257,7 @@ public:
                         for(int i = m; i < min(M, m+Tm); i++){
                             for(int j=r; j < min(R, r+Tr); j++){
                                 for(int k=c; k < min(C, c+Tc); k++){
-                                    conv_out_buf << *(out_data + out_offset + i * R * C + j * C + k) << " ";
+                                    conv_out_buf << out_buf[i-m][j-r][k-c] << " ";
                                 }
                                 conv_out_buf << endl;
                             }
@@ -250,15 +272,15 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Finished conv_acc layer ...." << endl;
+            cout << "Finished conv_ave_pool_acc layer ...." << endl;
             cout << endl;
             ofstream conv_out;
-            conv_out.open("conv_out_data.txt", ios::app);
-            conv_out <<"conv output: "<< endl;
+            conv_out.open("conv_ave_pool_out_data.txt", ios::app);
+            conv_out <<"conv_ave_pool output: "<< endl;
             for (int i = 0; i < M; i++) {
-                for (int j = 0; j < R; j++) {
-                    for(int k = 0; k < C; k++){
-                        conv_out << *(out_data + out_offset + i*R*C + j*C + k) << " ";
+                for (int j = 0; j < R_P; j++) {
+                    for(int k = 0; k < C_P; k++){
+                        conv_out << *(out_data + out_offset + i*R_P*C_P + j*C_P + k) << " ";
                     }
                     conv_out << endl;
                 }
