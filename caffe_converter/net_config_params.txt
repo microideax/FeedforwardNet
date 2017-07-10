@@ -1,0 +1,17 @@
+Network Structure: Data Convolution(padding) MaxPooling ReLU Convolution(padding) ReLU AvePooling Convolution(padding) ReLU AvePooling InnerProduct SoftmaxWithLoss 
+nn_in_data_size_conv: 32 16 8 
+nn_channel_size_conv: 5 5 5 
+nn_padding_conv: 2 2 2 
+nn_stride_conv: 1 1 1 
+nn_in_number_conv: 3 32 32 
+nn_out_number_conv: 32 32 64 
+nn_group_conv: 1 1 1 
+nn_in_data_size_pooling: 32 16 8 
+nn_channel_size_pooling: 3 3 3 
+nn_padding_pooling: 0 0 0 
+nn_stride_pooling: 2 2 2 
+nn_in_number_pooling: 32 32 64 
+nn_in_data_size_fc: 4 
+nn_in_number_fc: 64 
+nn_out_number_fc: 10 
+nn_channel_size_fc: 4 
