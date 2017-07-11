@@ -32,7 +32,7 @@ if [ -f $prm_file_name ] ; then
     rm $prm_file_name
 fi
 
-copy_file "../fpga_cnn/caffe_converter/$prm_file_name" "." 1
+copy_file "../caffe_converter/$prm_file_name" "." 1
 
 if grep -q "lrn" "$prm_file_name"; 
 then
@@ -60,8 +60,8 @@ copy_file "$test_img_folder" "../example/test_demo/net_inputs/test_imgs" 2
 
 
 
-copy_file "../fpga_cnn/caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
-copy_file "../fpga_cnn/caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
+copy_file "../caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
+copy_file "../caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
 
 copy_file "$val_path" "../example/test_demo/net_inputs/val.txt" 1
 
