@@ -88,19 +88,17 @@ public:
         for(int r = 0; r < R; r += Tr){
             for(int c = 0; c < C; c += Tc){
                 for(int m = 0; m < M; m += Tm){
-                    for(int n = 0; n < N; n += Tn){
 
-                        //load input bias
-                        for(int i = 0; i < Tm; i++){
-                        #pragma HLS UNROLL
-                            b_buf[i] = *(layer_bias + bias_offset + i + m);
-                        }
+                    //load input bias
+                    for(int i = 0; i < Tm; i++){
+                    #pragma HLS UNROLL
+                        b_buf[i] = *(layer_bias + bias_offset + i + m);
+                    }
+
+                    for(int n = 0; n < N; n += Tn){
 
                         // load input data
                         for(int i = n; i < n+Tn; i++){
-                            //if(N < n+Tn && i == N){
-                            //    break;
-                            //}
                             for(int j = r*S - P; j < (r+Tr-1)*S + K - P; j++){
                                 for(int k = c*S - P; k < (c+Tc-1)*S + K - P; k++){
                                     if(j < 0 || j >= ((R-1)*S + K - 2*P) || k < 0 || k >= ((C-1)*S + K - 2*P)){
@@ -183,14 +181,8 @@ public:
                                         }
                                         for(int tm = 0; tm < Tm; tm++){
 #pragma HLS UNROLL
-                                            //if(M < m+Tm && tm+m == M){
-                                            //    break;
-                                            //}
                                             for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                                //if(N < n+Tn && tn+n == N){
-                                                //    break;
-                                                //}
                                                 if(i==0&&j==0&&tn==0&&n==0)
                                                     out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];
                                                 else
