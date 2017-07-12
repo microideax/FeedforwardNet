@@ -23,6 +23,7 @@ copy_file(){
 printf "Please make sure the net_weights.txt and net_config_params.txt have already generated in caffe_converter folder\n\n"
 
 read -p "Please enter test image path: "  test_img_folder
+read -p "Please enter test image name: "  test_img_name
 
 read -p "Please enter the path to val.txt: "  val_path
 
@@ -56,7 +57,8 @@ copy_file "../fpga_cnn/softmax_one_dim.h" "../example/test_demo/inference_net/" 
 copy_file "../fpga_cnn/weight_bias_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/image_converter.h" "../example/test_demo/inference_net/" 1
 
-copy_file "$test_img_folder" "../example/test_demo/net_inputs/test_imgs" 2
+mkdir ../example/test_demo/net_inputs/test_imgs
+copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
 
 
 
@@ -79,7 +81,8 @@ copy_file "../fpga_cnn/max_pool_acc.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/max_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
 
 
-python generator.py $prm_file_name 
+
 python generator_config.py $prm_file_name
-python generator_ff_test.py $prm_file_name
+python generator_ff_test.py $prm_file_name $test_img_name
 python generator_acc_instance.py $prm_file_name
+python generator.py $prm_file_name 
