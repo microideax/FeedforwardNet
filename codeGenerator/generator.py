@@ -31,7 +31,7 @@ def generate(generated_file_name="construct_net.h"):
 
     arr = helping_functions.read_params(sys.argv[1])   
  
-    body_s, count = generate_body(arr)
+    body_s, count, acc_str = generate_body(arr)
     import_s = generate_import(json_data["import"], count)
     header_s = generate_header(json_data["head"], arr)
     pragma_s = generate_pragma(json_data["pragma"])
@@ -41,7 +41,7 @@ def generate(generated_file_name="construct_net.h"):
   
     with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:
         generated_file.write(function_str)
-
+    print(acc_str)
 
 def generate_body(arr2, prefix=SEPARATER):
     body_str = EOL*2
@@ -87,7 +87,9 @@ def generate_body(arr2, prefix=SEPARATER):
 	nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
     else:
 	nn_padding_fc_values = ["0"] * len(nn_in_number_fc_values)
-
+    strides = [[], [], [], [], [], []]
+    kernels = [[], [], [], [], [], []]
+    acc_str = EOL + "Accelerators: " + EOL
     function_calls = ""
     w_port = "conv_weight_port"
     b_port = "conv_bias_port"
@@ -115,12 +117,21 @@ def generate_body(arr2, prefix=SEPARATER):
     cb = ""
     cc = 1
     clean_count = 1
+    """"layer_exist = [conv_act, conv_no_act, pool_max_act, pool_ave_act, pool_max_no_act, pool_ave_no_act]"""
     for i, l in enumerate(layers_order):
 	if l.lower().startswith("convolution"):
 		last = nn_out_number_conv_values[conv_counter]
 		last1 = int(math.ceil((int(nn_in_data_size_conv_values[conv_counter]) + int(nn_padding_conv_values[conv_counter]) * 2 -\
                         int(nn_channel_size_conv_values[conv_counter]))/float(nn_stride_conv_values[conv_counter]) + 1));
-		
+		fun = "conv_layer_new_noact"
+		if layers_order[i+1].lower() == "relu":
+			fun = "conv_layer_new"
+			strides[0].append(int(nn_stride_conv_values[conv_counter]))
+			kernels[0].append(int(nn_channel_size_conv_values[conv_counter]))
+		else:
+			strides[1].append(int(nn_stride_conv_values[conv_counter]))
+			kernels[1].append(int(nn_channel_size_conv_values[conv_counter]))
+
 		for k in range(int(nn_group_conv_values[conv_counter])):
 			in_shift = "0"
     			out_shift = "0"
@@ -130,9 +141,7 @@ def generate_body(arr2, prefix=SEPARATER):
 			shifts += prefix + "int " + shift_w + "_conv" + str(cc) + "_" + str(k + 1) + EQUAL + cw + EOS + EOL
 			shifts += prefix + "int " + shift_b + "_conv" + str(cc) + "_" + str(k + 1) + EQUAL + cb + EOS + EOL
 			
-			fun = "conv_layer_new_noact"
-			if layers_order[i+1].lower() == "relu":
-				fun = "conv_layer_new"
+			
 			if k + 1 == int(nn_group_conv_values[conv_counter]) and k > 0:
 				in_shift = "in_shift_" + str(cc)
 				out_shift = "out_shift_" + str(cc)
@@ -167,16 +176,27 @@ def generate_body(arr2, prefix=SEPARATER):
 		
         elif l.lower() == "avepooling" or l.lower() == "maxpooling": 
  		last =  nn_in_number_pooling_values[pool_counter]
-		if l.lower() == "avepooling":
-			fun = "ave_pool_layer_new_noact"
-		if l.lower() == "maxpooling":
-			fun = "max_pool_layer_new_noact"
+		
+
 		if layers_order[i+1].lower() == "relu":
 			
 			if l.lower() == "maxpooling":
 				fun = "max_pool_layer_new"
+				strides[2].append(int(nn_stride_pooling_values[pool_counter]))
+				kernels[2].append(int(nn_channel_size_pooling_values[pool_counter]))
 			if l.lower() == "avepooling":
 				fun = "ave_pool_layer_new"
+				strides[3].append(int(nn_stride_pooling_values[pool_counter]))
+				kernels[3].append(int(nn_channel_size_pooling_values[pool_counter]))
+		else:
+			if l.lower() == "maxpooling":
+				fun = "max_pool_layer_new_noact"
+				strides[4].append(int(nn_stride_pooling_values[pool_counter]))
+				kernels[4].append(int(nn_channel_size_pooling_values[pool_counter]))
+			if l.lower() == "avepooling":
+				fun = "ave_pool_layer_new_noact"
+				strides[5].append(int(nn_stride_pooling_values[pool_counter]))
+				kernels[5].append(int(nn_channel_size_pooling_values[pool_counter]))
 		last2 = int(math.ceil((int(nn_in_data_size_pooling_values[pool_counter]) + int(nn_padding_pooling_values[pool_counter]) * 2 -\
                         int(nn_channel_size_pooling_values[pool_counter]))/float(nn_stride_pooling_values[pool_counter]) + 1))
 		function_calls += generate_function_calls1(fun, [str(last1), str(last1), nn_in_number_pooling_values[pool_counter], nn_channel_size_pooling_values[pool_counter], str(last2), str(last2), nn_stride_pooling_values[pool_counter], nn_padding_pooling_values[pool_counter], in_data, out_data])
@@ -235,7 +255,16 @@ def generate_body(arr2, prefix=SEPARATER):
 	        prefix + "cout << \"...........................................................\" << endl;" + EOL
     body_str += end_deb + EOL + end_deb + EOL
     body_str += BODY_END + EOL
-    return body_str, counters
+
+
+    layers1 = ["conv_act", "conv_no_act", "pool_max_act", "pool_ave_act", "pool_max_no_act", "pool_ave_no_act"]
+    for k1 in range(len(kernels)):
+
+    	if len(kernels[k1]) != 0:
+   		acc_str += layers1[k1] + " kernel: " + str(max(kernels[k1])) + " stride: " + str(max(strides[k1])) + EOL
+    
+    
+    return body_str, counters, acc_str
 
 
 def generate_layer_init(name, params, prefix=SEPARATER):
