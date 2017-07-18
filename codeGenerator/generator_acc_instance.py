@@ -25,7 +25,7 @@ def generate(generated_file_name="acc_instance.h"):
 	body_str = ""
 	conv_layer_new_body = ""
 	
-	includes = ["#include \"conv_acc_break.h\"", "#include \"conv_acc_break_noact.h\"", "#include \"max_pool_acc.h\"", "#include \"ave_pool_acc.h\"", "#include \"max_pool_acc_noact.h\"", "#include \"ave_pool_acc_noact.h\""]	
+	includes = ["#include \"conv_acc_dataflow.h\"", "#include \"conv_acc_break_noact.h\"", "#include \"max_pool_acc.h\"", "#include \"ave_pool_acc.h\"", "#include \"max_pool_acc_noact.h\"", "#include \"ave_pool_acc_noact.h\""]	
 	fn_names = ["conv_layer_new", "conv_layer_new_noact", "max_pool_layer_new", "ave_pool_layer_new", "max_pool_layer_new_noact", "ave_pool_layer_new_noact"]
 	rn_tp = "void"
 	arg_t_list = [["int", "int", "int", "int", "int", "int", "int", "data_type", "data_type_w", "data_type_w", "data_type_o", "int", "int", "int", "int"],

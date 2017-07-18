@@ -31,10 +31,10 @@ def generate(generated_file_name="construct_net.h"):
 
     arr = helping_functions.read_params(sys.argv[1])   
  
-    body_s, count, acc_str = generate_body(arr)
+    body_s, count, acc_str, wb_arr = generate_body(arr)
     import_s = generate_import(json_data["import"], count)
     header_s = generate_header(json_data["head"], arr)
-    pragma_s = generate_pragma(json_data["pragma"])
+    pragma_s = generate_pragma(wb_arr)
     end_s = generate_end(json_data["end"])
     
     function_str = import_s + header_s + pragma_s + body_s + end_s
@@ -87,8 +87,8 @@ def generate_body(arr2, prefix=SEPARATER):
 	nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
     else:
 	nn_padding_fc_values = ["0"] * len(nn_in_number_fc_values)
-    strides = [[], [], [], [], [], []]
-    kernels = [[], [], [], [], [], []]
+    strides = [[], [], [], [], [], [], [], []]
+    kernels = [[], [], [], [], [], [], [], []]
     acc_str = EOL + "Accelerators: " + EOL
     function_calls = ""
     w_port = "conv_weight_port"
@@ -205,7 +205,7 @@ def generate_body(arr2, prefix=SEPARATER):
 
         elif l.lower() == "innerproduct" or l.lower() == "inner_product":
 		last = nn_out_number_fc_values[fc_counter]
-		
+		fun = "conv_layer_new_noact"
 		if fc_counter>0:
 			fc_weight += int(nn_in_number_fc_values[fc_counter])*int(nn_in_number_fc_values[fc_counter-1])*\
 				     int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
@@ -216,6 +216,14 @@ def generate_body(arr2, prefix=SEPARATER):
 				if ll.lower() == "innerproduct":
 					b = True
 					break
+		if i + 1 != len(layers_order):
+			if layers_order[i+1].lower() == "relu":
+				fun = "conv_layer_new"
+				
+				kernels[6].append(int(nn_channel_size_fc_values[fc_counter]))
+			else:
+				
+				kernels[7].append(int(nn_channel_size_fc_values[fc_counter]))
 
 		shifts += prefix + "int " + shift_w + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_weight) + EOS + EOL
 		shifts += prefix + "int " + shift_b + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_bias) + EOS + EOL*2
@@ -247,8 +255,7 @@ def generate_body(arr2, prefix=SEPARATER):
     counters = [conv_counter, pool_counter, lrn_counter, fc_counter, conv_pool_counter, conv_lrn_pool_counter]
     
     body_str += EOL + shifts + EOL
-    pragma = "#pragma HLS ALLOCATION instances=conv_layer_new limit=1 function" + EOL*2
-    body_str += pragma
+    
     body_str += function_calls
     body_str += EOL*2 + c_debug + EOL + ker_debug + EOL 
     body_str += prefix + "cout << \"Finished forward network process ..........................\" << endl;" + EOL +\
@@ -257,14 +264,23 @@ def generate_body(arr2, prefix=SEPARATER):
     body_str += BODY_END + EOL
 
 
-    layers1 = ["conv_act", "conv_no_act", "pool_max_act", "pool_ave_act", "pool_max_no_act", "pool_ave_no_act"]
+    layers1 = ["conv_act", "conv_no_act", "pool_max_act", "pool_ave_act", "pool_max_no_act", "pool_ave_no_act", "fc_act", "fc_no_act"]
     for k1 in range(len(kernels)):
 
     	if len(kernels[k1]) != 0:
-   		acc_str += layers1[k1] + " kernel: " + str(max(kernels[k1])) + " stride: " + str(max(strides[k1])) + EOL
+   		acc_str += layers1[k1] + " - kernel: " + str(max(kernels[k1])) 
+		if len(strides[k1]) != 0:		
+			acc_str += ", stride: " + str(max(strides[k1])) + EOL
+		else:
+			acc_str += ", stride: 1" + EOL
     
     
-    return body_str, counters, acc_str
+    w_fc_last = fc_weight + int(nn_in_number_fc_values[fc_counter-1])*int(nn_out_number_fc_values[fc_counter-1])*\
+		   int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
+    b_fc_last = fc_bias + int(nn_out_number_fc_values[fc_counter-1])
+    
+    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, nn_out_number_fc_values[len(nn_out_number_fc_values)-1], prms[prms_str.index("maximum")], prms[prms_str.index("maximum")], prms[prms_str.index("n")]]
+    return body_str, counters, acc_str, w_b_arr
 
 
 def generate_layer_init(name, params, prefix=SEPARATER):
@@ -370,11 +386,20 @@ def generate_end(end_json):
 	end_str += e + EOL
    return end_str
 
-def generate_pragma(pragma_json):
-   
+def generate_pragma(wb_arr):
+   hls_deb = "#if _HLS_MODE_"
+   end_deb = "#endif"
+   pr1 = "#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS"
+   pr2 = "#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS"
+   pr3 = "#pragma HLS INTERFACE m_axi depth="
+   pr4 = " port="
+   arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a", "output_temp_1", "output_temp_2"]
    pragma_str = EOL*2
-   for p in pragma_json:
-	pragma_str += p + EOL
+   pragma_str += hls_deb + EOL + pr1 + EOL + pr2 + EOL
+   pragma_str += pr3 + str(50) + pr4 + "in_data_3D" + EOL
+   for i, wb in enumerate(wb_arr[:-1]):
+	pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
+   pragma_str += end_deb
    return pragma_str
 
 if __name__ == "__main__":

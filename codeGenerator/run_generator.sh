@@ -73,7 +73,7 @@ copy_file "../fpga_cnn/accuracy_one_dim.h" "../example/test_demo/inference_net/"
 copy_file "../fpga_cnn/resize_image.h" "../example/test_demo/inference_net/" 1
 
 
-copy_file "../fpga_cnn/conv_acc_break.h" "../example/test_demo/inference_net/" 1
+copy_file "../fpga_cnn/conv_acc_dataflow.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/conv_acc_break_noact.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/ave_pool_acc.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/ave_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
@@ -86,3 +86,4 @@ python generator_config.py $prm_file_name
 python generator_ff_test.py $prm_file_name $test_img_name
 python generator_acc_instance.py $prm_file_name
 python generator.py $prm_file_name 
+
