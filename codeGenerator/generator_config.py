@@ -23,6 +23,8 @@ def generate(generated_file_name="config.h"):
 	t1 = helping_functions.prompt("Please enter the type of input: ")
 	t2 = helping_functions.prompt("Please enter the type of weights: ")
 	t3 = helping_functions.prompt("Please enter the type of output: ")
+	if t1.lower().startswith("ap_fixed") or t2.lower().startswith("ap_fixed") or t3.lower().startswith("ap_fixed"):
+		str1 += "#include \"ap_fixed.h\"" + EOL
 	arr1 = [t1, t2, t3]
 	str1 += generate_type_definition(json_data["type_definition"], arr1)
 	str1 += generate_preprocessor(json_data["preprocessor"])
@@ -41,6 +43,7 @@ def generate_import(import_json):
 	return import_str
 
 def generate_type_definition(type_json, arr):
+	
 	type_str = EOL * 2 
 	type_str += "//define data type" + EOL
 	for type_sen, t in zip(type_json, arr):
