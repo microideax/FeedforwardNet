@@ -132,7 +132,7 @@ public:
     }
     // Ouput out_buf data to output interface
     void output_res(G out_buf[][Tr][Tc], G *out_data, int out_offset, int n, int m, int r, int c, int N, int M, int R, int C){
-        if (n > N - Tn) {
+        if (n >= N - Tn) {
             for (int i = m; i < m + Tm; i++) {
                 if (M < m + Tm && i == M) { break; }
                 for (int j = r; j < r + Tr; j++) {
