@@ -1,10 +1,11 @@
+
 import helping_functions
 import sys
 import math
 
 def generate():
 	"""Tm * Tn < DSP/ 5"""
-	r = [55, 27, 27, 13, 13, 13, 13, 256, 4096, 4096, 1000]
+
 	arr2 = helping_functions.read_params(sys.argv[1])   
 	prms, prms_str = helping_functions.extraction(arr2)
 	nn_in_number_conv_values1 = prms[prms_str.index("nn_in_number_conv")] 
@@ -17,12 +18,8 @@ def generate():
 		nn_in_number_conv_values1.append(n)
 	nn_in_number_conv_values1.append(nn_out_number_fc_values[len(nn_out_number_fc_values) - 1])
 
-
-	
-	
 	nn_in_number_conv_values = [int(string) for string in nn_in_number_conv_values1]
 	nn_channel_size_fc_values = [int(string) for string in nn_in_number_conv_values1]	
-	mm= min(nn_in_number_conv_values)
 	
 	mm1 = max(nn_in_number_conv_values)
 	
