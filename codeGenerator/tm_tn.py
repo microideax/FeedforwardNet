@@ -52,7 +52,7 @@ def generate():
 				cycles = 0
 				for j in range (0, l):
 			
-					cycles += r_c[j] * r_c[j] * math.ceil(int(nn_in_number_conv_values[j + 1])/Tn) * math.ceil(int(nn_in_number_conv_values[j])/Tm) * k[j] * k[j]
+					cycles += int(r_c[j] * r_c[j] * math.ceil(int(nn_in_number_conv_values[j + 1])/Tn) * math.ceil(int(nn_in_number_conv_values[j])/Tm) * k[j] * k[j])
 				if cycles < max(minimums1):
 					
 					min_cycles = cycles
@@ -67,9 +67,10 @@ def generate():
 						minimums.remove(minimums[max_among_mins])
 						minimums.append([Tm, Tn])
 						minimums1.append(min_cycles)
-	
+	print("Tm and Tn")
 	print(minimums)
-
+	print("cycles")
+	print(minimums1)
 	
 	Tr_Tc = []
 	in_buff_arr = []
