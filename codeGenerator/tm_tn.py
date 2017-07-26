@@ -23,7 +23,7 @@ def generate():
 	
 	mm1 = max(nn_in_number_conv_values)
 	
-	DSP = 900
+	DSP = 6840
 	d = DSP/5
 	arr = []
 	

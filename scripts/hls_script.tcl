@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project conv_dataflow_2472828floatinnerdf-cast
+open_project vc709test
 
 set_top inference_net
 
@@ -39,16 +39,18 @@ open_solution -reset "alexnet"
 #vc709
 #set_part {xc7vx690tffg1761-2}
 #zynq-7000 board
-set_part {xc7z045ffg900-1} 
+#set_part {xc7z045ffg900-1} 
 # zedboard
 #set_part {xc7z020clg484-1}  
+# UltraScale+ 
+set_part {xcvu9p-flga2104-2l-e-es1}
 create_clock -period 10 -name default
 
 #csim_design -clean -argv {net_weights.txt, ILSVRC2012_val_00000001.JPEG, val.txt, net_mean.txt}
 
 csynth_design
 
-export_design -flow syn -rtl verilog -format ip_catalog
+#export_design -flow syn -rtl verilog -format ip_catalog
 
 #cosim_design -argv {net_weights.txt, ILSVRC2012_val_00000001.JPEG, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
