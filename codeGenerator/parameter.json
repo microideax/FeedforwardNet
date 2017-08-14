@@ -27,23 +27,6 @@
                 {"pType":"data_type_o", "pName":"output_temp_2"}
             ]
         },
-    
-    "pragma":
-	 
-	    [	"#if _HLS_MODE_",
-
-	 	"#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS",
-	 	"#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS",
-		"#pragma HLS INTERFACE m_axi depth=50 port=in_data_3D",
-		"#pragma HLS INTERFACE m_axi depth=50  port=conv_weight_port",
-		"#pragma HLS INTERFACE m_axi depth=50  port=conv_bias_port",
-		"#pragma HLS INTERFACE m_axi depth=50  port=fc_weight_port",
-		"#pragma HLS INTERFACE m_axi depth=50  port=fc_bias_port",
-		"#pragma HLS INTERFACE m_axi depth=50  port=fc_out_a",
-		"#pragma HLS INTERFACE m_axi depth=55 port=output_1",
-		"#pragma HLS INTERFACE m_axi depth=55 port=output_2",
-		"#endif"
-	    ],
 	 
 
     "end":

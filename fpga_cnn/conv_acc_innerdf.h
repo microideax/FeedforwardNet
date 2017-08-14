@@ -15,7 +15,7 @@
 
 using namespace std;
 
-template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc>
+template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max>
 class conv_acc {
 
 private:
@@ -37,7 +37,7 @@ public:
         }
     }
     // Reset weight buffer
-    void w_buf_reset(int K, W buf[][Tm][11][11]){
+    void w_buf_reset(int K, W buf[][Tm][K_max][K_max]){
         for(int i = 0; i < Tn; i++){
             for(int j = 0; j < Tm; j++){
                 for(int k = 0; k < K; k++){
@@ -64,7 +64,7 @@ public:
         }
     }
     // Load input data
-    void in_buf_load(T buf[][(Tr-1)*6 + 11][(Tc-1)*6 + 11], T *in_data, int in_offset, int n, int r, int c, int S, int K, int P, int R, int C, int N) {
+    void in_buf_load(T buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], T *in_data, int in_offset, int n, int r, int c, int S, int K, int P, int R, int C, int N) {
         for (int i = n; i < n + Tn; i++) {
             for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {
                 for (int k = c * S - P; k < (c + Tc - 1) * S + K - P; k++) {
@@ -85,7 +85,7 @@ public:
         }
     }
     // Load weights to weight buffer
-    void w_buf_load(W buf[][Tm][11][11], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){
+    void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){
         for(int j = n; j < n+Tn; j++){
             if(N < n+Tn && j == N){
                 break;
@@ -103,7 +103,7 @@ public:
         }
     }
     // Convolution computation kernel
-    void conv_engine(T in_buf[][(Tr-1)*6 + 11][(Tc-1)*6 + 11], W w_buf[][Tm][11][11], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R, int C){
+    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R, int C){
         for(int i=0; i<K; i++){
             for(int j=0; j<K; j++){
                 for(int tr=0; tr<Tr; tr++){
@@ -131,23 +131,24 @@ public:
         }
     }
     // Ouput out_buf data to output interface
-    void output_res(G out_buf[][Tr][Tc], G *out_data, int out_offset, int n, int m, int r, int c, int N, int M, int R, int C){
-        if (n > N - Tn) {
+    void output_res(G out_buf[][Tr][Tc], G *out_data, int out_offset, int n, int m, int r, int c, int N, int M, int R, int C, bool act){
+        if (n >= N - Tn) {
             for (int i = m; i < m + Tm; i++) {
                 if (M < m + Tm && i == M) { break; }
                 for (int j = r; j < r + Tr; j++) {
                     if (R < r + Tr && j == R) { break; }
                     for (int k = c; k < c + Tc; k++) {
                         if (C < c + Tc && k == C) { break; }
-                        if (out_buf[i - m][j - r][k - c] > G(0)) {
-                            *(out_data + out_offset + i * R * C + j * C + k) = (out_buf[i - m][j - r][k - c]);
-//                            out_buf[i - m][j - r][k - c] = G(0);
-                        } else {
-                            *(out_data + out_offset + i * R * C + j * C + k) = G(0);
-//                            out_buf[i - m][j - r][k - c] = G(0);
+                        if (act) {
+                            if (out_buf[i - m][j - r][k - c] > G(0)) {
+                                *(out_data + out_offset + i * R * C + j * C + k) = (out_buf[i - m][j - r][k - c]);
+                            } else {
+                                *(out_data + out_offset + i * R * C + j * C + k) = G(0);
+                            }
                         }
-//                                 *(out_data + i*R*C + j*C +k) = out_buf[i-m][j-r][k-c];
-//                                 out_buf[i-m][j-r][k-c] = 0;
+                        else {
+                            *(out_data + i * R * C + j * C + k) = out_buf[i - m][j - r][k - c];
+                        }
                     }
                 }
             }
@@ -162,6 +163,7 @@ public:
             int C, // output column
             int S, // stride size
             int P, // padding size
+            bool act, // activation function bit (1-- with act, 0--without act)
             T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
             W *layer_weights, //w[M][N][K][K]
             W *layer_bias, // b[M]
@@ -172,40 +174,17 @@ public:
             int out_offset){ // out[M][R][C]
 
         /***************local data buffer******************************/
-        T in_buf_1[Tn][(Tr-1)*6 + 11][(Tc-1)*6 + 11];
-//        T in_buf_2[Tn][(Tr-1)*6 + 11][(Tc-1)*6 + 11];
-        W w_buf_1[Tn][Tm][11][11];
-//        W w_buf_2[Tn][Tm][11][11];
+        T in_buf_1[Tn][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max];
+        W w_buf_1[Tn][Tm][K_max][K_max];
         W b_buf_1[Tm];
-//        W b_buf_2[Tm];
 
         G out_buf[Tm][Tr][Tc];
-//        G out_buf_2[Tm][Tr][Tc];
-
-        bool buf_1_full = 0;
-        bool buf_2_full = 0;
-        bool buf_1_act = 0;
-        bool buf_2_act = 0;
-        int loadbufPtr = 0;
-        int combufPtr = 0;
-
-//        T (*act_in_buf)[(Tr-1)*6 + 11][(Tc-1)*6 + 11] = in_buf_1;
-//        W (*act_w_buf)[Tm][11][11] = w_buf_1;
-//        W *act_b_buf = b_buf_1;
-//        T (*com_in_buf)[(Tr-1)*6 + 11][(Tc-1)*6 + 11] = in_buf_1;
-//        W (*com_w_buf)[Tm][11][11] = w_buf_1;
-//        W *com_b_buf = b_buf_1;
-//        G (*act_out_buf)[Tr][Tc] = out_buf_1;
 
 #if _HLS_MODE_
 #pragma HLS ARRAY_PARTITION variable=in_buf_1 complete dim=1
-//#pragma HLS ARRAY_PARTITION variable=in_buf_2 complete dim=1
 #pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=1
 #pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=2
-//#pragma HLS ARRAY_PARTITION variable=w_buf_2 complete dim=1
-//#pragma HLS ARRAY_PARTITION variable=w_buf_2 complete dim=1
 #pragma HLS ARRAY_PARTITION variable=b_buf_1 complete dim=1
-//#pragma HLS ARRAY_PARTITION variable=b_buf_2 complete dim=1
 #pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1
 #endif
 
@@ -214,15 +193,10 @@ public:
             cout << "Starting conv_acc layer ...." << endl;
             //buffer local data initiallization: must do it in C++ debug!
             out_buf_reset(out_buf);
-//            out_buf_reset(out_buf_2);
             b_buf_reset(b_buf_1);
-//            b_buf_reset(b_buf_2);
             w_buf_reset(K, w_buf_1);
-//            w_buf_reset(K, w_buf_2);
 #endif
 #endif
-        int counter =0;
-
         for(int r = 0; r < R; r += Tr){
             for(int c = 0; c < C; c += Tc){
                 for(int m = 0; m < M; m += Tm){
@@ -239,9 +213,9 @@ public:
                         w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);
   //------------------------------compute buffered data -----------------------------------//
                         conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf, S, n, r, c, K, R, C);
-
+  //---------------------------transfer output data----------------------------------------//
                         // transfer output data
-                        output_res(out_buf, out_data, out_offset, n, m, r, c, N, M, R, C);
+                        output_res(out_buf, out_data, out_offset, n, m, r, c, N, M, R, C, act);
                     }
 
 #if _C_DEBUG_MODE_
@@ -268,49 +242,3 @@ public:
 };
 
 #endif
-
-/*
-
-
-#if _C_DEBUG_MODE_
-                        #if _KERNEL_DEBUG_
-//                            ofstream conv_w;
-//                            conv_w.open("conv_in_weights.txt", ios::app);
-//                            for (int j = n; j < min(N, n+Tn); j++) {
-//                                for (int i = m; i < min(M, m+Tm); i++) {
-//                                    for(int k = 0; k < K; k++){
-//                                        for(int l = 0; l < K; l++){
-//                                            conv_w << w_buf[j-n][i-m][k][l] << " ";
-//                                        }
-//                                        conv_w << endl;
-//                                    }
-//                                    conv_w << endl;
-//                                }
-//                                conv_w << endl;
-//                            }
-//                            conv_w.close();
-#endif
-#endif
-
-
-
-#if _C_DEBUG_MODE_
-#if _KERNEL_DEBUG_
-            cout << "Finished conv_acc layer ...." << endl;
-            cout << endl;
-            ofstream conv_out;
-            conv_out.open("conv_out_data.txt", ios::app);
-            conv_out <<"conv output: "<< endl;
-            for (int i = 0; i < M; i++) {
-                for (int j = 0; j < R; j++) {
-                    for(int k = 0; k < C; k++){
-                        conv_out << *(out_data + out_offset + i*R*C + j*C + k) << " ";
-                    }
-                    conv_out << endl;
-                }
-                conv_out << endl;
-            }
-            conv_out.close();
-#endif
-#endif
-*/
