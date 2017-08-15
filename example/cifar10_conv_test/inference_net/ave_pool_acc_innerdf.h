@@ -2,8 +2,8 @@
 // Created by Yao Chen on 27/05/2017
 //
 
-#ifndef _MAX_POOL_ACC_H_
-#define _MAX_POOL_ACC_H_
+#ifndef _AVE_POOL_ACC_H_
+#define _AVE_POOL_ACC_H_
 
 #include <iostream>
 #include <fstream>
@@ -16,13 +16,13 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tn, int Tr, int Tc, int S_max, int K_max>
-class max_pool_acc {
+class ave_pool_acc {
 
 private:
     int pool_layer_number;
 
 public:
-    max_pool_acc() : pool_layer_number(0) {pool_layer_number = 0;};
+    ave_pool_acc() : pool_layer_number(0) {pool_layer_number = 0;};
 
     ////------------------------------C++ debugging functions---------------------------------------////
 
@@ -57,7 +57,7 @@ public:
             }
         }
     }
-    // Max pooling computation kernel
+    // Ave pooling computation kernel
     void pool_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R, int C, int TR, int TC){
         for (int i = 0; i < K; i++) {
             for (int j = 0; j < K; j++) {
@@ -75,10 +75,9 @@ public:
                             if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                 break;
                             }
-                            if(i==0&&j==0){
-                                out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];
-                            }else{
-                                out_buf[tn][tr][tc] = (out_buf[tn][tr][tc] > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? out_buf[tn][tr][tc] : in_buf[tn][S * (tr) + i][S * (tc) + j];
+                            out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
+                            if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
+                                out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
                             }
                         }
                     }
@@ -97,12 +96,15 @@ public:
                         if (act) {
                             if (out_buf[i - n][j - r][k - c] > G(0)) {
                                 *(out_data + i * R * C + j * C + k) = (out_buf[i - n][j - r][k - c]);
+                                out_buf[i - n][j - r][k - c] = G(0);
                             } else {
                                 *(out_data + i * R * C + j * C + k) = G(0);
+                                out_buf[i - n][j - r][k - c] = G(0);
                             }
                         }
                         else {
                             *(out_data + i * R * C + j * C + k) = out_buf[i - n][j - r][k - c];
+                            out_buf[i - n][j - r][k - c] = G(0);
                         }
                     }
                 }
@@ -110,7 +112,7 @@ public:
     }
 
 ///////////////////////------------------pooling accelerator----------------//////////////////////////
-    void max_pool_layer_acc(
+    void ave_pool_layer_acc(
             int R_IN,// input Row
             int C_IN,// input column
             int N, //input feature number
@@ -136,7 +138,7 @@ public:
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-            cout << "Starting max_pool_acc layer ...." << endl;
+            cout << "Starting ave_pool_acc layer ...." << endl;
             //buffer local data initiallization: must do it in C++ debug!
             out_buf_reset(out_buf);
 #endif
@@ -162,12 +164,12 @@ public:
 #if _KERNEL_DEBUG_
                     // transfer output data
                     ofstream pool_out_buf;
-                    pool_out_buf.open("max_pool_out_buf.txt", ios::app);
+                    pool_out_buf.open("ave_pool_out_buf.txt", ios::app);
                     pool_out_buf <<"pool out buf: "<< endl;
                     for(int i = n; i < min(N, n+Tn); i++){
                         for(int j=r; j < min(R, r+Tr); j++){
                             for(int k=c; k < min(C, c+Tc); k++){
-                                pool_out_buf << out_buf[i-n][j-r][k-c] << " ";
+                                pool_out_buf << *(out_data + i * R * C + j * C + k) << " ";
                             }
                             pool_out_buf << endl;
                         }
