@@ -85,37 +85,38 @@ void   inference_net(
     int shift_weight_conv3 = 28000;
     int shift_bias_conv3 = 64;
 
-    /*
+    
     // conv-1
-    conv_layer_new(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
+//    conv_layer_new(3, 5, 32, 32, 32, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, 0, 0, 0, 0);
 //    maxPoolAcc1.max_pool_layer_acc(32,32,32, 3, 16, 16, 2, 0, output_temp_1, output_temp_2);
-*/
+
     max_pool_layer_new_noact(32, 32, 32, 3, 16, 16, 2, 0, output_temp_2, output_temp_1);
 /*
     clean_1: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0); }
 
     // conv-2
 //    convAcc2.conv_layer_acc(32, 5, 32, 16, 16, 1, 2, output_temp_2, conv_weight_port + shift_weight_conv2, conv_bias_port + shift_bias_conv2, output_temp_1, 0, 0);
-    conv_layer_new(32, 5, 32, 16, 16, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, shift_weight_conv2, shift_bias_conv2, 0, 0);
-    clean_2: for (int addr = 0; addr < 32768; addr++) { output_temp_2[addr] = data_type_o(0);  }
+*/
+//    conv_layer_new(32, 5, 32, 16, 16, 1, 2, output_temp_2, conv_weight_port, conv_bias_port, output_temp_1, shift_weight_conv2, shift_bias_conv2, 0, 0);
+//    clean_2: for (int addr = 0; addr < 32768; addr++) { output_temp_2[addr] = data_type_o(0);  }
 //    avePoolAcc1.ave_pool_layer_acc_noact(16,16,32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
 
-    ave_pool_layer_new_noact(16, 16, 32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
+//    ave_pool_layer_new_noact(16, 16, 32, 3, 8, 8, 2, 0, output_temp_1, output_temp_2);
 
-    clean_3: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
+//    clean_3: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
 
     //conv-3
 //    convAcc2.conv_layer_acc(32, 5, 64, 8, 8, 1, 2, output_temp_2, conv_weight_port + shift_weight_conv3, conv_bias_port + shift_bias_conv3, output_temp_1, 0, 0);
-    conv_layer_new(32, 5, 64, 8, 8, 1, 2, output_temp_2, conv_weight_port, conv_bias_port,  output_temp_1, shift_weight_conv3, shift_bias_conv3, 0, 0);
-    clean_4: for (int addr = 0; addr < 32768; addr++) { output_temp_2[addr] = data_type_o(0);  }
+//    conv_layer_new(32, 5, 64, 8, 8, 1, 2, output_temp_2, conv_weight_port, conv_bias_port,  output_temp_1, shift_weight_conv3, shift_bias_conv3, 0, 0);
+//    clean_4: for (int addr = 0; addr < 32768; addr++) { output_temp_2[addr] = data_type_o(0);  }
 //    avePoolAcc1.ave_pool_layer_acc_noact(8,8,64, 3, 4, 4, 2, 0, output_temp_1, output_temp_2);
-    ave_pool_layer_new_noact(8, 8, 64, 3, 4, 4, 2, 0, output_temp_1, output_temp_2);
-    clean_5: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
+//    ave_pool_layer_new_noact(8, 8, 64, 3, 4, 4, 2, 0, output_temp_1, output_temp_2);
+//    clean_5: for (int addr = 0; addr < 32768; addr++) { output_temp_1[addr] = data_type_o(0);  }
 
     // fc_1
 //    convAcc1.conv_layer_acc_noact(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0);
-    conv_layer_new(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
-*/
+//    conv_layer_new(64, 4, 10, 1, 1, 4, 0, output_temp_2, fc_weight_port, fc_bias_port, output_temp_1, 0, 0, 0, 0);
+
     for (int i = 0; i < 10; i++) { fc_out_a[i] = output_temp_1[i];  }
 
     cout << "Finished forward network process .........................." << endl;

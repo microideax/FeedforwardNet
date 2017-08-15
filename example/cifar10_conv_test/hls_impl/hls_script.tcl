@@ -2,7 +2,7 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project II_test_conv
+open_project cifar_mnist
 
 set_top inference_net
 
@@ -10,6 +10,7 @@ set_top inference_net
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
 add_files ../inference_net/conv_acc_break.h
+add_files ../inference_net/conv_acc_dataflow.h
 add_files ../inference_net/conv_acc_break_noact.h
 add_files ../inference_net/max_pool_acc.h
 add_files ../inference_net/ave_pool_acc.h
@@ -35,20 +36,20 @@ add_files -tb ../net_inputs/net_mean.txt
 add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2017.1/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
-open_solution -reset "alexnet"
+open_solution -reset "cifarnet"
 #vc709
 #set_part {xc7vx690tffg1761-2}
 #zynq-7000 board
-set_part {xc7z045ffg900-1} 
+#set_part {xc7z045ffg900-1} 
 # zedboard
-#set_part {xc7z020clg484-1}  
+set_part {xc7z020clg484-1}  
 create_clock -period 10 -name default
 
-csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
+#csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
 
 csynth_design
 
 #cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
-#export_design -flow syn -rtl verilog -format ip_catalog
+export_design -flow syn -rtl verilog -format ip_catalog
 exit

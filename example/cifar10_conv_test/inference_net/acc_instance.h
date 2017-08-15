@@ -5,15 +5,16 @@
 #ifndef _ACC_INSTANCE_H_
 #define _ACC_INSTANCE_H_
 
-#include "conv_acc_break.h"
-#include "conv_acc_break_noact.h"
-#include "max_pool_acc.h"
+#include "conv_acc_dataflow.h"
+//#include "conv_acc_break.h"
+//#include "conv_acc_break_noact.h"
+//#include "max_pool_acc.h"
 #include "max_pool_acc_noact.h"
-#include "ave_pool_acc.h"
+//#include "ave_pool_acc.h"
 #include "ave_pool_acc_noact.h"
 #include "config.h"
 
-conv_acc<data_type, data_type_w, data_type_o, 16, 4, 13, 13> convAcc2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
+conv_acc<data_type, data_type_w, data_type_o, 10, 4, 16, 16> convAcc2;//{0<Tm<=M;0<Tn<=N;0<Tr<=R;0<Tc<=C;}
 
 void conv_layer_new(
         int N, //input feature number
@@ -78,7 +79,7 @@ void conv_layer_new(
 //
 //};
 
-max_pool_acc_noact<data_type, data_type_w, data_type_o, 4, 4, 4> maxPoolAcc1noact;
+max_pool_acc_noact<data_type, data_type_w, data_type_o, 16, 32, 32> maxPoolAcc1noact;
 
 void max_pool_layer_new_noact(
         int R_in,
@@ -114,7 +115,7 @@ void max_pool_layer_new_noact(
 //
 //};
 
-ave_pool_acc_noact<data_type, data_type_w, data_type_o, 4, 4, 4> avePoolAccNoact1;
+ave_pool_acc_noact<data_type, data_type_w, data_type_o, 16, 16, 16> avePoolAccNoact1;
 
 void ave_pool_layer_new_noact(
         int R_in,
