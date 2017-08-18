@@ -52,4 +52,5 @@ csynth_design
 #cosim_design -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 export_design -flow syn -rtl verilog -format ip_catalog
+report_power -file power.rpt
 exit
