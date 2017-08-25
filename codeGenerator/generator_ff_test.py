@@ -56,7 +56,7 @@ def generate_function(fn_json, nm):
 	for fn_sen in fn_json[nm]:
         	fn_str += fn_sen["return_type"] + SPACE + fn_sen["function_name"] + PARAMETER_BEGIN 
 		for i, p in enumerate(fn_sen["parameters"]):
-			fn_str += p["type"] + SPACE + p["name"]
+			fn_str += p["type"] + p["name"]
 			if (i+1) != len(fn_sen["parameters"]):
 				fn_str += COMMA_SPACE
 		fn_str += PARAMETER_END + SPACE + BODY_BEGIN + EOL
@@ -157,9 +157,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str1 += HLS + EOL
 	body_str1 += prefix + "const char* weight_src = \"net_weights.txt\";" + EOL
 	body_str1 += PREP_ELSE + EOL
-	body_str1 += prefix + out_json[3] + EOL
 	body_str1 += prefix + "const char* weight_src = \"net_inputs/net_weights.txt\";" + EOL
-	body_str1 += prefix + out_json[4] + EOL
 	body_str1 += PREP_ENDIF + EOL
 	body_str1 += prefix + comm_json[1] + EOL
 	body_str1 += HLS + EOL
@@ -205,7 +203,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		body_str1 += prefix + comm_json[3] + EOL
 		body_str1 += KERNEL + EOL + HLS + EOL +\
 	   		     prefix + "string image_dir = \"" + sys.argv[2] + "\";" + EOL + PREP_ELSE + EOL +\
-			     prefix + "string image_dir = \"./net_inputs/test_imgs/" + sys.argv[2] + "\"" + EOS + EOL +\
+			     prefix + "string image_dir = argv[1]" + EOS + EOL +\
 			     PREP_ENDIF + EOL
 		
 		body_str1 += prefix + "float in_data_3D_channel_swap[3" + ARRAY_END +\
@@ -225,7 +223,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			     ["in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j]; //range:0--255"], 2, 3)], 1, 1)
 		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "h", 
 			     [helping_functions.generate_for_loop("k", "int", 0, "w", ["in_data_3D_channel_swap[i][j][k] /= 255;// range:0--1"], 3, 1)], 2, 1)], 1, 1)
-		body_str1 += prefix + comm_json[9] + EOL
+		body_str1 += prefix + "resize_image(in_data_3D_channel_swap, h, w, in_data_3D);" + EOL
 		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
 			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D[i][j][k] * 255 - channel_mean[i];"], 
 			     3, 1)], 2, 1)], 1, 1)
@@ -298,8 +296,8 @@ def generate_w_b(nm, arr, s, c, s1, prefix=SEPARATER):
 	
 	wb_str = prefix + "float *" + nm + " = (float*)malloc(" + arr[c] + " * sizeof(float));" + EOL
 	wb_str += prefix + "memset(" + nm + ", 0, " + arr[c] + " * sizeof(float));" + EOL
-	wb_str += prefix + "load_" + s + "_" + s1 + "(weight_src, " + nm + ", weight_bias_record, nn_channel_size_" + s1 + ", " +\
-	         " nn_in_number_" + s1 + ", nn_out_number_" + s1 + ", in_number_" + s1 + ");" + EOL
+	wb_str += prefix + "load_" + s + "_" + s1 + "(" + EOL + "weight_src, " + EOL + nm + "," + EOL + " weight_bias_record,"  + EOL + " nn_channel_size_" + s1 + ", " + EOL +\
+	         " nn_in_number_" + s1 + ","  + EOL + " nn_out_number_" + s1 + ","  + EOL +" in_number_" + s1 + ");" + EOL
 	if c == 0:
 		wb_str += prefix + "int " + s1 + "_" + s + "_num=0;" + EOL
 		

@@ -131,7 +131,14 @@ public:
     }
     // Ouput out_buf data to output interface
     void output_res(G out_buf[][Tr][Tc], G *out_data, int out_offset, int n, int m, int r, int c, int N, int M, int R_OUT, int C_OUT, 
-        bool act, W *bn_mean, W *bn_variance, W *scale_gamma, W *scale_beta){
+        bool act
+#if _BATCH_NORM_
+        , W *bn_mean, W *bn_denominator, 
+#endif
+#if _SCALE_
+        W *scale_gamma, W *scale_beta
+#endif
+        ){
         if (n >= N - Tn) {
             for (int i = m; i < m + Tm; i++) {
                 if (M < m + Tm && i == M) { break; }
@@ -141,7 +148,7 @@ public:
                         if (C_OUT < c + Tc && k == C_OUT) { break; }
 #if _BATCH_NORM_
                         out_buf[i - m][j - r][k - c] = 
-                        (out_buf[i - m][j - r][k - c] - *(bn_mean + i))/(pow((*(bn_variance + i) + 1e-05),0.5));
+                        (out_buf[i - m][j - r][k - c] - *(bn_mean + i)) * (*(bn_denominator + i));
 #endif
 #if _SCALE_
                         out_buf[i - m][j - r][k - c] = 
@@ -173,10 +180,14 @@ public:
             T *in_data, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
             W *layer_weights, //w[M][N][K][K]
             W *layer_bias, // b[M]
+#if _BATCH_NORM_
             W *bn_mean,
-            W *bn_variance,
+            W *bn_denominator,
+#endif
+#if _SCALE_
             W *scale_gamma,
             W *scale_beta,
+#endif
             G *out_data,
             int weight_offset,
             int bias_offset,
@@ -224,7 +235,14 @@ public:
                         conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf, S, n, r, c, K, R_OUT, C_OUT);
   //---------------------------transfer output data----------------------------------------//
                         // transfer output data
-                        output_res(out_buf, out_data, out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act, bn_mean, bn_variance, scale_gamma, scale_beta);
+                        output_res(out_buf, out_data, out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act 
+#if _BATCH_NORM_
+                            ,bn_mean, bn_denominator, 
+#endif
+#if _SCALE_
+                            scale_gamma, scale_beta
+#endif
+                            );
                     }
                 }
             }

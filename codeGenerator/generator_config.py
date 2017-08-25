@@ -42,6 +42,7 @@ def generate_import(import_json):
         	import_str += import_sen + EOL
 	return import_str
 
+'''define data type'''
 def generate_type_definition(type_json, arr):
 	
 	type_str = EOL * 2 
@@ -50,6 +51,7 @@ def generate_type_definition(type_json, arr):
         	type_str += TDEF + SPACE + t + SPACE + type_sen + EOS + EOL
 	return type_str
 
+'''debug mode declaration'''
 def generate_preprocessor(prep_json):
 	comm = "// C++ compilation debug mode" + EOL
 	prep_str = EOL 
@@ -61,13 +63,15 @@ def generate_preprocessor(prep_json):
         	prep_str += prep_sen + EOL
 	return prep_str
 
+'''3 weight_bias variables declaration'''
 def generate_var(var_json):
 	var_str = EOL * 2
 	var_str += "//network configuration PARAMETERS" + EOL
 	for var_sen in var_json:
         	var_str += var_sen["type"] + SPACE + var_sen["name"] + EQUAL + var_sen["value"] + EOS + EOL
 	return var_str
-	
+
+'''write network config params'''	
 def generate_body(body_json, arr):
 	body_str = EOL * 2
 	

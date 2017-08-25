@@ -34,7 +34,11 @@
 				{
 			 		"return_type":"int",
 		 			"function_name":"main",
-					"parameters":""
+					"parameters":
+						[
+							{"name":"argc", "type":"int "},
+							{"name":"argv", "type":"char** "}
+						]
 				}
 			],
 		   "loadfile":
@@ -61,7 +65,7 @@
 		  "cout << \"finished weight src !!!\" << endl;",
 		  "cout << \"mean data file not found !\" << endl;",
 		  "cout << \"val data file not found !\" << endl;",
-		  "cout <<\"inference time is: \" << totaltime << \" s\" << endl;",
+		  "cout <<\"predicted time is: \" << totaltime << \" s\" << endl;",
 		  "cout << \"At \" << i <<\", output1_tmp=\" << temp_out_1[i] << '\\n';",
 		  "cout << \"At \" << i <<\", output2_tmp=\" << temp_out_2[i] << '\\n';",
 		  "cout << \"Writing data to input data memory space ... ... ...\" << endl;",
