@@ -75,7 +75,12 @@ public:
                             if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){
                                 break;
                             }
-                            out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
+                            if(i==0&&j==0){
+                                out_buf[tn][tr][tc] = in_buf[tn][S * (tr) + i][S * (tc) + j];
+                            }
+                            else{
+                                out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
+                            }
                             if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K)){
                                 out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
                             }
@@ -96,15 +101,12 @@ public:
                         if (act) {
                             if (out_buf[i - n][j - r][k - c] > G(0)) {
                                 *(out_data + i * R * C + j * C + k) = (out_buf[i - n][j - r][k - c]);
-                                out_buf[i - n][j - r][k - c] = G(0);
                             } else {
                                 *(out_data + i * R * C + j * C + k) = G(0);
-                                out_buf[i - n][j - r][k - c] = G(0);
                             }
                         }
                         else {
                             *(out_data + i * R * C + j * C + k) = out_buf[i - n][j - r][k - c];
-                            out_buf[i - n][j - r][k - c] = G(0);
                         }
                     }
                 }

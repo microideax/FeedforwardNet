@@ -34,11 +34,7 @@
 				{
 			 		"return_type":"int",
 		 			"function_name":"main",
-					"parameters":
-						[
-							{"name":"argc", "type":"int "},
-							{"name":"argv", "type":"char** "}
-						]
+					"parameters":""
 				}
 			],
 		   "loadfile":

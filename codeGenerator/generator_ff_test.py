@@ -203,7 +203,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		body_str1 += prefix + comm_json[3] + EOL
 		body_str1 += KERNEL + EOL + HLS + EOL +\
 	   		     prefix + "string image_dir = \"" + sys.argv[2] + "\";" + EOL + PREP_ELSE + EOL +\
-			     prefix + "string image_dir = argv[1]" + EOS + EOL +\
+			     prefix + "string image_dir = \"./net_inputs/test_imgs/" + sys.argv[2] + "\"" + EOS + EOL +\
 			     PREP_ENDIF + EOL
 		
 		body_str1 += prefix + "float in_data_3D_channel_swap[3" + ARRAY_END +\

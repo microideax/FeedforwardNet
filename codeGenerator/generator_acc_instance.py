@@ -68,7 +68,7 @@ def generate(generated_file_name="acc_instance.h"):
    		if len(strides[k1]) != 0:	
    			acc_max_stride[k1] = ", " + str(max(strides[k1]))
 	
-	includes = ["#include \"conv_acc_innerdf.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
+	includes = ["#include \"conv_acc_innerdf_1.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
 	fn_names = ["conv_layer_new", "max_pool_layer_new", "ave_pool_layer_new"]
 	rn_tp = "void"
 	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_o", "int", "int", "int", "int"],
