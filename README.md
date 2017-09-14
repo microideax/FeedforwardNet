@@ -1,3 +1,5 @@
+<span style="display: inline-block;">
+
 # FeedforwardNet
 
 FeedforwardNet is a toolkit that simplifies the development and deployment of deep learning systems 
@@ -14,11 +16,11 @@ Future version of well integrated toolkit with a web based GUI will be released 
 # File structure
 
 Feedforward
-|
-|--example   // folder contains demoe example designs and original CAFFE demos.
-|--fpga_cnn  // main folder contains the cnn layer designs and CAFFE converter.
-|--stb_image // stb based image processing lib.
-|--README.md // This README file.
+*caffe_converter ---caffemodel to weight, mean and val data converter.
+*example   // folder contains demoe example designs and original CAFFE demos.
+*fpga\_cnn  // main folder contains the cnn layer designs and CAFFE converter.
+*stb_image // stb based image processing lib.
+*README.md // This README file.
 
 
 # Status
