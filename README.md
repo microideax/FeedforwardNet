@@ -61,22 +61,25 @@ If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
 
 # Getting Started
 
-1. compile caffe\_converver and convert the caffemodel file.
-	cd to caffe_converter.
-	run ./run.sh to compile the converter codes.
-	use ./caffe_converter targeted.prototxt targeted.caffemodel [targeted.binarymodel] to convert the input caffemodel.
-2. generate the targeted network with the net_config_params.txt from caffe_converter.
-	navigate to codeGenerator folder.
-	cp ../caffe_converter/net_config_params.txt ./
-	run ./run_generator.sh and follow the instruction with correct paths,file names and data types.
-3. test the generated network in C++.
-	navigate to FeedforwardNet/example/, the newly generated network is located here in test_demo/.
-	compile the C++ code with command make.
-	run ./ff_test to test the correctness.
-4. FPGA synthesis and implementation
-	uncomment _HLS_MODE_ in config.h located in inference_net/.
-	navigate into hls_impl/ folder.
-	run ./syn.sh to start synthesis and generate the inference_net IP.
+1. compile caffe\_converver and convert the caffemodel file:
+- cd to caffe_converter.
+- run ./run.sh to compile the converter codes.
+- use ./caffe_converter targeted.prototxt targeted.caffemodel [targeted.binarymodel] to convert the input caffemodel.
+
+2. generate the targeted network with the net_config_params.txt from caffe_converter:
+- navigate to codeGenerator folder.
+- cp ../caffe_converter/net_config_params.txt ./
+- run ./run_generator.sh and follow the instruction with correct paths,file names and data types.
+
+3. test the generated network in C++:
+- navigate to FeedforwardNet/example/, the newly generated network is located here in test_demo/.
+- compile the C++ code with command make.
+- run ./ff_test to test the correctness.
+
+4. FPGA synthesis and implementation:
+- uncomment _HLS_MODE_ in config.h located in inference_net/.
+- navigate into hls_impl/ folder.
+- run ./syn.sh to start synthesis and generate the inference_net IP.
 
 
 # Bibtex:
