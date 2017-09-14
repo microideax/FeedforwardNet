@@ -15,6 +15,8 @@ COMMA_SPACE = ", "
 EOS = ";"
 CALL_SYMBOL = "."
 ENDIF = "#endif"
+para = open("parameter3.json", "r")
+port_num = int(json.load(para))
 
 def generate(generated_file_name="acc_instance.h"):
 
@@ -71,15 +73,27 @@ def generate(generated_file_name="acc_instance.h"):
 	includes = ["#include \"conv_acc_innerdf_1.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
 	fn_names = ["conv_layer_new", "max_pool_layer_new", "ave_pool_layer_new"]
 	rn_tp = "void"
-	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_o", "int", "int", "int", "int"],
-		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool", "data_type", "data_type_o"]]
-	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*in_data", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "*scale_gamma", "*scale_beta", "*out_data", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
-		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "act", "*in_data", "*out_data"]]
-	acc_params = [["16", "4", "13", "13"], ["16", "16", "16"], ["16", "16", "16"]]
+	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "int", "int", "int", "int"],
+		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool"]]
+	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "*scale_gamma", "*scale_beta", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
+		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "act"]]
+	acc_params = [["16", "16", "13", "13"], ["16", "16", "16"], ["16", "16", "16"]]
 	init_nm = ["conv_acc", "max_pool_acc", "ave_pool_acc"]
 	prm = "data_type, data_type_w, data_type_o"
 	init_names = ["convAcc1", "maxPoolAcc1", "avePoolAcc1"]
 	acc_fn_names = ["conv_layer_acc", "max_pool_layer_acc", "ave_pool_layer_acc"]
+
+	for j in range(1,port_num + 1):
+		arg_t_list[0].append("data_type")
+		arg_t_list[1].append("data_type")
+		arg_n_list[0].append("*in_data_" + str(j))
+		arg_n_list[1].append("*in_data_" + str(j))
+
+	for j in range(1,port_num + 1):
+		arg_t_list[0].append("data_type_o")
+		arg_t_list[1].append("data_type_o")
+		arg_n_list[0].append("*out_data_" + str(j))
+		arg_n_list[1].append("*out_data_" + str(j))
 
 	'''write layer acc needed'''
 	for i, l in enumerate(layers_fun):
@@ -97,13 +111,13 @@ def generate(generated_file_name="acc_instance.h"):
 			s = ""
 			for k, arg_nm in enumerate(arg_n_list[j]):
 				if j == 0:
-					if k == 13:
+					if k == 12:
 						s += EOL + "#if _BATCH_NORM_" + EOL + SEPARATER
 						s += arg_nm.replace("*", "")
-					elif k == 15:
+					elif k == 14:
 						s += EOL + "#endif" + EOL + "#if _SCALE_" + EOL + SEPARATER
 						s += arg_nm.replace("*", "")
-					elif k == 17:
+					elif k == 16:
 						s += EOL + "#endif" + EOL + SEPARATER
 						s += arg_nm.replace("*", "")
 					else:
@@ -159,13 +173,13 @@ def generate_function0(fn_nm, return_type, arg_types_arr, arg_names_arr, fn_body
 	fn_str = return_type + SPACE + fn_nm + PARAMETER_BEGIN + EOL
 
 	for i, f in enumerate(arg_types_arr):
-		if i == 13:
+		if i == 12:
 			fn_str += "#if _BATCH_NORM_" + EOL
 			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
-		elif i == 15:
+		elif i == 14:
 			fn_str += "#endif" + EOL + "#if _SCALE_" + EOL
 			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
-		elif i == 17:
+		elif i == 16:
 			fn_str += "#endif" + EOL
 			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
 		else:

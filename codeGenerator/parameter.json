@@ -28,9 +28,7 @@
                 {"pType":"float *", "pName":"mean"},
                 {"pType":"float *", "pName":"denominator"},
                 {"pType":"", "pName":"#endif"},
-                {"pType":"data_type_o", "pName":"fc_out_a"},
-                {"pType":"data_type_o", "pName":"output_temp_1"},
-                {"pType":"data_type_o", "pName":"output_temp_2"}
+                {"pType":"data_type_o", "pName":"fc_out_a"}
             ]
         },
 	 

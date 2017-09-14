@@ -1,5 +1,6 @@
 import json
 import sys
+import math
 import helping_functions
 
 EOL = "\n"
@@ -115,14 +116,27 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	 	else:
 			body_str += var_sen["name"] 
 		body_str += EQUAL + PARAMETER_BEGIN 
-		if (var_sen["name"] == "out_1_size" or var_sen["name"] == "out_2_size"):
-			body_str += arr1[arr1_str.index("maximum")]
-		else: 
-			body_str += arr1[arr1_str.index(var_sen["name"])] 
+		body_str += arr1[arr1_str.index(var_sen["name"])] 
 		body_str += PARAMETER_END + MULT + sz +\
-			    PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
-			    EOS + EOL
+				PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
+				EOS + EOL
 
+	port_num = int(helping_functions.prompt("Please enter the number of ports: "))
+	with open("parameter3.json","w") as f:
+		#json.dump(BODY_BEGIN + EOL + "\"port_num\":\""+str(port_num)+"\"" + EOL + BODY_END,f)
+		json.dump(str(port_num),f)
+
+	for i in range(0,2):
+		for j in range(1,port_num + 1):
+			body_str += prefix + "unsigned int" + SPACE
+			body_str += "out_size_" + str(i) + "_" + str(j)
+			body_str += EQUAL + PARAMETER_BEGIN 
+			body_str += str(int(math.ceil(float(arr1[arr1_str.index("maximum")])/port_num)))
+			body_str += PARAMETER_END + MULT + sz +\
+						PARAMETER_BEGIN + "data_type_o" + PARAMETER_END +\
+						EOS + EOL		
+
+	for k, var_sen in enumerate(body_json["var_init"]):
 		if (var_sen["memory"] == "in_data_mem_port" or var_sen["memory"] == "fc_8_out_mem_int"):
 			alloc_str += KERNEL + EOL
 			ker = 1
@@ -146,11 +160,27 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		if ker == 1:
 			alloc_str += PREP_ENDIF + EOL
 			ker = 0
+	
+	for i in range(0,2):
+		for j in range(1,port_num + 1):
+			alloc_str += prefix + "data_type_o *" + "temp_out_" + str(i) + "_" + str(j)
+			alloc_str += EQUAL + PARAMETER_BEGIN + "data_type_o *" + PARAMETER_END +\
+			     "malloc" + PARAMETER_BEGIN + "out_size_" + str(i) + "_" + str(j) + PARAMETER_END + EOS + EOL 
+			cond = "temp_out_" + str(i) + "_" + str(j) + " == " + NULL
+			alloc_str += prefix + helping_functions.generate_if(cond, [out_json[1] + "temp_out_" + str(i) + "_" + str(j) + "\\n\"" +\
+			     PARAMETER_END + EOS], ["printf(\"" + "temp_out_" + str(i) + "_" + str(j) + " memory location" + "= 0x%x \\n\", " + "temp_out_" + str(i) + "_" + str(j) + PARAMETER_END + EOS], 1)
+
 	body_str1 += KERNEL + EOL
 	body_str1 += prefix + out_json[2] + EOL
 	body_str1 += prefix + "memset(fc_" + str(n_layers) + "_out_mem_int, 0, fc_" + str(n_layers) + "_out_size);" + EOL
-	body_str1 += prefix + "memset(temp_out_1, 0, out_1_size);" + EOL
-	body_str1 += prefix + "memset(temp_out_2, 0, out_2_size);" + EOL
+	
+	for i in range(0,2):
+		for j in range(1,port_num + 1):
+			body_str1 += prefix + "memset" + PARAMETER_BEGIN + "temp_out_" + str(i) + "_" + str(j)
+			body_str1 += ", 0, " + "out_size_" + str(i) + "_" + str(j) + PARAMETER_END + EOS + EOL
+
+	#body_str1 += prefix + "memset(temp_out_1, 0, out_1_size);" + EOL
+	#body_str1 += prefix + "memset(temp_out_2, 0, out_2_size);" + EOL
 	body_str1 += PREP_ENDIF + EOL*2
 
 	body_str1 += prefix + comm_json[0] + EOL
@@ -228,11 +258,17 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["in_data_3D[i][j][k] = in_data_3D[i][j][k] * 255 - channel_mean[i];"], 
 			     3, 1)], 2, 1)], 1, 1)
 		body_str1 += prefix + out_json[10] + EOL
+
+		for_str = ""
+		for l in range(1,port_num + 1):
+			for_str += "if(i+" + str(l-1) + "<3){" + EOL +prefix*5
+			for_str += "temp_out_0_" + str(l) + "[in_data_size]" + EQUAL + "(data_type)in_data_3D" + ARRAY_BEGIN + "i+" + str(l-1) + ARRAY_END + "[j][k];" + EOL +prefix*4 + BODY_END
+
 		body_str1 += prefix + out_json[11] + EOL + prefix + out_json[11] + EOL +\
 			     prefix + "int in_data_size=0;" + EOL +\
 			     prefix + helping_functions.generate_for_loop("i", "int", 0, 3, [helping_functions.generate_for_loop("j", "int", 0, "crop_h", 
-			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", ["temp_out_2[in_data_size] = (data_type)in_data_3D[i][j][k];",
-			     "in_data_size++;"], 3, 1)], 2, 1)], 1, 1) 
+			     [helping_functions.generate_for_loop("k", "int", 0, "crop_w", [for_str,
+			     "in_data_size++;"], 3, 1)], 2, 1)], 1, port_num) 
 		body_str1 += prefix + out_json[12] + EOL*2
 		body_str1 += PREP_ENDIF + EOL*2
 	else:
@@ -275,8 +311,14 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		     prefix + "in_data_mem_port, " + EOL + PREP_ENDIF + EOL + prefix + comm_json[7] +\
 		     EOL + prefix + "conv_weight_mem_port," + EOL + prefix + "conv_bias_mem_port," +\
     		     EOL + prefix + "fc_weight_mem_port," + EOL + prefix + "fc_bias_mem_port," +\
-		     EOL + KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," +\
-		     EOL + prefix + "temp_out_1," + EOL + prefix + "temp_out_2);" + EOL*2
+		     EOL + KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," + EOL
+
+	for i in range(0,2):
+		for j in range(1,port_num + 1):
+			if i == 1 and j == port_num:
+				body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + ");" + EOL*2
+			else:
+				body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + "," + EOL
 
 	body_str1 += prefix + "finish = clock();" + EOL + prefix +\
   		     "totaltime = (double)(finish - start) / CLOCKS_PER_SEC;" +\
@@ -330,3 +372,4 @@ def generate_weights_biases(length, s, arr1, arr2, prefix=SEPARATER):
 
 if __name__ == "__main__":
     generate()
+    

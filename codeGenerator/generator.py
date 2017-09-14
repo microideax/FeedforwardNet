@@ -2,6 +2,8 @@ import json
 import sys
 import helping_functions
 import math
+import generator_ff_test
+import re
 
 architecture_list = ["import", "head", "body"]
 EOL = "\n"
@@ -23,7 +25,8 @@ FOR = "for"
 EQUAL = " = "
 INCREMENT = "++"
 LESS = " < "
-
+para = open("parameter3.json", "r")
+port_num = int(json.load(para))
 
 def generate(generated_file_name="construct_net.h"):
     paraJS = open("parameter.json", "r")
@@ -100,10 +103,19 @@ def generate_body(arr2, prefix=SEPARATER):
     denominator = "denominator"
     gamma = "gamma"
     scale_beta = "beta"
-    out_data1 = "output_temp_1"
-    out_data2 = "output_temp_2"
-    in_data = out_data2
-    out_data = out_data1
+
+    out_data1 = ""
+    out_data2 = ""
+    for j in range(1,port_num + 1):
+        if j == port_num:
+            out_data1 += SPACE + "temp_out_0" + "_" + str(j)
+            out_data2 += SPACE + "temp_out_1" + "_" + str(j)
+        else:
+            out_data1 += SPACE + "temp_out_0" + "_" + str(j) + COMMA
+            out_data2 += SPACE + "temp_out_1" + "_" + str(j) + COMMA
+    in_data = out_data1
+    out_data = out_data2
+    
     alpha = "nn_alpha_lrn"
     beta = "nn_beta_lrn"
     act_type = "activation_type"
@@ -159,9 +171,9 @@ def generate_body(arr2, prefix=SEPARATER):
                 out_n = int(math.ceil(int(nn_out_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
                 function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
                     str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
-                    act, in_data, w_port, b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
-                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + out_data, shift_w + "_conv" + str(cc) + "_" + str(k+1),\
-                    shift_b + "_conv" + str(cc) + "_" + str(k+1), in_shift, out_shift])
+                    act, w_port, b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
+                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + shift_w + "_conv" + str(cc) + "_" + str(k+1),\
+                    shift_b + "_conv" + str(cc) + "_" + str(k+1), in_shift, out_shift, in_data, out_data])
 
                 if k + 1 == int(nn_group_conv_values[conv_counter]):
                     if k > 0:
@@ -250,8 +262,8 @@ def generate_body(arr2, prefix=SEPARATER):
             function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
                 nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
                 nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
-                act, in_data, fc_w_port, fc_b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
-                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + out_data, shift_w + "_fc" + str(fc_counter + 1), shift_b + "_fc" + str(fc_counter + 1), "0", "0"])
+                act, fc_w_port, fc_b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
+                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + shift_w + "_fc" + str(fc_counter + 1), shift_b + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
 
             fc_counter = fc_counter + 1  	
 
@@ -264,12 +276,21 @@ def generate_body(arr2, prefix=SEPARATER):
                 in_data = out_data2
                 out_data = out_data1
 
-            function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", prms[prms_str.index("maximum")] , out_data + "[addr] = data_type_o(0);") + EOL
+            in_out_reset_list = re.split('[,]', out_data)
+            in_out_reset_loop = ""
+            for x in range(0,port_num):
+                in_out_reset_loop += in_out_reset_list[x] + "[addr] = data_type_o(0);"
+
+            function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
             clean_count = clean_count + 1
 
         if l.lower() == "innerproduct" and b == False:
-            function_calls += prefix + helping_functions.generate_for_loop("i", "int", "0", nn_out_number_fc_values[len(nn_out_number_fc_values)-1], 
-                    ["fc_" + n + "_out_a[i] = " + out_data + "[i];"], 1, 1)
+            in_out_reset_list = re.split('[,]', out_data)
+            in_out_reset_loop = ""
+            for x in range(0,port_num):
+                in_out_reset_loop += "fc_" + n + "_out_a[i+" + str(x) + "] =" + in_out_reset_list[x] + "[i/" + str(port_num) + "];" +EOL + SEPARATER*2
+            function_calls += prefix + helping_functions.generate_for_loop("i", "int", "0", str(int(nn_out_number_fc_values[len(nn_out_number_fc_values)-1])), 
+                    [in_out_reset_loop], 1, port_num)
 
     counters = [conv_counter, pool_counter, lrn_counter, fc_counter]
     
@@ -365,15 +386,24 @@ def generate_header(head_json, arr):
             head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
         elif s["pName"] == "activation_type":
             head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + COMMA + EOL
-        elif s["pName"] == "output_temp_1" or s["pName"] == "output_temp_2":
-            head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + ARRAY_BEGIN + prms[prms_str.index("maximum")] + ARRAY_END + COMMA + EOL
+        #elif s["pName"] == "output_temp_1" or s["pName"] == "output_temp_2":
+        #    head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + ARRAY_BEGIN + prms[prms_str.index("maximum")] + ARRAY_END + COMMA + EOL
         elif s["pName"] == "#if _BATCH_NORM_" or s["pName"] == "#endif" or s["pName"] == "#if _SCALE_":
             head_str += s["pName"] + EOL
         else:
             head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
 
+    for i in range(0,2):
+        for j in range(1,port_num + 1):
+            if i == 1 and j == port_num:
+                head_str += SEPARATER + "data_type_o " + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                    str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + PARAMETER_END + COMMA + EOL
+            else:
+                head_str += SEPARATER + "data_type_o " + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                    str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + COMMA + EOL
+
     head_str = head_str[0:-2]
-    head_str += PARAMETER_END + SEPARATER + BODY_BEGIN
+    head_str += BODY_BEGIN
     return head_str
 
 
