@@ -1,5 +1,14 @@
 <span style="display: inline-block;">
 
+# Table of Contents
+1. [caffe converter](#caffeconverter)
+2. [codeGenerator](#codegenerator)
+3. [example](#exampledesigns)
+4. [fpga\_cnn](#fpgacnn)
+5. [scripts](#scripts)
+6. [stb\_image](#stbimage)
+7. [README.md](#readme)
+
 # FeedforwardNet
 
 FeedforwardNet is a toolkit that simplifies the development and deployment of deep learning systems 
@@ -12,15 +21,29 @@ converter and network construction flow.
 This version of code is still under active development.
 Future version of well integrated toolkit with a web based GUI will be released soon.
 
+<a name="caffeconverter"></a>
+# caffe_converter
+This tool is used to converte caffemodel file to weight, mean and val data files.
 
-# File structure
+<a name="codegenerator"></a>
+# codeGenerator
+This is the automated tool that generates the targeted network model.
 
-Feedforward
-*caffe_converter ---caffemodel to weight, mean and val data converter.
-*example   // folder contains demoe example designs and original CAFFE demos.
-*fpga\_cnn  // main folder contains the cnn layer designs and CAFFE converter.
-*stb_image // stb based image processing lib.
-*README.md // This README file.
+<a name="exampledesigns"></a>
+# example   
+This folder contains demoe example designs and original CAFFE demos.
+
+<a name="fpgacnn"></a>
+# fpga\_cnn  
+This is the main folder contains the cnn layer designs and CAFFE converter.
+
+<a name="stb\_image"></a>
+# stb\_image 
+stb based image processing lib.
+
+<a name="readme"></a>
+# README.md 
+This README file.
 
 
 # Status
