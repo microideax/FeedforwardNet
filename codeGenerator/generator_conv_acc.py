@@ -162,14 +162,15 @@ def generate(generated_file_name="conv_acc_innerdf_1.h"):
 	str1 += "#endif" + EOL
 	str1 += "                        if (act) {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                        	if (i + " + str(j-1) + " < M)" + EOL
+		str1 += "                        	if (i + " + str(j-1) + " <M)" + EOL
 		str1 += "                            	*(out_data_" + str(j) + " + out_offset + (i/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = relu(out_buf[i + " +\
 			str(j-1) + " - m][j - r][k - c]);" + EOL
 
 	str1 += "                        }" + EOL
 	str1 += "                        else {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                            *(out_data_" + str(j) + " + out_offset + (i/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = out_buf[i + " +\
+		str1 += "                        	if (i + " + str(j-1) + " <M)" + EOL
+		str1 += "                            	*(out_data_" + str(j) + " + out_offset + (i/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = out_buf[i + " +\
 			str(j-1) + " - m][j - r][k - c];" + EOL
 
 	str1 += "                        }" + EOL

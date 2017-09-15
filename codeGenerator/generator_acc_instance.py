@@ -77,7 +77,7 @@ def generate(generated_file_name="acc_instance.h"):
 		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool"]]
 	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "*scale_gamma", "*scale_beta", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
 		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "act"]]
-	acc_params = [["16", "16", "13", "13"], ["16", "16", "16"], ["16", "16", "16"]]
+	acc_params = [["16", "16", "16", "16"], ["16", "16", "16"], ["16", "16", "16"]]
 	init_nm = ["conv_acc", "max_pool_acc", "ave_pool_acc"]
 	prm = "data_type, data_type_w, data_type_o"
 	init_names = ["convAcc1", "maxPoolAcc1", "avePoolAcc1"]

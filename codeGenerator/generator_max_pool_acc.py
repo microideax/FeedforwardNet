@@ -99,13 +99,15 @@ def generate(generated_file_name="max_pool_acc_innerdf.h"):
 	str1 += "                        if (C < c + Tc && k == C) { break; }" + EOL
 	str1 += "                        if (act) {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                            *(out_data_" + str(j) + " + (i/" + str(port_num) + ") * R * C + j * C + k) = relu(out_buf[i + " +\
+		str1 += "                        	if (i + " + str(j-1) + " <N)" + EOL
+		str1 += "                            	*(out_data_" + str(j) + " + (i/" + str(port_num) + ") * R * C + j * C + k) = relu(out_buf[i + " +\
 			str(j-1) + " - n][j - r][k - c]);" + EOL
 
 	str1 += "                        }" + EOL
 	str1 += "                        else {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                            *(out_data_" + str(j) + "+ (i/" + str(port_num) + ") * R * C + j * C + k) = out_buf[i + " +\
+		str1 += "                        	if (i + " + str(j-1) + " <N)" + EOL
+		str1 += "                            	*(out_data_" + str(j) + "+ (i/" + str(port_num) + ") * R * C + j * C + k) = out_buf[i + " +\
 			str(j-1) + " - n][j - r][k - c];" + EOL
 
 	str1 += "                        }" + EOL

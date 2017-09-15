@@ -126,12 +126,17 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		#json.dump(BODY_BEGIN + EOL + "\"port_num\":\""+str(port_num)+"\"" + EOL + BODY_END,f)
 		json.dump(str(port_num),f)
 
+	maximum = ""
+	if int(arrr[1])*int(arrr[1]) > int(math.ceil(float(arr1[arr1_str.index("maximum")])/port_num)):
+		maximum = int(arrr[1])*int(arrr[1])
+	else:
+		maximum = int(math.ceil(float(arr1[arr1_str.index("maximum")])/port_num))
 	for i in range(0,2):
 		for j in range(1,port_num + 1):
 			body_str += prefix + "unsigned int" + SPACE
 			body_str += "out_size_" + str(i) + "_" + str(j)
 			body_str += EQUAL + PARAMETER_BEGIN 
-			body_str += str(int(math.ceil(float(arr1[arr1_str.index("maximum")])/port_num)))
+			body_str += str(maximum)
 			body_str += PARAMETER_END + MULT + sz +\
 						PARAMETER_BEGIN + "data_type_o" + PARAMETER_END +\
 						EOS + EOL		

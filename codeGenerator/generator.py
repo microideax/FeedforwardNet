@@ -177,8 +177,8 @@ def generate_body(arr2, prefix=SEPARATER):
 
                 if k + 1 == int(nn_group_conv_values[conv_counter]):
                     if k > 0:
-                        in_sh = str(int(nn_in_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])) + "*" + str(last1) + "*" + str(last1)
-                        out_sh = str(int(nn_out_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])) + "*" + str(last1) + "*" + str(last1)
+                        in_sh = str(int(nn_in_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])) + "/" + str(port_num) + "*" + str(last1) + "*" + str(last1)
+                        out_sh = str(int(nn_out_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])) + "/" + str(port_num) + "*" + str(last1) + "*" + str(last1)
                         shifts += prefix + "int " + in_shift + EQUAL + in_sh + EOS + EOL
                         shifts += prefix + "int " + out_shift + EQUAL + out_sh + EOS + EOL
 
