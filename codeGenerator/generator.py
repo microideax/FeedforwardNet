@@ -133,7 +133,7 @@ def generate_body(arr2, prefix=SEPARATER):
     cw = ""
     cb = ""
     cc = 1
-    clean_count = 1
+    #clean_count = 1
     act = ""
 
     '''choose layer object&layer type'''
@@ -281,8 +281,8 @@ def generate_body(arr2, prefix=SEPARATER):
             for x in range(0,port_num):
                 in_out_reset_loop += in_out_reset_list[x] + "[addr] = data_type_o(0);"
 
-            function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
-            clean_count = clean_count + 1
+            #function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
+            #clean_count = clean_count + 1
 
         if l.lower() == "innerproduct" and b == False:
             in_out_reset_list = re.split('[,]', out_data)
@@ -319,7 +319,12 @@ def generate_body(arr2, prefix=SEPARATER):
             int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
     b_fc_last = fc_bias + int(nn_out_number_fc_values[fc_counter-1])
     
-    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, nn_out_number_fc_values[len(nn_out_number_fc_values)-1], prms[prms_str.index("maximum")], prms[prms_str.index("maximum")], prms[prms_str.index("n")]]
+    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, nn_out_number_fc_values[len(nn_out_number_fc_values)-1]]
+    for i in range(0,2):
+        for j in range(1,port_num + 1):
+            w_b_arr.append(str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))))
+
+    w_b_arr.append(prms[prms_str.index("n")])
     return body_str, counters, acc_str, w_b_arr
 
 '''new other kind of layer object'''
@@ -396,10 +401,10 @@ def generate_header(head_json, arr):
     for i in range(0,2):
         for j in range(1,port_num + 1):
             if i == 1 and j == port_num:
-                head_str += SEPARATER + "data_type_o " + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
                     str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + PARAMETER_END + COMMA + EOL
             else:
-                head_str += SEPARATER + "data_type_o " + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
                     str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + COMMA + EOL
 
     head_str = head_str[0:-2]
@@ -441,7 +446,11 @@ def generate_pragma(wb_arr):
     pr2 = "#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS"
     pr3 = "#pragma HLS INTERFACE m_axi depth="
     pr4 = " port="
-    arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a", "output_temp_1", "output_temp_2"]
+    arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a"]
+    for i in range(0,2):
+        for j in range(1,port_num + 1):
+            arr.append("temp_out_" + str(i) + "_" + str(j))
+
     pragma_str = EOL*2
     pragma_str += hls_deb + EOL + pr1 + EOL + pr2 + EOL
     pragma_str += pr3 + str(50) + pr4 + "in_data_3D" + EOL
