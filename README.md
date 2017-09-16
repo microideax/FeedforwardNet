@@ -7,7 +7,6 @@
 4. [fpga\_cnn](#fpgacnn)
 5. [scripts](#scripts)
 6. [stb\_image](#stbimage)
-7. [README.md](#readme)
 
 # FeedforwardNet
 
@@ -43,19 +42,14 @@ This folder contains all necessary scripts used for accelerator configuration an
 
 <a name="stb\_image"></a>
 # stb\_image 
-stb based image processing lib.
+stb image processing lib that provides none pre-installation for image processiong.
 
 <a name="readme"></a>
 # README.md 
 This README file.
 
 
-# Status
-FeedforwardNet is under active development and is currently un-finished.
-
-
 # Help and Support
-
 If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
 
 
@@ -65,11 +59,13 @@ If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
 - cd to caffe_converter.
 - run ./run.sh to compile the converter codes.
 - use ./caffe_converter targeted.prototxt targeted.caffemodel [targeted.binarymodel] to convert the input caffemodel.
+The detailed explanation and instructions are located in [caffe_converter](./caffe_converter).
 
 2. generate the targeted network with the net_config_params.txt from caffe_converter:
 - navigate to codeGenerator folder.
 - cp ../caffe_converter/net_config_params.txt ./
 - run ./run_generator.sh and follow the instruction with correct paths,file names and data types.
+The detailed explanation and instructions are located in [codeGenerator](./codeGenerator).
 
 3. test the generated network in C++:
 - navigate to FeedforwardNet/example/, the newly generated network is located here in test_demo/.
