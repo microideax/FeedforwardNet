@@ -44,10 +44,6 @@ This folder contains all necessary scripts used for accelerator configuration an
 # stb\_image 
 stb image processing lib that provides none pre-installation for image processiong.
 
-<a name="readme"></a>
-# README.md 
-This README file.
-
 
 # Getting Started
 
