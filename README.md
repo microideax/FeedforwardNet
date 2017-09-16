@@ -1,14 +1,6 @@
 <span style="display: inline-block;">
 
 # Table of Contents
-1. [caffe converter](#caffeconverter)
-2. [codeGenerator](#codegenerator)
-3. [example](#exampledesigns)
-4. [fpga\_cnn](#fpgacnn)
-5. [scripts](#scripts)
-6. [stb\_image](#stbimage)
-
-# FeedforwardNet
 
 FeedforwardNet is a toolkit that simplifies the development and deployment of deep learning systems 
 for FPGA based devices, either embedded or resource rich. 
@@ -19,6 +11,14 @@ This toolkit contains a bottom up designed inference network library together wi
 converter and network construction flow.
 This version of code is still under active development.
 Future version of well integrated toolkit with a web based GUI will be released soon.
+
+1. [caffe converter](#caffeconverter)
+2. [codeGenerator](#codegenerator)
+3. [example](#exampledesigns)
+4. [fpga\_cnn](#fpgacnn)
+5. [scripts](#scripts)
+6. [stb\_image](#stbimage)
+
 
 <a name="caffeconverter"></a>
 # caffe_converter
@@ -49,10 +49,6 @@ stb image processing lib that provides none pre-installation for image processio
 This README file.
 
 
-# Help and Support
-If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
-
-
 # Getting Started
 
 1. compile caffe\_converver and convert the caffemodel file:
@@ -76,6 +72,10 @@ The detailed explanation and instructions are located in [codeGenerator](./codeG
 - uncomment _HLS_MODE_ in config.h located in inference_net/.
 - navigate into hls_impl/ folder.
 - run ./syn.sh to start synthesis and generate the inference_net IP.
+
+
+# Help and Support
+If you have any suggestions and questions, please contact yao.chen@adsc.com.sg.
 
 
 # Bibtex:
