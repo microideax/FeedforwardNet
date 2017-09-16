@@ -50,12 +50,16 @@ void load(const caffe::LayerParameter& src,int num_input,int num_output,int kern
     }
     out<<""<<endl;
     //cout<<"bias:"<<endl;
-    out<<"bias: "<<endl;
-    //load bias
-    for (int o = 0; o < num_output; o++) {
-     out<<src.blobs(1).data(o)<<" ";
-    }
-    out<<""<<endl;
+        if(src.convolution_param().bias_term()==false){
+            
+        }else{
+            out<<"bias: "<<endl;
+            //load bias
+            for (int o = 0; o < num_output; o++) {
+                out<<src.blobs(1).data(o)<<" ";
+            }
+            out<<""<<endl;
+        }
     out.close();
     //cout<<endl;
 }
@@ -119,6 +123,50 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
             //num_output=input_param.crop_size();
             //cout << "num_input_2: " << num_input<<endl;
             //cout << "shape: " << input_param.crop_size()<<endl;
+        }else if(src_net[i].type()=="BatchNorm"){
+            BatchNormParameter param = src_net[i].batch_norm_param();
+            float eps = param.eps();
+            //float mean = param.mean();
+            ofstream out;
+            //out.open("batch_norm_eps.txt",ios::app);
+            //out<<eps<<endl;
+            //out<<endl;
+            //out.close();
+            out.open("batch_norm_mean.txt",ios::app);
+            for(int j=0;j<num_input;j++){
+                out<<src_net[i].blobs(0).data(j) / src_net[i].blobs(2).data(0)<<" ";
+            }
+            out<<endl;
+            out<<endl;
+            out.close();
+            out.open("batch_norm_denominator.txt",ios::app);
+            for(int j=0;j<num_input;j++){
+                out<<1/pow(src_net[i].blobs(1).data(j) / src_net[i].blobs(2).data(0) + eps, 0.5)<<" ";
+            }
+            out<<endl;
+            out<<endl;
+            out.close();
+        }else if(src_net[i].type()=="Scale"){
+            ScaleParameter param = src_net[i].scale_param();
+            ofstream out;
+            out.open("scale_batch_size.txt",ios::app);
+            out<<param.axis()<<endl;
+            out<<endl;
+            out.close();
+            out.open("scale_gamma.txt",ios::app);
+            for(int j=0;j<num_input;j++){
+                out<<src_net[i].blobs(0).data(j)<<" ";
+            }
+            out<<endl;
+            out<<endl;
+            out.close();
+            out.open("scale_beta.txt",ios::app);
+            for(int j=0;j<num_input;j++){
+                out<<src_net[i].blobs(1).data(j)<<" ";
+            }
+            out<<endl;
+            out<<endl;
+            out.close();
         }
 
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"){
@@ -329,12 +377,13 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     
 void create_net_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
 {
+        caffe_layer_vector src_net(layer);
         if (layer.input_shape_size() > 0) {
             // input_shape is deprecated in Caffe
             // blob dimensions are ordered by number N x channel K x height H x width W
-            int depth  = static_cast<int>(layer.input_shape(0).dim(1));
-            int height = static_cast<int>(layer.input_shape(0).dim(2));
-            int width  = static_cast<int>(layer.input_shape(0).dim(3));
+            input_param[0]  = static_cast<int>(layer.input_shape(0).dim(1));
+            input_param[1] = static_cast<int>(layer.input_shape(0).dim(2));
+            //int width  = static_cast<int>(layer.input_shape(0).dim(3));
             //cout<<"depth:********************"<<depth<<endl;
         }else if (layer.layer(0).has_input_param()) {
             // blob dimensions are ordered by number N x channel K x height H x width W
