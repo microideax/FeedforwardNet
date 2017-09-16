@@ -277,21 +277,20 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		body_str1 += prefix + out_json[12] + EOL*2
 		body_str1 += PREP_ENDIF + EOL*2
 	else:
-		body_str1 += KERNEL + EOL + prefix + "data_type in_data_3D[" +\
-			     indata_mem[1] + "*" + indata_mem[2] +"]" + "= { 0 };" + EOL 
-		body_str1 += HLS + EOL + "ifstream ifs2(\"" + sys.argv[2] + "\");" + EOL + PREP_ELSE + EOL
-		body_str1 += prefix + "ifstream ifs2(\"./net_inputs/test_imgs/" + sys.argv[2] + "\");" + EOL + PREP_ENDIF + EOL 
-		body_str1 += prefix + "string str2;" + EOL + prefix + "int count = 0;" + EOL
- 		body_str1 += prefix + helping_functions.generate_while("ifs2 >> str2", ["float f = atof(str2.c_str());",
-		"in_data_3D[count] = (data_type)f;"
-		"count++;"], 1)
+		body_str1 += KERNEL + EOL + HLS + EOL
+		body_str1 += prefix + "string image_dir = \"" + sys.argv[2] + "\";" + EOL + PREP_ELSE + EOL
+		body_str1 += prefix + "string image_dir = \"./net_inputs/test_imgs/" + sys.argv[2] + "\"" + EOS + EOL + PREP_ENDIF + EOL
+		body_str1 += prefix + "int w;" + EOL + prefix + "int h;" + EOL + prefix + "int channels;" + EOL + prefix + "int size;" + EOL + prefix +\
+			     "const unsigned char * data = loadfile(image_dir, size);" + EOL +\
+			     prefix + "const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 1);" +\
+			     EOL 
 		body_str1 += prefix + "int in_data_size=0;" + EOL
 		body_str1 += prefix + "ofstream indata;" + EOL + prefix + "indata.open(\"in_data.txt\", ios::app);"+ EOL
-		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << in_data_3D[i *" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << image_orig[i *" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
 		body_str1 += prefix + "indata.close();" + EOL*2
 
 		body_str1 += prefix + "cout << \"Writing data to input data memory space ... ... ...\" << endl;" + EOL
-		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["temp_out_2[in_data_size] = (data_type)in_data_3D[i*" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k];", "in_data_size++;"], 3, 1)], 2, 1)], 1, 1)
+		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["temp_out_0_1[in_data_size] = (data_type)image_orig[i*" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k];", "in_data_size++;"], 3, 1)], 2, 1)], 1, 1)
 		body_str1 += prefix + "cout << \"Finished writing data to input data memory space ... ...\" << endl;" + EOL + PREP_ENDIF + EOL
 
 	body_str1 += prefix + "char tan_h = 't';" + EOL +\
