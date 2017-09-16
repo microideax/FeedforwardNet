@@ -224,7 +224,7 @@ def generate(generated_file_name="conv_acc_innerdf_1.h"):
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=2" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=b_buf_1 complete dim=1" + EOL
-	str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf_1 complete dim=1" + EOL
 	str1 += "#endif" + EOL + EOL
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
