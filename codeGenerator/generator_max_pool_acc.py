@@ -67,14 +67,11 @@ def generate(generated_file_name="max_pool_acc_innerdf.h"):
 	str1 += "    void pool_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R, int C, int TR, int TC){" + EOL
 	str1 += "        for(int i=0; i<K; i++){" + EOL
 	str1 += "            for(int j=0; j<K; j++){" + EOL
-	str1 += "                for(int tr=0; tr<Tr&&tr+r<R; tr++){" + EOL
-	str1 += "                    for(int tc=0; tc<Tc&&tc+c<C; tc++){" + EOL
+	str1 += "                for(int tr=0; tr<Tr&&tr+r<R&&(S * tr + i)<TR; tr++){" + EOL
+	str1 += "                    for(int tc=0; tc<Tc&&tc+c<C&&(S * tc + j)<TC; tc++){" + EOL
 	str1 += "#pragma HLS PIPELINE" + EOL
 	str1 += "                            for(int tn=0; tn<Tn; tn++){" + EOL
 	str1 += "#pragma HLS UNROLL" + EOL
-	str1 += "                            if((S * (tr) + i)>=TR||(S * (tc) + j)>=TC){" + EOL
-	str1 += "                                break;" + EOL
-	str1 += "                        	}" + EOL
 	str1 += "                                if(i==0&&j==0)" + EOL
 	str1 += "                                    out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];" + EOL
 	str1 += "                                else" + EOL
