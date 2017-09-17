@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#TODO: need to export a path for the script to find the files
 mkdir -p ../example/test_demo
 mkdir -p ../example/test_demo/hls_impl
 mkdir -p ../example/test_demo/inference_net
