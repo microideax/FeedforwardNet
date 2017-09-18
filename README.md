@@ -56,7 +56,7 @@ The detailed explanation and instructions are located in [caffe_converter](./caf
 2. generate the targeted network with the net_config_params.txt from caffe_converter:
 - navigate to codeGenerator folder.
 - cp ../caffe_converter/net_config_params.txt ./
-- run ./run_generator.sh and follow the instruction with correct paths,file names and data types.
+- run ./run_generator.sh and follow the instruction with correct paths,file names and data types. Make sure the test_demo folder in example/ is deleted before starting this step.
 The detailed explanation and instructions are located in [codeGenerator](./codeGenerator).
 
 3. test the generated network in C++:
