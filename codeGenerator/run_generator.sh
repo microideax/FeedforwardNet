@@ -1,5 +1,5 @@
 #!/bin/bash
-#TODO: need to export a path for the script to find the files
+
 mkdir -p ../example/test_demo
 mkdir -p ../example/test_demo/hls_impl
 mkdir -p ../example/test_demo/inference_net
@@ -20,12 +20,12 @@ copy_file(){
 	fi
 }
 
-printf "Please make sure the net_weights.txt and net_config_params.txt have already generated in caffe_converter folder\n\n"
+printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_params.txt have already generated in caffe_converter folder!\n\n"
 
 read -p "Please enter test image path: "  test_img_folder
 read -p "Please enter test image name: "  test_img_name
 
-read -p "Please enter the path to val.txt: "  val_path
+#read -p "Please enter the path to val.txt: "  val_path
 
 prm_file_name="net_config_params.txt"
 
@@ -65,7 +65,7 @@ copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/tes
 copy_file "../caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
 copy_file "../caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
 
-copy_file "$val_path" "../example/test_demo/net_inputs/val.txt" 1
+copy_file "./val.txt" "../example/test_demo/net_inputs/val.txt" 1
 
 copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1
@@ -83,9 +83,12 @@ copy_file "../fpga_cnn/resize_image.h" "../example/test_demo/inference_net/" 1
 
 
 python generator_config.py $prm_file_name
-python generator_ff_test.py $prm_file_name $test_img_name
+printf "\nPlease make sure the M and N can be divided by the Tm and Tn,respectively!\n\n"
 python generator_acc_instance.py $prm_file_name
+python generator_ff_test.py $prm_file_name $test_img_name
 python generator.py $prm_file_name 
 python generator_conv_acc.py $prm_file_name 
 python generator_max_pool_acc.py $prm_file_name 
 python generator_ave_pool_acc.py $prm_file_name 
+
+printf "You've generated the network successfully!\n\n"

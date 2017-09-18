@@ -77,7 +77,25 @@ def generate(generated_file_name="acc_instance.h"):
 		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool"]]
 	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "*scale_gamma", "*scale_beta", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
 		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "act"]]
-	acc_params = [["16", "16", "16", "16"], ["16", "16", "16"], ["16", "16", "16"]]
+	acc_params = [[], [], []]
+	Tm_1 = helping_functions.prompt("Please enter the Tm of conv_acc: ")
+	acc_params[0].append(Tm_1)
+	Tn_1 = helping_functions.prompt("Please enter the Tn of conv_acc: ")
+	acc_params[0].append(Tn_1)
+	Tr_1 = helping_functions.prompt("Please enter the Tr of conv_acc: ")
+	acc_params[0].append(Tr_1)
+	Tc_1 = helping_functions.prompt("Please enter the Tc of conv_acc: ")
+	acc_params[0].append(Tc_1)
+	Tn_2 = helping_functions.prompt("\nPlease enter the Tn of pool_acc: ")
+	acc_params[1].append(Tn_2)
+	acc_params[2].append(Tn_2)
+	Tr_2 = helping_functions.prompt("Please enter the Tr of pool_acc: ")
+	acc_params[1].append(Tr_2)
+	acc_params[2].append(Tr_2)
+	Tc_2 = helping_functions.prompt("Please enter the Tc of pool_acc: ")
+	acc_params[1].append(Tc_2)
+	acc_params[2].append(Tc_2)
+
 	init_nm = ["conv_acc", "max_pool_acc", "ave_pool_acc"]
 	prm = "data_type, data_type_w, data_type_o"
 	init_names = ["convAcc1", "maxPoolAcc1", "avePoolAcc1"]

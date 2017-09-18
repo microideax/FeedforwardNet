@@ -81,7 +81,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	
 	col_gray = ""
 	while (col_gray != "color" and col_gray != "grayscale"):
-        	col_gray = raw_input("Please enter color specification input (color, grayscale): ")
+        	col_gray = raw_input("\nPlease enter color specification input (color, grayscale): ")
 		if col_gray == "color":
 			chn = 3
 		elif col_gray == "grayscale":
@@ -121,7 +121,8 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 				PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
 				EOS + EOL
 
-	port_num = int(helping_functions.prompt("Please enter the number of ports: "))
+	print "\nPlease make sure the Tm and Tn can be divided by the number of ports!"
+	port_num = int(helping_functions.prompt("\nPlease enter the number of ports: "))
 	with open("parameter3.json","w") as f:
 		#json.dump(BODY_BEGIN + EOL + "\"port_num\":\""+str(port_num)+"\"" + EOL + BODY_END,f)
 		json.dump(str(port_num),f)

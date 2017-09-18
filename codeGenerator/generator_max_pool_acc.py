@@ -70,13 +70,10 @@ def generate(generated_file_name="max_pool_acc_innerdf.h"):
 	str1 += "                for(int tr=0; tr<Tr&&tr+r<R&&(S * tr + i)<TR; tr++){" + EOL
 	str1 += "                    for(int tc=0; tc<Tc&&tc+c<C&&(S * tc + j)<TC; tc++){" + EOL
 	str1 += "#pragma HLS PIPELINE" + EOL
-	str1 += "                            for(int tn=0; tn<Tn; tn++){" + EOL
+	str1 += "                        for(int tn=0; tn<Tn; tn++){" + EOL
 	str1 += "#pragma HLS UNROLL" + EOL
-	str1 += "                                if(i==0&&j==0)" + EOL
-	str1 += "                                    out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];" + EOL
-	str1 += "                                else" + EOL
-	str1 += "                                    out_buf[tn][tr][tc] = (out_buf[tn][tr][tc] > in_buf[tn][S * (tr) + i][S * (tc) + j]) ? out_buf[tn][tr][tc] : in_buf[tn][S * (tr) + i][S * (tc) + j];" + EOL
-	str1 += "                            }" + EOL
+	str1 += "                            out_buf[tn][tr][tc] = (i==0&&j==0)?in_buf[tn][S*tr][S*tc]:((out_buf[tn][tr][tc]>in_buf[tn][S*tr+i][S*tc+j])?out_buf[tn][tr][tc]:in_buf[tn][S*tr+i][S*tc+j]);" + EOL
+	str1 += "                        }" + EOL
 	str1 += "                    }" + EOL
 	str1 += "                }" + EOL
 	str1 += "            }" + EOL
