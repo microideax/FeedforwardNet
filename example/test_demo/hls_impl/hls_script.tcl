@@ -49,7 +49,7 @@ create_clock -period 10 -name default
 
 csynth_design
 
-#export_design -flow syn -rtl verilog -format ip_catalog
+export_design -flow syn -rtl verilog -format ip_catalog
 
 #cosim_design -argv {net_weights.txt, ILSVRC2012_val_00000001.JPEG, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 

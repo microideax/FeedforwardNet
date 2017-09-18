@@ -12,37 +12,12 @@ converter and network construction flow.
 This version of code is still under active development.
 Future version of well integrated toolkit with a web based GUI will be released soon.
 
-1. [caffe converter](#caffeconverter)
-2. [codeGenerator](#codegenerator)
-3. [example](#exampledesigns)
-4. [fpga\_cnn](#fpgacnn)
-5. [scripts](#scripts)
-6. [stb\_image](#stbimage)
-
-
-<a name="caffeconverter"></a>
-# caffe_converter
-This tool is used to converte caffemodel file to weight, mean and val data files.
-
-<a name="codegenerator"></a>
-# codeGenerator
-This is the automated tool that generates the targeted network model.
-
-<a name="exampledesigns"></a>
-# example   
-This folder contains demoe example designs and original CAFFE demos.
-
-<a name="fpgacnn"></a>
-# fpga\_cnn  
-This is the main folder contains the cnn layer accelerators.
-
-<a name="scripts"></a>
-# scripts
-This folder contains all necessary scripts used for accelerator configuration and network generation.
-
-<a name="stb\_image"></a>
-# stb\_image 
-stb image processing lib that provides none pre-installation for image processiong.
+1. [caffe converter](#caffeconverter) -- converting caffemodels to weight, mean, val and network parameter files.
+2. [codeGenerator](#codegenerator) -- generating the targeted network model in C++.
+3. [example](#exampledesigns) -- several example caffemodels and generated projects.
+4. [fpga\_cnn](#fpgacnn) -- original accelerator template lib.
+5. [scripts](#scripts) -- scripts used to organize the generation flow.
+6. [stb\_image](#stbimage) -- stb image lib with non-preinstallation required.
 
 
 # Getting Started
