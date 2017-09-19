@@ -26,12 +26,12 @@ add_files -tb ../inference_net/stb_image/stb_image_resize.h
 add_files -tb ../inference_net/stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
-add_files -tb ../net_inputs/test_imgs/50000.png
+add_files -tb ../net_inputs/test_imgs/input_3_28.txt
 add_files -tb ../net_inputs/net_weights.txt
-add_files -tb ../net_inputs/val.txt
-add_files -tb ../net_inputs/net_mean.txt
+#add_files -tb ../net_inputs/val.txt
+#add_files -tb ../net_inputs/net_mean.txt
 
-add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2017.2/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
+add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2017.1/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
 open_solution -reset "inference_IP"

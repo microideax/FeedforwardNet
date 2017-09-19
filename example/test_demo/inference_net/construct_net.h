@@ -81,6 +81,7 @@ void   inference_net(
    gamma, beta, 
 #endif
    shift_weight_conv1_1, shift_bias_conv1_1, 0, 0,  temp_out_0_1, temp_out_0_2, temp_out_0_3, temp_out_0_4,  temp_out_1_1, temp_out_1_2, temp_out_1_3, temp_out_1_4);
+/*
    max_pool_layer_new(32, 32, 32, 3, 16, 16, 2, 0, 1,  temp_out_1_1, temp_out_1_2, temp_out_1_3, temp_out_1_4,  temp_out_0_1, temp_out_0_2, temp_out_0_3, temp_out_0_4);
    conv_layer_new(32, 5, 32, 16, 16, 16, 16, 1, 2, 1, conv_weight_port, conv_bias_port, 
 #if _BATCH_NORM_
@@ -115,7 +116,7 @@ void   inference_net(
       fc_4_out_a[i+3] = temp_out_1_4[i/4];
       
    }
-
+*/
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_

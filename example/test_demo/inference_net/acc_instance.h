@@ -6,7 +6,7 @@
 #include "ave_pool_acc_innerdf.h"
 #include "config.h"
 
-conv_acc<data_type, data_type_w, data_type_o, 64, 8, 16, 16, 4, 5> convAcc1;
+conv_acc<data_type, data_type_w, data_type_o, 16, 8, 28, 28, 4, 5> convAcc1;
 
 void conv_layer_new(
    int N,
@@ -53,7 +53,7 @@ void conv_layer_new(
 
 }
 
-max_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16, 2, 3> maxPoolAcc1;
+max_pool_acc<data_type, data_type_w, data_type_o, 16, 28, 28, 2, 3> maxPoolAcc1;
 
 void max_pool_layer_new(
    int R_in,
@@ -78,7 +78,7 @@ void max_pool_layer_new(
 
 }
 
-ave_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16, 2, 3> avePoolAcc1;
+ave_pool_acc<data_type, data_type_w, data_type_o, 16, 28, 28, 2, 3> avePoolAcc1;
 
 void ave_pool_layer_new(
    int R_in,

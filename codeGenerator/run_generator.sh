@@ -60,12 +60,13 @@ copy_file "../fpga_cnn/image_converter.h" "../example/test_demo/inference_net/" 
 mkdir ../example/test_demo/net_inputs/test_imgs
 copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
 
+copy_file "$test_img_folder/val.txt" "../example/test_demo/net_inputs/" 1
 
 
 copy_file "../caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
 copy_file "../caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
 
-copy_file "./val.txt" "../example/test_demo/net_inputs/val.txt" 1
+#copy_file "./val.txt" "../example/test_demo/net_inputs/val.txt" 1
 
 copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1

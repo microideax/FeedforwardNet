@@ -239,64 +239,41 @@ int main() {
 
    ifs.close();
 
-   //load val image file *****************************
 #if _KERNEL_DEBUG_
+   data_type in_data_3D[28*28]= { 0 };
 #if _HLS_MODE_
-   string image_dir = "50000.png";
+ifstream ifs2("input_3_28.txt");
 #else
-   string image_dir = "./net_inputs/test_imgs/50000.png";
+   ifstream ifs2("./net_inputs/test_imgs/input_3_28.txt");
 #endif
-   float in_data_3D_channel_swap[3][375][500] = { 0 };
-   float in_data_3D[3][32][32] = { 0 };
-   int crop_w = 32;
-   int crop_h = 32;
-   int w;
-   int h;
-   int channels;
-   int size;
-   const unsigned char * data = loadfile(image_dir, size);
-   const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 3);
-   for (int i = 0; i < 3; i++) {
-      for (int j = i; j < w*h*3; j += 3) {
-         in_data_3D_channel_swap[2 - i][j / (w * 3)][(j % (w * 3) - i) / 3] = (float)image_orig[j]; //range:0--255
-      }
-
+   string str2;
+   int count = 0;
+   while (ifs2 >> str2) {
+      float f = atof(str2.c_str());
+      in_data_3D[count] = (data_type)f;count++;
    }
-   for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < h; j++) {
-         for (int k = 0; k < w; k++) {
-            in_data_3D_channel_swap[i][j][k] /= 255;// range:0--1
-         }
 
-      }
-
-   }
-   resize_image(in_data_3D_channel_swap, h, w, in_data_3D);
-   for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < crop_h; j++) {
-         for (int k = 0; k < crop_w; k++) {
-            in_data_3D[i][j][k] = in_data_3D[i][j][k] * 255 - channel_mean[i];
-         }
-
-      }
-
-   }
-   cout << "Writing data to input data memory space ... ... ..." << endl;
-   cout << endl;
-   cout << endl;
    int in_data_size=0;
-   for (int i = 0; i < 3; i += 4) {
-      for (int j = 0; j < crop_h; j++) {
-         for (int k = 0; k < crop_w; k++) {
-            if(i+0<3){
-               temp_out_0_1[in_data_size] = (data_type)in_data_3D[i+0][j][k];
-            }if(i+1<3){
-               temp_out_0_2[in_data_size] = (data_type)in_data_3D[i+1][j][k];
-            }if(i+2<3){
-               temp_out_0_3[in_data_size] = (data_type)in_data_3D[i+2][j][k];
-            }if(i+3<3){
-               temp_out_0_4[in_data_size] = (data_type)in_data_3D[i+3][j][k];
-            }
+   ofstream indata;
+   indata.open("in_data.txt", ios::app);
+   for (int i = 0; i < 1; i++) {
+      for (int j = 0; j < 28; j++) {
+         for (int k = 0; k < 28; k++) {
+            indata << in_data_3D[i *28*28 + 28*j + k] << " ";
+         }
+
+         indata << endl;
+      }
+
+      indata << endl;
+   }
+   indata.close();
+
+   cout << "Writing data to input data memory space ... ... ..." << endl;
+   for (int i = 0; i < 1; i++) {
+      for (int j = 0; j < 28; j++) {
+         for (int k = 0; k < 28; k++) {
+            temp_out_0_1[in_data_size] = (data_type)in_data_3D[i*28*28 + 28*j + k];
             in_data_size++;
          }
 
@@ -304,9 +281,7 @@ int main() {
 
    }
    cout << "Finished writing data to input data memory space ... ..." << endl;
-
 #endif
-
    char tan_h = 't';
    char relu = 'r';
    char none = 'i';

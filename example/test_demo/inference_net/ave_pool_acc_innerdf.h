@@ -75,15 +75,11 @@ public:
                 for(int tr=0; tr<Tr&&tr+r<R&&(S * tr + i)<TR; tr++){
                     for(int tc=0; tc<Tc&&tc+c<C&&(S * tc + j)<TC; tc++){
 #pragma HLS PIPELINE
-                            for(int tn=0; tn<Tn; tn++){
+                        for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-                                if(i==0&&j==0)
-                                    out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];
-                                else
-                                    out_buf[tn][tr][tc] += in_buf[tn][S * (tr) + i][S * (tc) + j];
-                                if(i+1==((S * (tr) + K)>TR?(TR-S * (tr)):K)&&j+1==((S * (tc) + K)>TC?(TC-S * (tc)):K))
-                                    out_buf[tn][tr][tc] = (T)(out_buf[tn][tr][tc] / (((S * (tr) + K)>TR?(TR-S * (tr)):K) * ((S * (tc) + K)>TC?(TC-S * (tc)):K)));
-                            }
+                            out_buf[tn][tr][tc] = (i==0&&j==0)?in_buf[tn][S*tr][S*tc]:((i+1==((S*tr + K)>TR?(TR-S*tr):K)&&j+1==((S*tc+K)>TC?(TC-S*tc):K))
+								?((out_buf[tn][tr][tc]+in_buf[tn][S*tr+i][S*tc+j])/((((S*tr)+K)>TR?(TR-S*tr):K)*((S*tc+K)>TC?(TC-S*tc):K))):(out_buf[tn][tr][tc]+in_buf[tn][S*tr+i][S*tc+j]));
+                        }
                     }
                 }
             }

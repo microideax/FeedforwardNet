@@ -75,15 +75,10 @@ public:
                 for(int tr=0; tr<Tr&&tr+r<R&&(S * tr + i)<TR; tr++){
                     for(int tc=0; tc<Tc&&tc+c<C&&(S * tc + j)<TC; tc++){
 #pragma HLS PIPELINE
-                            for(int tn=0; tn<Tn; tn++){
+                        for(int tn=0; tn<Tn; tn++){
 #pragma HLS UNROLL
-/*                                if(i==0&&j==0)
-                                    out_buf[tn][tr][tc] = in_buf[tn][S * (tr)][S * (tc)];
-                                else
-                                    out_buf[tn][tr][tc] = ((out_buf[tn][tr][tc] > in_buf[tn][S * (tr) + i][S * (tc) + j])) ? out_buf[tn][tr][tc] : in_buf[tn][S * (tr) + i][S * (tc) + j];
-*/
-                                out_buf[tn][tr][tc] = (i==0&&j==0)?in_buf[tn][S*tr][S*tc]:((out_buf[tn][tr][tc]>in_buf[tn][S*tr +i][S*tc +j])?out_buf[tn][tr][tc]:in_buf[tn][S*tr +i][S*tc +j]);
-                            }
+                            out_buf[tn][tr][tc] = (i==0&&j==0)?in_buf[tn][S*tr][S*tc]:((out_buf[tn][tr][tc]>in_buf[tn][S*tr+i][S*tc+j])?out_buf[tn][tr][tc]:in_buf[tn][S*tr+i][S*tc+j]);
+                        }
                     }
                 }
             }
