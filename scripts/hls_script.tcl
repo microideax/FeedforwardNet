@@ -31,7 +31,7 @@ add_files -tb ../net_inputs/net_weights.txt
 add_files -tb ../net_inputs/val.txt
 add_files -tb ../net_inputs/net_mean.txt
 
-add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2017.2/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
+add_files -cflags "-I/nfs/app/Xilinx/Vivado_HLS/2017.1/include -std=c++0x -fpermissive -pedantic -Wall -Wextra" -tb ../ff_test.cpp
 
 
 open_solution -reset "inference_IP"
@@ -42,7 +42,7 @@ open_solution -reset "inference_IP"
 # zedboard
 #set_part {xc7z020clg484-1}  
 # UltraScale+ 
-set_part {xcvu9p-flga2104-2-i}
+set_part {xcvu9p-flgb2104-2-i}
 create_clock -period 10 -name default
 
 #csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
