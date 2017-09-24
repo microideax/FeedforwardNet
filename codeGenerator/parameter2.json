@@ -72,7 +72,6 @@
 		{
 		   "var_init":
 			[
-				{"type" : "unsigned int", "name" : "in_data_mem_size", "size" : "data_type", "memory" : "in_data_mem_port", "location" : "in data memory location"},
 				{"type" : "unsigned int", "name" : "conv_weight_size", "size" : "data_type_w", "memory" : "conv_weight_mem_port", "location" : "conv weight memory location"},
 				{"type" : "unsigned int", "name" : "conv_bias_size", "size" : "data_type_w", "memory" : "conv_bias_mem_port", "location" : "conv bias memory location"},
 				{"type" : "unsigned int", "name" : "fc_weight_size", "size" : "data_type_w", "memory" : "fc_weight_mem_port", "location" : "fc_weight_mem_port memory location"},

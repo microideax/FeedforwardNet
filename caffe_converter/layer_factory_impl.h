@@ -33,7 +33,7 @@ class caffe_layer_vector {
         }
 
         nodes.reserve(net.layer_size());
-
+        //cout<<net.layer_size()<<"!!!!!!!!!!"<<endl;
         for (int i = 0; i < net.layer_size(); i++) {
             auto& l = net.layer(i);
 
@@ -42,14 +42,25 @@ class caffe_layer_vector {
             nodes.emplace_back(&l);
             layer_table[l.name()] = &nodes.back();
         }
-
+        //cout<<nodes.size()<<"~~~~~~~~~~"<<endl;
         for (int i = 0; i < nodes.size(); i++) {
             auto& l = nodes[i];
 
             if (l.layer->bottom_size() > 0 && blob_table[l.layer->bottom(0)]) {
-                auto& bottom = blob_table[l.layer->bottom(0)];
-                l.prev = bottom;
-                layer_table[bottom->layer->name()]->next = &l;
+                if(i==0){
+                    auto& bottom = blob_table[l.layer->bottom(0)];
+                    l.prev = bottom;
+                    layer_table[bottom->layer->name()]->next = &l;
+                //cout<<bottom->layer->name()<<"++++++++++"<<endl;
+                }
+                else{
+                    auto& l1 = nodes[i-1];
+                    auto& bottom1 = blob_table[l1.layer->top(0)];
+                    l.prev = bottom1;
+                    layer_table[bottom1->layer->name()]->next = &l;
+                    //cout<<bottom1->layer->name()<<"*********"<<endl;
+                }
+                    
             }
 
             if (l.layer->top_size() > 0) {
@@ -73,6 +84,7 @@ class caffe_layer_vector {
             node_list.push_back(current->layer);
             current = current->next;
         }
+        //cout<<node_list.size()<<"~~~~~~~~~~"<<endl;
     }
 
     size_t size() const {

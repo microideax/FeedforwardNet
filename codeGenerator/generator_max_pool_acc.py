@@ -43,9 +43,11 @@ def generate(generated_file_name="max_pool_acc_innerdf.h"):
 
 	str1 += ", int n, int r, int c, int S, int K, int P, int R, int C, int N, int R_IN, int C_IN, int TR, int TC) {" + EOL
 
-	str1 += "        for (int i = n; i < n + Tn; i+=" + str(port_num) + "){" + EOL
-	str1 += "            for (int j = r * S - P; j < r * S + TR - P; j++) {" + EOL
-	str1 += "                for (int k = c * S - P; k < c * S + TC - P; k++) {" + EOL
+	str1 += "        for (int j = r * S - P; j < r * S + TR - P; j++) {" + EOL
+	str1 += "            for (int k = c * S - P; k < c * S + TC - P; k++) {" + EOL
+	str1 += "#pragma HLS PIPELINE" + EOL
+	str1 += "        		 for (int i = n; i < n + Tn; i+=" + str(port_num) + "){" + EOL
+	str1 += "#pragma HLS UNROLL" + EOL
 	str1 += "                    if (j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {" + EOL
 	for j in range(0,port_num):
 		str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = T(0);" + EOL

@@ -14,8 +14,6 @@
          "function_name":"inference_net",
          "intput_parameters":
             [
-                {"pType":"char", "pName":"activation_type"},
-                {"pType":"data_type", "pName":"in_data_3D"},
                 {"pType":"data_type_w *", "pName":"conv_weight_port"},
                 {"pType":"data_type_w *", "pName":"conv_bias_port"},
                 {"pType":"data_type_w *", "pName":"fc_weight_port"},

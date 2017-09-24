@@ -118,7 +118,6 @@ def generate_body(arr2, prefix=SEPARATER):
     
     alpha = "nn_alpha_lrn"
     beta = "nn_beta_lrn"
-    act_type = "activation_type"
     shift_w = "shift_weight"
     shift_b = "shift_bias"
     in_shift = "in_shift"
@@ -384,15 +383,8 @@ def generate_header(head_json, arr):
 
     '''write actual parameters of inference_net function'''
     for s in head_json["intput_parameters"]:
-        if s["pName"] == "in_data_3D":
-            head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + ARRAY_BEGIN + nn_in_number_conv[0] + "*" +\
-                    nn_in_data_size_values[0] + "*" + nn_in_data_size_values[0] + ARRAY_END + COMMA + EOL
-        elif s["pName"] == "fc_out_a":
+        if s["pName"] == "fc_out_a":
             head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
-        elif s["pName"] == "activation_type":
-            head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + COMMA + EOL
-        #elif s["pName"] == "output_temp_1" or s["pName"] == "output_temp_2":
-        #    head_str += SEPARATER + s["pType"] + SEPARATER + s["pName"] + ARRAY_BEGIN + prms[prms_str.index("maximum")] + ARRAY_END + COMMA + EOL
         elif s["pName"] == "#if _BATCH_NORM_" or s["pName"] == "#endif" or s["pName"] == "#if _SCALE_":
             head_str += s["pName"] + EOL
         else:
@@ -443,7 +435,6 @@ def generate_pragma(wb_arr):
     hls_deb = "#if _HLS_MODE_"
     end_deb = "#endif"
     pr1 = "#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS"
-    pr2 = "#pragma HLS INTERFACE s_axilite port=activation_type bundle=CRTL_BUS"
     pr3 = "#pragma HLS INTERFACE m_axi depth="
     pr4 = " port="
     arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a"]
@@ -452,8 +443,7 @@ def generate_pragma(wb_arr):
             arr.append("temp_out_" + str(i) + "_" + str(j))
 
     pragma_str = EOL*2
-    pragma_str += hls_deb + EOL + pr1 + EOL + pr2 + EOL
-    pragma_str += pr3 + str(50) + pr4 + "in_data_3D" + EOL
+    pragma_str += hls_deb + EOL + pr1 + EOL + EOL
     for i, wb in enumerate(wb_arr[:-1]):
         pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
     pragma_str += end_deb

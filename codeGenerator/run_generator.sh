@@ -80,7 +80,20 @@ python generator_ff_test.py $prm_file_name $test_img_name
 python generator_acc_instance.py $prm_file_name
 python generator.py $prm_file_name 
 python generator_conv_acc.py $prm_file_name 
+
+if grep -q "Max" "$prm_file_name"; 
+then
 python generator_max_pool_acc.py $prm_file_name 
+fi
+
+if grep -q "Ave" "$prm_file_name"; 
+then
 python generator_ave_pool_acc.py $prm_file_name 
+fi
+
+if grep -q "lrn" "$prm_file_name"; 
+then
+copy_file "../fpga_cnn/lrn_layer_one_dim.h" "../example/test_demo/inference_net/" 1
+fi
 
 printf "You've generated the network successfully!\n\n"

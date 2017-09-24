@@ -404,7 +404,7 @@ void read_proto_from_text(const std::string& prototxt,
                                  google::protobuf::Message *message) {
     int fd = CNN_OPEN_TXT(prototxt.c_str());
     if (fd == -1) {
-        cout<<"file not fonud: "<<prototxt<<endl;
+        cout<<"file not found: "<<prototxt<<endl;
     }
 
     google::protobuf::io::FileInputStream input(fd);
@@ -470,7 +470,7 @@ void get_config_params_from_caffe_protobinary(const std::string& caffebinary,int
 {
     caffe::NetParameter np;
 
-    read_proto_from_binary(caffebinary, &np);
+    read_proto_from_text(caffebinary, &np);
     get_config_params_from_caffe_net(np,input_param);
 }
 
@@ -481,7 +481,7 @@ void test_has_mean(const string& model_file,
     create_net_from_caffe_prototxt(model_file,input_param);
     reload_weight_from_caffe_protobinary(trained_file,input_param);
     compute_mean(mean_file);
-    get_config_params_from_caffe_protobinary(trained_file,input_param);
+    get_config_params_from_caffe_protobinary(model_file,input_param);
 }
 
 void test_no_mean(const string& model_file,
@@ -489,7 +489,7 @@ void test_no_mean(const string& model_file,
     int input_param[]={0,0};
     create_net_from_caffe_prototxt(model_file,input_param);
     reload_weight_from_caffe_protobinary(trained_file,input_param);
-    get_config_params_from_caffe_protobinary(trained_file,input_param);
+    get_config_params_from_caffe_protobinary(model_file,input_param);
 }
 
 int main(int argc, char** argv) {

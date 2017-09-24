@@ -46,14 +46,14 @@ def generate_import(import_json):
 	import_str = EOL
 	for import_sen in import_json["include"]:
         	import_str += import_sen + EOL
-	import_str += EOL * 2
+	import_str += EOL
 	for import_sen in import_json["namespace"]:
         	import_str += import_sen + EOL
 	
 	return import_str
 
 def generate_function(fn_json, nm):
-	fn_str = EOL*2
+	fn_str = EOL
 	for fn_sen in fn_json[nm]:
         	fn_str += fn_sen["return_type"] + SPACE + fn_sen["function_name"] + PARAMETER_BEGIN 
 		for i, p in enumerate(fn_sen["parameters"]):
@@ -64,7 +64,7 @@ def generate_function(fn_json, nm):
 	return fn_str
 
 def generate_fn_load(prefix=SEPARATER):
-	fn_bd = EOL + prefix
+	fn_bd = prefix
 	fn_bd += "std::ifstream fs(file.c_str(), std::ios::binary);" + EOL + prefix +\
 	         "fs.seekg(0, std::ios::end);" + EOL + prefix +\
 	         "size = fs.tellg();" + EOL + prefix +\
@@ -73,12 +73,10 @@ def generate_fn_load(prefix=SEPARATER):
 		 "fs.read(data, sizeof(char) * size);" + EOL + prefix +\
 		 "fs.close();" + EOL + prefix +\
 		 "return (unsigned char *)data;" + EOL +\
-		 BODY_END + EOL*2
+		 BODY_END + EOL
 	return fn_bd
 
 def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
-        
-	
 	col_gray = ""
 	while (col_gray != "color" and col_gray != "grayscale"):
         	col_gray = raw_input("\nPlease enter color specification input (color, grayscale): ")
@@ -142,8 +140,9 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 						PARAMETER_BEGIN + "data_type_o" + PARAMETER_END +\
 						EOS + EOL		
 
+	ker = 0
 	for k, var_sen in enumerate(body_json["var_init"]):
-		if (var_sen["memory"] == "in_data_mem_port" or var_sen["memory"] == "fc_8_out_mem_int"):
+		if (var_sen["memory"] == "fc_8_out_mem_int"):
 			alloc_str += KERNEL + EOL
 			ker = 1
 		
@@ -185,8 +184,6 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			body_str1 += prefix + "memset" + PARAMETER_BEGIN + "temp_out_" + str(i) + "_" + str(j)
 			body_str1 += ", 0, " + "out_size_" + str(i) + "_" + str(j) + PARAMETER_END + EOS + EOL
 
-	#body_str1 += prefix + "memset(temp_out_1, 0, out_1_size);" + EOL
-	#body_str1 += prefix + "memset(temp_out_2, 0, out_2_size);" + EOL
 	body_str1 += PREP_ENDIF + EOL*2
 
 	body_str1 += prefix + comm_json[0] + EOL
@@ -311,9 +308,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		     prefix + "start = clock();" + EOL +\
 		     PREP_ENDIF + EOL*2
 	body_str1 += prefix + comm_json[4] + EOL
-	body_str1 += prefix + "inference_net(" + EOL + prefix + comm_json[5] + EOL +\
-		     prefix + "relu," + EOL + KERNEL + EOL + prefix + comm_json[6] + EOL +\
-		     prefix + "in_data_mem_port, " + EOL + PREP_ENDIF + EOL + prefix + comm_json[7] +\
+	body_str1 += prefix + "inference_net(" + EOL + prefix + comm_json[7] +\
 		     EOL + prefix + "conv_weight_mem_port," + EOL + prefix + "conv_bias_mem_port," +\
     		     EOL + prefix + "fc_weight_mem_port," + EOL + prefix + "fc_bias_mem_port," +\
 		     EOL + KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," + EOL
@@ -340,7 +335,6 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 
 def generate_w_b(nm, arr, s, c, s1, prefix=SEPARATER):
 	wb_str = ""
-	
 	wb_str = prefix + "float *" + nm + " = (float*)malloc(" + arr[c] + " * sizeof(float));" + EOL
 	wb_str += prefix + "memset(" + nm + ", 0, " + arr[c] + " * sizeof(float));" + EOL
 	wb_str += prefix + "load_" + s + "_" + s1 + "(" + EOL + "weight_src, " + EOL + nm + "," + EOL + " weight_bias_record,"  + EOL + " nn_channel_size_" + s1 + ", " + EOL +\
