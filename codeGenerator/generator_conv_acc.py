@@ -119,8 +119,8 @@ def generate(generated_file_name="conv_acc_innerdf_1.h"):
 	str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
 	str1 += "        for(int i=0; i<K; i++){" + EOL
 	str1 += "            for(int j=0; j<K; j++){" + EOL
-	str1 += "                for(int tr=0; tr<Tr&&tr+r<R_OUT; tr++){" + EOL
-	str1 += "                    for(int tc=0; tc<Tc&&tc+c<C_OUT; tc++){" + EOL
+	str1 += "                for(int tr=0; tr<Tr; tr++){" + EOL
+	str1 += "                    for(int tc=0; tc<Tc; tc++){" + EOL
 	str1 += "#pragma HLS PIPELINE" + EOL
 	str1 += "                        for(int tm = 0; tm < Tm; tm++){" + EOL
 	str1 += "#pragma HLS UNROLL" + EOL
