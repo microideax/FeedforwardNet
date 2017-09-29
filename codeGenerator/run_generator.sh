@@ -20,7 +20,7 @@ copy_file(){
 	fi
 }
 
-printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_params.txt have already generated in caffe_converter folder!\n\n"
+printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_params.txt (and batch_norm_mean.txt,batch_norm_denominator.txt,scale_gamma.txt and scale_beta.txt) have already generated in caffe_converter folder!\n\n"
 
 read -p "Please enter test image path: "  test_img_folder
 read -p "Please enter test image name: "  test_img_name
@@ -94,6 +94,25 @@ fi
 if grep -q "lrn" "$prm_file_name"; 
 then
 copy_file "../fpga_cnn/lrn_layer_one_dim.h" "../example/test_demo/inference_net/" 1
+fi
+
+if grep -q "BatchNorm" "$prm_file_name"; 
+then
+copy_file "../fpga_cnn/get_batch_norm_params.h" "../example/test_demo/inference_net/" 1
+copy_file "../caffe_converter/batch_norm_mean.txt" "../example/test_demo/net_inputs/" 1
+copy_file "../caffe_converter/batch_norm_denominator.txt" "../example/test_demo/net_inputs/" 1
+python generator_conv_acc_w_bn.py $prm_file_name 
+	if grep -q "Scale" "$prm_file_name"; 
+	then
+	copy_file "../fpga_cnn/batch_norm_scale_layer.h" "../example/test_demo/inference_net/" 1
+	copy_file "../caffe_converter/scale_gamma.txt" "../example/test_demo/net_inputs/" 1
+	copy_file "../caffe_converter/scale_beta.txt" "../example/test_demo/net_inputs/" 1
+	fi
+fi
+
+if grep -q "Eltwise" "$prm_file_name"; 
+then
+copy_file "../fpga_cnn/eltwise_layer.h" "../example/test_demo/inference_net/" 1
 fi
 
 printf "You've generated the network successfully!\n\n"

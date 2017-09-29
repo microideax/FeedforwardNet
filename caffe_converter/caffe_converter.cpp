@@ -186,6 +186,9 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     int num_input=input_param[0];
     int input_size=input_param[1];
     bool has_lrn_layer=false;
+    bool has_batch_norm_layer=false;
+    bool has_scale_layer=false;
+    bool has_eltwise_layer=false;
     
     //conv_layer config params
     vector<int> nn_in_data_size_conv;
@@ -195,6 +198,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     vector<int> nn_in_number_conv;
     vector<int> nn_out_number_conv;
     vector<int> nn_group_conv;
+    vector<int> nn_bias_conv;
     
     //pool_layer config params
     vector<int> nn_in_data_size_pooling;
@@ -213,6 +217,17 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     vector<int> nn_local_size_lrn;
     vector<float> nn_alpha_lrn;
     vector<float> nn_beta_lrn;
+
+    //batch_norm_layer config params
+    vector<int> nn_in_number_batch_norm;
+
+    //scale_layer config params
+    vector<int> nn_in_number_scale;
+
+    //eltwise_layer config params
+    vector<int> nn_in_number_eltwise;
+    vector<int> nn_input_size_eltwise;
+
     int num_output=0;
     ofstream out;
     out.open("net_config_params.txt",ios::app);
@@ -248,7 +263,10 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
                 stride=conv_param.stride(0);
             }
             nn_stride_conv.push_back(stride);
-            input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
+            if(i!=0&&src_net[i-1].type()=="Convolution"&&src_net[i+1].type()=="Eltwise")
+                ;
+            else
+                input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
             nn_group_conv.push_back(conv_param.group());
             if(conv_param.group()>1){
                 if(tag){
@@ -260,6 +278,10 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             }
             //num_input=num_input/conv_param.group();
             nn_in_number_conv.push_back(num_input);
+            if(!conv_param.bias_term())
+                nn_bias_conv.push_back(0);
+            else
+                nn_bias_conv.push_back(num_output);
         }else if(src_net[i].type()=="InnerProduct"){
             InnerProductParameter inner_product_param = src_net[i].inner_product_param();
             nn_in_data_size_fc.push_back(input_size);
@@ -292,6 +314,16 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             nn_alpha_lrn.push_back(alpha);
             float beta=src_net[i].lrn_param().beta();
             nn_beta_lrn.push_back(beta);
+        }else if(src_net[i].type()=="BatchNorm"){
+            has_batch_norm_layer=true;
+            nn_in_number_batch_norm.push_back(num_input);
+        }else if(src_net[i].type()=="Scale"){
+            has_scale_layer=true;
+            nn_in_number_scale.push_back(num_input);
+        }else if(src_net[i].type()=="Eltwise"){
+            has_eltwise_layer=true;
+            nn_in_number_eltwise.push_back(num_input);
+            nn_input_size_eltwise.push_back(input_size);
         }
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
             num_input=num_output;//set each layer's num_input equals to the last layer's num_output
@@ -311,6 +343,12 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     str_nn_config_params_name_int.push_back("nn_in_number_conv: ");
     str_nn_config_params_name_int.push_back("nn_out_number_conv: ");
     str_nn_config_params_name_int.push_back("nn_group_conv: ");
+    int count=0;
+    for(int i=0;i<nn_bias_conv.size();i++){
+          count+=nn_bias_conv[i];
+    }
+    if(count>0)
+        str_nn_config_params_name_int.push_back("nn_bias_conv: ");
 
     str_nn_config_params_name_int.push_back("nn_in_data_size_pooling: ");
     str_nn_config_params_name_int.push_back("nn_channel_size_pooling: ");
@@ -322,8 +360,19 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     str_nn_config_params_name_int.push_back("nn_in_number_fc: ");
     str_nn_config_params_name_int.push_back("nn_out_number_fc: ");
     str_nn_config_params_name_int.push_back("nn_channel_size_fc: ");
+    
     if(has_lrn_layer==true){
         str_nn_config_params_name_int.push_back("nn_local_size_lrn: ");
+    }
+    if(has_batch_norm_layer==true){
+        str_nn_config_params_name_int.push_back("nn_in_number_batch_norm: ");
+    }
+    if(has_scale_layer==true){
+        str_nn_config_params_name_int.push_back("nn_in_number_scale: ");
+    }
+    if(has_eltwise_layer==true){
+        str_nn_config_params_name_int.push_back("nn_in_number_eltwise: ");
+        str_nn_config_params_name_int.push_back("nn_input_size_eltwise: ");
     }
 
     vector<vector<int>> nn_config_params_int;
@@ -334,6 +383,8 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     nn_config_params_int.push_back(nn_in_number_conv);
     nn_config_params_int.push_back(nn_out_number_conv);
     nn_config_params_int.push_back(nn_group_conv);
+    if(count>0)
+        nn_config_params_int.push_back(nn_bias_conv);
 
     nn_config_params_int.push_back(nn_in_data_size_pooling);
     nn_config_params_int.push_back(nn_channel_size_pooling);
@@ -345,8 +396,19 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     nn_config_params_int.push_back(nn_in_number_fc);
     nn_config_params_int.push_back(nn_out_number_fc);
     nn_config_params_int.push_back(nn_channel_size_fc);
+
     if(has_lrn_layer){
         nn_config_params_int.push_back(nn_local_size_lrn);
+    }
+    if(has_batch_norm_layer==true){
+        nn_config_params_int.push_back(nn_in_number_batch_norm);
+    }
+    if(has_scale_layer==true){
+        nn_config_params_int.push_back(nn_in_number_scale);
+    }
+    if(has_eltwise_layer==true){
+        nn_config_params_int.push_back(nn_in_number_eltwise);
+        nn_config_params_int.push_back(nn_input_size_eltwise);
     }
     out.open("net_config_params.txt",ios::app);
     for (int i = 0; i < nn_config_params_int.size(); i++) {

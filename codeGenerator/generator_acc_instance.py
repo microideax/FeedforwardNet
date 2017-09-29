@@ -22,6 +22,7 @@ def generate(generated_file_name="acc_instance.h"):
 
 	arr = helping_functions.read_params(sys.argv[1])
 	layers_fun = layers(arr[1])
+	layers_fun_w_bn = layers_w_bn(arr[1])
 	prms, prms_str = helping_functions.extraction(arr)
 	nn_channel_size_conv_values = prms[prms_str.index("nn_channel_size_conv")]
 	nn_stride_conv_values = prms[prms_str.index("nn_stride_conv")]
@@ -70,22 +71,31 @@ def generate(generated_file_name="acc_instance.h"):
    		if len(strides[k1]) != 0:	
    			acc_max_stride[k1] = ", " + str(max(strides[k1]))
 	
-	includes = ["#include \"conv_acc_innerdf_1.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
+	includes = ["#include \"conv_acc_innerdf.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
 	fn_names = ["conv_layer_new", "max_pool_layer_new", "ave_pool_layer_new"]
 	rn_tp = "void"
-	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "int", "int", "int", "int"],
+	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "int", "int", "int", "int"],
 		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool"]]
-	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "*scale_gamma", "*scale_beta", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
+	arg_n_list = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "weight_offset", "bias_offset", "in_offset", "out_offset"], 
 		      ["R_in", "C_in", "N", "K", "R", "C", "S", "P", "act"]]
 	acc_params = [[], [], []]
+	includes_w_bn = ["#include \"conv_acc_innerdf_w_bn.h\""]	
+	fn_names_w_bn = ["conv_layer_new_w_bn"]
+	arg_t_list_w_bn = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "int", "data_type_w", "data_type_w", "int", "int", "int", "int", "int"]]
+	arg_n_list_w_bn = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "bn_offset", "*scale_gamma", "*scale_beta", "scale_offset", "weight_offset", "bias_offset", "in_offset", "out_offset"]]
+	acc_params_w_bn = [[]]
 	Tm_1 = helping_functions.prompt("Please enter the Tm of conv_acc: ")
 	acc_params[0].append(Tm_1)
+	acc_params_w_bn[0].append(Tm_1)
 	Tn_1 = helping_functions.prompt("Please enter the Tn of conv_acc: ")
 	acc_params[0].append(Tn_1)
+	acc_params_w_bn[0].append(Tn_1)
 	Tr_1 = helping_functions.prompt("Please enter the Tr of conv_acc: ")
 	acc_params[0].append(Tr_1)
+	acc_params_w_bn[0].append(Tr_1)
 	Tc_1 = helping_functions.prompt("Please enter the Tc of conv_acc: ")
 	acc_params[0].append(Tc_1)
+	acc_params_w_bn[0].append(Tc_1)
 	Tn_2 = helping_functions.prompt("\nPlease enter the Tn of pool_acc: ")
 	acc_params[1].append(Tn_2)
 	acc_params[2].append(Tn_2)
@@ -101,17 +111,26 @@ def generate(generated_file_name="acc_instance.h"):
 	init_names = ["convAcc1", "maxPoolAcc1", "avePoolAcc1"]
 	acc_fn_names = ["conv_layer_acc", "max_pool_layer_acc", "ave_pool_layer_acc"]
 
+	init_nm_w_bn = ["conv_acc_w_bn"]
+	prm_w_bn = "data_type, data_type_w, data_type_o"
+	init_names_w_bn = ["convAcc2"]
+	acc_fn_names_w_bn = ["conv_layer_acc_w_bn"]
+
 	for j in range(1,port_num + 1):
 		arg_t_list[0].append("data_type")
 		arg_t_list[1].append("data_type")
 		arg_n_list[0].append("*in_data_" + str(j))
 		arg_n_list[1].append("*in_data_" + str(j))
+		arg_t_list_w_bn[0].append("data_type")
+		arg_n_list_w_bn[0].append("*in_data_" + str(j))
 
 	for j in range(1,port_num + 1):
 		arg_t_list[0].append("data_type_o")
 		arg_t_list[1].append("data_type_o")
 		arg_n_list[0].append("*out_data_" + str(j))
 		arg_n_list[1].append("*out_data_" + str(j))
+		arg_t_list_w_bn[0].append("data_type_o")
+		arg_n_list_w_bn[0].append("*out_data_" + str(j))
 
 	'''write layer acc needed'''
 	for i, l in enumerate(layers_fun):
@@ -127,30 +146,80 @@ def generate(generated_file_name="acc_instance.h"):
 			body_str += acc_max_kernel[i]
 			body_str += CLASS_END + SPACE + init_names[i] + EOS + EOL * 2
 			s = ""
-			for k, arg_nm in enumerate(arg_n_list[j]):
-				if j == 0:
-					if k == 12:
-						s += EOL + "#if _BATCH_NORM_" + EOL + SEPARATER
-						s += arg_nm.replace("*", "")
-					elif k == 14:
-						s += EOL + "#endif" + EOL + "#if _SCALE_" + EOL + SEPARATER
-						s += arg_nm.replace("*", "")
-					elif k == 16:
-						s += EOL + "#endif" + EOL + SEPARATER
-						s += arg_nm.replace("*", "")
-					else:
-						s += arg_nm.replace("*", "") 
-				else:
+			if "conv_bias_size" in prms_str:
+				for k, arg_nm in enumerate(arg_n_list[j]):
 					s += arg_nm.replace("*", "")
-				if k != len(arg_n_list[j]) - 1:
-					s += ", "
+					if k != len(arg_n_list[j]) - 1:
+						s += ", "
+			else:
+				del arg_t_list[0][11]
+				del arg_t_list[0][12]
+				del arg_n_list[0][11]
+				del arg_n_list[0][12]
+				for k, arg_nm in enumerate(arg_n_list[j]):
+					s += arg_nm.replace("*", "")
+					if k != len(arg_n_list[j]) - 1:
+						s += ", "
+
 			if j == 0:
 				body_str += generate_function0(fn_names[i], rn_tp, arg_t_list[j], arg_n_list[j], [init_names[i] + CALL_SYMBOL+ acc_fn_names[i] + PARAMETER_BEGIN + s + PARAMETER_END + EOS])
 			else:
 				body_str += generate_function1(fn_names[i], rn_tp, arg_t_list[j], arg_n_list[j], [init_names[i] + CALL_SYMBOL+ acc_fn_names[i] + PARAMETER_BEGIN + s + PARAMETER_END + EOS])
 			
-	import_str += "#include \"config.h\"" + EOL * 2
+	'''write conv_acc_w_bn if needed'''
+	if "nn_batch_norm_size" in prms_str:
+		for i, l in enumerate(layers_fun_w_bn):
+			if l != 0:
+				import_str += includes_w_bn[i] + EOL
+				if i > 0:
+					j = 1
+				else:
+					j = 0
+				body_str += init_nm_w_bn[i] + CLASS_BEGIN + prm_w_bn + COMMA_SPACE
+				body_str += ', '.join(acc_params_w_bn[i])
+				body_str += acc_max_stride[i]
+				body_str += acc_max_kernel[i]
+				body_str += CLASS_END + SPACE + init_names_w_bn[i] + EOS + EOL * 2
+				s = ""
+				if "conv_bias_size" in prms_str:
+					for k, arg_nm in enumerate(arg_n_list_w_bn[j]):
+						if j == 0:
+							if k == 15:
+								s += EOL + "#if _SCALE_" + EOL + SEPARATER
+								s += arg_nm.replace("*", "")
+							elif k == 18:
+								s += EOL + "#endif" + EOL + SEPARATER
+								s += arg_nm.replace("*", "")
+							else:
+								s += arg_nm.replace("*", "") 
+						else:
+							s += arg_nm.replace("*", "")
+						if k != len(arg_n_list_w_bn[j]) - 1:
+							s += ", "
+				else:
+					del arg_t_list_w_bn[0][11]
+					del arg_t_list_w_bn[0][18]
+					del arg_n_list_w_bn[0][11]
+					del arg_n_list_w_bn[0][18]
+					for k, arg_nm in enumerate(arg_n_list_w_bn[j]):
+						if j == 0:
+							if k == 14:
+								s += EOL + "#if _SCALE_" + EOL + SEPARATER
+								s += arg_nm.replace("*", "")
+							elif k == 17:
+								s += EOL + "#endif" + EOL + SEPARATER
+								s += arg_nm.replace("*", "")
+							else:
+								s += arg_nm.replace("*", "") 
+						else:
+							s += arg_nm.replace("*", "")
+						if k != len(arg_n_list_w_bn[j]) - 1:
+							s += ", "
 
+				if j == 0:
+					body_str += generate_function0_w_bn(fn_names_w_bn[i], rn_tp, arg_t_list_w_bn[j], arg_n_list_w_bn[j], [init_names_w_bn[i] + CALL_SYMBOL+ acc_fn_names_w_bn[i] + PARAMETER_BEGIN + s + PARAMETER_END + EOS])
+
+	import_str += "#include \"config.h\"" + EOL * 2
 
 	str1 += import_str + body_str + EOL*2 + ENDIF
 
@@ -186,24 +255,63 @@ def layers(arr):
 
 	return layer_exist
 
+def layers_w_bn(arr):
+	'''decide if layers_w_bn exist'''
+	layer_exist = [0]
+	arr = arr.split()
+	for i, a in enumerate(arr):
+		if arr[i].lower().startswith("convolution") and arr[i+1].lower().startswith("batchnorm"):
+			layer_exist[0] = 1
+
+	return layer_exist
+
 '''function statement template'''
 def generate_function0(fn_nm, return_type, arg_types_arr, arg_names_arr, fn_body, prefix=SEPARATER):
 	fn_str = return_type + SPACE + fn_nm + PARAMETER_BEGIN + EOL
 
+	arr = helping_functions.read_params(sys.argv[1])
+	prms, prms_str = helping_functions.extraction(arr)
 	for i, f in enumerate(arg_types_arr):
-		if i == 12:
-			fn_str += "#if _BATCH_NORM_" + EOL
-			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
-		elif i == 14:
-			fn_str += "#endif" + EOL + "#if _SCALE_" + EOL
-			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
-		elif i == 16:
-			fn_str += "#endif" + EOL
-			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
-		else:
-			fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i] 
+		fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i] 
 		if (i != len(arg_types_arr) - 1):
 			fn_str += "," + EOL
+
+	fn_str += PARAMETER_END + SPACE + BODY_BEGIN + EOL * 2 
+	for fb in fn_body:
+		fn_str += prefix + fb + EOL
+	fn_str += EOL
+	fn_str += BODY_END + EOL*2
+		
+	return fn_str
+
+def generate_function0_w_bn(fn_nm, return_type, arg_types_arr, arg_names_arr, fn_body, prefix=SEPARATER):
+	fn_str = return_type + SPACE + fn_nm + PARAMETER_BEGIN + EOL
+
+	arr = helping_functions.read_params(sys.argv[1])
+	prms, prms_str = helping_functions.extraction(arr)
+	for i, f in enumerate(arg_types_arr):
+		if "conv_bias_size" in prms_str:
+			if i == 15:
+				fn_str += "#if _SCALE_" + EOL
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
+			elif i == 18:
+				fn_str += "#endif" + EOL
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
+			else:
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i] 
+			if (i != len(arg_types_arr) - 1):
+				fn_str += "," + EOL
+		else:
+			if i == 14:
+				fn_str += "#if _SCALE_" + EOL
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
+			elif i == 17:
+				fn_str += "#endif" + EOL
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i]
+			else:
+				fn_str += prefix + arg_types_arr[i] + SPACE + arg_names_arr[i] 
+			if (i != len(arg_types_arr) - 1):
+				fn_str += "," + EOL
 	fn_str += PARAMETER_END + SPACE + BODY_BEGIN + EOL * 2 
 	for fb in fn_body:
 		fn_str += prefix + fb + EOL

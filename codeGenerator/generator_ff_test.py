@@ -24,6 +24,8 @@ PREP_ELSE = "#else"
 PREP_ENDIF = "#endif"
 KERNEL = "#if _KERNEL_DEBUG_"
 HLS = "#if _HLS_MODE_"
+BATCH_NORM = "#if _BATCH_NORM_"
+SCALE = "#if _SCALE_"
 
 def generate(generated_file_name="ff_test.cpp"):
     paraJS = open("parameter2.json", "r")
@@ -97,27 +99,54 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str += EOL + prefix + comm_json[10] 
 	body_str += EOL
 	value = ""
-        arr1, arr1_str = helping_functions.extraction(arr)
+	arr1, arr1_str = helping_functions.extraction(arr)
 	arrr = arr1[arr1_str.index("in_data_mem_size")].split(" * ")
 	arr2 = arr1[arr1_str.index("conv_weight_size")].split(" + ")
-	arr3 = arr1[arr1_str.index("conv_bias_size")].split(" + ")
+	arr3 = ""
+	if "conv_bias_size" in arr1_str:
+		arr3 = arr1[arr1_str.index("conv_bias_size")].split(" + ")
 	arr4 = arr1[arr1_str.index("fc_weight_size")].split(" + ")
 	arr5 = arr1[arr1_str.index("fc_bias_size")].split(" + ")
 	n_layers = arr1[arr1_str.index("n")]
 
 	fc_out = "fc_" + str(n_layers) + "_out"
+
+	#make only one nn_batch_norm_size and nn_scale_size declaration
+	repeat1 = False
+	repeat2 = False
 	for k, var_sen in enumerate(body_json["var_init"]):
-		
-        	body_str += prefix + var_sen["type"] + SPACE
-		if var_sen["name"] == "fc_out_size":
-			body_str += fc_out + "_size"
-	 	else:
-			body_str += var_sen["name"] 
-		body_str += EQUAL + PARAMETER_BEGIN 
-		body_str += arr1[arr1_str.index(var_sen["name"])] 
-		body_str += PARAMETER_END + MULT + sz +\
-				PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
-				EOS + EOL
+		if var_sen["name"] in arr1_str:
+			if var_sen["name"] == "nn_batch_norm_size":
+				if not repeat1:
+					body_str += prefix + var_sen["type"] + SPACE
+					body_str += var_sen["name"] 
+					repeat1 = True
+					body_str += EQUAL + PARAMETER_BEGIN 
+					body_str += arr1[arr1_str.index(var_sen["name"])] 
+					body_str += PARAMETER_END + MULT + sz +\
+						PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
+						EOS + EOL
+			elif var_sen["name"] == "nn_scale_size":
+				if not repeat2:
+					body_str += prefix + var_sen["type"] + SPACE
+					body_str += var_sen["name"] 
+					repeat2 = True
+					body_str += EQUAL + PARAMETER_BEGIN 
+					body_str += arr1[arr1_str.index(var_sen["name"])] 
+					body_str += PARAMETER_END + MULT + sz +\
+						PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
+						EOS + EOL
+			else:
+				body_str += prefix + var_sen["type"] + SPACE
+				if var_sen["name"] == "fc_out_size":
+					body_str += fc_out + "_size"
+				else:
+					body_str += var_sen["name"] 
+				body_str += EQUAL + PARAMETER_BEGIN 
+				body_str += arr1[arr1_str.index(var_sen["name"])] 
+				body_str += PARAMETER_END + MULT + sz +\
+						PARAMETER_BEGIN + var_sen["size"] + PARAMETER_END +\
+						EOS + EOL
 
 	print "\nPlease make sure the Tm and Tn can be divided by the number of ports!"
 	port_num = int(helping_functions.prompt("\nPlease enter the number of ports: "))
@@ -146,25 +175,26 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			alloc_str += KERNEL + EOL
 			ker = 1
 		
-		alloc_str += prefix + var_sen["size"] + SEPARATER + "*"
+		if var_sen["name"] in arr1_str:
+			alloc_str += prefix + var_sen["size"] + SPACE + "*"
 
-		if var_sen["name"] == "fc_out_size":
-				cond1 = "fc_" + str(n_layers) + "_out_mem_int"
-				alloc_str += "fc_" + str(n_layers) + "_out_mem_int"
-				fcout = "fc_" + str(n_layers) + "_out_size"
-		else:
-				cond1 = var_sen["memory"]
-				alloc_str += var_sen["memory"]
-				fcout = var_sen["name"]
-		alloc_str += EQUAL + PARAMETER_BEGIN + var_sen["size"] + "*" + PARAMETER_END +\
-			     "malloc" + PARAMETER_BEGIN + fcout + PARAMETER_END + EOS + EOL
-			
-		cond = cond1 + " == " + NULL
-		alloc_str += prefix + helping_functions.generate_if(cond, [out_json[1] + var_sen["memory"] + "\\n\"" +\
-			     PARAMETER_END + EOS], ["printf(\"" + var_sen["location"] + "= 0x%x \\n\", " + cond1 + PARAMETER_END + EOS], 1)
-		if ker == 1:
-			alloc_str += PREP_ENDIF + EOL
-			ker = 0
+			if var_sen["name"] == "fc_out_size":
+					cond1 = "fc_" + str(n_layers) + "_out_mem_int"
+					alloc_str += "fc_" + str(n_layers) + "_out_mem_int"
+					fcout = "fc_" + str(n_layers) + "_out_size"
+			else:
+					cond1 = var_sen["memory"]
+					alloc_str += var_sen["memory"]
+					fcout = var_sen["name"]
+			alloc_str += EQUAL + PARAMETER_BEGIN + var_sen["size"] + "*" + PARAMETER_END +\
+				     "malloc" + PARAMETER_BEGIN + fcout + PARAMETER_END + EOS + EOL
+				
+			cond = cond1 + " == " + NULL
+			alloc_str += prefix + helping_functions.generate_if(cond, [out_json[1] + var_sen["memory"] + "\\n\"" +\
+				     PARAMETER_END + EOS], ["printf(\"" + var_sen["location"] + "= 0x%x \\n\", " + cond1 + PARAMETER_END + EOS], 1)
+			if ker == 1:
+				alloc_str += PREP_ENDIF + EOL
+				ker = 0
 	
 	for i in range(0,2):
 		for j in range(1,port_num + 1):
@@ -178,6 +208,12 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str1 += KERNEL + EOL
 	body_str1 += prefix + out_json[2] + EOL
 	body_str1 += prefix + "memset(fc_" + str(n_layers) + "_out_mem_int, 0, fc_" + str(n_layers) + "_out_size);" + EOL
+	if "nn_batch_norm_size" in arr1_str:
+		body_str1 += prefix + "memset(batch_norm_mem_port_param1, 0, nn_batch_norm_size);" + EOL
+		body_str1 += prefix + "memset(batch_norm_mem_port_param2, 0, nn_batch_norm_size);" + EOL
+	if "nn_scale_size" in arr1_str:
+		body_str1 += prefix + "memset(scale_mem_port_param1, 0, nn_scale_size);" + EOL
+		body_str1 += prefix + "memset(scale_mem_port_param2, 0, nn_scale_size);" + EOL
 	
 	for i in range(0,2):
 		for j in range(1,port_num + 1):
@@ -301,6 +337,13 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str1 += generate_weights_biases(len(arr2), "conv", arr2, arr3)
 	body_str1 += generate_weights_biases(len(arr4), "fc", arr4, arr5)
 
+	if "nn_batch_norm_size" in arr1_str:
+		body_str1 += prefix + 'get_batch_norm_mean("net_inputs/batch_norm_mean.txt",batch_norm_mem_port_param1);' + EOL
+		body_str1 += prefix + 'get_batch_norm_denominator("net_inputs/batch_norm_denominator.txt",batch_norm_mem_port_param2);' + EOL
+	if "nn_scale_size" in arr1_str:
+		body_str1 += prefix + 'get_batch_norm_gamma("net_inputs/scale_gamma.txt",scale_mem_port_param1);' + EOL
+		body_str1 += prefix + 'get_batch_norm_beta("net_inputs/scale_beta.txt",scale_mem_port_param2);' + EOL + EOL
+
 	body_str1 += KERNEL + EOL +\
 		     prefix + "float fc_" + str(n_layers) + "_out[" +arr1[arr1_str.index("fc_out_size")] + "] = { 0 };" + EOL +\
 		     prefix + "clock_t start, finish, inf_start, inf_finish;" + EOL +\
@@ -308,10 +351,18 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		     prefix + "start = clock();" + EOL +\
 		     PREP_ENDIF + EOL*2
 	body_str1 += prefix + comm_json[4] + EOL
-	body_str1 += prefix + "inference_net(" + EOL + prefix + comm_json[7] +\
-		     EOL + prefix + "conv_weight_mem_port," + EOL + prefix + "conv_bias_mem_port," +\
-    		     EOL + prefix + "fc_weight_mem_port," + EOL + prefix + "fc_bias_mem_port," +\
-		     EOL + KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," + EOL
+	body_str1 += prefix + "inference_net(" + EOL + prefix + comm_json[7] + EOL + prefix + "conv_weight_mem_port," + EOL
+	if "conv_bias_size" in arr1_str:
+		body_str1 += prefix + "conv_bias_mem_port," + EOL 
+	body_str1 += prefix + "fc_weight_mem_port," + EOL
+	if "conv_bias_size" in arr1_str:
+		body_str1 += prefix + "fc_bias_mem_port," + EOL 
+	if "nn_batch_norm_size" in arr1_str:
+		body_str1 += prefix + "batch_norm_mem_port_param1," + EOL + prefix + "batch_norm_mem_port_param2," + EOL
+	if "nn_scale_size" in arr1_str:
+		body_str1 += SCALE + EOL + prefix + "scale_mem_port_param1," + EOL + prefix + "scale_mem_port_param2," + EOL + PREP_ENDIF + EOL
+		     
+	body_str1 += KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," + EOL
 
 	for i in range(0,2):
 		for j in range(1,port_num + 1):
@@ -342,29 +393,33 @@ def generate_w_b(nm, arr, s, c, s1, prefix=SEPARATER):
 	if c == 0:
 		wb_str += prefix + "int " + s1 + "_" + s + "_num=0;" + EOL
 		
-	if s == "bias":		
-			wb_str += prefix + "in_number_" + s1 +"++;" + EOL
 	wb_str += prefix + "cout << \"Loading " + s1 + " " + s + " " + str(c + 1) + " to memory space, starting at: \" <<" + s1 + "_" + s +"_num << '\\n';" + EOL
 	wb_str += prefix + helping_functions.generate_for_loop("i", "int", 0, arr[c], 
 	                               [s1 + "_" + s + "_mem_port[" + s1 + "_" + s +"_num] = (data_type_w)" + nm + "[i];", 
 				       s1 + "_" + s + "_num++;"], 1, 1)
-	wb_str += prefix + "free(" + nm + ");" + EOL*2
+	wb_str += prefix + "free(" + nm + ");" + EOL
 
 	return wb_str
 
 def generate_weights_biases(length, s, arr1, arr2, prefix=SEPARATER):
 	comm = "// Prepare weights and bias for "
 	
+	array = helping_functions.read_params(sys.argv[1])
+	arr, arr_str = helping_functions.extraction(array)
+
 	wb_str = ""
 	for c in range(length):
 		c_name = s + "_" + str(c + 1) + "_weight2D"
 		b_name = s + "_" + str(c + 1) + "_bias2D"
 		wb_str += prefix + comm + s + " layer " + str(c+1) + EOL
 		wb_str += generate_w_b(c_name, arr1, "weight", c, s)
-		wb_str += generate_w_b(b_name, arr2, "bias", c, s)
+		if "conv_bias_size" in arr_str:
+			wb_str += generate_w_b(b_name, arr2, "bias", c, s)
+		wb_str += prefix + "in_number_" + s +"++;" + EOL + EOL
 
 	wb_str += prefix + "cout<<\"Finished loading " + s + " weight into memory! Total: \" <<" + s +"_weight_num  << \"... ... ...\"<<endl;" + EOL
-	wb_str += prefix +  "cout<<\"Finished loading " + s + " bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
+	if "conv_bias_size" in arr_str:
+		wb_str += prefix +  "cout<<\"Finished loading " + s + " bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
 
 	return wb_str
 

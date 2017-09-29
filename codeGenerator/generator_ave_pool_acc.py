@@ -48,19 +48,15 @@ def generate(generated_file_name="ave_pool_acc_innerdf.h"):
 	str1 += "#pragma HLS PIPELINE" + EOL
 	str1 += "        		 for (int i = n; i < n + Tn; i+=" + str(port_num) + "){" + EOL
 	str1 += "#pragma HLS UNROLL" + EOL
-	str1 += "                    if (j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {" + EOL
-	for j in range(0,port_num):
-		str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = T(0);" + EOL
 	
-	str1 += "                    } else {" + EOL
 	for j in range(0,port_num):
-		str1 += "                        if (N < n + Tn && i + " + str(j) + " >= N) {" + EOL
-		str1 += "                            buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = T(0);" + EOL
-		str1 += "                        }else {" + EOL
-		str1 += "                            buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = *(in_data_" + str(j+1) + " + i/" + str(port_num) + " * (R_IN - 2 * P) * (C_IN - 2 * P) + j * (C_IN - 2 * P) + k);" + EOL
-		str1 += "                        }" + EOL
-	str1 += "                   }" + EOL
-	str1 += "               }" + EOL
+		str1 += "                    if ((n + Tn > N && i + " + str(j) + " >= N ) || j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {" + EOL
+		str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = T(0);" + EOL
+		str1 += "                    }else {" + EOL
+		str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = *(in_data_" + str(j+1) + " + i/" + str(port_num) + " * (R_IN - 2 * P) * (C_IN - 2 * P) + j * (C_IN - 2 * P) + k);" + EOL
+		str1 += "                    }" + EOL
+		
+	str1 += "				}" + EOL
 	str1 += "			}" + EOL
 	str1 += "		}" + EOL
 	str1 += "	}" + EOL

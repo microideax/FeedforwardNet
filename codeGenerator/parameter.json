@@ -18,13 +18,11 @@
                 {"pType":"data_type_w *", "pName":"conv_bias_port"},
                 {"pType":"data_type_w *", "pName":"fc_weight_port"},
                 {"pType":"data_type_w *", "pName":"fc_bias_port"},
-                {"pType":"", "pName":"#if _BATCH_NORM_"},
-                {"pType":"float *", "pName":"gamma"},
-                {"pType":"float *", "pName":"beta"},
-                {"pType":"", "pName":"#endif"},
-                {"pType":"", "pName":"#if _SCALE_"},
                 {"pType":"float *", "pName":"mean"},
                 {"pType":"float *", "pName":"denominator"},
+                {"pType":"", "pName":"#if _SCALE_"},
+                {"pType":"float *", "pName":"gamma"},
+                {"pType":"float *", "pName":"beta"},
                 {"pType":"", "pName":"#endif"},
                 {"pType":"data_type_o", "pName":"fc_out_a"}
             ]

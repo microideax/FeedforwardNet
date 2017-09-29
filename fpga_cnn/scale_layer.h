@@ -27,6 +27,7 @@ public:
 	void scale_layer_a(
 		T *gamma,
 		T *beta,
+		int scale_offset,
 		T *in_data3D,
 		T *out_data3D) {
 #if _C_DEBUG_MODE_
@@ -37,8 +38,8 @@ public:
 		    T gamma_=0;
 		    T beta_=0;
 			for(int n = 0; n < _IN_CHANNEL_NUM_; n++){
-				gamma_ = (*(gamma + n));
-			    beta_ = (*(beta + n));
+				gamma_ = (*(gamma + scale_offset + n));
+			    beta_ = (*(beta + scale_offset + n));
 				for(int i=0;i<_INPUT_SIZE_;i++){
 					for(int j=0;j<_INPUT_SIZE_;j++){
 					    (*(out_data3D + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) = relu(gamma_* (*(in_data3D + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) + beta_);

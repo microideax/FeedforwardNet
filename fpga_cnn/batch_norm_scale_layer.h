@@ -25,11 +25,12 @@ public:
 
 	/************************************************************************************************/
 	void batch_norm_scale_layer_a(
+		T *mean,
+		T *denominator,
 		T *gamma,
 		T *beta,
-		T *eps,
-		T *mean,
-		T *variance,
+		int bn_offset,
+		int scale_offset,
 		T *in_data3D,
 		T *out_data3D) {
 #if _C_DEBUG_MODE_
@@ -39,19 +40,17 @@ public:
 #endif
 			T gamma_=0;
 		    T beta_=0;
-		    T eps_=1e-05;
 		    T mean_=0;
-		    T variance_=0;
+		    T denominator_=0;
 		    T x_normed = 0;
 			for(int n = 0; n < _IN_CHANNEL_NUM_; n++){
-				gamma_ = (*(gamma + n));
-			    beta_ = (*(beta + n));
-				//eps_ = (*(eps + n));
-				mean_ = (*(mean + n));
-				variance_ = (*(variance + n));
+				mean_ = (*(mean + bn_offset + n));
+				denominator_ = (*(denominator + bn_offset + n));
+				gamma_ = (*(gamma + scale_offset + n));
+			    beta_ = (*(beta + scale_offset + n));
 				for(int i=0;i<_INPUT_SIZE_;i++){
 					for(int j=0;j<_INPUT_SIZE_;j++){
-					    x_normed = ((*(in_data3D + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) - mean_)/(pow((variance_ + eps_),0.5));
+					    x_normed = ((*(in_data3D + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) - mean_) * denominator_;
 					    (*(out_data3D + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) = relu(gamma_* x_normed + beta_);
 				    }
 				}
@@ -72,7 +71,6 @@ public:
 			out_batch_norm_scale_a << endl;
 		}
 		out_batch_norm_scale_a.close();
-		cout << endl;
 #endif
 #endif
 	}

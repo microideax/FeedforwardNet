@@ -48,19 +48,29 @@ def generate_type_definition(type_json, arr):
 	type_str = EOL * 2 
 	type_str += "//define data type" + EOL
 	for type_sen, t in zip(type_json, arr):
-        	type_str += TDEF + SPACE + t + SPACE + type_sen + EOS + EOL
+		type_str += TDEF + SPACE + t + SPACE + type_sen + EOS + EOL
 	return type_str
 
 '''debug mode declaration'''
 def generate_preprocessor(prep_json):
+	arr = helping_functions.read_params(sys.argv[1])
+	prms, prms_str = helping_functions.extraction(arr)
 	comm = "// C++ compilation debug mode" + EOL
 	prep_str = EOL 
-
 	prep_str += comm
 	prep_str += prep_json[0] + EOL*2
 	prep_str += comm
 	for prep_sen in prep_json[1:]:
-        	prep_str += prep_sen + EOL
+		if "nn_scale_size" in prms_str:
+			if prep_sen == "//#define _SCALE_ 1":
+				prep_str += "#define _SCALE_ 1" + EOL
+			else:
+				prep_str += prep_sen + EOL
+		else:
+			if prep_sen == "//#define _SCALE_ 1":
+				prep_str += ""
+			else:
+				prep_str += prep_sen + EOL
 	return prep_str
 
 '''3 weight_bias variables declaration'''

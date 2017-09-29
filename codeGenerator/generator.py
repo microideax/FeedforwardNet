@@ -58,11 +58,13 @@ def generate_body(arr2, prefix=SEPARATER):
     body_str += end_deb + EOL + end_deb + EOL*2
     layers_order = []	
     conv_counter = 0
-    conv_pool_counter = 0
-    conv_lrn_pool_counter = 0
     lrn_counter = 0
     pool_counter = 0
     fc_counter = 0
+    batch_norm_counter = 0
+    scale_counter = 0
+    elt_counter = 0
+    batch_norm_counter_single = 0
     
     """extraction of parameters from 'net_config_params.txt' file"""
     prms, prms_str = helping_functions.extraction(arr2)
@@ -86,6 +88,18 @@ def generate_body(arr2, prefix=SEPARATER):
     nn_channel_size_fc_values = prms[prms_str.index("nn_channel_size_fc")]   
     nn_out_number_fc_values = prms[prms_str.index("nn_out_number_fc")]    
     layers_order = prms[prms_str.index("layers_order")]
+    nn_in_number_batch_norm_values = []
+    if "nn_batch_norm_size" in prms_str:
+        nn_in_number_batch_norm_values = prms[prms_str.index("nn_in_number_batch_norm")]
+    nn_in_number_scale_values = []
+    if "nn_scale_size" in prms_str:
+        nn_in_number_scale_values = prms[prms_str.index("nn_in_number_scale")]
+    nn_in_number_eltwise_values = []
+    if "nn_in_number_eltwise_size" in prms_str:
+        nn_in_number_eltwise_values = prms[prms_str.index("nn_in_number_eltwise")]
+    nn_input_size_eltwise_values = []
+    if "nn_input_size_eltwise_size" in prms_str:
+        nn_input_size_eltwise_values = prms[prms_str.index("nn_input_size_eltwise")]
 
     if "nn_padding_fc" in prms_str:
         nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
@@ -120,6 +134,8 @@ def generate_body(arr2, prefix=SEPARATER):
     beta = "nn_beta_lrn"
     shift_w = "shift_weight"
     shift_b = "shift_bias"
+    shift_batch_norm = "shift_batch_norm"
+    shift_scale = "shift_scale"
     in_shift = "in_shift"
     out_shift = "out_shift"
     shifts = ""
@@ -127,12 +143,11 @@ def generate_body(arr2, prefix=SEPARATER):
     conv_bias = 0
     fc_weight = 0
     fc_bias = 0
-    fc_weight = 0
-    fc_bias = 0
+    batch_norm = 0
+    scale = 0
     cw = ""
     cb = ""
     cc = 1
-    #clean_count = 1
     act = ""
 
     '''choose layer object&layer type'''
@@ -144,8 +159,7 @@ def generate_body(arr2, prefix=SEPARATER):
             last1 = int((int(nn_in_data_size_conv_values[conv_counter]) + int(nn_padding_conv_values[conv_counter]) * 2 -\
                         int(nn_channel_size_conv_values[conv_counter]))/float(nn_stride_conv_values[conv_counter]) + 1);
             fun = "conv_layer_new"
-            if layers_order[i+1].lower() == "relu":
-                fun = "conv_layer_new"
+            if layers_order[i+1].lower() == "relu" or layers_order[i+2].lower() == "relu" or layers_order[i+3].lower() == "relu":
                 act = "1"
                 strides[0].append(int(nn_stride_conv_values[conv_counter]))
                 kernels[0].append(int(nn_channel_size_conv_values[conv_counter]))
@@ -157,22 +171,52 @@ def generate_body(arr2, prefix=SEPARATER):
             for k in range(int(nn_group_conv_values[conv_counter])):
                 in_shift = "0"
                 out_shift = "0"
+                
                 cw = str(conv_weight)
                 cb = str(conv_bias)
+                bn = str(batch_norm)
+                sc = str(scale)
 
                 shifts += prefix + "int " + shift_w + "_conv" + str(cc) + "_" + str(k + 1) + EQUAL + cw + EOS + EOL
-                shifts += prefix + "int " + shift_b + "_conv" + str(cc) + "_" + str(k + 1) + EQUAL + cb + EOS + EOL
+                if "conv_bias_size" in prms_str:
+                    shifts += prefix + "int " + shift_b + "_conv" + str(cc) + "_" + str(k + 1) + EQUAL + cb + EOS + EOL
+                if layers_order[i+1].lower() == "batchnorm":
+                    shifts += prefix + "int " + shift_batch_norm + str(batch_norm_counter + 1) + EQUAL + bn + EOS + EOL
+                if layers_order[i+2].lower() == "scale":
+                    shifts += prefix + "int " + shift_scale + str(scale_counter + 1) + EQUAL + sc + EOS + EOL
 
                 if k + 1 == int(nn_group_conv_values[conv_counter]) and k > 0:
                     in_shift = "in_shift_" + str(cc)
                     out_shift = "out_shift_" + str(cc)
                 in_n = int(math.ceil(int(nn_in_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
                 out_n = int(math.ceil(int(nn_out_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
-                function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
-                    str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
-                    act, w_port, b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
-                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + shift_w + "_conv" + str(cc) + "_" + str(k+1),\
-                    shift_b + "_conv" + str(cc) + "_" + str(k+1), in_shift, out_shift, in_data, out_data])
+                
+                if layers_order[i+1].lower() == "batchnorm" and layers_order[i+2].lower() == "scale":
+                    fun = "conv_layer_new_w_bn"
+                    if "conv_bias_size" in prms_str:
+                        function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
+                            str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
+                            act, w_port, b_port, mean, denominator, shift_batch_norm + str(batch_norm_counter + 1), \
+                            EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, shift_scale + str(scale_counter + 1), EOL + "#endif" + EOL + SEPARATER + shift_w + "_conv" + str(cc) + "_" + str(k+1),\
+                            shift_b + "_conv" + str(cc) + "_" + str(k+1), in_shift, out_shift, in_data, out_data])
+                        
+                    else:
+                        function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
+                            str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
+                            act, w_port, mean, denominator, shift_batch_norm + str(batch_norm_counter + 1), EOL + "#if _SCALE_" + EOL + SEPARATER + gamma,\
+                            scale_beta, shift_scale + str(scale_counter + 1), EOL + "#endif" + EOL + SEPARATER + shift_w + "_conv" + str(cc) + "_" + str(k+1),\
+                            in_shift, out_shift, in_data, out_data])
+                else:
+                    if "conv_bias_size" in prms_str:
+                        function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
+                        str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
+                        act, w_port, b_port, shift_w + "_conv" + str(cc) + "_" + str(k+1),\
+                        shift_b + "_conv" + str(cc) + "_" + str(k+1), in_shift, out_shift, in_data, out_data])
+                    else:
+                        function_calls += generate_function_calls1(fun, [str(in_n), str(nn_channel_size_conv_values[conv_counter]), \
+                        str(out_n), str(in_size), str(in_size), str(last1), str(last1), nn_stride_conv_values[conv_counter], nn_padding_conv_values[conv_counter], \
+                        act, w_port, shift_w + "_conv" + str(cc) + "_" + str(k+1),\
+                        in_shift, out_shift, in_data, out_data])
 
                 if k + 1 == int(nn_group_conv_values[conv_counter]):
                     if k > 0:
@@ -187,7 +231,33 @@ def generate_body(arr2, prefix=SEPARATER):
                 conv_weight += int(nn_in_number_conv_values[conv_counter])*int(nn_out_number_conv_values[conv_counter])/\
                     int(nn_group_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])
                 conv_bias += int(nn_out_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])
+                
+                if layers_order[i+1].lower() == "batchnorm":
+                    batch_norm += int(nn_in_number_batch_norm_values[batch_norm_counter])
+                    batch_norm_counter = batch_norm_counter + 1
+                if layers_order[i+2].lower() == "scale":
+                    scale += int(nn_in_number_scale_values[scale_counter])
+                    scale_counter = scale_counter + 1
+                    
             conv_counter = conv_counter + 1
+
+        elif l.lower() == "batchnorm" and layers_order[i-1].lower() == "eltwise" and layers_order[i+1].lower() == "scale":
+            body_str += generate_layer_init("batch_norm_scale_layer", [nn_in_number_batch_norm_values[batch_norm_counter], nn_input_size_eltwise_values[elt_counter-1]])
+            body_str += " B" + str(batch_norm_counter_single+1) + EOS + EOL
+            function_calls += generate_function_calls("B", "batch_norm_scale", layers_order[i+1], str(batch_norm_counter_single+1), [mean, denominator, gamma, scale_beta, shift_batch_norm + str(batch_norm_counter + 1), shift_scale + str(scale_counter + 1), in_data, out_data])
+            shifts += prefix + "int " + shift_batch_norm + str(batch_norm_counter + 1) + EQUAL + str(batch_norm) + EOS + EOL
+            batch_norm += int(nn_in_number_batch_norm_values[batch_norm_counter])
+            shifts += prefix + "int " + shift_scale + str(scale_counter + 1) + EQUAL + str(scale) + EOS + EOL + EOL
+            scale += int(nn_in_number_scale_values[scale_counter])
+            batch_norm_counter_single = batch_norm_counter_single + 1
+            batch_norm_counter = batch_norm_counter + 1
+            scale_counter = scale_counter + 1
+
+        elif l.lower() == "eltwise":
+            body_str += generate_layer_init("eltwise_layer", [nn_in_number_eltwise_values[elt_counter], nn_input_size_eltwise_values[elt_counter]])
+            body_str += " E" + str(elt_counter+1) + EOS + EOL
+            function_calls += generate_function_calls("E", "eltwise", layers_order[i+1], str(elt_counter+1), [in_data, out_data])
+            elt_counter = elt_counter + 1
 
         elif l.lower() == "lrn":
             body_str += generate_layer_init("lrn_layer", [last, nn_local_size_lrn_values[lrn_counter], str(last1)])
@@ -258,16 +328,22 @@ def generate_body(arr2, prefix=SEPARATER):
             shifts += prefix + "int " + shift_w + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_weight) + EOS + EOL
             shifts += prefix + "int " + shift_b + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_bias) + EOS + EOL*2
 
-            function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
-                nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
-                nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
-                act, fc_w_port, fc_b_port, EOL + "#if _BATCH_NORM_" + EOL + SEPARATER + mean, denominator, EOL + "#endif" + \
-                    EOL + "#if _SCALE_" + EOL + SEPARATER + gamma, scale_beta, EOL + "#endif" + EOL + SEPARATER + shift_w + "_fc" + str(fc_counter + 1), shift_b + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
+            if "conv_bias_size" in prms_str:
+                function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
+                    nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
+                    nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
+                    act, fc_w_port, fc_b_port, shift_w + "_fc" + str(fc_counter + 1), shift_b + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
+            else:
+                function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
+                    nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
+                    nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
+                    act, fc_w_port, shift_w + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
 
             fc_counter = fc_counter + 1  	
 
         '''reset output_temp'''
-        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" or l.lower() == "avepooling" or (l.lower() == "innerproduct" and b == True):
+        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" \
+            or l.lower() == "avepooling" or (l.lower() == "innerproduct" and b == True)  or (l.lower() == "batchnorm" and layers_order[i-1].lower() == "eltwise") or l.lower() == "eltwise":
             if out_data == out_data1:
                 in_data = out_data1
                 out_data = out_data2
@@ -312,13 +388,16 @@ def generate_body(arr2, prefix=SEPARATER):
             acc_str += ", max_stride: " + str(max(strides[k1])) + EOL
         #else:
         #    acc_str += ", stride: 1" + EOL
-    
+    if "nn_batch_norm_size" in prms_str:
+        batch_norm += int(nn_in_number_batch_norm_values[batch_norm_counter - 1])
+    if "nn_scale_size" in prms_str:
+        scale += int(nn_in_number_scale_values[scale_counter - 1])
     
     w_fc_last = fc_weight + int(nn_in_number_fc_values[fc_counter-1])*int(nn_out_number_fc_values[fc_counter-1])*\
             int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
     b_fc_last = fc_bias + int(nn_out_number_fc_values[fc_counter-1])
     
-    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, nn_out_number_fc_values[len(nn_out_number_fc_values)-1]]
+    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, batch_norm, batch_norm, scale, scale, nn_out_number_fc_values[len(nn_out_number_fc_values)-1]]
     for i in range(0,2):
         for j in range(1,port_num + 1):
             w_b_arr.append(str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))))
@@ -329,7 +408,7 @@ def generate_body(arr2, prefix=SEPARATER):
 '''new other kind of layer object'''
 '''eg:lrn_layer'''
 def generate_layer_init(name, params, prefix=SEPARATER):
-    if name == "lrn_layer":
+    if name == "lrn_layer" or name == "batch_norm_scale_layer" or name == "eltwise_layer":
         types = "data_type_o, "
     else:
         types = "data_type, data_type_w, data_type_o, "
@@ -345,13 +424,13 @@ def generate_layer_init(name, params, prefix=SEPARATER):
 
 def generate_function_calls1(fun, args, prefix=SEPARATER):
 
-    fn_str = prefix + fun + PARAMETER_BEGIN + ", ".join(args) + PARAMETER_END + EOS + EOL
+    fn_str = prefix + fun + PARAMETER_BEGIN + ", ".join(args) + PARAMETER_END + EOS + EOL + EOL
     
     return fn_str
 
 def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
     str1 = prefix + nm1 + count + CALL_SYMBOL + tp
-    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L":
+    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L" or nm1 == "E" or nm1 == "B":
         str1 += "_layer_a" + PARAMETER_BEGIN
     for i, l in enumerate(args):
         if l != None:
@@ -359,7 +438,7 @@ def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
                 str1 += l
             else:
                 str1 += l + COMMA_SPACE
-    str1 += PARAMETER_END + EOS + EOL
+    str1 += PARAMETER_END + EOS + EOL + EOL
     return str1
 
 def generate_header(head_json, arr):
@@ -383,12 +462,26 @@ def generate_header(head_json, arr):
 
     '''write actual parameters of inference_net function'''
     for s in head_json["intput_parameters"]:
-        if s["pName"] == "fc_out_a":
-            head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
-        elif s["pName"] == "#if _BATCH_NORM_" or s["pName"] == "#endif" or s["pName"] == "#if _SCALE_":
-            head_str += s["pName"] + EOL
+        if "nn_batch_norm_size" in prms_str:
+            if s["pName"] == "fc_out_a":
+                head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
+            elif s["pName"] == "#endif" or s["pName"] == "#if _SCALE_":
+                head_str += s["pName"] + EOL
+            elif s["pName"] == "conv_bias_port" or s["pName"] == "fc_bias_port":
+                if "conv_bias_size" in prms_str:
+                    head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
+            else:
+                head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
         else:
-            head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
+            if s["pName"] == "fc_out_a":
+                head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL        
+            elif s["pName"] == "#endif" or s["pName"] == "#if _SCALE_" or s["pName"] == "mean" or s["pName"] == "denominator" or s["pName"] == "gamma" or s["pName"] == "beta":
+                head_str += ""
+            elif s["pName"] == "conv_bias_port" or s["pName"] == "fc_bias_port":
+                if "conv_bias_size" in prms_str:
+                    head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
+            else:
+                head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
 
     for i in range(0,2):
         for j in range(1,port_num + 1):
@@ -406,22 +499,22 @@ def generate_header(head_json, arr):
 
 def generate_import(import_json, arr):
 
+    arr1 = helping_functions.read_params(sys.argv[1])
+    prms, prms_str = helping_functions.extraction(arr1)
     import_str = EOL
     for import_sen in import_json:
         import_str += import_sen + EOL
 
-    """if arr[0] != 0:
-    import_str += "#include \"conv_layer_one_dim.h\"" + EOL
-    if arr[1] != 0:
-        import_str += "#include \"pool_layer_one_dim.h\"" + EOL"""
     if arr[2] != 0:
         import_str += "#include \"lrn_layer_one_dim.h\"" + EOL
-    #if arr[3] != 0:
-    #    import_str += "#include \"fc_layer_one_dim.h\"" + EOL
-    """if arr[4] != 0:
-        import_str += "#include \"conv_pool_layer_one_dim.h\"" + EOL
-    if arr[5] != 0:
-        import_str += "#include \"conv_lrn_pool_layer_one_dim.h\"" + EOL """  
+    if "nn_batch_norm_size" in prms_str:
+        import_str += "#include \"get_batch_norm_params.h\"" + EOL
+        if "nn_scale_size" in prms_str:
+            import_str += "#include \"batch_norm_scale_layer.h\"" + EOL 
+        else:
+            import_str += "#include \"batch_norm_layer.h\"" + EOL 
+    if "nn_in_number_eltwise_size" in prms_str:
+        import_str += "#include \"eltwise_layer.h\"" + EOL
     return import_str
 
 def generate_end(end_json):
@@ -437,15 +530,27 @@ def generate_pragma(wb_arr):
     pr1 = "#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS"
     pr3 = "#pragma HLS INTERFACE m_axi depth="
     pr4 = " port="
-    arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a"]
+    arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "mean", "denominator", "gamma", "beta", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a"]
     for i in range(0,2):
         for j in range(1,port_num + 1):
             arr.append("temp_out_" + str(i) + "_" + str(j))
 
+    arr1 = helping_functions.read_params(sys.argv[1])
+    prms, prms_str = helping_functions.extraction(arr1)
     pragma_str = EOL*2
-    pragma_str += hls_deb + EOL + pr1 + EOL + EOL
+    pragma_str += hls_deb + EOL + pr1 + EOL
     for i, wb in enumerate(wb_arr[:-1]):
-        pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
+        if arr[i] == "conv_bias_port" or arr[i] == "fc_bias_port":
+            if "conv_bias_size" in prms_str:
+                pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
+        elif arr[i] == "mean" or arr[i] == "denominator":
+            if "nn_batch_norm_size" in prms_str:
+                pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
+        elif arr[i] == "gamma" or arr[i] == "beta":
+            if "nn_scale_size" in prms_str:
+                pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
+        else:
+            pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
     pragma_str += end_deb
     return pragma_str
 

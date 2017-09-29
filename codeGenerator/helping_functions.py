@@ -89,6 +89,8 @@ def params_values(s, arr2):
     	data = arr2[arr2.index(s)+1]    
     	values = data.split()
     	return values
+    else:
+    	return 0
 
 def extraction(arr):
 	arr1 = []
@@ -97,21 +99,30 @@ def extraction(arr):
 	nn_in_data_size_conv_values = params_values("nn_in_data_size_conv", arr)   
 	nn_in_number_conv_values = params_values("nn_in_number_conv", arr)
 	nn_group_conv_values = params_values("nn_group_conv", arr)
- 	nn_channel_size_conv_values = params_values("nn_channel_size_conv", arr)
-	nn_in_number_fc_values = params_values("nn_in_number_fc", arr)
- 	nn_out_number_conv_values = params_values("nn_out_number_conv", arr)
- 	nn_out_number_fc_values = params_values("nn_out_number_fc", arr)
+	nn_channel_size_conv_values = params_values("nn_channel_size_conv", arr)
+	nn_out_number_conv_values = params_values("nn_out_number_conv", arr)
 	nn_padding_conv_values = params_values("nn_padding_conv", arr)
-	nn_stride_conv_values = params_values("nn_stride_conv", arr)   
+	nn_stride_conv_values = params_values("nn_stride_conv", arr) 
+	nn_bias_conv_values = params_values("nn_bias_conv", arr) 
+
 	nn_in_data_size_pooling_values = params_values("nn_in_data_size_pooling", arr) 
-        nn_channel_size_pooling_values = params_values("nn_channel_size_pooling", arr)
-        nn_padding_pooling_values = params_values("nn_padding_pooling", arr) 
-        nn_stride_pooling_values = params_values("nn_stride_pooling", arr)   
-        nn_in_number_pooling_values = params_values("nn_in_number_pooling", arr)
-        nn_in_data_size_fc_values = params_values("nn_in_data_size_fc", arr)
-        nn_channel_size_fc_values = params_values("nn_channel_size_fc", arr)  
-        nn_out_number_fc_values = params_values("nn_out_number_fc", arr)
+	nn_channel_size_pooling_values = params_values("nn_channel_size_pooling", arr)
+	nn_padding_pooling_values = params_values("nn_padding_pooling", arr) 
+	nn_stride_pooling_values = params_values("nn_stride_pooling", arr)   
+	nn_in_number_pooling_values = params_values("nn_in_number_pooling", arr)
+
+	nn_in_number_fc_values = params_values("nn_in_number_fc", arr)
+	nn_in_data_size_fc_values = params_values("nn_in_data_size_fc", arr)
+	nn_channel_size_fc_values = params_values("nn_channel_size_fc", arr)  
+	nn_out_number_fc_values = params_values("nn_out_number_fc", arr)
+	
 	nn_local_size_lrn_values = params_values("nn_local_size_lrn", arr)
+
+	nn_in_number_batch_norm_values = params_values("nn_in_number_batch_norm", arr)
+	nn_in_number_scale_values = params_values("nn_in_number_scale", arr)
+
+	nn_in_number_eltwise_values = params_values("nn_in_number_eltwise", arr)
+	nn_input_size_eltwise_values = params_values("nn_input_size_eltwise", arr)
 	
 	arr1.append(layers_order)
 	arr2.append("layers_order")
@@ -154,14 +165,22 @@ def extraction(arr):
 	arr2.append("nn_channel_size_fc")
 	arr1.append(nn_out_number_fc_values)
 	arr2.append("nn_out_number_fc")
+	arr1.append(nn_in_number_batch_norm_values)
+	arr2.append("nn_in_number_batch_norm")
+	arr1.append(nn_in_number_scale_values)
+	arr2.append("nn_in_number_scale")
+	arr1.append(nn_in_number_eltwise_values)
+	arr2.append("nn_in_number_eltwise")
+	arr1.append(nn_input_size_eltwise_values)
+	arr2.append("nn_input_size_eltwise")
 
 	val = str(int(nn_in_number_conv_values[0])) + " * " +\
 	      str(int(nn_in_data_size_conv_values[0])) + " * " +\
 	      str(int(nn_in_data_size_conv_values[0]))
 	arr1.append(val)
 	arr2.append("in_data_mem_size")
+	
 	val = ""
-
 	for i in range(len(nn_in_number_conv_values)):
 		val += str(int(nn_in_number_conv_values[i]) * int(nn_out_number_conv_values[i]) /\
 			int(nn_group_conv_values[i])*int(nn_channel_size_conv_values[i])*\
@@ -170,16 +189,17 @@ def extraction(arr):
 			val += " + "
 	arr1.append(val)
 	arr2.append("conv_weight_size")
-	val = ""
-
-	for i, v in enumerate(nn_out_number_conv_values):
-		val += v
-		if (i+1) != len(nn_out_number_conv_values):
-			val += " + "
-	arr1.append(val)
-	arr2.append("conv_bias_size")
-	val = ""
 	
+	val = ""
+	if nn_bias_conv_values != 0:
+		for i, v in enumerate(nn_bias_conv_values):
+			val += v
+			if (i+1) != len(nn_bias_conv_values):
+				val += " + "
+		arr1.append(val)
+		arr2.append("conv_bias_size")
+	
+	val = ""
 	for j in range(len(nn_in_number_fc_values)):
 		val += str(int(nn_in_number_fc_values[j])*int(nn_out_number_fc_values[j])*\
 			   int(nn_channel_size_fc_values[j])*int(nn_channel_size_fc_values[j]))
@@ -187,18 +207,46 @@ def extraction(arr):
 			val += " + "
 	arr1.append(val)
 	arr2.append("fc_weight_size")
-	val = ""
 	
+	val = ""
 	for i, out in enumerate(nn_out_number_fc_values):
 		val += out
 		if (i+1) != len(nn_out_number_fc_values):
 			val += " + "
 	arr1.append(val)
 	arr2.append("fc_bias_size")
+	
 	val = ""
-
 	arr1.append(out)
 	arr2.append("fc_out_size")
+
+	val = ""
+	if nn_in_number_batch_norm_values != 0:
+		for i, v in enumerate(nn_in_number_batch_norm_values):
+			val += v
+			if (i+1) != len(nn_in_number_batch_norm_values):
+				val += " + "
+		arr1.append(val)
+		arr2.append("nn_batch_norm_size")
+
+	val = ""
+	if nn_in_number_scale_values != 0:
+		for i, v in enumerate(nn_in_number_scale_values):
+			val += v
+			if (i+1) != len(nn_in_number_scale_values):
+				val += " + "
+		arr1.append(val)
+		arr2.append("nn_scale_size")
+
+	val = ""
+	if nn_in_number_eltwise_values != 0:
+		arr1.append(val)
+		arr2.append("nn_in_number_eltwise_size")
+
+	val = ""
+	if nn_input_size_eltwise_values != 0:
+		arr1.append(val)
+		arr2.append("nn_input_size_eltwise_size")
 
 	maximum = []
 	for l in range(len(nn_in_data_size_conv_values)):

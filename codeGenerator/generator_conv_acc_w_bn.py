@@ -6,11 +6,11 @@ EOL = "\n"
 para = open("parameter3.json", "r")
 port_num = int(json.load(para))
 
-def generate(generated_file_name="conv_acc_innerdf.h"):
+def generate(generated_file_name="conv_acc_innerdf_w_bn.h"):
 	arr = helping_functions.read_params(sys.argv[1])
 	prms, prms_str = helping_functions.extraction(arr)
-	str1 = "#ifndef _CONV_ACC_H_" + EOL
-	str1 += "#define _CONV_ACC_H_" + EOL + EOL 
+	str1 = "#ifndef _CONV_ACC_W_BN_H_" + EOL
+	str1 += "#define _CONV_ACC_W_BN_H_" + EOL + EOL 
 	str1 += "#include <iostream>" + EOL
 	str1 += "#include <fstream>" + EOL
 	str1 += '#include "activation_functions.h"' + EOL + EOL
@@ -19,11 +19,11 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "#endif" + EOL + EOL
 	str1 += "using namespace std;" + EOL + EOL
 	str1 += "template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max>" + EOL
-	str1 += "class conv_acc {" + EOL + EOL
+	str1 += "class conv_acc_w_bn {" + EOL + EOL
 	str1 += "private:" + EOL
 	str1 += "	int conv_layer_number;" + EOL + EOL
 	str1 += "public:" + EOL
-	str1 += "	conv_acc() : conv_layer_number(0) {conv_layer_number = 0;};" + EOL + EOL
+	str1 += "	conv_acc_w_bn() : conv_layer_number(0) {conv_layer_number = 0;};" + EOL + EOL
 
 	str1 += "	////------------------------------C++ debugging functions---------------------------------------////" + EOL
 	str1 += "	// Reset output buffer" + EOL
@@ -149,7 +149,12 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "    void output_res(G out_buf[][Tr][Tc]"
 	for j in range(1,port_num + 1):
 		str1 += ",G " + "*out_data_" + str(j)
-	str1 += ", int out_offset, int n, int m, int r, int c, int N, int M, int R_OUT, int C_OUT, bool act){" + EOL
+	str1 += ", int out_offset, int n, int m, int r, int c, int N, int M, int R_OUT, int C_OUT, bool act" + EOL
+	str1 += "        , W *bn_mean, W *bn_denominator, int bn_offset" + EOL
+	str1 += "#if _SCALE_" + EOL
+	str1 += "        , W *scale_gamma, W *scale_beta, int scale_offset" + EOL
+	str1 += "#endif" + EOL
+	str1 += "        ){" + EOL
 	str1 += "        if (n >= N - Tn) {" + EOL
 	str1 += "            for (int i = m; i < m + Tm; i += " + str(port_num) + ") {" + EOL
 	str1 += "                if (M < m + Tm && i == M) { break; }" + EOL
@@ -157,6 +162,13 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "                    if (R_OUT < r + Tr && j == R_OUT) { break; }" + EOL
 	str1 += "                    for (int k = c; k < c + Tc; k++) {" + EOL
 	str1 += "                        if (C_OUT < c + Tc && k == C_OUT) { break; }" + EOL
+	for j in range(1,port_num + 1):
+		str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] = " + EOL
+		str1 += "                        (out_buf[i + " + str(j-1) + " - m][j - r][k - c] - *(bn_mean + bn_offset + i + " + str(j-1) + ")) * (*(bn_denominator + bn_offset + i + " + str(j-1) + "));" + EOL
+	str1 += "#if _SCALE_" + EOL
+	str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] = " + EOL
+	str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] * (*(scale_gamma + scale_offset + i + " + str(j-1) + ")) + (*(scale_beta + scale_offset + i + " + str(j-1) + "));" + EOL
+	str1 += "#endif" + EOL
 	str1 += "                        if (act) {" + EOL
 	for j in range(1,port_num + 1):
 		str1 += "                        	if (i + " + str(j-1) + " < M)" + EOL
@@ -178,7 +190,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "    }" + EOL
 
 	str1 += "///////////////////////------------------conv accelerator----------------//////////////////////////" + EOL
-	str1 += "    void conv_layer_acc(" + EOL
+	str1 += "    void conv_layer_acc_w_bn(" + EOL
 	str1 += "            int N, //input feature number" + EOL
 	str1 += "            int K, //input kernel size" + EOL
 	str1 += "            int M, // output feature number" + EOL
@@ -192,6 +204,14 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "            W *layer_weights, //w[M][N][K][K]" + EOL
 	if "conv_bias_size" in prms_str:
 		str1 += "            W *layer_bias, // b[M]" + EOL
+	str1 += "            W *bn_mean," + EOL
+	str1 += "            W *bn_denominator," + EOL
+	str1 += "            int bn_offset," + EOL
+	str1 += "#if _SCALE_" + EOL
+	str1 += "            W *scale_gamma," + EOL
+	str1 += "            W *scale_beta," + EOL 
+	str1 += "            int scale_offset," + EOL
+	str1 += "#endif" + EOL
 	str1 += "            int weight_offset," + EOL
 	if "conv_bias_size" in prms_str:
 		str1 += "            int bias_offset," + EOL
@@ -221,7 +241,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "#endif" + EOL + EOL
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Starting conv_acc_innerdf layer ...." << endl;' + EOL
+	str1 += '            cout << "Starting conv_acc_innerdf_w_bn layer ...." << endl;' + EOL
 	str1 += "            //buffer local data initiallization: must do it in C++ debug!" + EOL
 	str1 += "            out_buf_reset(out_buf_1);" + EOL
 	if "conv_bias_size" in prms_str:
@@ -259,14 +279,19 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	for j in range(1,port_num + 1):
 		str1 += ", out_data_" + str(j)
 
-	str1 += ", out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act);" + EOL
+	str1 += ", out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act " + EOL
+	str1 += "                            ,bn_mean, bn_denominator, bn_offset" + EOL
+	str1 += "#if _SCALE_" + EOL
+	str1 += "                            ,scale_gamma, scale_beta, scale_offset" + EOL
+	str1 += "#endif" + EOL
+	str1 += "                            );" + EOL
 	str1 += "                    }" + EOL
 	str1 += "                }" + EOL
 	str1 += "            }" + EOL
 	str1 += "        }" + EOL
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Finished conv_acc_innerdf layer ...." << endl;' + EOL
+	str1 += '            cout << "Finished conv_acc_innerdf_w_bn layer ...." << endl;' + EOL
 	str1 += "            ofstream conv_out;" + EOL
 	str1 += '            conv_out.open("conv_out_data.txt", ios::app);' + EOL
 	str1 += '            conv_out <<"conv output: "<< endl;' + EOL
