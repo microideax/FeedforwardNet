@@ -26,7 +26,7 @@ add_files -tb ../inference_net/stb_image/stb_image_resize.h
 add_files -tb ../inference_net/stb_image/stb_image_write.h
 
 add_files ../ff_test.cpp
-add_files -tb ../net_inputs/test_imgs/50000.png
+add_files -tb ../net_inputs/test_imgs/3.bmp
 add_files -tb ../net_inputs/net_weights.txt
 add_files -tb ../net_inputs/val.txt
 add_files -tb ../net_inputs/net_mean.txt
@@ -45,12 +45,12 @@ open_solution -reset "inference_IP"
 set_part {xcvu9p-flgb2104-2-i}
 create_clock -period 10 -name default
 
-#csim_design -clean -argv {net_weights.txt, 50000.png, val.txt, net_mean.txt}
+#csim_design -clean -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt}
 
 csynth_design
 
 #export_design -flow syn -rtl verilog -format ip_catalog
 
-#cosim_design -argv {net_weights.txt, ILSVRC2012_val_00000001.JPEG, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
+#cosim_design -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 exit

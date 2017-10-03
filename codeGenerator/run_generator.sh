@@ -22,7 +22,7 @@ copy_file(){
 
 printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_params.txt (and batch_norm_mean.txt,batch_norm_denominator.txt,scale_gamma.txt and scale_beta.txt) have already generated in caffe_converter folder!\n\n"
 
-read -p "Please enter test image path: "  test_img_folder
+#read -p "Please enter test image path: "  test_img_folder
 read -p "Please enter test image name: "  test_img_name
 
 #read -p "Please enter the path to val.txt: "  val_path
@@ -56,12 +56,12 @@ copy_file "../fpga_cnn/weight_bias_one_dim.h" "../example/test_demo/inference_ne
 copy_file "../fpga_cnn/image_converter.h" "../example/test_demo/inference_net/" 1
 
 mkdir ../example/test_demo/net_inputs/test_imgs
-copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
+#copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
 
 copy_file "../caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
 copy_file "../caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
 
-copy_file "$test_img_folder/val.txt" "../example/test_demo/net_inputs/" 1
+#copy_file "$test_img_folder/val.txt" "../example/test_demo/net_inputs/" 1
 
 copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1
