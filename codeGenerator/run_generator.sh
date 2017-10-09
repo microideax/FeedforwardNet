@@ -22,7 +22,7 @@ copy_file(){
 
 printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_params.txt (and batch_norm_mean.txt,batch_norm_denominator.txt,scale_gamma.txt and scale_beta.txt) have already generated in caffe_converter folder!\n\n"
 
-#read -p "Please enter test image path: "  test_img_folder
+read -p "Please enter test image path: "  test_img_folder
 read -p "Please enter test image name: "  test_img_name
 
 #read -p "Please enter the path to val.txt: "  val_path
