@@ -156,31 +156,33 @@ def generate(generated_file_name="conv_acc_innerdf_w_bn.h"):
 	str1 += "#endif" + EOL
 	str1 += "        ){" + EOL
 	str1 += "        if (n >= N - Tn) {" + EOL
-	str1 += "            for (int i = m; i < m + Tm; i += " + str(port_num) + ") {" + EOL
-	str1 += "                if (M < m + Tm && i == M) { break; }" + EOL
-	str1 += "                for (int j = r; j < r + Tr; j++) {" + EOL
-	str1 += "                    if (R_OUT < r + Tr && j == R_OUT) { break; }" + EOL
-	str1 += "                    for (int k = c; k < c + Tc; k++) {" + EOL
-	str1 += "                        if (C_OUT < c + Tc && k == C_OUT) { break; }" + EOL
+	str1 += "            for (int j = r; j < r + Tr && j < R_OUT; j++) {" + EOL
+	#str1 += "                if (C_OUT < c + Tc && k == C_OUT) { break; }" + EOL
+	str1 += "                for (int k = c; k < c + Tc && k < C_OUT; k++) {" + EOL
+	#str1 += "                    if (R_OUT < r + Tr && j == R_OUT) { break; }" + EOL
+	str1 += "#pragma HLS PIPELINE" + EOL
+	str1 += "                    for (int i = 0; i < Tm && i < M-m; i += " + str(port_num) + ") {" + EOL
+	#str1 += "#pragma HLS UNROLL" + EOL
+	#str1 += "                        if (M < m + Tm && i+m == M) { break; }" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] = " + EOL
-		str1 += "                        (out_buf[i + " + str(j-1) + " - m][j - r][k - c] - *(bn_mean + bn_offset + i + " + str(j-1) + ")) * (*(bn_denominator + bn_offset + i + " + str(j-1) + "));" + EOL
+		str1 += "                        out_buf[i + " + str(j-1) + "][j - r][k - c] = " + EOL
+		str1 += "                        (out_buf[i + " + str(j-1) + "][j - r][k - c] - *(bn_mean + bn_offset + i + m + " + str(j-1) + ")) * (*(bn_denominator + bn_offset + i + m + " + str(j-1) + "));" + EOL
 	str1 += "#if _SCALE_" + EOL
-	str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] = " + EOL
-	str1 += "                        out_buf[i + " + str(j-1) + " - m][j - r][k - c] * (*(scale_gamma + scale_offset + i + " + str(j-1) + ")) + (*(scale_beta + scale_offset + i + " + str(j-1) + "));" + EOL
+	str1 += "                        out_buf[i + " + str(j-1) + "][j - r][k - c] = " + EOL
+	str1 += "                        out_buf[i + " + str(j-1) + "][j - r][k - c] * (*(scale_gamma + scale_offset + i + m + " + str(j-1) + ")) + (*(scale_beta + scale_offset + i + m + " + str(j-1) + "));" + EOL
 	str1 += "#endif" + EOL
 	str1 += "                        if (act) {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                        	if (i + " + str(j-1) + " < M)" + EOL
-		str1 += "                            	*(out_data_" + str(j) + " + out_offset + (i/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = relu(out_buf[i + " +\
-			str(j-1) + " - m][j - r][k - c]);" + EOL
+		str1 += "                        	if (i + " + str(j-1) + " < M-m)" + EOL
+		str1 += "                            	*(out_data_" + str(j) + " + out_offset + ((i+m)/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = relu(out_buf[i + " +\
+			str(j-1) + "][j - r][k - c]);" + EOL
 
 	str1 += "                        }" + EOL
 	str1 += "                        else {" + EOL
 	for j in range(1,port_num + 1):
-		str1 += "                        	if (i + " + str(j-1) + " < M)" + EOL
-		str1 += "                            	*(out_data_" + str(j) + " + out_offset + (i/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = out_buf[i + " +\
-			str(j-1) + " - m][j - r][k - c];" + EOL
+		str1 += "                        	if (i + " + str(j-1) + " < M-m)" + EOL
+		str1 += "                            	*(out_data_" + str(j) + " + out_offset + ((i+m)/" + str(port_num) + ") * R_OUT * C_OUT + j * C_OUT + k) = out_buf[i + " +\
+			str(j-1) + "][j - r][k - c];" + EOL
 
 	str1 += "                        }" + EOL
 	str1 += "                    }" + EOL
@@ -293,8 +295,8 @@ def generate(generated_file_name="conv_acc_innerdf_w_bn.h"):
 	str1 += "#if _KERNEL_DEBUG_" + EOL
 	str1 += '            cout << "Finished conv_acc_innerdf_w_bn layer ...." << endl;' + EOL
 	str1 += "            ofstream conv_out;" + EOL
-	str1 += '            conv_out.open("conv_out_data.txt", ios::app);' + EOL
-	str1 += '            conv_out <<"conv output: "<< endl;' + EOL
+	str1 += '            conv_out.open("conv_w_bn_out_data.txt",ios::app);' + EOL
+	str1 += '            conv_out <<"conv_w_bn output: "<< endl;' + EOL
 	str1 += "            for (int i = 0; i < M/" + str(port_num) + "; i++) {" + EOL
 	for j in range(1,port_num + 1):
 		str1 += "                for (int j = 0; j < R_OUT; j++) {" + EOL

@@ -1,6 +1,7 @@
 // caffe_converter.cpp : ¶šÒå¿ØÖÆÌšÓŠÓÃ³ÌÐòµÄÈë¿Úµã¡£
 
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include <memory>
 #include <ctime>
@@ -40,16 +41,12 @@ void load(const caffe::LayerParameter& src,int num_input,int num_output,int kern
     //load weight
     for (int o = 0; o < num_output; o++) {
         for (int i = 0; i < num_input; i++) {
-            //cout<<"num_input:"<<num_input<<endl;
-            //cout<<"weights:"<<endl;
             for (int x = 0; x < kernel_size * kernel_size; x++) {
                 out<<src.blobs(0).data(src_idx++)<<" ";
             }
-            //cout<<endl;
         }
     }
     out<<""<<endl;
-    //cout<<"bias:"<<endl;
         if(src.convolution_param().bias_term()==false){
             
         }else{
@@ -61,7 +58,6 @@ void load(const caffe::LayerParameter& src,int num_input,int num_output,int kern
             out<<""<<endl;
         }
     out.close();
-    //cout<<endl;
 }
 
 void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
@@ -71,46 +67,29 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
     int num_input=input_param[0];
     int input_size=input_param[1];
     int num_output=0;
-    cout <<"channel: "<<num_input<<endl;
-    cout <<"num_layers: "<<num_layers<<endl;
     for (int i = 0; i < src_net.size(); i++) {
         int pad=0;
         int kernel_size=0;
         int stride=1;
     // name，type，kernel size，pad，stride
-        cout << "Layer " << i << ":" << src_net[i].name() << "\t" << src_net[i].type()<<endl;
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="ConvolutionRistretto"){//get conv_layers' kernel_size,num_output
             ConvolutionParameter conv_param = src_net[i].convolution_param();
             num_output=conv_param.num_output();
-            cout << "num_output: " << num_output<<endl;
             if (conv_param.pad_size()>0){
                 pad=conv_param.pad(0);
             }
-            cout<<"pad: "<<pad<<endl;
             //google::protobuf::RepeatedField<string> repeated_field;
-            //cout<<"~~~~~~~"<<endl;
             //repeated_field.size();
-            //cout<<"~~~~~~~"<<endl;
-           //cout<<repeated_field.size()<<endl;
-            //pad=conv_param.pad(0);
             kernel_size=conv_param.kernel_size(0);
-            cout << "kernel size: " << kernel_size<<endl;
             if (conv_param.stride_size()>0){
                 stride=conv_param.stride(0);
             }
-            cout << "stride: " << stride<<endl;
             input_size = (input_size + 2 * pad - kernel_size) / stride + 1;
             num_input=num_input/conv_param.group();
-            cout << "num_input: " << num_input<<endl;
-            cout << "num_output: " << num_output<<endl;
-            cout << "conv_output_size: " << input_size<<endl;
         }else if(src_net[i].type()=="InnerProduct"){//get fc_layers' kernel_size,num_output
             InnerProductParameter inner_product_param = src_net[i].inner_product_param();
             kernel_size=input_size;
-            cout << "kernel size: " << kernel_size<<endl;
             num_output=inner_product_param.num_output();
-            cout << "num_input: " << num_input<<endl;
-            cout << "num_output: " << num_output<<endl;
             input_size=1;
         }else if(src_net[i].type()=="Pooling"){//get pooling_layers' kernel_size,num_output
             PoolingParameter pooling_param = src_net[i].pooling_param();
@@ -118,55 +97,6 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
             kernel_size=pooling_param.kernel_size();
             stride=pooling_param.stride();
             input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
-            cout << "kernel size: " << kernel_size<<endl;
-            cout << "pooling_output_size: " << input_size<<endl;
-            //num_output=input_param.crop_size();
-            //cout << "num_input_2: " << num_input<<endl;
-            //cout << "shape: " << input_param.crop_size()<<endl;
-        }else if(src_net[i].type()=="BatchNorm"){
-            BatchNormParameter param = src_net[i].batch_norm_param();
-            float eps = param.eps();
-            //float mean = param.mean();
-            ofstream out;
-            //out.open("batch_norm_eps.txt",ios::app);
-            //out<<eps<<endl;
-            //out<<endl;
-            //out.close();
-            out.open("batch_norm_mean.txt",ios::app);
-            for(int j=0;j<num_input;j++){
-                out<<src_net[i].blobs(0).data(j) / src_net[i].blobs(2).data(0)<<" ";
-            }
-            out<<endl;
-            out<<endl;
-            out.close();
-            out.open("batch_norm_denominator.txt",ios::app);
-            for(int j=0;j<num_input;j++){
-                out<<1/pow(src_net[i].blobs(1).data(j) / src_net[i].blobs(2).data(0) + eps, 0.5)<<" ";
-            }
-            out<<endl;
-            out<<endl;
-            out.close();
-        }else if(src_net[i].type()=="Scale"){
-            ScaleParameter param = src_net[i].scale_param();
-            ofstream out;
-            out.open("scale_batch_size.txt",ios::app);
-            out<<param.axis()<<endl;
-            out<<endl;
-            out.close();
-            out.open("scale_gamma.txt",ios::app);
-            for(int j=0;j<num_input;j++){
-                out<<src_net[i].blobs(0).data(j)<<" ";
-            }
-            out<<endl;
-            out<<endl;
-            out.close();
-            out.open("scale_beta.txt",ios::app);
-            for(int j=0;j<num_input;j++){
-                out<<src_net[i].blobs(1).data(j)<<" ";
-            }
-            out<<endl;
-            out<<endl;
-            out.close();
         }
 
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"){
@@ -175,12 +105,10 @@ void reload_weight_from_caffe_net(const caffe::NetParameter& layer,int input_par
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
             num_input=num_output;//set each layer's num_input equals to the last layer's num_output
         }
-        cout<<endl;
-        
     }
 }
 
-void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input_param[])
+void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input_param[],int net_has_eltwise_layer[])
 {
     caffe_layer_vector src_net(layer);
     int num_input=input_param[0];
@@ -189,6 +117,12 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     bool has_batch_norm_layer=false;
     bool has_scale_layer=false;
     bool has_eltwise_layer=false;
+    bool has_match_conv_layer=false;
+    bool is_match_conv_layer_next=false;
+    int in_num_match_conv_layer=0;
+    int in_size_match_conv_layer=0;
+    bool is_match_conv_layer=false;
+    bool is_single_line=true;
     
     //conv_layer config params
     vector<int> nn_in_data_size_conv;
@@ -230,10 +164,76 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
 
     int num_output=0;
     ofstream out;
-    out.open("net_config_params.txt",ios::app);
+    out.open("net_config_params.txt");
+    ofstream out_bottom;
+    ofstream out_match_conv;
+    ofstream out_eltwise_bottom;
     out<<"Network Structure: ";
+    //judge if the net is single line structure
     for (int i = 0; i < src_net.size(); i++) {
+        if(src_net[i].type()=="Eltwise"){
+            is_single_line=false;
+            break;
+        }
+    }
+    //save split_layer & match_conv_layer's serial number into file
+    for (int i = 0; i < src_net.size(); i++) {
+        cout << "Layer " << i << ":" << src_net[i].name() << "\t" << src_net[i].type()<<endl;
+        int bottom_count=0;
+        for(int j = i;j < src_net.size()-1; j++){
+            if(src_net[j].type()!="Input"){
+                if(src_net[j].bottom(0)==src_net[i].name()){
+                    bottom_count++;
+                    if(src_net[j+1].bottom(0)==src_net[j].name()&&src_net[j+1].type()=="Eltwise"){
+                        out_match_conv.open("match_conv_layer_serial.txt",ios::app);
+                        out_match_conv<<j<<" ";
+                        out_match_conv.close();
+                    }
+                }
+            }
+        }
+        if((!is_single_line&&bottom_count==2)||(bottom_count==4&&src_net[i].type()=="BatchNorm")){
+            out_bottom.open("split_layer_serial.txt",ios::app);
+            out_bottom<<i<<" ";
+            out_bottom.close();
+        }
+    }
+    //save match_conv_layer's bottom layer's serial number for judgement latter
+    std::vector<float> match_conv_layer_serial;
+    std::vector<float> in_match_conv_layer;
+    if(!is_single_line){
+        ifstream ifs1("match_conv_layer_serial.txt");
+        string str1;
+        while (ifs1 >> str1){
+            float f = atof(str1.c_str());
+            match_conv_layer_serial.push_back(f);
+        }
+        std::vector<int> split_layer_serial;
+        ifstream ifs2("split_layer_serial.txt");
+        string str2;
+        while (ifs2 >> str2){
+            float f = atof(str2.c_str());
+            split_layer_serial.push_back(f);
+        }
+        for(int i=0;i<match_conv_layer_serial.size();i++){
+            for(int j=0;j<split_layer_serial.size()-1;j++){
+                if(split_layer_serial[j]<match_conv_layer_serial[i]&&split_layer_serial[j+1]>match_conv_layer_serial[i]){
+                    in_match_conv_layer.push_back(split_layer_serial[j]);
+                    break;
+                }
+            }
+        }
+    }
+    //save net necessary config information into file
+    for (int i = 0; i < src_net.size(); i++) {
+        int pad=0;
+        int kernel_size=0;
+        int stride=1;
+        bool tag=false;
         if(src_net[i].type()=="Pooling"){
+            if(src_net[i].pooling_param().global_pooling()){
+                out<<"Global";
+            }
             if(src_net[i].pooling_param().pool()==0){
                 out<<"Max"<<src_net[i].type();
             }else if(src_net[i].pooling_param().pool()==1){
@@ -242,13 +242,21 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
         }else{
             out<<src_net[i].type();
         }
-        int pad=0;
-        int kernel_size=0;
-        int stride=1;
-        bool tag=false;
         if(src_net[i].type()=="Convolution"){
+            if(!is_single_line){
+                for(int j=0;j<match_conv_layer_serial.size();j++){
+                    if(int(match_conv_layer_serial[j])==i){
+                        is_match_conv_layer=true;
+                    }
+                }
+            }
             ConvolutionParameter conv_param = src_net[i].convolution_param();
-            nn_in_data_size_conv.push_back(input_size);
+            if(is_match_conv_layer){
+                nn_in_data_size_conv.push_back(in_size_match_conv_layer);
+                is_match_conv_layer=false;
+            }else{
+                nn_in_data_size_conv.push_back(input_size);
+            }
             num_output=conv_param.num_output();
             nn_out_number_conv.push_back(num_output);
             kernel_size=conv_param.kernel_size(0);
@@ -282,6 +290,13 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
                 nn_bias_conv.push_back(0);
             else
                 nn_bias_conv.push_back(num_output);
+            if(!is_single_line){
+                for(int j=0;j<match_conv_layer_serial.size();j++){
+                    if(int(match_conv_layer_serial[j])==i+1){
+                        is_match_conv_layer_next=true;
+                    }
+                }
+            }
         }else if(src_net[i].type()=="InnerProduct"){
             InnerProductParameter inner_product_param = src_net[i].inner_product_param();
             nn_in_data_size_fc.push_back(input_size);
@@ -305,7 +320,20 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             nn_channel_size_pooling.push_back(kernel_size);
             stride=pooling_param.stride();
             nn_stride_pooling.push_back(stride);
-            input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
+            if(src_net[i].pooling_param().global_pooling()){
+                input_size = 1;
+            }else{
+                input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
+            }
+            if(!is_single_line){
+                for(int j=0;j<in_match_conv_layer.size();j++){
+                    if(int(in_match_conv_layer[j])==i){
+                        has_match_conv_layer=true;
+                        in_num_match_conv_layer=num_input;
+                        in_size_match_conv_layer=input_size;
+                    }
+                }
+            } 
         }else if(src_net[i].type()=="LRN"){
             has_lrn_layer=true;
             int local_size=src_net[i].lrn_param().local_size();
@@ -317,16 +345,41 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
         }else if(src_net[i].type()=="BatchNorm"){
             has_batch_norm_layer=true;
             nn_in_number_batch_norm.push_back(num_input);
+            if(!is_single_line){
+                for(int j=0;j<in_match_conv_layer.size();j++){
+                    if(int(in_match_conv_layer[j])==i){
+                        has_match_conv_layer=true;
+                        in_num_match_conv_layer=num_input;
+                        in_size_match_conv_layer=input_size;
+                    }
+                }
+            }
         }else if(src_net[i].type()=="Scale"){
             has_scale_layer=true;
             nn_in_number_scale.push_back(num_input);
         }else if(src_net[i].type()=="Eltwise"){
             has_eltwise_layer=true;
+            net_has_eltwise_layer[0]=1;
             nn_in_number_eltwise.push_back(num_input);
             nn_input_size_eltwise.push_back(input_size);
+            for(int j = i;j >= 0; j--){
+                if(src_net[i].bottom(0)==src_net[j].name()||src_net[i].bottom(1)==src_net[j].name()){
+                    out_eltwise_bottom.open("eltwise_bottom_layer_serial.txt",ios::app);
+                    out_eltwise_bottom<<j<<" ";
+                    out_eltwise_bottom.close();
+                }
+            }
+            out_eltwise_bottom.open("eltwise_bottom_layer_serial.txt",ios::app);
+            out_eltwise_bottom<<i<<" ";
+            out_eltwise_bottom.close();
         }
         if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
             num_input=num_output;//set each layer's num_input equals to the last layer's num_output
+            if(has_match_conv_layer&&is_match_conv_layer_next){
+                num_input=in_num_match_conv_layer;
+                has_match_conv_layer=false;
+                is_match_conv_layer_next=false;
+            }
         }
         if(tag){
             out<<")";
@@ -496,6 +549,7 @@ void create_net_from_caffe_prototxt(const std::string& caffeprototxt,int input_p
 {
     caffe::NetParameter np;
     read_proto_from_text(caffeprototxt, &np);
+    cout <<"net_name: "<<np.name()<<endl;
     create_net_from_caffe_net(np,input_param);
 }
 
@@ -504,8 +558,6 @@ void reload_weight_from_caffe_protobinary(const std::string& caffebinary,int inp
     caffe::NetParameter np;
 
     read_proto_from_binary(caffebinary, &np);
-    cout <<"net_name: "<<np.name()<<endl;
-    //cout<<np.input()<<endl;
     reload_weight_from_caffe_net(np,input_param);
 }
 
@@ -521,37 +573,41 @@ void compute_mean(const string& mean_file)
         channels.emplace_back(blob.height(), blob.width(), CV_32FC1, data);
 
     ofstream out;
-    out.open("net_mean.txt",ios::app);
+    out.open("net_mean.txt");
     cv::Mat mean;
     cv::merge(channels, mean);
     out<<cv::Mat(cv::Size(1, 1), mean.type(), cv::mean(mean))<<" ";
     out.close();
 }
 
-void get_config_params_from_caffe_protobinary(const std::string& caffebinary,int input_param[])
+void get_config_params_from_caffe_protobinary(const std::string& caffebinary,int input_param[],int net_has_eltwise_layer[])
 {
     caffe::NetParameter np;
 
     read_proto_from_text(caffebinary, &np);
-    get_config_params_from_caffe_net(np,input_param);
+    get_config_params_from_caffe_net(np,input_param,net_has_eltwise_layer);
 }
 
 void test_has_mean(const string& model_file,
           const string& trained_file,
           const string& mean_file) {
     int input_param[]={0,0};
+    int net_has_eltwise_layer[]={0};
     create_net_from_caffe_prototxt(model_file,input_param);
-    reload_weight_from_caffe_protobinary(trained_file,input_param);
+    get_config_params_from_caffe_protobinary(model_file,input_param,net_has_eltwise_layer);
+    if(!net_has_eltwise_layer[0]){
+        reload_weight_from_caffe_protobinary(trained_file,input_param);
+    }
     compute_mean(mean_file);
-    get_config_params_from_caffe_protobinary(model_file,input_param);
 }
 
 void test_no_mean(const string& model_file,
           const string& trained_file) {
     int input_param[]={0,0};
+    int net_has_eltwise_layer[]={0};
     create_net_from_caffe_prototxt(model_file,input_param);
     reload_weight_from_caffe_protobinary(trained_file,input_param);
-    get_config_params_from_caffe_protobinary(model_file,input_param);
+    get_config_params_from_caffe_protobinary(model_file,input_param,net_has_eltwise_layer);
 }
 
 int main(int argc, char** argv) {

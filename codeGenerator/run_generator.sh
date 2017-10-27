@@ -25,8 +25,6 @@ printf "\nPlease make sure the net_mean.txt,net_weights.txt and net_config_param
 read -p "Please enter test image path: "  test_img_folder
 read -p "Please enter test image name: "  test_img_name
 
-#read -p "Please enter the path to val.txt: "  val_path
-
 prm_file_name="net_config_params.txt"
 
 if [ -f $prm_file_name ] ; then
@@ -40,11 +38,6 @@ then
 copy_file "../fpga_cnn/lrn_layer_one_dim.h" "../example/test_demo/inference_net/" 1
 fi
 
-#if grep -q "fc" "$prm_file_name"; 
-#then
-#copy_file "../fpga_cnn/fc_layer_one_dim.h" "../example/test_demo/inference_net/" 1
-#fi
-
 copy_file "../scripts/hls_script.tcl" "../example/test_demo/hls_impl/" 1
 copy_file "../scripts/syn.sh" "../example/test_demo/hls_impl/" 1
 copy_file "../stb_image" "../example/test_demo/inference_net/" 2
@@ -56,7 +49,7 @@ copy_file "../fpga_cnn/weight_bias_one_dim.h" "../example/test_demo/inference_ne
 copy_file "../fpga_cnn/image_converter.h" "../example/test_demo/inference_net/" 1
 
 mkdir ../example/test_demo/net_inputs/test_imgs
-#copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
+copy_file "$test_img_folder/$test_img_name" "../example/test_demo/net_inputs/test_imgs/" 1
 
 copy_file "../caffe_converter/net_mean.txt" "../example/test_demo/net_inputs/" 1
 copy_file "../caffe_converter/net_weights.txt" "../example/test_demo/net_inputs/" 1
@@ -67,13 +60,6 @@ copy_file "../scripts/Makefile" "../example/test_demo/" 1
 copy_file "../fpga_cnn/predict_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/accuracy_one_dim.h" "../example/test_demo/inference_net/" 1
 copy_file "../fpga_cnn/resize_image.h" "../example/test_demo/inference_net/" 1
-
-#copy_file "../fpga_cnn/conv_acc_innerdf_1.h" "../example/test_demo/inference_net/" 1
-#copy_file "../fpga_cnn/conv_acc_break_noact.h" "../example/test_demo/inference_net/" 1
-#copy_file "../fpga_cnn/ave_pool_acc_innerdf.h" "../example/test_demo/inference_net/" 1
-#copy_file "../fpga_cnn/ave_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
-#copy_file "../fpga_cnn/max_pool_acc_innerdf.h" "../example/test_demo/inference_net/" 1
-#copy_file "../fpga_cnn/max_pool_acc_noact.h" "../example/test_demo/inference_net/" 1
 
 python generator_config.py $prm_file_name
 python generator_ff_test.py $prm_file_name $test_img_name
@@ -113,6 +99,7 @@ fi
 if grep -q "Eltwise" "$prm_file_name"; 
 then
 copy_file "../fpga_cnn/eltwise_layer.h" "../example/test_demo/inference_net/" 1
+python generator_conv_acc_fc.py $prm_file_name 
 fi
 
 printf "You've generated the network successfully!\n\n"

@@ -35,7 +35,7 @@ public:
 		T *out_data3D) {
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        cout << "Starting batch norm scale layer ...." << endl;
+        cout << "Starting batch_norm_scale layer ...." << endl;
 #endif
 #endif
 			T gamma_=0;
@@ -57,9 +57,9 @@ public:
 			}
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        cout << "Finished batch norm scale layer ...." << endl;
+        cout << "Finished batch_norm_scale layer ...." << endl;
 		ofstream out_batch_norm_scale_a;
-		out_batch_norm_scale_a.open("batch_norm_scale_layer_a.txt", ios::app);
+		out_batch_norm_scale_a.open("batch_norm_scale_layer_a.txt",ios::app);
 		out_batch_norm_scale_a << "output from batch norm scale layer .........................." << endl;
 		for(int n = 0; n < _IN_CHANNEL_NUM_; n++){
 			for(int i=0;i<_INPUT_SIZE_;i++){

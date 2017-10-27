@@ -44,7 +44,7 @@ public:
 #if _KERNEL_DEBUG_
         cout << "Finished eltwise layer ...." << endl;
 		ofstream out_eltwise_a;
-		out_eltwise_a.open("eltwise_layer_a.txt", ios::app);
+		out_eltwise_a.open("eltwise_layer_a.txt",ios::app);
 		out_eltwise_a << "output from eltwise layer .........................." << endl;
 		for(int n = 0; n < _IN_CHANNEL_NUM_; n++){
 			for(int i=0;i<_INPUT_SIZE_;i++){

@@ -89,7 +89,6 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		else:
 			print "Please enter \"color\" for colored image and \"grayscale\" for grayscaled one "
 
-
 	sz = "sizeof"
 	ms = "memset"
 	body_str = EOL
@@ -108,10 +107,11 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	arr4 = arr1[arr1_str.index("fc_weight_size")].split(" + ")
 	arr5 = arr1[arr1_str.index("fc_bias_size")].split(" + ")
 	n_layers = arr1[arr1_str.index("n")]
+	layers_order = arr1[arr1_str.index("layers_order")]
 
 	fc_out = "fc_" + str(n_layers) + "_out"
 
-	#make only one nn_batch_norm_size and nn_scale_size declaration
+	'''make only one nn_batch_norm_size and nn_scale_size declaration'''
 	repeat1 = False
 	repeat2 = False
 	for k, var_sen in enumerate(body_json["var_init"]):
@@ -151,7 +151,6 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	print "\nPlease make sure the Tm and Tn can be divided by the number of ports!"
 	port_num = int(helping_functions.prompt("\nPlease enter the number of ports: "))
 	with open("parameter3.json","w") as f:
-		#json.dump(BODY_BEGIN + EOL + "\"port_num\":\""+str(port_num)+"\"" + EOL + BODY_END,f)
 		json.dump(str(port_num),f)
 
 	maximum = ""
@@ -167,7 +166,16 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			body_str += str(maximum)
 			body_str += PARAMETER_END + MULT + sz +\
 						PARAMETER_BEGIN + "data_type_o" + PARAMETER_END +\
-						EOS + EOL		
+						EOS + EOL	
+	if "Eltwise" in layers_order:
+			for j in range(1,port_num + 1):
+				body_str += prefix + "unsigned int" + SPACE
+				body_str += "out_size_2_" + str(j)
+				body_str += EQUAL + PARAMETER_BEGIN 
+				body_str += str(maximum)
+				body_str += PARAMETER_END + MULT + sz +\
+							PARAMETER_BEGIN + "data_type_o" + PARAMETER_END +\
+							EOS + EOL	
 
 	ker = 0
 	for k, var_sen in enumerate(body_json["var_init"]):
@@ -204,6 +212,14 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			cond = "temp_out_" + str(i) + "_" + str(j) + " == " + NULL
 			alloc_str += prefix + helping_functions.generate_if(cond, [out_json[1] + "temp_out_" + str(i) + "_" + str(j) + "\\n\"" +\
 			     PARAMETER_END + EOS], ["printf(\"" + "temp_out_" + str(i) + "_" + str(j) + " memory location" + "= 0x%x \\n\", " + "temp_out_" + str(i) + "_" + str(j) + PARAMETER_END + EOS], 1)
+	if "Eltwise" in layers_order:
+		for j in range(1,port_num + 1):
+			alloc_str += prefix + "data_type_o *" + "temp_out_2_" + str(j)
+			alloc_str += EQUAL + PARAMETER_BEGIN + "data_type_o *" + PARAMETER_END +\
+			     "malloc" + PARAMETER_BEGIN + "out_size_2_" + str(j) + PARAMETER_END + EOS + EOL 
+			cond = "temp_out_2_" + str(j) + " == " + NULL
+			alloc_str += prefix + helping_functions.generate_if(cond, [out_json[1] + "temp_out_2_" + str(j) + "\\n\"" +\
+			     PARAMETER_END + EOS], ["printf(\"" + "temp_out_2_" + str(j) + " memory location" + "= 0x%x \\n\", " + "temp_out_2_" + str(j) + PARAMETER_END + EOS], 1)
 
 	body_str1 += KERNEL + EOL
 	body_str1 += prefix + out_json[2] + EOL
@@ -219,6 +235,10 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		for j in range(1,port_num + 1):
 			body_str1 += prefix + "memset" + PARAMETER_BEGIN + "temp_out_" + str(i) + "_" + str(j)
 			body_str1 += ", 0, " + "out_size_" + str(i) + "_" + str(j) + PARAMETER_END + EOS + EOL
+	if "Eltwise" in layers_order:
+		for j in range(1,port_num + 1):
+			body_str1 += prefix + "memset" + PARAMETER_BEGIN + "temp_out_2_" + str(j)
+			body_str1 += ", 0, " + "out_size_2_" + str(j) + PARAMETER_END + EOS + EOL
 
 	body_str1 += PREP_ENDIF + EOL*2
 
@@ -228,50 +248,50 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	body_str1 += PREP_ELSE + EOL
 	body_str1 += prefix + "const char* weight_src = \"net_inputs/net_weights.txt\";" + EOL
 	body_str1 += PREP_ENDIF + EOL
-	body_str1 += prefix + comm_json[1] + EOL
-	body_str1 += HLS + EOL
-	body_str1 += prefix + "ifstream ifs1(\"net_mean.txt\");" + EOL
-	body_str1 += PREP_ELSE + EOL
-	body_str1 += prefix + "ifstream ifs1(\"net_inputs/net_mean.txt\");" + EOL
-	body_str1 += PREP_ENDIF + EOL	
-	body_str1 += EOL*3
 
-	body_str1 += prefix + "float channel_mean[3] = { 0 };" + EOL +\
+	#body_str1 += HLS + EOL
+	#body_str1 += prefix + "ifstream ifs(\"val.txt\");" + EOL
+	#body_str1 += PREP_ELSE + EOL
+	#body_str1 += prefix + "ifstream ifs(\"net_inputs/val.txt\");" + EOL
+	#body_str1 += PREP_ENDIF + EOL
+	#body_str1 += prefix + "string val_name[10];" + EOL + prefix + "float val_class[10];" +\
+	#	     EOL + prefix + "string str;" + EOL
+	#body_str1 += prefix + helping_functions.generate_if("!ifs", [out_json[6], "getchar();"], "", 1)
+	#body_str1 += prefix + "int num = 0;" + EOL
+	#body_str1 += prefix + helping_functions.generate_while("ifs >> str&&num<20", 
+	#			             [helping_functions.generate_if("num % 2 == 1", ["val_class[num / 2] = int(atof(str.c_str()));"], 
+	#				     ["val_name[num / 2] = str;"], 2), "num++;"], 1)
+	#body_str1 += prefix + "ifs.close();" + EOL*2
+	indata_mem = arr1[arr1_str.index("in_data_mem_size")].split(" * ")
+	if chn == 3:
+		body_str1 += prefix + comm_json[1] + EOL
+		body_str1 += HLS + EOL
+		body_str1 += prefix + "ifstream ifs1(\"net_mean.txt\");" + EOL
+		body_str1 += PREP_ELSE + EOL
+		body_str1 += prefix + "ifstream ifs1(\"net_inputs/net_mean.txt\");" + EOL
+		body_str1 += PREP_ENDIF + EOL	
+		body_str1 += EOL*2
+		body_str1 += prefix + "float channel_mean[3] = { 0 };" + EOL +\
 		     prefix + "string str1;" + EOL +\
 		     prefix + "string y1 = \"[\";" + EOL +\
 		     prefix + "string y2 = \"]\";" + EOL +\
 		     prefix + helping_functions.generate_if("!ifs1", [out_json[5], "getchar();"], "", 1) 
-	body_str1 += prefix + "int index = 0;" + EOL
-	body_str1 += prefix + helping_functions.generate_while("ifs1 >> str1", ["int p1 = str1.find(y1, 0);", 
+		body_str1 += prefix + "int index = 0;" + EOL
+		body_str1 += prefix + helping_functions.generate_while("ifs1 >> str1", ["int p1 = str1.find(y1, 0);", 
 		     helping_functions.generate_if("p1 >= 0", ["str1.erase(p1, y1.length());"], "", 2),
 		     "int p2 = str1.find(y2, 0);", 
 		     helping_functions.generate_if("p2 >= 0", ["str1.erase(p2, y2.length());"], "", 2),
 		     "float f = atof(str1.c_str());",
 		     "channel_mean[index] = f;",
 		     "index++;"], 1)
-	body_str1 += prefix + "ifs1.close();" + EOL*2
-	body_str1 += prefix + comm_json[2] + EOL
-	body_str1 += HLS + EOL
-	body_str1 += prefix + "ifstream ifs(\"val.txt\");" + EOL
-	body_str1 += PREP_ELSE + EOL
-	body_str1 += prefix + "ifstream ifs(\"net_inputs/val.txt\");" + EOL
-	body_str1 += PREP_ENDIF + EOL
-	body_str1 += prefix + "string val_name[10];" + EOL + prefix + "float val_class[10];" +\
-		     EOL + prefix + "string str;" + EOL
-	body_str1 += prefix + helping_functions.generate_if("!ifs", [out_json[6], "getchar();"], "", 1)
-	body_str1 += prefix + "int num = 0;" + EOL
-	body_str1 += prefix + helping_functions.generate_while("ifs >> str&&num<20", 
-				             [helping_functions.generate_if("num % 2 == 1", ["val_class[num / 2] = int(atof(str.c_str()));"], 
-					     ["val_name[num / 2] = str;"], 2), "num++;"], 1)
-	body_str1 += prefix + "ifs.close();" + EOL*2
-	indata_mem = arr1[arr1_str.index("in_data_mem_size")].split(" * ")
-   	if chn == 3:
-        	height = helping_functions.prompt("Please enter the height of the image: ")
-        	width = helping_functions.prompt("Please enter the width of the image: ")
+		body_str1 += prefix + "ifs1.close();" + EOL*2
+		body_str1 += prefix + comm_json[2] + EOL
+		height = helping_functions.prompt("Please enter the height of the image: ")
+		width = helping_functions.prompt("Please enter the width of the image: ")
 		
 		body_str1 += prefix + comm_json[3] + EOL
 		body_str1 += KERNEL + EOL + HLS + EOL +\
-	   		     prefix + "string image_dir = \"" + sys.argv[2] + "\";" + EOL + PREP_ELSE + EOL +\
+			     prefix + "string image_dir = \"" + sys.argv[2] + "\";" + EOL + PREP_ELSE + EOL +\
 			     prefix + "string image_dir = \"./net_inputs/test_imgs/" + sys.argv[2] + "\"" + EOS + EOL +\
 			     PREP_ENDIF + EOL
 		
@@ -319,7 +339,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 			     prefix + "const unsigned char * image_orig = stbi_load_from_memory(data, size, &w, &h, &channels, 1);" +\
 			     EOL 
 		body_str1 += prefix + "int in_data_size=0;" + EOL
-		body_str1 += prefix + "ofstream indata;" + EOL + prefix + "indata.open(\"in_data.txt\", ios::app);"+ EOL
+		body_str1 += prefix + "ofstream indata;" + EOL + prefix + "indata.open(\"in_data.txt\");"+ EOL
 		body_str1 += prefix + helping_functions.generate_for_loop("i", "int", 0, 1, [helping_functions.generate_for_loop("j", "int", 0, indata_mem[2], [helping_functions.generate_for_loop("k", "int", 0, indata_mem[2], ["indata << image_orig[i *" + indata_mem[2] + "*" + indata_mem[2] + " + " + indata_mem[2] + "*j + k] << \" \";"], 3, 1), "indata << endl;"], 2, 1), "indata << endl;"], 1, 1)
 		body_str1 += prefix + "indata.close();" + EOL*2
 
@@ -355,8 +375,7 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 	if "conv_bias_size" in arr1_str:
 		body_str1 += prefix + "conv_bias_mem_port," + EOL 
 	body_str1 += prefix + "fc_weight_mem_port," + EOL
-	if "conv_bias_size" in arr1_str:
-		body_str1 += prefix + "fc_bias_mem_port," + EOL 
+	body_str1 += prefix + "fc_bias_mem_port," + EOL 
 	if "nn_batch_norm_size" in arr1_str:
 		body_str1 += prefix + "batch_norm_mem_port_param1," + EOL + prefix + "batch_norm_mem_port_param2," + EOL
 	if "nn_scale_size" in arr1_str:
@@ -364,12 +383,22 @@ def generate_body(body_json, out_json, comm_json, arr, prefix=SEPARATER):
 		     
 	body_str1 += KERNEL + EOL + prefix + comm_json[8] + EOL + prefix + "fc_" + str(n_layers) + "_out_mem_int," + EOL
 
-	for i in range(0,2):
-		for j in range(1,port_num + 1):
-			if i == 1 and j == port_num:
-				body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + ");" + EOL*2
-			else:
+	if "Eltwise" in layers_order:
+		for i in range(0,2):
+			for j in range(1,port_num + 1):
 				body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + "," + EOL
+		for j in range(1,port_num + 1):
+				if j == port_num:
+					body_str1 += prefix + "temp_out_2_" + str(j) + ");" + EOL*2
+				else:
+					body_str1 += prefix + "temp_out_2_" + str(j) + "," + EOL
+	else:
+		for i in range(0,2):
+			for j in range(1,port_num + 1):
+				if i == 1 and j == port_num:
+					body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + ");" + EOL*2
+				else:
+					body_str1 += prefix + "temp_out_" + str(i) + "_" + str(j) + "," + EOL
 
 	body_str1 += prefix + "finish = clock();" + EOL + prefix +\
   		     "totaltime = (double)(finish - start) / CLOCKS_PER_SEC;" +\
@@ -413,12 +442,18 @@ def generate_weights_biases(length, s, arr1, arr2, prefix=SEPARATER):
 		b_name = s + "_" + str(c + 1) + "_bias2D"
 		wb_str += prefix + comm + s + " layer " + str(c+1) + EOL
 		wb_str += generate_w_b(c_name, arr1, "weight", c, s)
-		if "conv_bias_size" in arr_str:
+		if s == "conv":
+			if "conv_bias_size" in arr_str:
+				wb_str += generate_w_b(b_name, arr2, "bias", c, s)
+		elif s == "fc":
 			wb_str += generate_w_b(b_name, arr2, "bias", c, s)
 		wb_str += prefix + "in_number_" + s +"++;" + EOL + EOL
 
 	wb_str += prefix + "cout<<\"Finished loading " + s + " weight into memory! Total: \" <<" + s +"_weight_num  << \"... ... ...\"<<endl;" + EOL
-	if "conv_bias_size" in arr_str:
+	if s == "conv":
+		if "conv_bias_size" in arr_str:
+			wb_str += prefix +  "cout<<\"Finished loading " + s + " bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
+	elif s == "fc":
 		wb_str += prefix +  "cout<<\"Finished loading " + s + " bias into memory! Total: \" <<" + s + "_bias_num  << \"... ... ...\"<<endl;" + EOL*2
 
 	return wb_str

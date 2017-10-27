@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import helping_functions
 import math
@@ -56,7 +57,10 @@ def generate_body(arr2, prefix=SEPARATER):
     body_str += prefix + "cout << " + "\"starting forward network process...........................\" << endl;" + EOL +\
             prefix + "cout << \"...........................................................\" << endl;" + EOL
     body_str += end_deb + EOL + end_deb + EOL*2
-    layers_order = []	
+    layers_order = []
+    split_layer_serial = []	
+    match_conv_layer_serial = []
+    eltwise_bottom_layer_serial = []
     conv_counter = 0
     lrn_counter = 0
     pool_counter = 0
@@ -105,6 +109,7 @@ def generate_body(arr2, prefix=SEPARATER):
         nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
     else:
         nn_padding_fc_values = ["0"] * len(nn_in_number_fc_values)
+
     strides = [[], [], []]
     kernels = [[], [], []]
     acc_str = EOL + "Accelerators: " + EOL
@@ -120,15 +125,40 @@ def generate_body(arr2, prefix=SEPARATER):
 
     out_data1 = ""
     out_data2 = ""
+    out_data3 = ""
+    has_eltwise = False
+    eltwise_input_1 = ""
+    eltwise_input_2 = ""
+    if "Eltwise" in layers_order:
+        has_eltwise = True
+        
+    '''get resnet necessary layer serial'''
+    if has_eltwise:
+        if(os.path.exists('../caffe_converter/split_layer_serial.txt')==True):
+            f = open('../caffe_converter/split_layer_serial.txt')
+            split_layer_serial = f.read().split()
+        if(os.path.exists('../caffe_converter/match_conv_layer_serial.txt')==True):
+            f = open('../caffe_converter/match_conv_layer_serial.txt')
+            match_conv_layer_serial = f.read().split()
+        if(os.path.exists('../caffe_converter/eltwise_bottom_layer_serial.txt')==True):
+            f = open('../caffe_converter/eltwise_bottom_layer_serial.txt')
+            eltwise_bottom_layer_serial = f.read().split()
+
     for j in range(1,port_num + 1):
         if j == port_num:
             out_data1 += SPACE + "temp_out_0" + "_" + str(j)
             out_data2 += SPACE + "temp_out_1" + "_" + str(j)
+            if has_eltwise:
+                out_data3 += SPACE + "temp_out_2" + "_" + str(j)
         else:
             out_data1 += SPACE + "temp_out_0" + "_" + str(j) + COMMA
             out_data2 += SPACE + "temp_out_1" + "_" + str(j) + COMMA
+            if has_eltwise:
+                out_data3 += SPACE + "temp_out_2" + "_" + str(j)
     in_data = out_data1
     out_data = out_data2
+    if has_eltwise:
+        temp_data = out_data3
     
     alpha = "nn_alpha_lrn"
     beta = "nn_beta_lrn"
@@ -149,15 +179,35 @@ def generate_body(arr2, prefix=SEPARATER):
     cb = ""
     cc = 1
     act = ""
+    conv1_eltwise = False
+    conv2_eltwise = False
+    convs_eltwise = False
+    in_n = 0
+    in_size = 0
+    last1 = 0
 
     '''choose layer object&layer type'''
     '''get stride&kernel of each layer'''
     for i, l in enumerate(layers_order):
         if l.lower().startswith("convolution"):
+            if has_eltwise:
+                for x in match_conv_layer_serial:
+                    if str(i) == str(x):
+                        in_data = temp_data
+                for x in eltwise_bottom_layer_serial:
+                    if str(i) == str(x):
+                        if conv1_eltwise == False:
+                            eltwise_input_1 = out_data
+                            conv1_eltwise = True
+                            conv2_eltwise = False
+                        else:
+                            eltwise_input_2 = out_data
+                            conv1_eltwise = False
+                            conv2_eltwise = True
+                            convs_eltwise = True
+                        
+
             last = nn_out_number_conv_values[conv_counter]
-            in_size = nn_in_data_size_conv_values[conv_counter]
-            last1 = int((int(nn_in_data_size_conv_values[conv_counter]) + int(nn_padding_conv_values[conv_counter]) * 2 -\
-                        int(nn_channel_size_conv_values[conv_counter]))/float(nn_stride_conv_values[conv_counter]) + 1);
             fun = "conv_layer_new"
             if layers_order[i+1].lower() == "relu" or layers_order[i+2].lower() == "relu" or layers_order[i+3].lower() == "relu":
                 act = "1"
@@ -188,9 +238,12 @@ def generate_body(arr2, prefix=SEPARATER):
                 if k + 1 == int(nn_group_conv_values[conv_counter]) and k > 0:
                     in_shift = "in_shift_" + str(cc)
                     out_shift = "out_shift_" + str(cc)
-                in_n = int(math.ceil(int(nn_in_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
+                    
+                in_size = int(nn_in_data_size_conv_values[conv_counter])
+                last1 = int((in_size + int(nn_padding_conv_values[conv_counter]) * 2 -\
+                        int(nn_channel_size_conv_values[conv_counter]))/float(nn_stride_conv_values[conv_counter]) + 1);
                 out_n = int(math.ceil(int(nn_out_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
-                
+                in_n = int(math.ceil(int(nn_in_number_conv_values[conv_counter])/float(nn_group_conv_values[conv_counter])))
                 if layers_order[i+1].lower() == "batchnorm" and layers_order[i+2].lower() == "scale":
                     fun = "conv_layer_new_w_bn"
                     if "conv_bias_size" in prms_str:
@@ -228,8 +281,7 @@ def generate_body(arr2, prefix=SEPARATER):
                     cc = cc + 1
                     shifts += EOL
 
-                conv_weight += int(nn_in_number_conv_values[conv_counter])*int(nn_out_number_conv_values[conv_counter])/\
-                    int(nn_group_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])
+                conv_weight += int(in_n)*int(nn_out_number_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])*int(nn_channel_size_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])
                 conv_bias += int(nn_out_number_conv_values[conv_counter])/int(nn_group_conv_values[conv_counter])
                 
                 if layers_order[i+1].lower() == "batchnorm":
@@ -254,10 +306,34 @@ def generate_body(arr2, prefix=SEPARATER):
             scale_counter = scale_counter + 1
 
         elif l.lower() == "eltwise":
+            if has_eltwise:
+                if str(i) in eltwise_bottom_layer_serial and str(i-1) not in match_conv_layer_serial:
+                    eltwise_input_1 = temp_data
+                    eltwise_input_2 = in_data
             body_str += generate_layer_init("eltwise_layer", [nn_in_number_eltwise_values[elt_counter], nn_input_size_eltwise_values[elt_counter]])
             body_str += " E" + str(elt_counter+1) + EOS + EOL
-            function_calls += generate_function_calls("E", "eltwise", layers_order[i+1], str(elt_counter+1), [in_data, out_data])
+            function_calls += generate_function_calls("E", "eltwise", layers_order[i+1], str(elt_counter+1), [eltwise_input_1, eltwise_input_2])
             elt_counter = elt_counter + 1
+            convs_eltwise = True
+            '''set in_data,out_data,temp_data'''
+            in_data = eltwise_input_1
+            out_data = eltwise_input_2
+            if has_eltwise:
+                if out_data == out_data1:
+                    if in_data == out_data2:
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        temp_data = out_data2
+                elif out_data == out_data2:
+                    if in_data == out_data1:
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        temp_data = out_data1
+                elif out_data == out_data3:
+                    if in_data == out_data1:
+                        temp_data = out_data2
+                    elif in_data == out_data2:
+                        temp_data = out_data1
 
         elif l.lower() == "lrn":
             body_str += generate_layer_init("lrn_layer", [last, nn_local_size_lrn_values[lrn_counter], str(last1)])
@@ -269,7 +345,6 @@ def generate_body(arr2, prefix=SEPARATER):
 
         elif l.lower() == "avepooling" or l.lower() == "maxpooling": 
             last =  nn_in_number_pooling_values[pool_counter]
-
             if layers_order[i+1].lower() == "relu":
                 if l.lower() == "maxpooling":
                     fun = "max_pool_layer_new"
@@ -301,9 +376,40 @@ def generate_body(arr2, prefix=SEPARATER):
             last1 = last2
             pool_counter = pool_counter + 1 
 
+        elif l.lower() == "globalavepooling" or l.lower() == "globalmaxpooling": 
+            if layers_order[i+1].lower() == "relu":
+                if l.lower() == "globalmaxpooling":
+                    fun = "max_pool_layer_new"
+                    act = "1"
+                    strides[1].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                    kernels[1].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                if l.lower() == "globalavepooling":
+                    fun = "ave_pool_layer_new"
+                    act = "1"
+                    strides[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                    kernels[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
+            else:
+                if l.lower() == "globalmaxpooling":
+                    fun = "max_pool_layer_new"
+                    act = "0"
+                    strides[1].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                    kernels[1].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                if l.lower() == "globalavepooling":
+                    fun = "ave_pool_layer_new"
+                    act = "0"
+                    strides[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
+                    kernels[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
+
+            function_calls += generate_function_calls1(fun, [str(last1), str(last1), nn_in_number_pooling_values[pool_counter], \
+                nn_in_data_size_pooling_values[pool_counter], str(1), str(1), nn_in_data_size_pooling_values[pool_counter], \
+                nn_padding_pooling_values[pool_counter], act, in_data, out_data])
+            pool_counter = pool_counter + 1 
+
         elif l.lower() == "innerproduct" or l.lower() == "inner_product":
             last = nn_out_number_fc_values[fc_counter]
             fun = "conv_layer_new"
+            if has_eltwise:
+                fun = "conv_layer_new_fc"
             if fc_counter>0:
                 fc_weight += int(nn_in_number_fc_values[fc_counter])*int(nn_in_number_fc_values[fc_counter-1])*\
                     int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
@@ -328,36 +434,67 @@ def generate_body(arr2, prefix=SEPARATER):
             shifts += prefix + "int " + shift_w + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_weight) + EOS + EOL
             shifts += prefix + "int " + shift_b + "_fc" + str(fc_counter + 1) + EQUAL + str(fc_bias) + EOS + EOL*2
 
-            if "conv_bias_size" in prms_str:
-                function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
+            function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
                     nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
                     nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
                     act, fc_w_port, fc_b_port, shift_w + "_fc" + str(fc_counter + 1), shift_b + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
-            else:
-                function_calls += generate_function_calls1(fun, [nn_in_number_fc_values[fc_counter], \
-                    nn_channel_size_fc_values[fc_counter], nn_out_number_fc_values[fc_counter], nn_in_data_size_fc_values[fc_counter], \
-                    nn_in_data_size_fc_values[fc_counter], "1", "1", nn_channel_size_fc_values[fc_counter], nn_padding_fc_values[fc_counter], \
-                    act, fc_w_port, shift_w + "_fc" + str(fc_counter + 1), "0", "0", in_data, out_data])
 
             fc_counter = fc_counter + 1  	
 
+        '''set temp_data for resnet'''
+        if has_eltwise:
+            for x in split_layer_serial:
+                if str(i) == str(x):
+                    in_out_reset_list_1 = re.split('[,]', temp_data)
+                    in_out_reset_list_2 = re.split('[,]', out_data)
+                    in_out_reset_loop = ""
+                    for x in range(0,port_num):
+                        in_out_reset_loop += in_out_reset_list_1[x] + "[addr] = " + in_out_reset_list_2[x] + "[addr];"
+                    function_calls += prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
+
         '''reset output_temp'''
-        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" \
-            or l.lower() == "avepooling" or (l.lower() == "innerproduct" and b == True)  or (l.lower() == "batchnorm" and layers_order[i-1].lower() == "eltwise") or l.lower() == "eltwise":
-            if out_data == out_data1:
-                in_data = out_data1
-                out_data = out_data2
+        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" or l.lower() == "avepooling"  or l.lower() == "globalmaxpooling" or l.lower() == "globalavepooling"\
+            or (l.lower() == "innerproduct" and b == True)  or (l.lower() == "batchnorm" and layers_order[i-1].lower() == "eltwise") or l.lower() == "eltwise":
+            if has_eltwise:
+                if out_data == out_data1:
+                    if in_data == out_data2:
+                        in_data = out_data1
+                        out_data = out_data2
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        in_data = out_data1
+                        out_data = out_data3
+                        temp_data = out_data2
+                elif out_data == out_data2:
+                    if in_data == out_data1:
+                        in_data = out_data2
+                        out_data = out_data1
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        in_data = out_data2
+                        out_data = out_data3
+                        temp_data = out_data1
+                elif out_data == out_data3:
+                    if in_data == out_data1:
+                        in_data = out_data3
+                        out_data = out_data1
+                        temp_data = out_data2
+                    elif in_data == out_data2:
+                        in_data = out_data3
+                        out_data = out_data2
+                        temp_data = out_data1
             else:
-                in_data = out_data2
-                out_data = out_data1
+                if out_data == out_data1:
+                    in_data = out_data1
+                    out_data = out_data2
+                else:
+                    in_data = out_data2
+                    out_data = out_data1
 
             in_out_reset_list = re.split('[,]', out_data)
             in_out_reset_loop = ""
             for x in range(0,port_num):
                 in_out_reset_loop += in_out_reset_list[x] + "[addr] = data_type_o(0);"
-
-            #function_calls += prefix + "clean_" + str(clean_count) + ":" + prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
-            #clean_count = clean_count + 1
 
         if l.lower() == "innerproduct" and b == False:
             in_out_reset_list = re.split('[,]', out_data)
@@ -381,13 +518,11 @@ def generate_body(arr2, prefix=SEPARATER):
     '''show the biggest stride&kernel of each kind of layer'''
     layers1 = ["conv_act", "pool_max_act", "pool_ave_act"]
     for k1 in range(len(kernels)):
-
         if len(kernels[k1]) != 0:
             acc_str += layers1[k1] + " - max_kernel: " + str(max(kernels[k1]))
         if len(strides[k1]) != 0:
             acc_str += ", max_stride: " + str(max(strides[k1])) + EOL
-        #else:
-        #    acc_str += ", stride: 1" + EOL
+
     if "nn_batch_norm_size" in prms_str:
         batch_norm += int(nn_in_number_batch_norm_values[batch_norm_counter - 1])
     if "nn_scale_size" in prms_str:
@@ -406,7 +541,7 @@ def generate_body(arr2, prefix=SEPARATER):
     return body_str, counters, acc_str, w_b_arr
 
 '''new other kind of layer object'''
-'''eg:lrn_layer'''
+'''eg:lrn_layer,batch_norm_scale_layer,eltwise_layer'''
 def generate_layer_init(name, params, prefix=SEPARATER):
     if name == "lrn_layer" or name == "batch_norm_scale_layer" or name == "eltwise_layer":
         types = "data_type_o, "
@@ -428,6 +563,8 @@ def generate_function_calls1(fun, args, prefix=SEPARATER):
     
     return fn_str
 
+'''function for other kind of layer'''
+'''eg:lrn_layer,batch_norm_scale_layer,eltwise_layer'''
 def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
     str1 = prefix + nm1 + count + CALL_SYMBOL + tp
     if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L" or nm1 == "E" or nm1 == "B":
@@ -444,20 +581,16 @@ def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
 def generate_header(head_json, arr):
     std = "using namespace std;" + EOL*2
     head_str = EOL + std 
-
     head_str += head_json["return_type"] + SEPARATER
     head_str += head_json["function_name"] + PARAMETER_BEGIN + EOL
-
-    """param = open("net_config_params.txt", "r")"""
     
     prms, prms_str = helping_functions.extraction(arr)
-
     n = prms[prms_str.index("n")]
     nn_in_data_size_values = prms[prms_str.index("nn_in_data_size_conv")]	
     nn_padding_conv = prms[prms_str.index("nn_padding_conv")]	
     nn_in_number_conv = prms[prms_str.index("nn_in_number_conv")]	
     nn_out_number_fc = prms[prms_str.index("nn_out_number_fc")]	
-
+    layers_order = prms[prms_str.index("layers_order")]
     fc_nm = "fc_" + n + "_out_a"
 
     '''write actual parameters of inference_net function'''
@@ -467,7 +600,7 @@ def generate_header(head_json, arr):
                 head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL		
             elif s["pName"] == "#endif" or s["pName"] == "#if _SCALE_":
                 head_str += s["pName"] + EOL
-            elif s["pName"] == "conv_bias_port" or s["pName"] == "fc_bias_port":
+            elif s["pName"] == "conv_bias_port": #or s["pName"] == "fc_bias_port":
                 if "conv_bias_size" in prms_str:
                     head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
             else:
@@ -483,14 +616,27 @@ def generate_header(head_json, arr):
             else:
                 head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
 
-    for i in range(0,2):
-        for j in range(1,port_num + 1):
-            if i == 1 and j == port_num:
-                head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
-                    str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + PARAMETER_END + COMMA + EOL
-            else:
+    if "Eltwise" in layers_order:
+        for i in range(0,2):
+            for j in range(1,port_num + 1):
                 head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
                     str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + COMMA + EOL
+        for j in range(1,port_num + 1):
+            if j == port_num:
+                head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_2_" + str(j) + ARRAY_BEGIN +\
+                    str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + PARAMETER_END + COMMA + EOL
+            else:
+                head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_2_" + str(j) + ARRAY_BEGIN +\
+                    str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + COMMA + EOL
+    else:
+        for i in range(0,2):
+            for j in range(1,port_num + 1):
+                if i == 1 and j == port_num:
+                    head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                        str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + PARAMETER_END + COMMA + EOL
+                else:
+                    head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
+                        str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))) + ARRAY_END + COMMA + EOL
 
     head_str = head_str[0:-2]
     head_str += BODY_BEGIN
@@ -540,7 +686,7 @@ def generate_pragma(wb_arr):
     pragma_str = EOL*2
     pragma_str += hls_deb + EOL + pr1 + EOL
     for i, wb in enumerate(wb_arr[:-1]):
-        if arr[i] == "conv_bias_port" or arr[i] == "fc_bias_port":
+        if arr[i] == "conv_bias_port":# or arr[i] == "fc_bias_port":
             if "conv_bias_size" in prms_str:
                 pragma_str += pr3 + str(wb) + pr4 + arr[i] + EOL
         elif arr[i] == "mean" or arr[i] == "denominator":

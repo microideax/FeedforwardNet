@@ -6,11 +6,11 @@ EOL = "\n"
 para = open("parameter3.json", "r")
 port_num = int(json.load(para))
 
-def generate(generated_file_name="conv_acc_innerdf.h"):
+def generate(generated_file_name="conv_acc_innerdf_fc.h"):
 	arr = helping_functions.read_params(sys.argv[1])
 	prms, prms_str = helping_functions.extraction(arr)
-	str1 = "#ifndef _CONV_ACC_H_" + EOL
-	str1 += "#define _CONV_ACC_H_" + EOL + EOL 
+	str1 = "#ifndef _CONV_ACC_FC_H_" + EOL
+	str1 += "#define _CONV_ACC_FC_H_" + EOL + EOL 
 	str1 += "#include <iostream>" + EOL
 	str1 += "#include <fstream>" + EOL
 	str1 += '#include "activation_functions.h"' + EOL + EOL
@@ -19,11 +19,11 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "#endif" + EOL + EOL
 	str1 += "using namespace std;" + EOL + EOL
 	str1 += "template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max>" + EOL
-	str1 += "class conv_acc {" + EOL + EOL
+	str1 += "class conv_acc_fc {" + EOL + EOL
 	str1 += "private:" + EOL
 	str1 += "	int conv_layer_number;" + EOL + EOL
 	str1 += "public:" + EOL
-	str1 += "	conv_acc() : conv_layer_number(0) {conv_layer_number = 0;};" + EOL + EOL
+	str1 += "	conv_acc_fc() : conv_layer_number(0) {conv_layer_number = 0;};" + EOL + EOL
 
 	str1 += "	////------------------------------C++ debugging functions---------------------------------------////" + EOL
 	str1 += "	// Reset output buffer" + EOL
@@ -50,24 +50,22 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "		}" + EOL
 	str1 += "	}" + EOL
 
-	if "conv_bias_size" in prms_str:
-		str1 += "    // Reset bias buffer" + EOL
-		str1 += "    void b_buf_reset(W buf[]){" + EOL
-		str1 += "        for(int i = 0; i < Tm; i++){" + EOL
-		str1 += "            buf[i]= W(0);" + EOL
-		str1 += "		}" + EOL
-		str1 += "	}" + EOL
+	str1 += "    // Reset bias buffer" + EOL
+	str1 += "    void b_buf_reset(W buf[]){" + EOL
+	str1 += "        for(int i = 0; i < Tm; i++){" + EOL
+	str1 += "            buf[i]= W(0);" + EOL
+	str1 += "		}" + EOL
+	str1 += "	}" + EOL
 
 	str1 += "    ////-----------------------------Accelerator Functions---------------------------------------////" + EOL
 	
-	if "conv_bias_size" in prms_str:
-		str1 += "    // Load bias data" + EOL
-		str1 += "    void b_buf_load(W buf[], W *layer_bias, int bias_offset, int m){" + EOL
-		str1 += "        for(int i = 0; i < Tm; i++){" + EOL
-		str1 += "#pragma HLS UNROLL" + EOL
-		str1 += "            buf[i] = *(layer_bias + bias_offset + i + m);" + EOL
-		str1 += "		}" + EOL
-		str1 += "	}" + EOL
+	str1 += "    // Load bias data" + EOL
+	str1 += "    void b_buf_load(W buf[], W *layer_bias, int bias_offset, int m){" + EOL
+	str1 += "        for(int i = 0; i < Tm; i++){" + EOL
+	str1 += "#pragma HLS UNROLL" + EOL
+	str1 += "            buf[i] = *(layer_bias + bias_offset + i + m);" + EOL
+	str1 += "		}" + EOL
+	str1 += "	}" + EOL
 
 	str1 += "    // Load input data" + EOL
 	str1 += "    void in_buf_load(T buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max]"
@@ -120,10 +118,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "	}" + EOL
 
 	str1 += "    // Convolution computation kernel" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
-	else:
-		str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
+	str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
 	str1 += "        for(int i=0; i<K; i++){" + EOL
 	str1 += "            for(int j=0; j<K; j++){" + EOL
 	str1 += "                for(int tr=0; tr<Tr; tr++){" + EOL
@@ -134,10 +129,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "                            for(int tn=0; tn<Tn; tn++){" + EOL
 	str1 += "#pragma HLS UNROLL" + EOL
 	str1 += "                                if(i==0&&j==0&&tn==0&&n==0)" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
-	else:
-		str1 += "                                    out_buf[tm][tr][tc] = w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
+	str1 += "                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
 	str1 += "                                else" + EOL
 	str1 += "                                    out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
 	str1 += "                            }" + EOL
@@ -185,7 +177,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "    }" + EOL
 
 	str1 += "///////////////////////------------------conv accelerator----------------//////////////////////////" + EOL
-	str1 += "    void conv_layer_acc(" + EOL
+	str1 += "    void conv_layer_acc_fc(" + EOL
 	str1 += "            int N, //input feature number" + EOL
 	str1 += "            int K, //input kernel size" + EOL
 	str1 += "            int M, // output feature number" + EOL
@@ -197,11 +189,9 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "            int P, // padding size" + EOL
 	str1 += "            bool act, // activation function bit (1-- with act, 0--without act)" + EOL
 	str1 += "            W *layer_weights, //w[M][N][K][K]" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "            W *layer_bias, // b[M]" + EOL
+	str1 += "            W *layer_bias, // b[M]" + EOL
 	str1 += "            int weight_offset," + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "            int bias_offset," + EOL
+	str1 += "            int bias_offset," + EOL
 	str1 += "            int in_offset," + EOL
 	str1 += "            int out_offset," + EOL
 	for j in range(1,port_num + 1):
@@ -215,24 +205,21 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "        /***************local data buffer******************************/" + EOL
 	str1 += "        T in_buf_1[Tn][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max];" + EOL
 	str1 += "        W w_buf_1[Tn][Tm][K_max][K_max];" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "        W b_buf_1[Tm];" + EOL
+	str1 += "        W b_buf_1[Tm];" + EOL
 	str1 += "        G out_buf_1[Tm][Tr][Tc];" + EOL + EOL
 	str1 += "#if _HLS_MODE_" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=in_buf_1 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=2" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "#pragma HLS ARRAY_PARTITION variable=b_buf_1 complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=b_buf_1 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf_1 complete dim=1" + EOL
 	str1 += "#endif" + EOL + EOL
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Starting conv_acc_innerdf layer ...." << endl;' + EOL
+	str1 += '            cout << "Starting conv_acc_innerdf_fc layer ...." << endl;' + EOL
 	str1 += "            //buffer local data initiallization: must do it in C++ debug!" + EOL
 	str1 += "            out_buf_reset(out_buf_1);" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "            b_buf_reset(b_buf_1);" + EOL
+	str1 += "            b_buf_reset(b_buf_1);" + EOL
 	str1 += "            w_buf_reset(K, w_buf_1);" + EOL
 	str1 += "#endif" + EOL
 	str1 += "#endif" + EOL
@@ -244,9 +231,8 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "#pragma HLS DATAFLOW" + EOL
 	str1 += "#endif" + EOL
 	str1 += "   //--------------------------Load input B W D in ping-pong manner-------------------------//" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "                        //load input bias" + EOL
-		str1 += "                        b_buf_load(b_buf_1, layer_bias, bias_offset, m);" + EOL
+	str1 += "                        //load input bias" + EOL
+	str1 += "                        b_buf_load(b_buf_1, layer_bias, bias_offset, m);" + EOL
 	str1 += "                        // load input data" + EOL
 	str1 += "                        in_buf_load(in_buf_1"
 	for j in range(1,port_num + 1):
@@ -256,10 +242,7 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "                        // load input weights" + EOL
 	str1 += "                        w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);" + EOL
 	str1 += "  //------------------------------compute buffered data -----------------------------------//" + EOL
-	if "conv_bias_size" in prms_str:
-		str1 += "                        conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n, r, c, K, R_OUT, C_OUT);" + EOL
-	else:
-		str1 += "                        conv_engine(in_buf_1, w_buf_1, out_buf_1, S, n, r, c, K, R_OUT, C_OUT);" + EOL
+	str1 += "                        conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n, r, c, K, R_OUT, C_OUT);" + EOL
 	str1 += "  //---------------------------transfer output data----------------------------------------//" + EOL
 	str1 += "                        // transfer output data" + EOL
 	str1 += "                        output_res(out_buf_1"
@@ -273,10 +256,10 @@ def generate(generated_file_name="conv_acc_innerdf.h"):
 	str1 += "        }" + EOL
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Finished conv_acc_innerdf layer ...." << endl;' + EOL
+	str1 += '            cout << "Finished conv_acc_innerdf_fc layer ...." << endl;' + EOL
 	str1 += "            ofstream conv_out;" + EOL
-	str1 += '            conv_out.open("conv_out_data.txt",ios::app);' + EOL
-	str1 += '            conv_out <<"conv output: "<< endl;' + EOL
+	str1 += '            conv_out.open("fc_out_data.txt",ios::app);' + EOL
+	str1 += '            conv_out <<"fc output: "<< endl;' + EOL
 	str1 += "            for (int i = 0; i < M/" + str(port_num) + "; i++) {" + EOL
 	for j in range(1,port_num + 1):
 		str1 += "                for (int j = 0; j < R_OUT; j++) {" + EOL

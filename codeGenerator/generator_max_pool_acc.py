@@ -174,7 +174,7 @@ def generate(generated_file_name="max_pool_acc_innerdf.h"):
 	str1 += "#if _KERNEL_DEBUG_" + EOL
 	str1 += '            cout << "Finished max_pool_acc_innerdf layer ...." << endl;' + EOL
 	str1 += "            ofstream max_pool_out;" + EOL
-	str1 += '            max_pool_out.open("max_pool_out_data.txt", ios::app);' + EOL
+	str1 += '            max_pool_out.open("max_pool_out_data.txt",ios::app);' + EOL
 	str1 += '            max_pool_out <<"max_pool output: "<< endl;' + EOL
 	str1 += "            for (int i = 0; i < N/" + str(port_num) + "; i++) {" + EOL
 	for j in range(1,port_num + 1):
