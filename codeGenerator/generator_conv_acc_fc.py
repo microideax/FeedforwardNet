@@ -6,7 +6,7 @@ EOL = "\n"
 para = open("parameter3.json", "r")
 port_num = int(json.load(para))
 
-def generate(generated_file_name="conv_acc_innerdf_fc.h"):
+def generate(generated_file_name="conv_acc_innerpp_fc.h"):
 	arr = helping_functions.read_params(sys.argv[1])
 	prms, prms_str = helping_functions.extraction(arr)
 	str1 = "#ifndef _CONV_ACC_FC_H_" + EOL
@@ -204,56 +204,175 @@ def generate(generated_file_name="conv_acc_innerdf_fc.h"):
 
 	str1 += "        /***************local data buffer******************************/" + EOL
 	str1 += "        T in_buf_1[Tn][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max];" + EOL
+	str1 += "        T in_buf_0[Tn][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max];" + EOL
 	str1 += "        W w_buf_1[Tn][Tm][K_max][K_max];" + EOL
+	str1 += "        W w_buf_0[Tn][Tm][K_max][K_max];" + EOL
 	str1 += "        W b_buf_1[Tm];" + EOL
-	str1 += "        G out_buf_1[Tm][Tr][Tc];" + EOL + EOL
+	str1 += "        W b_buf_0[Tm];" + EOL
+	str1 += "        G out_buf_1[Tm][Tr][Tc];" + EOL
+	str1 += "        G out_buf_0[Tm][Tr][Tc];" + EOL + EOL
+	str1 += "        /***************Ptr and buffer initialization******************************/" + EOL
+	str1 += "        bool in_buf_0_empty = 1;" + EOL
+	str1 += "        bool in_buf_1_empty = 1;" + EOL
+	str1 += "        bool out_buf_0_empty = 1;" + EOL
+	str1 += "        bool out_buf_1_empty = 1;" + EOL
+	str1 += "        int loadbufPtr = 0;" + EOL
+	str1 += "        int combufPtr = 0;" + EOL
+	str1 += "        int resbufPtr = 0;" + EOL
+	str1 += "        bool last_com = 0;" + EOL
+	str1 += "        bool last_load = 0;" + EOL
+	str1 += "        bool last_res = 0;" + EOL + EOL
+
 	str1 += "#if _HLS_MODE_" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=in_buf_1 complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=in_buf_0 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_1 complete dim=2" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_0 complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=w_buf_0 complete dim=2" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=b_buf_1 complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=b_buf_0 complete dim=1" + EOL
 	str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf_1 complete dim=1" + EOL
+	str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf_0 complete dim=1" + EOL
 	str1 += "#endif" + EOL + EOL
+
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Starting conv_acc_innerdf_fc layer ...." << endl;' + EOL
+	str1 += '            cout << "Starting conv_acc_innerpp layer ...." << endl;' + EOL
 	str1 += "            //buffer local data initiallization: must do it in C++ debug!" + EOL
 	str1 += "            out_buf_reset(out_buf_1);" + EOL
+	str1 += "            out_buf_reset(out_buf_0);" + EOL
 	str1 += "            b_buf_reset(b_buf_1);" + EOL
+	str1 += "            b_buf_reset(b_buf_0);" + EOL
 	str1 += "            w_buf_reset(K, w_buf_1);" + EOL
+	str1 += "            w_buf_reset(K, w_buf_0);" + EOL
 	str1 += "#endif" + EOL
 	str1 += "#endif" + EOL
-	str1 += "        for(int r = 0; r < R_OUT; r += Tr){" + EOL
-	str1 += "            for(int c = 0; c < C_OUT; c += Tc){" + EOL
-	str1 += "                for(int m = 0; m < M; m += Tm){" + EOL
-	str1 += "                    for(int n = 0; n < N; n += Tn){" + EOL
-	str1 += "#if _HLS_MODE_" + EOL
-	str1 += "#pragma HLS DATAFLOW" + EOL
-	str1 += "#endif" + EOL
+	str1 += "		for(int r = 0; r < R_OUT; r += Tr){" + EOL
+	str1 += "			for(int c = 0; c < C_OUT; c += Tc){" + EOL
+	str1 += "				for(int m = 0; m < M; m += Tm){" + EOL
+	str1 += "					for(int n = 0; n < N; n += 2*Tn){" + EOL
+	#str1 += "#if _HLS_MODE_" + EOL
+	#str1 += "#pragma HLS DATAFLOW" + EOL
+	#str1 += "#endif" + EOL
 	str1 += "   //--------------------------Load input B W D in ping-pong manner-------------------------//" + EOL
-	str1 += "                        //load input bias" + EOL
-	str1 += "                        b_buf_load(b_buf_1, layer_bias, bias_offset, m);" + EOL
-	str1 += "                        // load input data" + EOL
-	str1 += "                        in_buf_load(in_buf_1"
+	str1 += "						while ((in_buf_0_empty | in_buf_1_empty)&& (!last_load)) {" + EOL
+	str1 += "							if (loadbufPtr == 1) {" + EOL
+	str1 += '                    			cout << "loading input buffer 1...." << endl;' + EOL
+	str1 += "                    			//load input bias" + EOL
+	str1 += "                        		b_buf_load(b_buf_1, layer_bias, bias_offset, m);" + EOL
+	str1 += "                        		// load input data" + EOL
+	str1 += "                        		in_buf_load(in_buf_1"
 	for j in range(1,port_num + 1):
 		str1 += ", in_data_" + str(j)
-
+	str1 += ", in_offset, n+Tn, r, c, S, K, P, R_IN, C_IN, N);" + EOL
+	str1 += "                        		// load input weights" + EOL
+	str1 += "                        		w_buf_load(w_buf_1, layer_weights, weight_offset, n+Tn, m, K, N, M);" + EOL
+	str1 += "                        		in_buf_1_empty = 0;" + EOL
+	str1 += '                        		cout << "buffer 1 full" << endl;' + EOL
+	str1 += "                        		loadbufPtr = 0;" + EOL
+	str1 += "                        		if (n+2*Tn >= N) {last_load = 1;}" + EOL
+	str1 += "                        	} else {" + EOL
+	str1 += '                    			cout << "loading input buffer 0...." << endl;' + EOL
+	str1 += "                    			//load input bias" + EOL
+	str1 += "                        		b_buf_load(b_buf_0, layer_bias, bias_offset, m);" + EOL
+	str1 += "                        		// load input data" + EOL
+	str1 += "                        		in_buf_load(in_buf_0"
+	for j in range(1,port_num + 1):
+		str1 += ", in_data_" + str(j)
 	str1 += ", in_offset, n, r, c, S, K, P, R_IN, C_IN, N);" + EOL
-	str1 += "                        // load input weights" + EOL
-	str1 += "                        w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);" + EOL
-	str1 += "  //------------------------------compute buffered data -----------------------------------//" + EOL
-	str1 += "                        conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n, r, c, K, R_OUT, C_OUT);" + EOL
-	str1 += "  //---------------------------transfer output data----------------------------------------//" + EOL
-	str1 += "                        // transfer output data" + EOL
-	str1 += "                        output_res(out_buf_1"
+	str1 += "                        		// load input weights" + EOL
+	str1 += "                        		w_buf_load(w_buf_0, layer_weights, weight_offset, n, m, K, N, M);" + EOL
+	str1 += "                        		in_buf_0_empty = 0;" + EOL
+	str1 += '                        		cout << "buffer 0 full" << endl;' + EOL
+	str1 += "                        		loadbufPtr = 1;" + EOL
+	str1 += "                        		if (n+Tn >= N) {last_load = 1;}" + EOL
+	str1 += "							}" + EOL
+	str1 += "                       }" + EOL
+	str1 += "                       loadbufPtr = 0;" + EOL
+	str1 += "                       last_load = 0;" + EOL
+	str1 += "   //------------------------------compute buffered data -----------------------------------//" + EOL
+	str1 += "                    	while ((!in_buf_0_empty | !in_buf_1_empty)&& (!last_com)) {" + EOL
+	str1 += "                    		if (combufPtr == 1) {" + EOL
+	str1 += '                    			cout << "computing input buffer 1...." << endl;' + EOL
+	str1 += "                    			if(resbufPtr == 1){" + EOL
+	str1 += "                        			conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n+Tn, r, c, K, R_OUT, C_OUT);" + EOL
+	str1 += "                    				out_buf_1_empty = 0;" + EOL
+	str1 += "                    			}else{" + EOL
+	str1 += "                        			conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n+Tn, r, c, K, R_OUT, C_OUT);" + EOL
+	str1 += "                    				out_buf_0_empty = 0;" + EOL
+	str1 += "                    			}" + EOL
+	str1 += "                    			in_buf_1_empty = 1;" + EOL
+	str1 += "                    			combufPtr = 0;" + EOL
+	str1 += '                    			cout << "buffer 1 computed" << endl;' + EOL
+	str1 += "                    			if (n+2*Tn >= N) {last_com = 1;}" + EOL
+	str1 += "                    		} else {" + EOL
+	str1 += '                    			cout << "computing input buffer 0...." << endl;' + EOL
+	str1 += "                    			if(resbufPtr == 1){" + EOL
+	str1 += "                        			conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_1, S, n, r, c, K, R_OUT, C_OUT);" + EOL
+	str1 += "                    				out_buf_1_empty = 0;" + EOL
+	str1 += "                    			}else{" + EOL
+	str1 += "                        			conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n, r, c, K, R_OUT, C_OUT);" + EOL
+	str1 += "                    				out_buf_0_empty = 0;" + EOL
+	str1 += "                    			}" + EOL
+	str1 += "                    			in_buf_0_empty = 1;" + EOL
+	str1 += "                    			combufPtr = 1;" + EOL
+	str1 += '                    			cout << "buffer 0 computed" << endl;' + EOL
+	str1 += "								if (n+Tn >= N) {last_com = 1;}" + EOL
+	str1 += "							}" + EOL
+	str1 += "                       }" + EOL
+	str1 += "                       combufPtr = 0;" + EOL
+	str1 += "                       last_com = 0;" + EOL
+	str1 += "   //---------------------------transfer output data----------------------------------------//" + EOL
+	str1 += "                    	while ((!out_buf_0_empty | !out_buf_1_empty)&& (!last_res)) {" + EOL
+	str1 += "                    		if (resbufPtr == 1) {" + EOL
+	str1 += '                    			cout << "output buffer 1...." << endl;' + EOL
+	str1 += "                    			// transfer output data" + EOL
+	str1 += "                    			if (n+Tn >= N) {" + EOL
+	str1 += "                    				last_res = 1;" + EOL
+	str1 += "                    				resbufPtr = 0;" + EOL
+	str1 += "                    				output_res(out_buf_1"
 	for j in range(1,port_num + 1):
 		str1 += ", out_data_" + str(j)
-
 	str1 += ", out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act);" + EOL
-	str1 += "                    }" + EOL
-	str1 += "                }" + EOL
-	str1 += "            }" + EOL
-	str1 += "        }" + EOL
+	str1 += "                    			}else if (n+2*Tn >= N) {" + EOL
+	str1 += "                    				last_res = 1;" + EOL
+	str1 += "                    				resbufPtr = 0;" + EOL
+	str1 += "                    				output_res(out_buf_1"
+	for j in range(1,port_num + 1):
+		str1 += ", out_data_" + str(j)
+	str1 += ", out_offset, n+Tn, m, r, c, N, M, R_OUT, C_OUT, act);" + EOL
+	str1 += "                    			}" + EOL
+	str1 += "                    			out_buf_1_empty = 1;" + EOL
+	str1 += '                    			cout << "buffer 1 res" << endl;' + EOL
+	str1 += "                    		} else {" + EOL
+	str1 += '                    			cout << "output buffer 0...." << endl;' + EOL
+	str1 += "                    			// transfer output data" + EOL
+	str1 += "                    			if (n+Tn >= N) {" + EOL
+	str1 += "                    				last_res = 1;" + EOL
+	str1 += "                    				resbufPtr = 1;" + EOL
+	str1 += "                    				output_res(out_buf_0"
+	for j in range(1,port_num + 1):
+		str1 += ", out_data_" + str(j)
+	str1 += ", out_offset, n, m, r, c, N, M, R_OUT, C_OUT, act);" + EOL
+	str1 += "                    			}else if (n+2*Tn >= N) {" + EOL
+	str1 += "                    				last_res = 1;" + EOL
+	str1 += "                    				resbufPtr = 1;" + EOL
+	str1 += "                    				output_res(out_buf_0"
+	for j in range(1,port_num + 1):
+		str1 += ", out_data_" + str(j)
+	str1 += ", out_offset, n+Tn, m, r, c, N, M, R_OUT, C_OUT, act);" + EOL
+	str1 += "                    			}" + EOL
+	str1 += "                    			out_buf_0_empty = 1;" + EOL
+	str1 += '								cout << "buffer 0 res" << endl;' + EOL
+	str1 += "							}" + EOL
+	str1 += "						}" + EOL
+	str1 += "						last_res = 0;" + EOL
+	str1 += "					}" + EOL
+	str1 += "				}" + EOL
+	str1 += "			}" + EOL
+	str1 += "		}" + EOL
+
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
 	str1 += '            cout << "Finished conv_acc_innerdf_fc layer ...." << endl;' + EOL

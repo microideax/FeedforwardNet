@@ -84,7 +84,7 @@ def generate(generated_file_name="acc_instance.h"):
    			acc_max_stride[k1] = ", " + str(max(strides[k1]))
 	
 	'''params for conv_layer & pool_layer'''
-	includes = ["#include \"conv_acc_innerdf.h\"", "#include \"max_pool_acc_innerdf.h\"", "#include \"ave_pool_acc_innerdf.h\""]	
+	includes = ["#include \"conv_acc_innerpp.h\"", "#include \"max_pool_acc_innerpp.h\"", "#include \"ave_pool_acc_innerpp.h\""]	
 	fn_names = ["conv_layer_new", "max_pool_layer_new", "ave_pool_layer_new"]
 	rn_tp = "void"
 	arg_t_list = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "int", "int", "int", "int"],
@@ -94,14 +94,14 @@ def generate(generated_file_name="acc_instance.h"):
 	acc_params = [[], [], []]
 	
 	'''params for conv_w_bn_layer'''
-	includes_w_bn = ["#include \"conv_acc_innerdf_w_bn.h\""]	
+	includes_w_bn = ["#include \"conv_acc_innerpp_w_bn.h\""]	
 	fn_names_w_bn = ["conv_layer_new_w_bn"]
 	arg_t_list_w_bn = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "data_type_w", "data_type_w", "int", "data_type_w", "data_type_w", "int", "int", "int", "int", "int"]]
 	arg_n_list_w_bn = [["N", "K", "M", "R_IN", "C_IN", "C_OUT", "R_OUT", "S", "P", "act", "*layer_weights", "*layer_bias", "*bn_mean", "*bn_denominator", "bn_offset", "*scale_gamma", "*scale_beta", "scale_offset", "weight_offset", "bias_offset", "in_offset", "out_offset"]]
 	acc_params_w_bn = [[]]
 	
 	'''params for resnet fc_layer '''
-	includes_fc = ["#include \"conv_acc_innerdf_fc.h\""]	
+	includes_fc = ["#include \"conv_acc_innerpp_fc.h\""]	
 	fn_names_fc = ["conv_layer_new_fc"]
 	arg_t_list_fc = [["int", "int", "int", "int", "int","int", "int", "int", "int", "bool", "data_type_w", "data_type_w", "int", "int", "int", "int"],
 		    ["int", "int", "int", "int", "int", "int", "int", "int", "bool"]]
