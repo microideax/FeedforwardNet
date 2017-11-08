@@ -238,7 +238,7 @@ def generate(generated_file_name="conv_acc_innerpp_fc.h"):
 
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Starting conv_acc_innerpp layer ...." << endl;' + EOL
+	str1 += '            cout << "Starting conv_acc_innerpp_fc layer ...." << endl;' + EOL
 	str1 += "            //buffer local data initiallization: must do it in C++ debug!" + EOL
 	str1 += "            out_buf_reset(out_buf_1);" + EOL
 	str1 += "            out_buf_reset(out_buf_0);" + EOL
@@ -375,7 +375,7 @@ def generate(generated_file_name="conv_acc_innerpp_fc.h"):
 
 	str1 += "#if _C_DEBUG_MODE_" + EOL
 	str1 += "#if _KERNEL_DEBUG_" + EOL
-	str1 += '            cout << "Finished conv_acc_innerdf_fc layer ...." << endl;' + EOL
+	str1 += '            cout << "Finished conv_acc_innerpp_fc layer ...." << endl;' + EOL
 	str1 += "            ofstream conv_out;" + EOL
 	str1 += '            conv_out.open("fc_out_data.txt",ios::app);' + EOL
 	str1 += '            conv_out <<"fc output: "<< endl;' + EOL
