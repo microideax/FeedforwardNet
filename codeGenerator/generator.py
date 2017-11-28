@@ -61,6 +61,8 @@ def generate_body(arr2, prefix=SEPARATER):
     split_layer_serial = []	
     match_conv_layer_serial = []
     eltwise_bottom_layer_serial = []
+    expand3x3_layer_serial = []
+    concat_bottom_layer_serial = []
     conv_counter = 0
     lrn_counter = 0
     pool_counter = 0
@@ -68,6 +70,7 @@ def generate_body(arr2, prefix=SEPARATER):
     batch_norm_counter = 0
     scale_counter = 0
     elt_counter = 0
+    con_counter = 0
     batch_norm_counter_single = 0
     
     """extraction of parameters from 'net_config_params.txt' file"""
@@ -104,11 +107,18 @@ def generate_body(arr2, prefix=SEPARATER):
     nn_input_size_eltwise_values = []
     if "nn_input_size_eltwise_size" in prms_str:
         nn_input_size_eltwise_values = prms[prms_str.index("nn_input_size_eltwise")]
+    nn_in_number_concat_values = []
+    if "nn_in_number_concat_size" in prms_str:
+        nn_in_number_concat_values = prms[prms_str.index("nn_in_number_concat")]
+    nn_input_size_concat_values = []
+    if "nn_input_size_concat_size" in prms_str:
+        nn_input_size_concat_values = prms[prms_str.index("nn_input_size_concat")]
 
-    if "nn_padding_fc" in prms_str:
-        nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
-    else:
-        nn_padding_fc_values = ["0"] * len(nn_in_number_fc_values)
+    if "fc_bias_size" in prms_str:
+        if "nn_padding_fc" in prms_str:
+            nn_padding_fc_values = prms[prms_str.index("nn_padding_fc")] 
+        else:
+            nn_padding_fc_values = ["0"] * len(nn_in_number_fc_values)
 
     strides = [[], [], []]
     kernels = [[], [], []]
@@ -127,10 +137,15 @@ def generate_body(arr2, prefix=SEPARATER):
     out_data2 = ""
     out_data3 = ""
     has_eltwise = False
+    has_concat = False
     eltwise_input_1 = ""
     eltwise_input_2 = ""
+    concat_input_1 = ""
+    concat_input_2 = ""
     if "Eltwise" in layers_order:
         has_eltwise = True
+    if "Concat" in layers_order:
+        has_concat = True
         
     '''get resnet necessary layer serial'''
     if has_eltwise:
@@ -144,20 +159,32 @@ def generate_body(arr2, prefix=SEPARATER):
             f = open('../caffe_converter/eltwise_bottom_layer_serial.txt')
             eltwise_bottom_layer_serial = f.read().split()
 
+    '''get squeezenet necessary layer serial'''
+    if has_concat:
+        if(os.path.exists('../caffe_converter/split_layer_serial.txt')==True):
+            f = open('../caffe_converter/split_layer_serial.txt')
+            split_layer_serial = f.read().split()
+        if(os.path.exists('../caffe_converter/expand3x3_layer_serial.txt')==True):
+            f = open('../caffe_converter/expand3x3_layer_serial.txt')
+            expand3x3_layer_serial = f.read().split()
+        if(os.path.exists('../caffe_converter/concat_bottom_layer_serial.txt')==True):
+            f = open('../caffe_converter/concat_bottom_layer_serial.txt')
+            concat_bottom_layer_serial = f.read().split()
+
     for j in range(1,port_num + 1):
         if j == port_num:
             out_data1 += SPACE + "temp_out_0" + "_" + str(j)
             out_data2 += SPACE + "temp_out_1" + "_" + str(j)
-            if has_eltwise:
+            if has_eltwise or has_concat:
                 out_data3 += SPACE + "temp_out_2" + "_" + str(j)
         else:
             out_data1 += SPACE + "temp_out_0" + "_" + str(j) + COMMA
             out_data2 += SPACE + "temp_out_1" + "_" + str(j) + COMMA
-            if has_eltwise:
+            if has_eltwise or has_concat:
                 out_data3 += SPACE + "temp_out_2" + "_" + str(j)
     in_data = out_data1
     out_data = out_data2
-    if has_eltwise:
+    if has_eltwise or has_concat:
         temp_data = out_data3
     
     alpha = "nn_alpha_lrn"
@@ -181,7 +208,8 @@ def generate_body(arr2, prefix=SEPARATER):
     act = ""
     conv1_eltwise = False
     conv2_eltwise = False
-    convs_eltwise = False
+    conv1_concat = False
+    conv2_concat = False
     in_n = 0
     in_size = 0
     last1 = 0
@@ -204,8 +232,21 @@ def generate_body(arr2, prefix=SEPARATER):
                             eltwise_input_2 = out_data
                             conv1_eltwise = False
                             conv2_eltwise = True
-                            convs_eltwise = True
-                        
+            
+            if has_concat:
+                for x in expand3x3_layer_serial:
+                    if str(i) == str(x):
+                        in_data = temp_data
+                for x in concat_bottom_layer_serial:
+                    if str(i) == str(x):
+                        if conv1_concat == False:
+                            concat_input_1 = out_data
+                            conv1_concat = True
+                            conv2_concat = False
+                        else:
+                            concat_input_2 = out_data
+                            conv1_concat = False
+                            conv2_concat = True
 
             last = nn_out_number_conv_values[conv_counter]
             fun = "conv_layer_new"
@@ -314,11 +355,39 @@ def generate_body(arr2, prefix=SEPARATER):
             body_str += " E" + str(elt_counter+1) + EOS + EOL
             function_calls += generate_function_calls("E", "eltwise", layers_order[i+1], str(elt_counter+1), [eltwise_input_1, eltwise_input_2])
             elt_counter = elt_counter + 1
-            convs_eltwise = True
             '''set in_data,out_data,temp_data'''
             in_data = eltwise_input_1
             out_data = eltwise_input_2
             if has_eltwise:
+                if out_data == out_data1:
+                    if in_data == out_data2:
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        temp_data = out_data2
+                elif out_data == out_data2:
+                    if in_data == out_data1:
+                        temp_data = out_data3
+                    elif in_data == out_data3:
+                        temp_data = out_data1
+                elif out_data == out_data3:
+                    if in_data == out_data1:
+                        temp_data = out_data2
+                    elif in_data == out_data2:
+                        temp_data = out_data1
+
+        elif l.lower() == "concat":
+            #if has_concat:
+            #    if str(i) in concat_bottom_layer_serial and str(i-1) not in expand3x3_layer_serial:
+            #        concat_input_1 = temp_data
+            #        concat_input_2 = in_data
+            body_str += generate_layer_init("concat_layer", [nn_in_number_concat_values[con_counter], nn_input_size_concat_values[con_counter]])
+            body_str += " C" + str(con_counter+1) + EOS + EOL
+            function_calls += generate_function_calls("C", "concat", layers_order[i+1], str(con_counter+1), [concat_input_1, concat_input_2])
+            con_counter = con_counter + 1
+            '''set in_data,out_data,temp_data'''
+            in_data = concat_input_1
+            out_data = concat_input_2
+            if has_concat:
                 if out_data == out_data1:
                     if in_data == out_data2:
                         temp_data = out_data3
@@ -377,6 +446,7 @@ def generate_body(arr2, prefix=SEPARATER):
             pool_counter = pool_counter + 1 
 
         elif l.lower() == "globalavepooling" or l.lower() == "globalmaxpooling": 
+            c = True
             if layers_order[i+1].lower() == "relu":
                 if l.lower() == "globalmaxpooling":
                     fun = "max_pool_layer_new"
@@ -389,6 +459,8 @@ def generate_body(arr2, prefix=SEPARATER):
                     strides[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
                     kernels[2].append(int(nn_in_data_size_pooling_values[pool_counter]))
             else:
+                if layers_order[i+1].lower() == "softmax":
+                    c = False
                 if l.lower() == "globalmaxpooling":
                     fun = "max_pool_layer_new"
                     act = "0"
@@ -441,8 +513,8 @@ def generate_body(arr2, prefix=SEPARATER):
 
             fc_counter = fc_counter + 1  	
 
-        '''set temp_data for resnet'''
-        if has_eltwise:
+        '''set temp_data for resnet and squeezenet'''
+        if has_eltwise or has_concat:
             for x in split_layer_serial:
                 if str(i) == str(x):
                     in_out_reset_list_1 = re.split('[,]', temp_data)
@@ -453,9 +525,9 @@ def generate_body(arr2, prefix=SEPARATER):
                     function_calls += prefix + helping_functions.generate_for_loop1("addr", "int", "0", int(math.ceil(float(prms[prms_str.index("maximum")])/port_num)) , in_out_reset_loop) + EOL
 
         '''reset output_temp'''
-        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" or l.lower() == "avepooling"  or l.lower() == "globalmaxpooling" or l.lower() == "globalavepooling"\
+        if l.lower().startswith("convolution") or l.lower() == "lrn" or l.lower() == "maxpooling" or l.lower() == "avepooling"  or (l.lower() == "globalmaxpooling" and c == True) or (l.lower() == "globalavepooling" and c == True)\
             or (l.lower() == "innerproduct" and b == True)  or (l.lower() == "batchnorm" and layers_order[i-1].lower() == "eltwise") or l.lower() == "eltwise":
-            if has_eltwise:
+            if has_eltwise or has_concat:
                 if out_data == out_data1:
                     if in_data == out_data2:
                         in_data = out_data1
@@ -504,6 +576,15 @@ def generate_body(arr2, prefix=SEPARATER):
             function_calls += prefix + helping_functions.generate_for_loop("i", "int", "0", str(int(nn_out_number_fc_values[len(nn_out_number_fc_values)-1])), 
                     [in_out_reset_loop], 1, port_num)
 
+        if "fc_bias_size" not in prms_str:
+            if l.lower() == "globalavepooling" or l.lower() == "globalmaxpooling": 
+                in_out_reset_list = re.split('[,]', out_data)
+                in_out_reset_loop = ""
+                for x in range(0,port_num):
+                    in_out_reset_loop += "out_a[i+" + str(x) + "] =" + in_out_reset_list[x] + "[i/" + str(port_num) + "];" +EOL + SEPARATER*2
+                function_calls += prefix + helping_functions.generate_for_loop("i", "int", "0", str(int(nn_in_number_pooling_values[len(nn_in_number_pooling_values)-1])), 
+                        [in_out_reset_loop], 1, port_num)
+
     counters = [conv_counter, pool_counter, lrn_counter, fc_counter]
     
     body_str += EOL + shifts + EOL
@@ -528,14 +609,18 @@ def generate_body(arr2, prefix=SEPARATER):
     if "nn_scale_size" in prms_str:
         scale += int(nn_in_number_scale_values[scale_counter - 1])
     
-    w_fc_last = fc_weight + int(nn_in_number_fc_values[fc_counter-1])*int(nn_out_number_fc_values[fc_counter-1])*\
-            int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
-    b_fc_last = fc_bias + int(nn_out_number_fc_values[fc_counter-1])
+    w_b_arr = [conv_weight, conv_bias, batch_norm, batch_norm, scale, scale]
+    if "fc_bias_size" in prms_str:
+        w_fc_last = fc_weight + int(nn_in_number_fc_values[fc_counter-1])*int(nn_out_number_fc_values[fc_counter-1])*\
+                int(nn_channel_size_fc_values[fc_counter-1])*int(nn_channel_size_fc_values[fc_counter-1])
+        b_fc_last = fc_bias + int(nn_out_number_fc_values[fc_counter-1])
     
-    w_b_arr = [conv_weight, conv_bias, w_fc_last, b_fc_last, batch_norm, batch_norm, scale, scale, nn_out_number_fc_values[len(nn_out_number_fc_values)-1]]
-    for i in range(0,2):
-        for j in range(1,port_num + 1):
-            w_b_arr.append(str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))))
+        w_b_arr.append(w_fc_last)
+        w_b_arr.append(b_fc_last)
+        w_b_arr.append(nn_out_number_fc_values[len(nn_out_number_fc_values)-1])
+        for i in range(0,2):
+            for j in range(1,port_num + 1):
+                w_b_arr.append(str(int(math.ceil(float(prms[prms_str.index("maximum")])/port_num))))
 
     w_b_arr.append(prms[prms_str.index("n")])
     return body_str, counters, acc_str, w_b_arr
@@ -543,7 +628,7 @@ def generate_body(arr2, prefix=SEPARATER):
 '''new other kind of layer object'''
 '''eg:lrn_layer,batch_norm_scale_layer,eltwise_layer'''
 def generate_layer_init(name, params, prefix=SEPARATER):
-    if name == "lrn_layer" or name == "batch_norm_scale_layer" or name == "eltwise_layer":
+    if name == "lrn_layer" or name == "batch_norm_scale_layer" or name == "eltwise_layer" or name == "concat_layer":
         types = "data_type_o, "
     else:
         types = "data_type, data_type_w, data_type_o, "
@@ -567,7 +652,7 @@ def generate_function_calls1(fun, args, prefix=SEPARATER):
 '''eg:lrn_layer,batch_norm_scale_layer,eltwise_layer'''
 def generate_function_calls(nm1, tp, nm2, count, args, prefix=SEPARATER):
     str1 = prefix + nm1 + count + CALL_SYMBOL + tp
-    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L" or nm1 == "E" or nm1 == "B":
+    if nm2.lower() == "relu" or nm1 == "P" or nm1 == "L" or nm1 == "E" or nm1 == "B" or nm1 == "C":
         str1 += "_layer_a" + PARAMETER_BEGIN
     for i, l in enumerate(args):
         if l != None:
@@ -590,6 +675,7 @@ def generate_header(head_json, arr):
     nn_padding_conv = prms[prms_str.index("nn_padding_conv")]	
     nn_in_number_conv = prms[prms_str.index("nn_in_number_conv")]	
     nn_out_number_fc = prms[prms_str.index("nn_out_number_fc")]	
+    nn_in_number_pooling = prms[prms_str.index("nn_in_number_pooling")]
     layers_order = prms[prms_str.index("layers_order")]
     fc_nm = "fc_" + n + "_out_a"
 
@@ -607,16 +693,25 @@ def generate_header(head_json, arr):
                 head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
         else:
             if s["pName"] == "fc_out_a":
-                head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL        
+                if "fc_bias_size" in prms_str:
+                    head_str += SEPARATER + s["pType"] + SEPARATER + fc_nm + ARRAY_BEGIN + str(nn_out_number_fc[len(nn_out_number_fc)-1]) + "*1*1" + ARRAY_END + COMMA + EOL        
+                else:
+                    head_str += SEPARATER + s["pType"] + SEPARATER + "out_a" + ARRAY_BEGIN + str(nn_in_number_pooling[len(nn_in_number_pooling)-1]) + "*1*1" + ARRAY_END + COMMA + EOL
             elif s["pName"] == "#endif" or s["pName"] == "#if _SCALE_" or s["pName"] == "mean" or s["pName"] == "denominator" or s["pName"] == "gamma" or s["pName"] == "beta":
                 head_str += ""
-            elif s["pName"] == "conv_bias_port" or s["pName"] == "fc_bias_port":
+            elif s["pName"] == "conv_bias_port":
                 if "conv_bias_size" in prms_str:
+                    head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
+            elif s["pName"] == "fc_weight_port":
+                if "fc_bias_size" in prms_str:
+                    head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
+            elif s["pName"] == "fc_bias_port":
+                if "fc_bias_size" in prms_str:
                     head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
             else:
                 head_str += SEPARATER + s["pType"] + s["pName"] + COMMA + EOL
 
-    if "Eltwise" in layers_order:
+    if "Eltwise" in layers_order or "Concat" in layers_order:
         for i in range(0,2):
             for j in range(1,port_num + 1):
                 head_str += SEPARATER + "data_type_o" + SEPARATER + "temp_out_" + str(i) + "_" + str(j) + ARRAY_BEGIN +\
@@ -661,6 +756,8 @@ def generate_import(import_json, arr):
             import_str += "#include \"batch_norm_layer.h\"" + EOL 
     if "nn_in_number_eltwise_size" in prms_str:
         import_str += "#include \"eltwise_layer.h\"" + EOL
+    if "nn_in_number_concat_size" in prms_str:
+        import_str += "#include \"concat_layer.h\"" + EOL
     return import_str
 
 def generate_end(end_json):
@@ -676,13 +773,18 @@ def generate_pragma(wb_arr):
     pr1 = "#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS"
     pr3 = "#pragma HLS INTERFACE m_axi depth="
     pr4 = " port="
-    arr = ["conv_weight_port", "conv_bias_port", "fc_weight_port", "fc_bias_port", "mean", "denominator", "gamma", "beta", "fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a"]
+    arr = ["conv_weight_port", "conv_bias_port", "mean", "denominator", "gamma", "beta"]
     for i in range(0,2):
         for j in range(1,port_num + 1):
             arr.append("temp_out_" + str(i) + "_" + str(j))
 
     arr1 = helping_functions.read_params(sys.argv[1])
     prms, prms_str = helping_functions.extraction(arr1)
+    nn_out_number_fc = prms[prms_str.index("nn_out_number_fc")] 
+    if "fc_bias_size" in prms_str:
+        arr.append("fc_weight_port")
+        arr.append("fc_bias_port")
+        arr.append("fc_" + str(wb_arr[len(wb_arr)-1]) + "_out_a")
     pragma_str = EOL*2
     pragma_str += hls_deb + EOL + pr1 + EOL
     for i, wb in enumerate(wb_arr[:-1]):

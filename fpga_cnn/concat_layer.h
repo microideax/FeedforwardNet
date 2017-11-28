@@ -35,8 +35,8 @@ public:
 			for(int n = 0; n < _IN_CHANNEL_NUM_; n++){
 				for(int i=0;i<_INPUT_SIZE_;i++){
 					for(int j=0;j<_INPUT_SIZE_;j++){
-					    (*(in_data3D_2 + (_IN_CHANNEL_NUM_ + n)*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) 
-					    = (*(in_data3D_1 + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j));
+					    (*(in_data3D_1 + (_IN_CHANNEL_NUM_ + n)*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j)) 
+					    = (*(in_data3D_2 + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j));
 				    }
 				}
 			}
@@ -49,7 +49,7 @@ public:
 		for(int n = 0; n < 2 * _IN_CHANNEL_NUM_; n++){
 			for(int i=0;i<_INPUT_SIZE_;i++){
 				for(int j=0;j<_INPUT_SIZE_;j++){
-				    out_concat_a << *(in_data3D_2 + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j) << " ";
+				    out_concat_a << *(in_data3D_1 + n*_INPUT_SIZE_*_INPUT_SIZE_ + i*_INPUT_SIZE_ +j) << " ";
 				}
 				out_concat_a << endl;
 			}

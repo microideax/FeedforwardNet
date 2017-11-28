@@ -24,18 +24,19 @@ if(os.path.exists(output_dir)==False):
 if(os.path.exists(output_dir+'net_weights.txt')):
 	os.remove(output_dir+'net_weights.txt')
 f1=open(output_dir+'net_weights.txt','a+')
-if(os.path.exists(output_dir+'batch_norm_mean.txt')):
-	os.remove(output_dir+'batch_norm_mean.txt')
-f2=open(output_dir+'batch_norm_mean.txt','a+')
-if(os.path.exists(output_dir+'batch_norm_denominator.txt')):
-	os.remove(output_dir+'batch_norm_denominator.txt')
-f3=open(output_dir+'batch_norm_denominator.txt','a+')
-if(os.path.exists(output_dir+'scale_gamma.txt')):
-	os.remove(output_dir+'scale_gamma.txt')
-f4=open(output_dir+'scale_gamma.txt','a+')
-if(os.path.exists(output_dir+'scale_beta.txt')):
-	os.remove(output_dir+'scale_beta.txt')
-f5=open(output_dir+'scale_beta.txt','a+')
+if 'resnet' in caffemodel_filename or 'Resnet' in caffemodel_filename or 'RESNET' in caffemodel_filename:
+	if(os.path.exists(output_dir+'batch_norm_mean.txt')):
+		os.remove(output_dir+'batch_norm_mean.txt')
+	f2=open(output_dir+'batch_norm_mean.txt','a+')
+	if(os.path.exists(output_dir+'batch_norm_denominator.txt')):
+		os.remove(output_dir+'batch_norm_denominator.txt')
+	f3=open(output_dir+'batch_norm_denominator.txt','a+')
+	if(os.path.exists(output_dir+'scale_gamma.txt')):
+		os.remove(output_dir+'scale_gamma.txt')
+	f4=open(output_dir+'scale_gamma.txt','a+')
+	if(os.path.exists(output_dir+'scale_beta.txt')):
+		os.remove(output_dir+'scale_beta.txt')
+	f5=open(output_dir+'scale_beta.txt','a+')
 bn_record = 0
 scale_record = 0
 batch_size = 0
@@ -102,9 +103,10 @@ for k,v in net.params.items():
  					f5.write(str(i.data[neturalUnit_num])+' ')
 
 f1.close()
-f2.close()
-f3.close()
-f4.close()
-f5.close()
+if 'resnet' in caffemodel_filename or 'Resnet' in caffemodel_filename or 'RESNET' in caffemodel_filename:
+	f2.close()
+	f3.close()
+	f4.close()
+	f5.close()
 
 print("\nDone in %.2f s.\n" % (time.time() - start))

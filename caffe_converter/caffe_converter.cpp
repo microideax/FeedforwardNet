@@ -113,16 +113,25 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     caffe_layer_vector src_net(layer);
     int num_input=input_param[0];
     int input_size=input_param[1];
+    bool has_fc_layer=false;
     bool has_lrn_layer=false;
     bool has_batch_norm_layer=false;
     bool has_scale_layer=false;
     bool has_eltwise_layer=false;
     bool has_match_conv_layer=false;
+    bool has_concat_layer=false;
+    bool has_expand3x3_layer=false;
     bool is_match_conv_layer_next=false;
     int in_num_match_conv_layer=0;
     int in_size_match_conv_layer=0;
     bool is_match_conv_layer=false;
-    bool is_single_line=true;
+    bool is_expand3x3_layer_next=false;
+    int in_num_expand3x3_layer=0;
+    int in_size_expand3x3_layer=0;
+    bool is_expand3x3_layer=false;
+    bool has_input_layer=false;
+    bool is_single_line_1=true;
+    bool is_single_line_2=true;
     
     //conv_layer config params
     vector<int> nn_in_data_size_conv;
@@ -162,17 +171,29 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     vector<int> nn_in_number_eltwise;
     vector<int> nn_input_size_eltwise;
 
+    //eltwise_layer config params
+    vector<int> nn_in_number_concat;
+    vector<int> nn_input_size_concat;
+
     int num_output=0;
     ofstream out;
     out.open("net_config_params.txt");
     ofstream out_bottom;
     ofstream out_match_conv;
     ofstream out_eltwise_bottom;
+    ofstream out_expand3x3;
+    ofstream out_concat_bottom;
     out<<"Network Structure: ";
     //judge if the net is single line structure
     for (int i = 0; i < src_net.size(); i++) {
+        if(src_net[0].type()=="Input")
+            has_input_layer=true;
         if(src_net[i].type()=="Eltwise"){
-            is_single_line=false;
+            is_single_line_1=false;
+            break;
+        }
+        if(src_net[i].type()=="Concat"){
+            is_single_line_2=false;
             break;
         }
     }
@@ -180,19 +201,41 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     for (int i = 0; i < src_net.size(); i++) {
         cout << "Layer " << i << ":" << src_net[i].name() << "\t" << src_net[i].type()<<endl;
         int bottom_count=0;
-        for(int j = i;j < src_net.size()-1; j++){
-            if(src_net[j].type()!="Input"){
-                if(src_net[j].bottom(0)==src_net[i].name()){
-                    bottom_count++;
-                    if(src_net[j+1].bottom(0)==src_net[j].name()&&src_net[j+1].type()=="Eltwise"){
-                        out_match_conv.open("match_conv_layer_serial.txt",ios::app);
-                        out_match_conv<<j<<" ";
-                        out_match_conv.close();
+        if(!is_single_line_1){
+            for(int j = i;j < src_net.size()-1; j++){
+                if(src_net[j].type()!="Input"){
+                    if(src_net[j].bottom(0)==src_net[i].name()){
+                        bottom_count++;
+                        if(src_net[j+1].bottom(0)==src_net[j].name()&&src_net[j+1].type()=="Eltwise"){
+                            out_match_conv.open("match_conv_layer_serial.txt",ios::app);
+                            out_match_conv<<j<<" ";
+                            out_match_conv.close();
+                        }
                     }
                 }
             }
         }
-        if((!is_single_line&&bottom_count==2)||(bottom_count==4&&src_net[i].type()=="BatchNorm")){
+        if(!is_single_line_2){
+            for(int j = i;j < src_net.size()-2; j++){
+                if(src_net[j].type()!="Input"){
+                    if(src_net[j].bottom(0)==src_net[i].name()){
+                        bottom_count++;
+                        if(src_net[j+2].type()=="Concat"){
+                            if(src_net[j+2].bottom(1)==src_net[j].name()){
+                                out_expand3x3.open("expand3x3_layer_serial.txt",ios::app);
+                                out_expand3x3<<j<<" ";
+                                out_expand3x3.close();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if((!is_single_line_1&&bottom_count==2)||(bottom_count==4&&src_net[i].type()=="BatchNorm")){
+            out_bottom.open("split_layer_serial.txt",ios::app);
+            out_bottom<<i<<" ";
+            out_bottom.close();
+        }if(!is_single_line_2&&bottom_count==3&&src_net[i].type()=="Convolution"){
             out_bottom.open("split_layer_serial.txt",ios::app);
             out_bottom<<i<<" ";
             out_bottom.close();
@@ -201,7 +244,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     //save match_conv_layer's bottom layer's serial number for judgement latter
     std::vector<float> match_conv_layer_serial;
     std::vector<float> in_match_conv_layer;
-    if(!is_single_line){
+    if(!is_single_line_1){
         ifstream ifs1("match_conv_layer_serial.txt");
         string str1;
         while (ifs1 >> str1){
@@ -224,6 +267,26 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             }
         }
     }
+    std::vector<float> expand3x3_layer_serial;
+    std::vector<float> in_expand3x3_layer;
+    if(!is_single_line_2){
+        ifstream ifs1("expand3x3_layer_serial.txt");
+        string str1;
+        while (ifs1 >> str1){
+            float f = atof(str1.c_str());
+            expand3x3_layer_serial.push_back(f);
+        }
+        std::vector<int> split_layer_serial;
+        ifstream ifs2("split_layer_serial.txt");
+        string str2;
+        while (ifs2 >> str2){
+            float f = atof(str2.c_str());
+            split_layer_serial.push_back(f);
+        }
+        for(int j=0;j<split_layer_serial.size();j++){
+            in_expand3x3_layer.push_back(split_layer_serial[j]);
+        }
+    }
     //save net necessary config information into file
     for (int i = 0; i < src_net.size(); i++) {
         int pad=0;
@@ -243,10 +306,17 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             out<<src_net[i].type();
         }
         if(src_net[i].type()=="Convolution"){
-            if(!is_single_line){
+            if(!is_single_line_1){
                 for(int j=0;j<match_conv_layer_serial.size();j++){
                     if(int(match_conv_layer_serial[j])==i){
                         is_match_conv_layer=true;
+                    }
+                }
+            }
+            if(!is_single_line_2){
+                for(int j=0;j<expand3x3_layer_serial.size();j++){
+                    if(int(expand3x3_layer_serial[j])==i){
+                        is_expand3x3_layer=true;
                     }
                 }
             }
@@ -254,6 +324,9 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             if(is_match_conv_layer){
                 nn_in_data_size_conv.push_back(in_size_match_conv_layer);
                 is_match_conv_layer=false;
+            }else if(is_expand3x3_layer){
+                nn_in_data_size_conv.push_back(in_size_expand3x3_layer);
+                is_expand3x3_layer=false;
             }else{
                 nn_in_data_size_conv.push_back(input_size);
             }
@@ -290,14 +363,35 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
                 nn_bias_conv.push_back(0);
             else
                 nn_bias_conv.push_back(num_output);
-            if(!is_single_line){
+            if(!is_single_line_1){
                 for(int j=0;j<match_conv_layer_serial.size();j++){
-                    if(int(match_conv_layer_serial[j])==i+1){
+                    if((!has_input_layer)&&int(match_conv_layer_serial[j])==i+1){
+                        is_match_conv_layer_next=true;
+                    }else if(has_input_layer&&int(match_conv_layer_serial[j])==i+2){
                         is_match_conv_layer_next=true;
                     }
                 }
             }
+            if(!is_single_line_2){
+                for(int j=0;j<expand3x3_layer_serial.size();j++){
+                    if((!has_input_layer)&&int(expand3x3_layer_serial[j])==i+1){
+                        is_expand3x3_layer_next=true;
+                    }else if(has_input_layer&&int(expand3x3_layer_serial[j])==i+2){
+                        is_expand3x3_layer_next=true;
+                    }
+                }
+            }
+            if(!is_single_line_2){
+                for(int j=0;j<in_expand3x3_layer.size();j++){
+                    if(int(in_expand3x3_layer[j])==i){
+                        has_expand3x3_layer=true;
+                        in_num_expand3x3_layer=num_output;
+                        in_size_expand3x3_layer=input_size;
+                    }
+                }
+            }
         }else if(src_net[i].type()=="InnerProduct"){
+            has_fc_layer=true;
             InnerProductParameter inner_product_param = src_net[i].inner_product_param();
             nn_in_data_size_fc.push_back(input_size);
             nn_in_number_fc.push_back(num_input);
@@ -325,7 +419,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             }else{
                 input_size = static_cast<int>(ceil(static_cast<float>(input_size + 2 * pad - kernel_size) / stride)) + 1;
             }
-            if(!is_single_line){
+            if(!is_single_line_1){
                 for(int j=0;j<in_match_conv_layer.size();j++){
                     if(int(in_match_conv_layer[j])==i){
                         has_match_conv_layer=true;
@@ -333,7 +427,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
                         in_size_match_conv_layer=input_size;
                     }
                 }
-            } 
+            }
         }else if(src_net[i].type()=="LRN"){
             has_lrn_layer=true;
             int local_size=src_net[i].lrn_param().local_size();
@@ -345,7 +439,7 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
         }else if(src_net[i].type()=="BatchNorm"){
             has_batch_norm_layer=true;
             nn_in_number_batch_norm.push_back(num_input);
-            if(!is_single_line){
+            if(!is_single_line_1){
                 for(int j=0;j<in_match_conv_layer.size();j++){
                     if(int(in_match_conv_layer[j])==i){
                         has_match_conv_layer=true;
@@ -372,14 +466,36 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
             out_eltwise_bottom.open("eltwise_bottom_layer_serial.txt",ios::app);
             out_eltwise_bottom<<i<<" ";
             out_eltwise_bottom.close();
+        }else if(src_net[i].type()=="Concat"){
+            has_concat_layer=true;
+            net_has_eltwise_layer[0]=1;
+            nn_in_number_concat.push_back(num_input);
+            nn_input_size_concat.push_back(input_size);
+            for(int j = i;j >= 0; j--){
+                if(src_net[i].bottom(0)==src_net[j].name()||src_net[i].bottom(1)==src_net[j].name()){
+                    out_concat_bottom.open("concat_bottom_layer_serial.txt",ios::app);
+                    out_concat_bottom<<j<<" ";
+                    out_concat_bottom.close();
+                }
+            }
+            out_concat_bottom.open("concat_bottom_layer_serial.txt",ios::app);
+            out_concat_bottom<<i<<" ";
+            out_concat_bottom.close();
         }
-        if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"||src_net[i].type()=="Pooling"){
+        if(src_net[i].type()=="Convolution"||src_net[i].type()=="InnerProduct"){
             num_input=num_output;//set each layer's num_input equals to the last layer's num_output
             if(has_match_conv_layer&&is_match_conv_layer_next){
                 num_input=in_num_match_conv_layer;
                 has_match_conv_layer=false;
                 is_match_conv_layer_next=false;
             }
+            if(has_expand3x3_layer&&is_expand3x3_layer_next){
+                num_input=in_num_expand3x3_layer;
+                has_expand3x3_layer=false;
+                is_expand3x3_layer_next=false;
+            }
+        }else if(src_net[i].type()=="Concat"){
+            num_input=num_input*2;
         }
         if(tag){
             out<<")";
@@ -409,11 +525,12 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     str_nn_config_params_name_int.push_back("nn_stride_pooling: ");
     str_nn_config_params_name_int.push_back("nn_in_number_pooling: ");
 
-    str_nn_config_params_name_int.push_back("nn_in_data_size_fc: ");
-    str_nn_config_params_name_int.push_back("nn_in_number_fc: ");
-    str_nn_config_params_name_int.push_back("nn_out_number_fc: ");
-    str_nn_config_params_name_int.push_back("nn_channel_size_fc: ");
-    
+    if(has_fc_layer==true){
+        str_nn_config_params_name_int.push_back("nn_in_data_size_fc: ");
+        str_nn_config_params_name_int.push_back("nn_in_number_fc: ");
+        str_nn_config_params_name_int.push_back("nn_out_number_fc: ");
+        str_nn_config_params_name_int.push_back("nn_channel_size_fc: ");
+    }    
     if(has_lrn_layer==true){
         str_nn_config_params_name_int.push_back("nn_local_size_lrn: ");
     }
@@ -426,6 +543,10 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     if(has_eltwise_layer==true){
         str_nn_config_params_name_int.push_back("nn_in_number_eltwise: ");
         str_nn_config_params_name_int.push_back("nn_input_size_eltwise: ");
+    }
+    if(has_concat_layer==true){
+        str_nn_config_params_name_int.push_back("nn_in_number_concat: ");
+        str_nn_config_params_name_int.push_back("nn_input_size_concat: ");
     }
 
     vector<vector<int>> nn_config_params_int;
@@ -445,11 +566,12 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     nn_config_params_int.push_back(nn_stride_pooling);
     nn_config_params_int.push_back(nn_in_number_pooling);
 
-    nn_config_params_int.push_back(nn_in_data_size_fc);
-    nn_config_params_int.push_back(nn_in_number_fc);
-    nn_config_params_int.push_back(nn_out_number_fc);
-    nn_config_params_int.push_back(nn_channel_size_fc);
-
+    if(has_fc_layer==true){
+        nn_config_params_int.push_back(nn_in_data_size_fc);
+        nn_config_params_int.push_back(nn_in_number_fc);
+        nn_config_params_int.push_back(nn_out_number_fc);
+        nn_config_params_int.push_back(nn_channel_size_fc);
+    }
     if(has_lrn_layer){
         nn_config_params_int.push_back(nn_local_size_lrn);
     }
@@ -462,6 +584,10 @@ void get_config_params_from_caffe_net(const caffe::NetParameter& layer,int input
     if(has_eltwise_layer==true){
         nn_config_params_int.push_back(nn_in_number_eltwise);
         nn_config_params_int.push_back(nn_input_size_eltwise);
+    }
+    if(has_concat_layer==true){
+        nn_config_params_int.push_back(nn_in_number_concat);
+        nn_config_params_int.push_back(nn_input_size_concat);
     }
     out.open("net_config_params.txt",ios::app);
     for (int i = 0; i < nn_config_params_int.size(); i++) {

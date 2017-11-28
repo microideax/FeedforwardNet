@@ -123,11 +123,16 @@ def extraction(arr):
 
 	nn_in_number_eltwise_values = params_values("nn_in_number_eltwise", arr)
 	nn_input_size_eltwise_values = params_values("nn_input_size_eltwise", arr)
+
+	nn_in_number_concat_values = params_values("nn_in_number_concat", arr)
+	nn_input_size_concat_values = params_values("nn_input_size_concat", arr)
 	
 	arr1.append(layers_order)
 	arr2.append("layers_order")
 	
-	n = len(nn_in_data_size_conv_values) + len(nn_in_number_fc_values)
+	n = len(nn_in_data_size_conv_values)
+	if nn_in_number_fc_values != 0:
+		n = n + len(nn_in_number_fc_values)
 	arr1.append(str(n))
 	arr2.append("n")
 
@@ -173,6 +178,10 @@ def extraction(arr):
 	arr2.append("nn_in_number_eltwise")
 	arr1.append(nn_input_size_eltwise_values)
 	arr2.append("nn_input_size_eltwise")
+	arr1.append(nn_in_number_concat_values)
+	arr2.append("nn_in_number_concat")
+	arr1.append(nn_input_size_concat_values)
+	arr2.append("nn_input_size_concat")
 
 	val = str(int(nn_in_number_conv_values[0])) + " * " +\
 	      str(int(nn_in_data_size_conv_values[0])) + " * " +\
@@ -200,25 +209,31 @@ def extraction(arr):
 		arr2.append("conv_bias_size")
 	
 	val = ""
-	for j in range(len(nn_in_number_fc_values)):
-		val += str(int(nn_in_number_fc_values[j])*int(nn_out_number_fc_values[j])*\
-			   int(nn_channel_size_fc_values[j])*int(nn_channel_size_fc_values[j]))
-		if (j+1) != len(nn_in_number_fc_values):
-			val += " + "
-	arr1.append(val)
-	arr2.append("fc_weight_size")
+	if nn_in_number_fc_values != 0:
+		for j in range(len(nn_in_number_fc_values)):
+			val += str(int(nn_in_number_fc_values[j])*int(nn_out_number_fc_values[j])*\
+				   int(nn_channel_size_fc_values[j])*int(nn_channel_size_fc_values[j]))
+			if (j+1) != len(nn_in_number_fc_values):
+				val += " + "
+		arr1.append(val)
+		arr2.append("fc_weight_size")
 	
 	val = ""
-	for i, out in enumerate(nn_out_number_fc_values):
-		val += out
-		if (i+1) != len(nn_out_number_fc_values):
-			val += " + "
-	arr1.append(val)
-	arr2.append("fc_bias_size")
+	if nn_out_number_fc_values != 0:
+		for i, out in enumerate(nn_out_number_fc_values):
+			val += out
+			if (i+1) != len(nn_out_number_fc_values):
+				val += " + "
+		arr1.append(val)
+		arr2.append("fc_bias_size")
 	
 	val = ""
-	arr1.append(out)
-	arr2.append("fc_out_size")
+	if nn_out_number_fc_values != 0:
+		arr1.append(str(nn_out_number_fc_values[len(nn_out_number_fc_values)-1]))
+		arr2.append("fc_out_size")
+	else:
+		arr1.append(str(nn_in_number_pooling_values[len(nn_in_number_pooling_values)-1]))
+		arr2.append("out_size")
 
 	val = ""
 	if nn_in_number_batch_norm_values != 0:
@@ -248,6 +263,16 @@ def extraction(arr):
 		arr1.append(val)
 		arr2.append("nn_input_size_eltwise_size")
 
+	val = ""
+	if nn_in_number_concat_values != 0:
+		arr1.append(val)
+		arr2.append("nn_in_number_concat_size")
+
+	val = ""
+	if nn_input_size_concat_values != 0:
+		arr1.append(val)
+		arr2.append("nn_input_size_concat_size")
+
 	maximum = []
 	for l in range(len(nn_in_data_size_conv_values)):
 		out = (int(nn_in_data_size_conv_values[l]) + int(nn_padding_conv_values[l]) * 2 -\
@@ -259,10 +284,11 @@ def extraction(arr):
                       int(nn_channel_size_pooling_values[l1]))/int(nn_stride_pooling_values[l1]) + 1
 		val = int(out) * int(out) * int(nn_in_number_pooling_values[l1])
 		maximum.append(val)
-	for l2 in range(len(nn_in_number_fc_values)):
-		val = int(nn_in_number_fc_values[l2]) * int(nn_channel_size_fc_values[l2]) *\
-		      int(nn_channel_size_fc_values[l2])
-		maximum.append(val)
+	if nn_in_number_fc_values != 0:
+		for l2 in range(len(nn_in_number_fc_values)):
+			val = int(nn_in_number_fc_values[l2]) * int(nn_channel_size_fc_values[l2]) *\
+			      int(nn_channel_size_fc_values[l2])
+			maximum.append(val)
 	maxim = max(maximum)
 	arr1.append(str(maxim))
 	arr2.append("maximum")

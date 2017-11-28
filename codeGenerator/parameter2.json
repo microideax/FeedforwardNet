@@ -77,6 +77,7 @@
 				{"type" : "unsigned int", "name" : "fc_weight_size", "size" : "data_type_w", "memory" : "fc_weight_mem_port", "location" : "fc_weight_mem_port memory location"},
 				{"type" : "unsigned int", "name" : "fc_bias_size", "size" : "data_type_w", "memory" : "fc_bias_mem_port", "location" : "fc_bias_mem_port memory location"},
 				{"type" : "unsigned int", "name" : "fc_out_size", "size" : "data_type_o", "memory" : "fc_out_mem_int", "location" : "fc_out_mem_int memory location"},
+				{"type" : "unsigned int", "name" : "out_size", "size" : "data_type_o", "memory" : "out_mem_int", "location" : "out_mem_int memory location"},
 				{"type" : "unsigned int", "name" : "nn_batch_norm_size", "size" : "data_type_o", "memory" : "batch_norm_mem_port_param1", "location" : "batch_norm_mem_port_param1 memory location"},
 				{"type" : "unsigned int", "name" : "nn_batch_norm_size", "size" : "data_type_o", "memory" : "batch_norm_mem_port_param2", "location" : "batch_norm_mem_port_param2 memory location"},
 		    	{"type" : "unsigned int", "name" : "nn_scale_size", "size" : "data_type_o", "memory" : "scale_mem_port_param1", "location" : "scale_mem_port_param1 memory location"},
