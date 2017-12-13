@@ -45,7 +45,9 @@ def generate():
 	minimums.append([1, max_S])
 	minimums1.append(min_cycles)
 
-	
+	print("initial cycles")
+	print(minimums1)
+
 	for Tm in range(1, mm1+1):
 		for Tn in range(max_S, Tm):
 			if Tm * Tn < d:
