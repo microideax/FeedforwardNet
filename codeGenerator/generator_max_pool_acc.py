@@ -87,6 +87,7 @@ def generate(generated_file_name="max_pool_acc_innerpp.h"):
 	str1 += "        for (int j = r; j < r + Tr && j < R; j++) {" + EOL
 	#str1 += "                    if (R < r + Tr && j == R) { break; }" + EOL
 	str1 += "            for (int k = c; k < c + Tc && k < C; k++) {" + EOL
+    str1 += "#pragma HLS PIPELINE" + EOL
 	#str1 += "                        if (C < c + Tc && k == C) { break; }" + EOL
 	str1 += "                for (int i = 0; i < Tn && i < N - n; i += " + str(port_num) + ") {" + EOL
 	str1 += "                        if (act) {" + EOL
