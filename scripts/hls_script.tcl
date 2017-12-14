@@ -9,8 +9,8 @@ set_top inference_net
 #add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
 add_files ../inference_net/construct_net.h
-add_files ../inference_net/conv_acc_innerdf_1.h
-add_files ../inference_net/max_pool_acc_innerdf.h
+add_files ../inference_net/conv_acc_innerpp.h
+add_files ../inference_net/max_pool_acc_innerpp.h
 add_files ../inference_net/data_type.h
 add_files ../inference_net/acc_instance.h
 add_files ../inference_net/data_type.h
