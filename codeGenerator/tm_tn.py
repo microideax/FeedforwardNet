@@ -68,8 +68,9 @@ def generate():
     print("conv_K")
     print(conv_K)
 
-    DSP = 6840
-    d = int(0.8*DSP / 5)
+    #DSP = 6840
+    DSP = 2880
+    d = int(DSP / 1)
     arr = []
 
     Tm_min = 1
@@ -83,7 +84,13 @@ def generate():
     min_cycle_list.append(conv_min_cycles)
 
     print("Analysis initialized point: ", min_cycle_list, min_Tm_Tn)
-    #print(min_cycle_list)
+
+    target = 0
+    for j in range(0, conv_layer_num):
+        target += int(
+            conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(32)) * math.ceil(int(conv_M[j]) / float(87))*conv_K[j] * conv_K[j])
+    print("targeted cycle numbers [87, 32]")
+    print(target)
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -116,7 +123,7 @@ def generate():
                 conv_min_cycles = cycles
                 Tm_min = Tm
                 Tn_min = Tn
-                if len(min_Tm_Tn) < 5:
+                if len(min_Tm_Tn) < 20:
                     min_Tm_Tn.append([Tm, Tn])
                     min_cycle_list.append(conv_min_cycles)
                 else:
