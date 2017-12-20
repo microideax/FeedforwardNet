@@ -20,6 +20,7 @@ def generate():
     init_conv_P = prms[prms_str.index("nn_padding_conv")]
     init_conv_K = prms[prms_str.index("nn_channel_size_conv")]
     init_conv_S = prms[prms_str.index("nn_stride_conv")]
+    init_conv_G = prms[prms_str.index("nn_group_conv")]
     init_fc_N   = prms[prms_str.index("nn_in_number_fc")]
     init_fc_Rin = prms[prms_str.index("nn_in_data_size_fc")]
     init_fc_M   = prms[prms_str.index("nn_out_number_fc")]
@@ -46,8 +47,9 @@ def generate():
     conv_K = [int(string) for string in init_conv_K]
     conv_S = [int(string) for string in init_conv_S]
     conv_P = [int(string) for string in init_conv_P]
-    max_conv_N = max(conv_N)
-    max_conv_M = max(conv_M)
+    conv_G = [int(string) for string in init_conv_G]
+    max_conv_N = max(conv_N)/2
+    max_conv_M = max(conv_M)/2
     max_conv_S = max(conv_S)
     max_conv_K = max(conv_K)
 
@@ -69,8 +71,8 @@ def generate():
     print(conv_K)
 
     #DSP = 6840
-    DSP = 2880
-    d = int(DSP / 1)
+    DSP = 2800
+    d = int(DSP / 5)
     arr = []
 
     Tm_min = 1
@@ -87,9 +89,8 @@ def generate():
 
     target = 0
     for j in range(0, conv_layer_num):
-        target += int(
-            conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(32)) * math.ceil(int(conv_M[j]) / float(87))*conv_K[j] * conv_K[j])
-    print("targeted cycle numbers [87, 32]")
+        target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(7)) * math.ceil(int(conv_M[j]) / float(64))*conv_K[j] * conv_K[j])
+    print("targeted cycle numbers [64, 7]")
     print(target)
 
     fig = plt.figure()
@@ -123,7 +124,7 @@ def generate():
                 conv_min_cycles = cycles
                 Tm_min = Tm
                 Tn_min = Tn
-                if len(min_Tm_Tn) < 20:
+                if len(min_Tm_Tn) < 5:
                     min_Tm_Tn.append([Tm, Tn])
                     min_cycle_list.append(conv_min_cycles)
                 else:
