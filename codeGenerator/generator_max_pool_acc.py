@@ -46,14 +46,14 @@ def generate(generated_file_name="max_pool_acc_innerpp.h"):
     str1 += "        for (int j = r * S - P; j < r * S + TR - P; j++) {" + EOL
     str1 += "            for (int k = c * S - P; k < c * S + TC - P; k++) {" + EOL
     str1 += "#pragma HLS PIPELINE" + EOL
-    str1 += "        		 for (int i = n; i < n + Tn; i+=" + str(port_num) + "){" + EOL
+    str1 += "        		 for (int i = 0; i < Tn; i+=" + str(port_num) + "){" + EOL
     str1 += "#pragma HLS UNROLL" + EOL
 
     for j in range(0,port_num):
-        str1 += "                    if ((n + Tn > N && i + " + str(j) + " >= N ) || j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {" + EOL
-        str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = T(0);" + EOL
+        str1 += "                    if ((n + Tn > N && i + n + " + str(j) + " >= N ) || j < 0 || j >= (R_IN - 2 * P) || k < 0 || k >= (C_IN - 2 * P)) {" + EOL
+        str1 += "                        buf[i + " + str(j) + "][j - r * S + P][k - c * S + P] = T(0);" + EOL
         str1 += "                    }else {" + EOL
-        str1 += "                        buf[i + " + str(j) + " - n][j - r * S + P][k - c * S + P] = *(in_data_" + str(j+1) + " + i/" + str(port_num) + " * (R_IN - 2 * P) * (C_IN - 2 * P) + j * (C_IN - 2 * P) + k);" + EOL
+        str1 += "                        buf[i + " + str(j) + "][j - r * S + P][k - c * S + P] = *(in_data_" + str(j+1) + " + (i+n)/" + str(port_num) + " * (R_IN - 2 * P) * (C_IN - 2 * P) + j * (C_IN - 2 * P) + k);" + EOL
         str1 += "                    }" + EOL
 
     str1 += "				}" + EOL
@@ -87,9 +87,9 @@ def generate(generated_file_name="max_pool_acc_innerpp.h"):
     str1 += "        for (int j = r; j < r + Tr && j < R; j++) {" + EOL
     #str1 += "                    if (R < r + Tr && j == R) { break; }" + EOL
     str1 += "            for (int k = c; k < c + Tc && k < C; k++) {" + EOL
-    str1 += "#pragma HLS PIPELINE" + EOL
     #str1 += "                        if (C < c + Tc && k == C) { break; }" + EOL
     str1 += "                for (int i = 0; i < Tn && i < N - n; i += " + str(port_num) + ") {" + EOL
+    str1 += "#pragma HLS PIPELINE" + EOL
     str1 += "                        if (act) {" + EOL
     for j in range(1,port_num + 1):
         str1 += "                        	if (i + " + str(j-1) + " < N - n)" + EOL

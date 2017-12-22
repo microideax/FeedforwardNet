@@ -78,9 +78,9 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
 
 	str1 += "       for (int j = r * S - P; j < (r + Tr - 1) * S + K - P; j++) {" + EOL
 	str1 += "           for (int k = c * S - P; k < (c + Tc - 1) * S + K - P; k++) {" + EOL
-	str1 += "        		for (int i = 0; i < Tn; i+=" + str(port_num) + "){" + EOL
 	str1 += "#pragma HLS PIPELINE" + EOL
-#	str1 += "#pragma HLS UNROLL" + EOL
+	str1 += "        	for (int i = 0; i < Tn; i+=" + str(port_num) + "){" + EOL
+	str1 += "#pragma HLS UNROLL" + EOL
 #	str1 += "#pragma HLS DEPENDENCE variable=buf inter false" + EOL
 	
 	for j in range(0,port_num):
@@ -101,13 +101,13 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
 	str1 += "   void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){" + EOL
 	str1 += "       for(int k1 = 0; k1 < K; k1++){" + EOL
 	str1 += "           for(int k2 = 0; k2 < K; k2++){" + EOL
-	str1 += "        		for(int j = 0; j < Tn && j < N - n; j++){" + EOL
+	str1 += "            	for(int i = 0; i < Tm && i < M-m; i++){" + EOL
+	str1 += "        	    for(int j = 0; j < Tn && j < N - n; j++){" + EOL
     #str1 += "#pragma HLS PIPELINE" + EOL
 	#str1 += "#pragma HLS UNROLL" + EOL
 	#str1 += "            		if(N < n+Tn && j == N-n){" + EOL
 	#str1 += "                		break;" + EOL
 	#str1 += "            		}" + EOL
-	str1 += "            		for(int i = 0; i < Tm && i < M-m; i++){" + EOL
 	str1 += "#pragma HLS PIPELINE" + EOL
 	#str1 += "                		if(M < m+Tm && i == M-m){" + EOL
 	#str1 += "                    		break;" + EOL
@@ -160,8 +160,8 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
 	#str1 += "                if (C_OUT < c + Tc && k == C_OUT) { break; }" + EOL
 	str1 += "                for (int k = c; k < c + Tc && k < C_OUT; k++) {" + EOL
 	#str1 += "                    if (R_OUT < r + Tr && j == R_OUT) { break; }" + EOL
+	str1 += "                    for (int i = 0; i < Tm && i < M-m; i += " + str(port_num) + ") {" + EOL	
 	str1 += "#pragma HLS PIPELINE" + EOL
-	str1 += "                    for (int i = 0; i < Tm && i < M-m; i += " + str(port_num) + ") {" + EOL
 	#str1 += "#pragma HLS UNROLL" + EOL
 	#str1 += "                        if (M < m + Tm && i+m == M) { break; }" + EOL
 	str1 += "                        if (act) {" + EOL
