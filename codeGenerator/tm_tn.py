@@ -11,6 +11,20 @@ from mpl_toolkits.mplot3d import Axes3D
 def generate():
     """Tm * Tn < DSP/ 5"""
 
+    max_ratio = 0
+    max_sk = []
+    tm_tn_tr_tc = [32,8, 16,16]
+    for s in range(1,5):
+        k_max = min(80-15*s, 11)
+        for k in range (s, k_max):
+            ctc_ratio = (32*16*16*((15*s+k)*(15*s+k)*8+1))/(4*(8*32*k*k + 32 + 8*(15*s+k)*(15*s+k)+32*16*16))
+            if ctc_ratio > max_ratio:
+                max_ratio = ctc_ratio
+                max_sk = [s,k]
+    print("max ctc and s,k")
+    print(max_ratio)
+    print(max_sk)
+
     arr2 = helping_functions.read_params(sys.argv[1])
     prms, prms_str = helping_functions.extraction(arr2)
 
@@ -48,8 +62,8 @@ def generate():
     conv_S = [int(string) for string in init_conv_S]
     conv_P = [int(string) for string in init_conv_P]
     conv_G = [int(string) for string in init_conv_G]
-    max_conv_N = max(conv_N)/2
-    max_conv_M = max(conv_M)/2
+    max_conv_N = max(conv_N)
+    max_conv_M = max(conv_M)
     max_conv_S = max(conv_S)
     max_conv_K = max(conv_K)
 
@@ -70,8 +84,8 @@ def generate():
     print("conv_K")
     print(conv_K)
 
-    #DSP = 6840
-    DSP = 2800
+    DSP = 6840
+    #DSP = 2800
     d = int(DSP / 5)
     arr = []
 
@@ -111,7 +125,7 @@ def generate():
         Tn_max = min(max_conv_N, int(int(d/Tm)))
         for Tn in range(1, Tn_max+1):
             cycles = 0
-            for j in range(0, conv_layer_num):
+            for j in range(1, conv_layer_num):
                 cycles += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(Tn)) * math.ceil(int(conv_M[j]) / float(Tm)) * conv_K[j] * conv_K[j])
 
             if cycles > 0 and Tm < 100 and Tn < 100:
@@ -146,6 +160,9 @@ def generate():
 
     min_among_all = min_cycle_list.index(min(min_cycle_list))
     print("Best among all points", min_cycle_list[min_among_all], min_Tm_Tn[min_among_all])
+
+
+
 
     in_buf = 0
     out_buf = 0
