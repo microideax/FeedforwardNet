@@ -103,8 +103,8 @@ def generate():
 
     target = 0
     for j in range(0, conv_layer_num):
-        target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(7)) * math.ceil(int(conv_M[j]) / float(64))*conv_K[j] * conv_K[j])
-    print("targeted cycle numbers [64, 7]")
+        target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(32)) * math.ceil(int(conv_M[j]) / float(87))*conv_K[j] * conv_K[j])
+    print("targeted cycle numbers [87, 32]")
     print(target)
 
     fig = plt.figure()
@@ -122,7 +122,7 @@ def generate():
 
     conv_layer_num = int(len(conv_M))
     for Tm in range(1, max_conv_M+1):
-        Tn_max = min(max_conv_N, int(int(d/Tm)))
+        Tn_max = min(max_conv_N, int(int(d/Tm)), Tm)
         for Tn in range(1, Tn_max+1):
             cycles = 0
             for j in range(1, conv_layer_num):
