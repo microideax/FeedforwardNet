@@ -59,6 +59,18 @@ for tm in x1:
 #print Y
 #print min(X)
 
+Y_sim = []
+X_sim = []
+Y1_sim = []
+X1_sim = []
+Y2_sim = []
+X2_sim = []
+
+for yi in Y:
+    for count in xrange(0,5):
+        Y_sim.append(yi)
+
+
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 #ax2 = fig.add_subplot(111)

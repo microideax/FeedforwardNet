@@ -84,7 +84,7 @@ def generate():
     print("conv_K")
     print(conv_K)
 
-    DSP = 6840
+    DSP = 2280
     #DSP = 2800
     d = int(DSP / 5)
     arr = []
@@ -94,7 +94,7 @@ def generate():
     min_Tm_Tn = []
     conv_min_cycles = 0
     min_cycle_list = []
-    for o in range(0, conv_layer_num):
+    for o in range(conv_layer_num/3, (conv_layer_num-conv_layer_num/3)):
         conv_min_cycles += conv_R[o] * conv_R[o] * math.ceil(int(conv_M[o]) / float(Tm_min)) * math.ceil(int(conv_N[o]) / float(Tn_min)) * conv_K[o] * conv_K[o]
     min_Tm_Tn.append([1, 1])
     min_cycle_list.append(conv_min_cycles)
@@ -103,8 +103,8 @@ def generate():
 
     target = 0
     for j in range(0, conv_layer_num):
-        target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(32)) * math.ceil(int(conv_M[j]) / float(87))*conv_K[j] * conv_K[j])
-    print("targeted cycle numbers [87, 32]")
+        target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(16)) * math.ceil(int(conv_M[j]) / float(64))*conv_K[j] * conv_K[j])
+    print("targeted cycle numbers [32, 8]")
     print(target)
 
     fig = plt.figure()
