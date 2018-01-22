@@ -426,7 +426,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "#endif" + EOL
     str1 += "    }" + EOL
 
-    str1 += + EOL
+    str1 += "    " + EOL
     str1 += "#if _ACC_MODE_" + EOL
     str1 += "   void conv_core_acc( " + EOL
     str1 += "        data_type_w in_buf_0[Tn][IBUF_t][IBUF_t]," + EOL
@@ -434,26 +434,36 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "        data_type_w b_buf_0[Tm]," + EOL
     str1 += "        data_type_w out_buf_0[Tm][Tr][Tc]," + EOL
     str1 += "        int param[16] ) {" + EOL
+    str1 += "    " + EOL
+
     str1 += "        data_type_w out_buf_tmp[Tm][Tr][Tc];" + EOL
     str1 += "#pragma HLS ARRAY_PARTITION variable=out_buf_tmp complete dim=1" + EOL
-    str1 += "        conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_tmp, param[0], param[1], param[2], param[3], " + EOL
-    str1 += "               param[4], param[5], param[6], param[7], param[8]);" + EOL
-    str1 += "           for (int j =0; j < Tr; j++) { " + EOL
-    str1 += "               for (int k=0; k < Tc; k++) {" + EOL
+    str1 += "    " + EOL
+    str1 += "        conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_tmp, param[0], param[1], param[2], param[3], param[4], param[5], param[6], param[7], param[8]);" + EOL
+
+    str1 += "    " + EOL
+    str1 += "           for(int j =0; j < Tr; j++) { " + EOL
+    str1 += "               for(int k=0; k < Tc; k++) {" + EOL
     str1 += "#pragma HLS PIPELINE " + EOL
-    str1 += "                   for (int i=0; i < Tm; i++) { " + EOL
+    str1 += "                   for(int i=0; i < Tm; i++) { " + EOL
     str1 += "                       out_buf_0[i][j][k] = out_buf_tmp[i][j][k]; " + EOL
-    str1 += "           } } } }" + EOL
+    str1 += "                   } " + EOL
+    str1 += "               }" + EOL
+    str1 += "           }" + EOL
+    str1 += "}" + EOL
 
     str1 += "#endif" + EOL
 
     str1 += "};" + EOL
     str1 += "#endif" + EOL
+    str1 += "    " + EOL
+    str1 += "    " + EOL
 
     with open("../example/test_demo/inference_net/" + generated_file_name, "w") as generated_file:
         generated_file.write(str1)
 
     return str1
+
 
 if __name__ == "__main__":
     generate()
