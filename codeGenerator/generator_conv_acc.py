@@ -71,7 +71,8 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
         str1 += "	}" + EOL
 
     str1 += "    // Load input data" + EOL
-    str1 += "    void in_buf_load(T buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max]"
+    #str1 += "    void in_buf_load(T buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max]"
+    str1 += "    void in_buf_load(T buf[][IBUF_t][IBUF_t]"
     for j in range(1, port_num + 1):
         str1 += ",T " + "*in_data_" + str(j)
 
@@ -101,20 +102,13 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += EOL
 
     str1 += "    // Load weights to weight buffer" + EOL
-    str1 += "   void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){" + EOL
+    #str1 += "   void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){" + EOL
+    str1 += "   void w_buf_load(W buf[][Tm][WBUF_t][WBUF_t], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M){" + EOL
     str1 += "       for(int k1 = 0; k1 < K; k1++){" + EOL
     str1 += "           for(int k2 = 0; k2 < K; k2++){" + EOL
-    str1 += "            	for(int i = 0; i < Tm && i < M-m; i++){" + EOL
     str1 += "        	    for(int j = 0; j < Tn && j < N - n; j++){" + EOL
-    # str1 += "#pragma HLS PIPELINE" + EOL
-    # str1 += "#pragma HLS UNROLL" + EOL
-    # str1 += "            		if(N < n+Tn && j == N-n){" + EOL
-    # str1 += "                		break;" + EOL
-    # str1 += "            		}" + EOL
+    str1 += "            	    for(int i = 0; i < Tm && i < M-m; i++){" + EOL
     str1 += "#pragma HLS PIPELINE" + EOL
-    # str1 += "                		if(M < m+Tm && i == M-m){" + EOL
-    # str1 += "                    		break;" + EOL
-    # str1 += "                		}" + EOL
     str1 += "                        buf[j][i][k1][k2] = *(layer_weights + weight_offset + (i+m)*N*K*K + (j+n)*K*K + k1*K + k2);" + EOL
     str1 += "                   }" + EOL
     str1 += "				}" + EOL
@@ -124,7 +118,8 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
 
     str1 += "    // Convolution computation kernel" + EOL
     if "conv_bias_size" in prms_str:
-        str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
+        #str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
+        str1 += "    void conv_engine(T in_buf[][IBUF_t][IBUF_t], W w_buf[][Tm][WBUF_t][WBUF_t], W b_buf[], G out_buf[][OBUF_t][OBUF_t], int S, int n, int r, int c, int K, int R_OUT, int C_OUT, int w_offset, int i_offset){" + EOL
     else:
         str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
     str1 += "        for(int i=0; i<K; i++){" + EOL
@@ -138,11 +133,11 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "#pragma HLS UNROLL" + EOL
     str1 += "                                if(i==0&&j==0&&tn==0&&n==0)" + EOL
     if "conv_bias_size" in prms_str:
-        str1 += "                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
+        str1 += "                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j]*in_buf[tn][S*(tr)+i + i_offset][S*(tc)+j];" + EOL
     else:
         str1 += "                                    out_buf[tm][tr][tc] = w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
     str1 += "                                else" + EOL
-    str1 += "                                    out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i][j]*in_buf[tn][S*(tr)+i][S*(tc)+j];" + EOL
+    str1 += "                                    out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j]*in_buf[tn][S*(tr)+i + i_offset][S*(tc)+j];" + EOL
     str1 += "                            }" + EOL
     str1 += "                        }" + EOL
     str1 += "                    }" + EOL
@@ -190,6 +185,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "    }" + EOL
 
     str1 += "///////////////////////------------------conv accelerator----------------//////////////////////////" + EOL
+    str1 += "#if _LAYER_MODE_" + EOL
     str1 += "    void conv_layer_acc(" + EOL
     str1 += "            int N, //input feature number" + EOL
     str1 += "            int K, //input kernel size" + EOL
@@ -425,6 +421,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "#endif" + EOL
     str1 += "#endif" + EOL
     str1 += "    }" + EOL
+    str1 += "#endif" + EOL
 
     str1 += "    " + EOL
     str1 += "#if _ACC_MODE_" + EOL
@@ -432,7 +429,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "        data_type_w in_buf_0[Tn][IBUF_t][IBUF_t]," + EOL
     str1 += "        data_type_w w_buf_0[Tn][Tm][WBUF_t][WBUF_t]," + EOL
     str1 += "        data_type_w b_buf_0[Tm]," + EOL
-    str1 += "        data_type_w out_buf_0[Tm][Tr][Tc]," + EOL
+    str1 += "        data_type_w out_buf_0[Tm][OBUF_t][OBUF_t]," + EOL
     str1 += "        int param[16] ) {" + EOL
     str1 += "    " + EOL
 

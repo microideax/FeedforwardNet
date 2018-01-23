@@ -32,7 +32,7 @@ if [ -f $prm_file_name ] ; then
 fi
 
 #copy_file "../caffe_converter/$prm_file_name" "." 1
-copy_file "./examples/VGG16/$prm_file_name" "." 1
+copy_file "./examples/lenet/$prm_file_name" "." 1
 
 if grep -q "lrn" "$prm_file_name"; 
 then

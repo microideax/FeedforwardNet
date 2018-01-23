@@ -13,6 +13,12 @@
 		],
 	"preprocessor":
 		[
+		   "#define _LAYER_MODE_ 0",
+		   "#ifdef _LAYER_MODE_",
+		   "#define _ACC_MODE_ 0",
+		   "#else",
+		   "#define _ACC_MODE_ 1",
+		   "#endif",
 		   "//#define _HLS_MODE_  1",
  		   "//#define _BATCH_MODE_ 1",
  		   "//#define _SCALE_ 1",
