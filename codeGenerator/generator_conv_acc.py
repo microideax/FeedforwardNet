@@ -119,7 +119,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "    // Convolution computation kernel" + EOL
     if "conv_bias_size" in prms_str:
         #str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
-        str1 += "    void conv_engine(T in_buf[][IBUF_t][IBUF_t], W w_buf[][Tm][WBUF_t][WBUF_t], W b_buf[], G out_buf[][OBUF_t][OBUF_t], int S, int n, int r, int c, int K, int R_OUT, int C_OUT, int w_offset, int i_offset){" + EOL
+        str1 += "    void conv_engine(T in_buf[][IBUF_t][IBUF_t], W w_buf[][Tm][WBUF_t][WBUF_t], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT, int w_offset, int i_offset){" + EOL
     else:
         str1 += "    void conv_engine(T in_buf[][(Tr-1)*S_max + K_max][(Tc-1)*S_max + K_max], W w_buf[][Tm][K_max][K_max], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT){" + EOL
     str1 += "        for(int i=0; i<K; i++){" + EOL
@@ -424,6 +424,7 @@ def generate(generated_file_name="conv_acc_innerpp.h"):
     str1 += "#endif" + EOL
 
     str1 += "    " + EOL
+    str1 += "////////-----------------CONV_ACC----------------////////" + EOL
     str1 += "#if _ACC_MODE_" + EOL
     str1 += "   void conv_core_acc( " + EOL
     str1 += "        data_type_w in_buf_0[Tn][IBUF_t][IBUF_t]," + EOL

@@ -6,6 +6,7 @@ nn_stride_conv: 1 1
 nn_in_number_conv: 1 6 
 nn_out_number_conv: 6 16 
 nn_group_conv: 1 1 
+nn_bias_conv: 6 16
 nn_in_data_size_pooling: 28 10 
 nn_channel_size_pooling: 2 2 
 nn_padding_pooling: 0 0 
