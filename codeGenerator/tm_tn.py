@@ -122,10 +122,11 @@ def generate():
     print "conv_R: ", conv_R
     print "conv_K: ", conv_K
 
-
+    FIXED = 1
     DSP = 6800
+    #DSP = 14000
     # DSP = 2800
-    d = int(DSP / 5)
+    d = int(DSP / 1)
     arr = []
     # bandwidth = 2.5  # 1GB/s for float
     bandwidth = 5    # 1GB/s for fixed16
@@ -141,6 +142,7 @@ def generate():
     min_iBuf_size_list = []
     P_const = 36
     Upp_bound = 128
+    ibuf = 0
 
     for o in range(0, conv_layer_num):
         conv_min_cycles += math.ceil(conv_R[o] / float(Tr)) * math.ceil(conv_R[o] / float(Tr)) * Tr *  Tr * math.ceil(int(conv_M[o]) / float(Tm_min)) * math.ceil(int(conv_N[o]) / float(Tn_min)) * conv_K[o] * conv_K[o] + (Tr * Tr) / 2
@@ -174,37 +176,44 @@ def generate():
         for Tn in range(1, Tn_max+1):
             for Tr in range(1, int(max(init_conv_r))):
                 Tc = Tr
+                # for ibuf in [x for x in range((max_conv_S*Tr+max_conv_K), Upp_bound)]:
+                # for j in range(0, conv_layer_num):
+                #     if (conv_S[j]*Tr + conv_K[j]) > ibuf:
+                #         ibuf = (conv_S[j]*Tr + conv_K[j])
+                cycles = 0
+                T_trans_total = 0
+                T_Conv_com_total = 0
+                for j in range(0, conv_layer_num):
+                    Pooling_cycles = 0
+                    # T_trans = math.ceil(Tn * math.pow(ibuf, 2) / float(1024)) * 200
+                    T_trans = 0
+                    # T_trans = (Tn*math.pow((Tr*conv_S[j] + conv_K[j]), 2))/1000
+                    if flag[j]:
+                        T_Conv_com = Tr * Tc * (math.pow(int(init_conv_K[j]), 2) + 2) + P_const
+                    else:
+                        T_Conv_com = Tr * Tc * (math.pow(int(init_conv_K[j]), 2) + 1) + P_const
 
-                for ibuf in [x for x in range((max_conv_S*Tr+max_conv_K), Upp_bound)]:
-                    cycles = 0
-                    T_trans_total = 0
-                    T_Conv_com_total = 0
-                    for j in range(0, conv_layer_num):
-                        Pooling_cycles = 0
-                        # T_trans = math.ceil(Tn * math.pow(ibuf, 2) / float(1024)) * 200
-                        T_trans = Tn*math.ceil((math.pow(ibuf, 2)/bandwidth))
-                        T_Conv_com = Tr * Tc * math.pow(int(init_conv_K[j]), 2) + P_const
-                        # if pooling
-                        #     pool_cycle
-                        #     cycles += pool_cycle
-                        # else
-                        if flag[j]:
-                            Pooling_cycles = int(math.ceil(conv_R[j] / float(Tr)) * math.ceil(conv_R[j] / float(Tc))) * math.ceil(conv_N[j] / float(Tn))
-                        cycles += (Pooling_cycles + int(math.ceil(conv_R[j] / float(Tr)) * math.ceil(conv_R[j] / float(Tc)) * math.ceil(conv_N[j] / float(Tn)) * math.ceil(conv_M[j] / float(Tm)) * max(T_trans, T_Conv_com)))
-                        T_trans_total += T_trans
-                        T_Conv_com_total += (int(math.ceil(conv_R[j] / float(Tr)) * math.ceil(conv_R[j] / float(Tc)) * math.ceil(conv_N[j] / float(Tn)) * math.ceil(conv_M[j] / float(Tm))))*T_Conv_com
+                    if flag[j]:
+                        Pooling_cycles = int(math.ceil(conv_R[j] / (2*float(Tr))) * math.ceil(conv_R[j] / (2*float(Tc)))) * math.ceil(conv_M[j] / float(Tm))
+                    cycles += (Pooling_cycles + int(math.ceil(conv_R[j] / float(Tr)) * math.ceil(conv_R[j] / float(Tc)) * math.ceil(conv_N[j] / float(Tn)) * math.ceil(conv_M[j] / float(Tm)) * max(T_trans, T_Conv_com)))
+                    T_trans_total += T_trans
+                    T_Conv_com_total += (int(math.ceil(conv_R[j] / float(Tr)) * math.ceil(conv_R[j] / float(Tc)) * math.ceil(conv_N[j] / float(Tn)) * math.ceil(conv_M[j] / float(Tm))))*T_Conv_com
 
-                    if cycles < min(min_cycle_list) and cycles != 0:
-                        conv_min_cycles = cycles
-                        if len(min_Tm_Tn_Tr_Tc) < 10:
-                            min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
-                            min_cycle_list.append(conv_min_cycles)
-                        else:
-                            max_among_mins = min_cycle_list.index(max(min_cycle_list))
-                            min_cycle_list.remove(min_cycle_list[max_among_mins])
-                            min_Tm_Tn_Tr_Tc.remove(min_Tm_Tn_Tr_Tc[max_among_mins])
-                            min_cycle_list.append(conv_min_cycles)
-                            min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
+                if cycles < min(min_cycle_list) and cycles != 0:
+                    conv_min_cycles = cycles
+                    # compute ibuf size with current Tr Tc
+                    if len(min_Tm_Tn_Tr_Tc) < 10:
+                        for j in range(0, conv_layer_num):
+                            if (conv_S[j] * Tr + conv_K[j]) > ibuf:
+                                ibuf = (conv_S[j] * Tr + conv_K[j])
+                        min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
+                        min_cycle_list.append(conv_min_cycles)
+                    else:
+                        max_among_mins = min_cycle_list.index(max(min_cycle_list))
+                        min_cycle_list.remove(min_cycle_list[max_among_mins])
+                        min_Tm_Tn_Tr_Tc.remove(min_Tm_Tn_Tr_Tc[max_among_mins])
+                        min_cycle_list.append(conv_min_cycles)
+                        min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
 
     # def getKey(item):
     #     return item[0]
@@ -245,26 +254,26 @@ def generate():
     in_buf = 0
     out_buf = 0
     w_buf = 0
-    Tr_Tc = []
-    in_buff_arr = []
-    w_buff_arr = []
-    out_buff_arr = []
-    total_arr = []
-    for m in min_Tm_Tn_Tr_Tc:
-        Tr = int(math.sqrt(m[0] * m[1]))
-        Tr_Tc.append([Tr, Tr])
-        in_buff = ((Tr - 1) * max_conv_S + max_conv_K) * ((Tr - 1) * max_conv_S + max_conv_K)
-        in_buff_arr.append(in_buff)
-        out_buff = m[0] * m[1] * max_conv_K * max_conv_K
-        out_buff_arr.append(out_buff)
-        w_buff = Tr * Tr * m[0]
-        w_buff_arr.append(w_buff)
-        total = in_buff + out_buff + w_buff
-        total_arr.append(total)
-    print "in_buf: ", in_buff_arr
-    print "w_buf: ", w_buff_arr
-    print "out_buf: ", out_buff_arr
-    print "total: ", total_arr
+    # Tr_Tc = []
+    # in_buff_arr = []
+    # w_buff_arr = []
+    # out_buff_arr = []
+    # total_arr = []
+    # for m in min_Tm_Tn_Tr_Tc:
+    #     Tr = int(math.sqrt(m[0] * m[1]))
+    #     Tr_Tc.append([Tr, Tr])
+    #     in_buff = ((Tr - 1) * max_conv_S + max_conv_K) * ((Tr - 1) * max_conv_S + max_conv_K)
+    #     in_buff_arr.append(in_buff)
+    #     out_buff = m[0] * m[1] * max_conv_K * max_conv_K
+    #     out_buff_arr.append(out_buff)
+    #     w_buff = Tr * Tr * m[0]
+    #     w_buff_arr.append(w_buff)
+    #     total = in_buff + out_buff + w_buff
+    #     total_arr.append(total)
+    # print "in_buf: ", in_buff_arr
+    # print "w_buf: ", w_buff_arr
+    # print "out_buf: ", out_buff_arr
+    # print "total: ", total_arr
     return arr, conv_min_cycles
 
 
