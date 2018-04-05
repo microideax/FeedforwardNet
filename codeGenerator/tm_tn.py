@@ -93,6 +93,7 @@ def generate():
     conv_S = [int(string) for string in init_conv_S]
     conv_P = [int(string) for string in init_conv_P]
     conv_P = conv_P + [0] * len(init_fc_Rin)
+    conv_P = conv_P + [0]
     conv_G = [int(string) for string in init_conv_G]
     max_conv_N = max(conv_N)
     max_conv_M = max(conv_M)
@@ -123,9 +124,9 @@ def generate():
     print "conv_K: ", conv_K
 
     FIXED = 1
-    DSP = 6800
-    #DSP = 14000
-    # DSP = 2800
+    DSP = 6800 * 0.9
+    #DSP = 14000 * 0.9
+    # DSP = 2800 * 0.9
     d = int(DSP / 1)
     arr = []
     # bandwidth = 2.5  # 1GB/s for float
@@ -185,9 +186,9 @@ def generate():
                 T_Conv_com_total = 0
                 for j in range(0, conv_layer_num):
                     Pooling_cycles = 0
-                    # T_trans = math.ceil(Tn * math.pow(ibuf, 2) / float(1024)) * 200
+                    # T_trans = math.ceil(Tn * math.pow(ibuf, 2) / float(1024)) * 100
                     T_trans = 0
-                    # T_trans = (Tn*math.pow((Tr*conv_S[j] + conv_K[j]), 2))/1000
+                    # T_trans = (Tn*math.pow((Tr*conv_S[j] + conv_K[j]), 2))/160
                     if flag[j]:
                         T_Conv_com = Tr * Tc * (math.pow(int(init_conv_K[j]), 2) + 2) + P_const
                     else:
@@ -251,29 +252,6 @@ def generate():
     min_among_all = min_cycle_list.index(min(min_cycle_list))
     print "Best among all points", min_cycle_list[min_among_all], min_Tm_Tn_Tr_Tc[min_among_all]
 
-    in_buf = 0
-    out_buf = 0
-    w_buf = 0
-    # Tr_Tc = []
-    # in_buff_arr = []
-    # w_buff_arr = []
-    # out_buff_arr = []
-    # total_arr = []
-    # for m in min_Tm_Tn_Tr_Tc:
-    #     Tr = int(math.sqrt(m[0] * m[1]))
-    #     Tr_Tc.append([Tr, Tr])
-    #     in_buff = ((Tr - 1) * max_conv_S + max_conv_K) * ((Tr - 1) * max_conv_S + max_conv_K)
-    #     in_buff_arr.append(in_buff)
-    #     out_buff = m[0] * m[1] * max_conv_K * max_conv_K
-    #     out_buff_arr.append(out_buff)
-    #     w_buff = Tr * Tr * m[0]
-    #     w_buff_arr.append(w_buff)
-    #     total = in_buff + out_buff + w_buff
-    #     total_arr.append(total)
-    # print "in_buf: ", in_buff_arr
-    # print "w_buf: ", w_buff_arr
-    # print "out_buf: ", out_buff_arr
-    # print "total: ", total_arr
     return arr, conv_min_cycles
 
 
