@@ -152,24 +152,6 @@ def generate():
 
     print "Analysis initialized point: ", min_cycle_list, min_Tm_Tn_Tr_Tc
 
-    # target = 0
-    # for j in range(0, conv_layer_num):
-    #     target += int(conv_R[j] * conv_R[j] * math.ceil(int(conv_N[j]) / float(16)) * math.ceil(int(conv_M[j]) / float(64))*conv_K[j] * conv_K[j])
-    # print("targeted cycle numbers [32, 8]")
-    # print(target)
-
-    # fig = plt.figure()
-    # ax = fig.gca(projection='3d')
-    # # ax = Axes3D(fig)
-    # ax.set_title("3D Figure")
-    # ax.set_xlabel("Tm")
-    # ax.set_ylabel("Tn")
-    # ax.set_zlabel("Cycles")
-    #
-    # x_axis = [i for i in range(1, 100 + 1)]
-    # y_axis = [j for j in range(1, 100 + 1)]
-    # XX, YY = np.meshgrid(x_axis, y_axis)
-    # ZZ = np.zeros((100, 100))e
 
     # explore the space
     for Tm in range(1, max(conv_only_M)+1):
@@ -216,35 +198,6 @@ def generate():
                         min_cycle_list.append(conv_min_cycles)
                         min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
 
-    # def getKey(item):
-    #     return item[0]
-    # for item in min_Tm_Tn_Tr_Tc:
-    #     tn = item[1]
-    #     tr = item[2]
-    #     tc = item[3]
-    #
-    #     # iBuf size
-    #     for ibuf in [x for x in range(11, Upp_bound)]:
-    #         flag = True
-    #         for j in range(0, conv_layer_num):
-    #             T_trans = tn * math.ceil(math.pow(ibuf, 2) / float(1024)) * 1200
-    #             T_Conv_com = tr * tc * math.pow(int(init_conv_K[j]), 2) + P_const
-    #             if T_trans >= T_Conv_com:
-    #                 flag = False
-    #         if flag:
-    #             if len(min_iBuf_size_list) < 10:
-    #                 min_iBuf_size_list.append([ibuf, tn] + item)
-    #                 sorted(min_iBuf_size_list, key=getKey)
-    #             else:
-    #                 # min_iBuf_index = min_iBuf_size_list.index(max(min_iBuf_size_list))
-    #                 min_iBuf_size_list.remove(min_iBuf_size_list[9])
-    #                 min_iBuf_size_list.append([ibuf, tn] + item)
-    #                 sorted(min_iBuf_size_list, key=getKey)
-
-    # surf = ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=True)
-    # fig.colorbar(surf, shrink=0.5, aspect=5)
-    # #plt.pause(1)
-    # plt.show()
 
     print "Tm, Tn, Tr, Tc, ibuf, T_Conv_com, cycles: ", min_Tm_Tn_Tr_Tc
     print "cycles: ", min_cycle_list
