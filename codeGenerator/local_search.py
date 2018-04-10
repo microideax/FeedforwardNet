@@ -3,7 +3,7 @@ import sys
 import math
 
 
-def local_search(sub_network, res_list):
+def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S):
     for Tm in range(1, max(conv_only_M) + 1):
         Tn_max = min(max_conv_N, int(int(d / Tm)), Tm)
         for Tn in range(1, Tn_max + 1):
@@ -53,8 +53,25 @@ def local_search(sub_network, res_list):
                         min_cycle_list.append(conv_min_cycles)
                         min_Tm_Tn_Tr_Tc.append([Tm, Tn, Tr, Tc, ibuf, T_Conv_com_total, cycles])
 
-    return conv_min_cycles, arr
+    return pair_1, lat_1, pair_2, lat_2, pair_3, lat_3
 
+#
+# if __name__ == '__local_search__':
+#     local_search()
 
-if __name__ == '__local_search__':
-    local_search()
+def constrained_dse(N, M, r, R, K, S, DSP, P_const):
+    for Tm in range(1, max(M) + 1):
+        Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
+        for Tn in range(1, Tn_max + 1):
+            for Tr in range(1, int(max(R))):
+                Tc = Tr
+                cycles = 0
+                T_trans_total = 0
+                T_Conv_com_total = 0
+                T_Conv_com = Tr * Tc * (math.pow(int(K[j]), 2) + 1) + P_const
+                for j in range(0, int(len(N))):
+                    T_Conv_com_total += (int(
+                        math.ceil(R[j] / float(Tr)) * math.ceil(R[j] / float(Tc)) * math.ceil(
+                            N[j] / float(Tn)) * math.ceil(M[j] / float(Tm)))) * T_Conv_com
+
+    return opt_pair, min_lat
