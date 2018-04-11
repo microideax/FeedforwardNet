@@ -53,7 +53,7 @@ def model_extract():
         for stride_value in init_fc_Rin:
             nn_stride_values1.append(stride_value)
     else:
-        nn_stride_values1.append(0)
+        nn_stride_values1.append(1)
 
     conv_only_M = [int(val) for val in init_conv_M]
     # print init_conv_M
@@ -71,8 +71,11 @@ def model_extract():
     conv_K = [int(string) for string in init_conv_K]
     conv_S = [int(string) for string in init_conv_S]
     conv_P = [int(string) for string in init_conv_P]
-    conv_P = conv_P + [0] * len(init_fc_Rin)
-    conv_P = conv_P + [0]
+    if not init_fc_Rin:
+        conv_P = conv_P + [0]
+    else:
+        conv_P = conv_P + [0] * len(init_fc_Rin)
+        conv_P = conv_P + [0]
     conv_G = [int(string) for string in init_conv_G]
     max_conv_N = max(conv_N)
     max_conv_M = max(conv_M)
