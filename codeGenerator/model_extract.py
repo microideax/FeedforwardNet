@@ -3,7 +3,7 @@ import sys
 
 # this function is used to extract the network model information based on the key words in the
 # net_config_params.txt file
-def model_extract():
+def model_extract(include_fc):
 
     arr = helping_functions.read_params(sys.argv[1])
     prms, prms_str = helping_functions.extraction(arr)
@@ -59,11 +59,12 @@ def model_extract():
     # print init_conv_M
     # print conv_only_M
 
-    init_conv_N = init_conv_N + nn_in_number_conv_values1
-    init_conv_M = init_conv_M + nn_out_number_conv_values1
-    init_conv_r = init_conv_r + nn_fc_sizes_conv
-    init_conv_K = init_conv_K + nn_channel_size_conv_values
-    init_conv_S = init_conv_S + nn_stride_values1
+    if(include_fc == 'include_fc'):
+        init_conv_N = init_conv_N + nn_in_number_conv_values1
+        init_conv_M = init_conv_M + nn_out_number_conv_values1
+        init_conv_r = init_conv_r + nn_fc_sizes_conv
+        init_conv_K = init_conv_K + nn_channel_size_conv_values
+        init_conv_S = init_conv_S + nn_stride_values1
 
     conv_N = [int(string) for string in init_conv_N]
     conv_M = [int(string) for string in init_conv_M]
@@ -105,8 +106,9 @@ def model_extract():
     print "conv_R: ", conv_R
     print "conv_K: ", conv_K
     print "conv_S: ", conv_S
+    print "flag", flag
 
-    return conv_N, conv_M, conv_r, conv_R, conv_K, conv_S
+    return conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag
 
 # if __name__ == "__main__":
 #     conv_N, conv_M, conv_r, conv_R, conv_K, conv_S = model_extract()
