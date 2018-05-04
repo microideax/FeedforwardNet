@@ -592,9 +592,9 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # in buf membanks address allocation
     for bank_idx in range(0, num_in_banks*2):
         for port_idx in range(0, num_in_ports):
-            temp_text = temp_text + "assign_bd_address [get_bd_addr_segs {axi_bram_"+str(bank_idx)+"_"+str(port_idx)+"/S_AXI/Mem0}]\n"
-            temp_text = temp_text + " set_property range 0x" + '{:08x}'.format(range_addr) + " [get_bd_addr_segs {S_IN_DATA/SEG_axi_bram_" + str(bank_idx) + "_" + str(port_idx) + "_Mem0}]\n"
-            temp_text = temp_text + " set_property offset 0x" + '{:08x}'.format(curr_loc) + " [get_bd_addr_segs {S_IN_DATA/SEG_axi_bram_" +str(bank_idx)+ "_" + str(port_idx) + "_Mem0}]\n"
+            temp_text = temp_text + "assign_bd_address [get_bd_addr_segs {in_data_bc_"+str(bank_idx)+"_"+str(port_idx)+"/S_AXI/Mem0}]\n"
+            temp_text = temp_text + " set_property range 0x" + '{:08x}'.format(range_addr) + " [get_bd_addr_segs {S_IN_DATA/SEG_in_data_bc_" + str(bank_idx) + "_" + str(port_idx) + "_Mem0}]\n"
+            temp_text = temp_text + " set_property offset 0x" + '{:08x}'.format(curr_loc) + " [get_bd_addr_segs {S_IN_DATA/SEG_in_data_bc_" +str(bank_idx)+ "_" + str(port_idx) + "_Mem0}]\n"
     	    curr_loc = curr_loc + range_addr
     # #controllers
     # for bank_idx in range(0, num_weight_banks):
@@ -607,8 +607,8 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # 	#curr_loc = curr_loc + 0x00010000
     # 	temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs in_data_port_0/S00_AXI/Mem"+str(bank_idx)+"]\n"
     temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_bram_ctrl_conv/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {axi_bram_ctrl_conv/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property offset 0x00010000 [get_bd_addr_segs {axi_bram_ctrl_conv/S_AXI/Mem0 }]\n"
+    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_conv_Mem0 }]\n"
+    temp_text = temp_text + " set_property offset 0x00010000 [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_conv_Mem0 }]\n"
     temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
     temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
     temp_text = temp_text + " set_property offset 0x00020000 [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
