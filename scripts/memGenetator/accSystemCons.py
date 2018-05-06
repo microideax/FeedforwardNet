@@ -497,7 +497,7 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     temp_text = temp_text + connectInstoCon_db("out_data_bc", "S_AXI", "out_data_mb", "AXI", num_out_banks*2, num_out_ports)
     # connect out_buf ports to sub out_buf membanks
     for bank_idx in range(0, num_out_banks*2):
-        temp_text = temp_text + " connect_bd_intf_net [get_bd_intf_pins w_buf/M" + '{:02d}'.format(bank_idx) + "_AXI] -boundary_type upper [get_bd_intf_pins w_data_mb_"+str(bank_idx)+"/S"+'{:02d}'.format(0)+"_AXI]\n"
+        temp_text = temp_text + " connect_bd_intf_net [get_bd_intf_pins out_buf/M" + '{:02d}'.format(bank_idx) + "_AXI] -boundary_type upper [get_bd_intf_pins out_data_mb_"+str(bank_idx)+"/S"+'{:02d}'.format(0)+"_AXI]\n"
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_OUT_DATA] -boundary_type upper [get_bd_intf_pins out_buf/S00_AXI]\n"
 
 
