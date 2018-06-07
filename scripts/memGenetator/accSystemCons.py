@@ -48,7 +48,6 @@ def createAXI4LitePort(name, mode, address_width, data_width):
             " ] $" + name + " \n")
     return temp_text
 
-
 def createAXI4Port(name, mode, address_width, data_width):
     temp_text = (
             "  set " + name + " [ create_bd_intf_port -mode " + mode + " -vlnv xilinx.com:interface:aximm_rtl:1.0 " + name + " ]" + "\n"
@@ -83,7 +82,6 @@ def createAXI4Port(name, mode, address_width, data_width):
             " ] $" + name + " \n")
     return temp_text
 
-
 def createAXIInterconnect(name, num_master, num_slave):
     temp_text = (
             "  set " + name + " [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 " + name + " ]" + "\n"
@@ -93,7 +91,6 @@ def createAXIInterconnect(name, num_master, num_slave):
             "  ] $" + name + "\n")
     return temp_text
 
-
 def createBRAMControllerSingle(name):
     temp_text = (
             "  set " + name + " [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 " + name + " ]" + "\n"
@@ -101,7 +98,6 @@ def createBRAMControllerSingle(name):
             "  CONFIG.SINGLE_PORT_BRAM {1} \\" + "\n"
             "  ] $" + name + "\n")
     return temp_text
-
 
 def createBRAM(name, address_width, data_width, mem_size, standalone):
     if (standalone == True):
@@ -148,7 +144,6 @@ def createBRAM(name, address_width, data_width, mem_size, standalone):
                 "] $" + name + "\n")
     return temp_text
 
-
 def createAXICDMA(name):
     temp_text = ("set " + name + " [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_cdma:4.1 " + name + " ]\n"
                 "set_property -dict [ list \\" + "\n"
@@ -159,7 +154,6 @@ def createAXICDMA(name):
                 "] $" + name + "\n")
     return temp_text
 
-
 def createExportDesign(name, vivado_project_path):
     temp_text = "  ipx::package_project -root_dir " + vivado_project_path + "/" + name + " -vendor user.org -library user -taxonomy /UserIP -module " + name + " -import_files\n"
     temp_text = temp_text + "  set temp [get_property ip_repo_paths [current_project]]\n"
@@ -167,7 +161,6 @@ def createExportDesign(name, vivado_project_path):
     temp_text = temp_text + "  set_property ip_repo_paths $temp [current_project]\n"
     temp_text = temp_text + "  update_ip_catalog -rebuild\n"
     return temp_text
-
 
 def createMembank(name, num_banks, num_ports, address_width, data_width, mem_size):
     temp_text = ""
@@ -187,8 +180,7 @@ def createDoublebuf(name, num_in_banks, num_in_ports, address_width, data_width,
 
 def createSinglebuf(name, num_in_banks, num_in_ports, address_width, data_width, mem_size):
     temp_text = ""
-    for bank_idx in range(0, num_in_banks):
-        temp_text = temp_text + createMembank(name + "_" + str(bank_idx), num_in_banks, num_in_ports, address_width, data_width, mem_size)
+    temp_text = temp_text + createMembank(name, num_in_banks, num_in_ports, address_width, data_width, mem_size)
     return temp_text
 
 # connect instance port with name to double buffering ports
@@ -225,10 +217,19 @@ def connectFromCore_sb(Sname, Ename, num_in_banks, num_in_ports):
             temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins " + Sname + "_" + str(bank_idx) + "_" + str(port_idx) + "_PORTA] [get_bd_intf_pins "+ Ename + "_" + str(bank_idx) + "_" + str(port_idx)+"/BRAM_PORTB"+ "]\n"
     return temp_text
 
-def getInspin(Instance, Pin, num):
+# def getInspin(Instance, Pin, num):
+#     temp_text = ""
+#     for idx in range(0, num):
+#         temp_text = temp_text + "\\" + "\n[get_bd_pin "+ Instance + '{:02d}'.format(idx) + "_"+Pin+"]"
+#     return temp_text
+
+def getInspin(Instance, Pin, slave_num, master_num):
     temp_text = ""
-    for idx in range(0, num):
-        temp_text = temp_text + "\\" + "\n[get_bd_pin "+ Instance + '{:02d}'.format(idx) + "_"+Pin+"]"
+    temp_text = temp_text + "\\" + "\n[get_bd_pin " + Instance + "/" + Pin +"]"
+    for idx in range(0, slave_num):
+        temp_text = temp_text + "\\" + "\n[get_bd_pin " + Instance + "/S" + '{:02d}'.format(idx) + "_" + Pin + "]"
+    for idy in range(0, master_num):
+        temp_text = temp_text + "\\" + "\n[get_bd_pin " + Instance + "/M" + '{:02d}'.format(idy) + "_" + Pin + "]"
     return temp_text
 
 def getMbpins(MBname, BCname, Pin, pin, num_in_banks, num_in_ports):
@@ -241,6 +242,18 @@ def getMbpins(MBname, BCname, Pin, pin, num_in_banks, num_in_ports):
         for port_idx in range(0, num_in_ports):
             temp_text = temp_text + "\\" + "\n[get_bd_pin " + BCname + "_" + str(bank_idx) + "_" + str(port_idx) + "/s_axi_"+pin+"]"
             temp_text = temp_text + "\\" + "\n[get_bd_pin " + MBname + "_" + str(bank_idx) +"/M"  + '{:02d}'.format(port_idx) + "_"+Pin+"]"
+    return temp_text
+
+def addressAlloc(Pname, Bname, num_in_banks, num_in_ports, start_addr, range_addr):
+    temp_text = ""
+    curr_loc = start_addr
+    # in buf membanks address allocation
+    for bank_idx in range(0, num_in_banks):
+        for port_idx in range(0, num_in_ports):
+            temp_text = temp_text + "assign_bd_address [get_bd_addr_segs {"+ Bname +"_" + str(bank_idx) + "_" + str(port_idx) + "/S_AXI/Mem0}]\n"
+            temp_text = temp_text + " set_property range 0x" + '{:08x}'.format(range_addr) + " [get_bd_addr_segs {"+Pname+"/SEG_"+Bname+"_" + str(bank_idx) + "_" + str(port_idx) + "_Mem0}]\n"
+            temp_text = temp_text + " set_property offset 0x" + '{:08x}'.format(curr_loc) + " [get_bd_addr_segs {"+Pname+"/SEG_"+Bname+"_" + str(bank_idx) + "_" + str(port_idx) + "_Mem0}]\n"
+            curr_loc = curr_loc + range_addr
     return temp_text
 
 def testPoint(count):
@@ -370,8 +383,8 @@ def generateMembank(design_name, vivado_project_path, num_ports, address_width, 
 
 # combining acc and membanks, no longer doing this
 def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports, num_w_banks, num_w_ports,
-                    num_out_banks, num_out_ports, address_width, data_width, mem_size, range_addr, start_addr,
-                    num_weight_banks):
+                    num_out_banks, num_out_ports, address_width, data_width, mem_size, range_addr, in_buf_start_addr,
+                    num_weight_banks, w_buf_start_addr, out_buf_start_addr):
     template_fn = "template_bd.tcl"
     out_fn = design_name + "_bd.tcl"
 
@@ -398,11 +411,11 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # in data port
     temp_text = temp_text + createAXI4Port("S_IN_DATA", "Slave", address_width, data_width)
 
-    # bias
-    temp_text = temp_text + createAXI4Port("S_BIAS_AXI", "Slave", address_width, data_width)
-
     # in weight port
-    # temp_text = temp_text + createAXI4Port("S_IN_W", "Slave", address_width, data_width)
+    temp_text = temp_text + createAXI4Port("S_W_DATA", "Slave", address_width, data_width)
+
+    # out data port
+    temp_text = temp_text + createAXI4Port("S_OUT_DATA", "Slave", address_width, data_width)
 
     tcl_index = out_text.find(interface_ports_str) + len(interface_ports_str)
     out_text = out_text[:tcl_index] + temp_text + out_text[tcl_index:]
@@ -433,64 +446,69 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # param buf pool
     temp_text = temp_text + createBRAM("pool_param", address_width, data_width, mem_size, False)
 
+    # --------------------------------------- in buf instances --------------------------------------#
     # create in buf membank
     temp_text = temp_text + createDoublebuf("in_data", num_in_banks*2, num_in_ports, address_width, data_width, mem_size)
-
     # Axi Interconnects
-    # temp_text = temp_text + createAXIInterconnect("axi_interconnect_0", 8 + num_weight_banks, 2)
-    temp_text = temp_text + createAXIInterconnect("axi_interconnect_param", 2, 1)
+    temp_text = temp_text + createAXIInterconnect("axi_interconnect_param", 3, 1)
     temp_text = temp_text + createAXIInterconnect("in_buf", 2, 1)
-
     # Bram controllers
     temp_text = temp_text + createBRAMControllerSingle("axi_bram_ctrl_conv")
     temp_text = temp_text + createBRAMControllerSingle("axi_bram_ctrl_pool")
     temp_text = temp_text + createBRAMControllerSingle("axi_bram_ctrl_bias")
 
+    # ------------------------------------ weight buf instances --------------------------------------#
+    # create weight buffer membank
+    temp_text = temp_text + createDoublebuf("w_data", num_w_banks, num_w_ports, address_width, data_width, mem_size)
+    # Axi interconnects
+    temp_text = temp_text + createAXIInterconnect("w_buf", num_weight_banks, 1)
+
+    # ------------------------------------ out buf instances -----------------------------------------#
+    # create out buffer membank
+    temp_text = temp_text + createDoublebuf("out_data", num_out_banks*2, num_out_ports, address_width, data_width, mem_size)
+    # Axi interconnects
+    temp_text = temp_text + createAXIInterconnect("out_buf", num_out_banks*2, 1)
+
     tcl_index = out_text.find(instances_str) + len(instances_str)
     out_text = out_text[:tcl_index] + temp_text + out_text[tcl_index:]
 
+
     ##### Creating Interface Connections #####
+    # mem bank connection hierarchy *mem->*bc->*mb->*buf
     temp_text = ""
-
-    # connecting acc ip to in_buf bram banks
+    # --------------------------------- in buf interface connections -----------------------------------#
+    # connect acc ip to in_buf bram banks
     temp_text = temp_text + connectCoretoIns_db("conv_core_0/in_buf", "PORTA", "in_data_mem", "BRAM_PORTB", num_in_banks*2, num_in_ports)
-
-    # connecting controllers to in_buf bram banks
+    # connect controllers to in_buf bram banks
     temp_text = temp_text + connectInstoIns_db("in_data_bc", "BRAM_PORTA", "in_data_mem", "BRAM_PORTA", num_in_banks*2, num_in_ports)
-
-    # connecting in_buf controllers to out interconnect
+    # connect in_buf controllers to in buf mb interconnect
     temp_text = temp_text + connectInstoCon_db("in_data_bc", "S_AXI", "in_data_mb", "AXI", num_in_banks*2, num_in_ports)
-
     # connect in_buf ports to sub in_buf membanks
     for bank_idx in range(0, 2):
         temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins in_buf/M" + '{:02d}'.format(bank_idx) + "_AXI] -boundary_type upper [get_bd_intf_pins in_data_mb_"+str(bank_idx)+"/S"+'{:02d}'.format(0)+"_AXI]\n"
 
-    # connecting acc ip to bram banks
-    # for bank_idx in range(0, num_weight_banks):
-    # 	for port_idx in range(0, num_w_ports):
-    # 		temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins conv_mpool_acc_syn_0/w_buf_0_"+ str(bank_idx) + "_" + str(port_idx) + "_PORTA] [get_bd_intf_pins blk_mem_gen_mb_" + str(bank_idx) + "_" + str(port_idx)+"/BRAM_PORTB"+ "]\n"
+    # connect acc ip to w_buf bram banks
+    temp_text = temp_text + connectCoretoIns_db("conv_core_0/w_buf_0", "PORTA", "w_data_mem", "BRAM_PORTB", num_w_banks, num_w_ports)
+    # connect controllers to w_buf bram banks
+    temp_text = temp_text + connectInstoIns_db("w_data_bc", "BRAM_PORTA", "w_data_mem", "BRAM_PORTA", num_w_banks, num_w_ports)
+    # connect w_buf controllers to w_buf mb interconnect
+    temp_text = temp_text + connectInstoCon_db("w_data_bc", "S_AXI", "w_data_mb", "AXI", num_w_banks, num_w_ports)
+    # connect w_buf ports to sub w_buf membanks
+    for bank_idx in range(0, num_w_banks):
+        temp_text = temp_text + " connect_bd_intf_net [get_bd_intf_pins w_buf/M" + '{:02d}'.format(bank_idx) + "_AXI] -boundary_type upper [get_bd_intf_pins w_data_mb_"+str(bank_idx)+"/S"+'{:02d}'.format(0)+"_AXI]\n"
+    temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_W_DATA] -boundary_type upper [get_bd_intf_pins w_buf/S00_AXI]\n"
 
-    # connecting controllers to bram banks
-    # for bank_idx in range(0, num_weight_banks):
-    # 	for port_idx in range(0, num_w_ports):
-    # 		temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_mb_"+str(bank_idx)+"_"+str(port_idx)+"/BRAM_PORTA] [get_bd_intf_pins blk_mem_gen_mb_"+str(bank_idx)+"_"+str(port_idx)+"/BRAM_PORTA]\n"
+    # connect acc ip to out_buf bram banks
+    temp_text = temp_text + connectCoretoIns_db("conv_core_0/out_buf", "PORTA", "out_data_mem", "BRAM_PORTB", num_out_banks*2, num_out_ports)
+    # connect controllers to out_buf bram banks
+    temp_text = temp_text + connectInstoIns_db("out_data_bc", "BRAM_PORTA", "out_data_mem", "BRAM_PORTA", num_out_banks*2, num_out_ports)
+    # connect out_buf controllers to out_buf mb interconnect
+    temp_text = temp_text + connectInstoCon_db("out_data_bc", "S_AXI", "out_data_mb", "AXI", num_out_banks*2, num_out_ports)
+    # connect out_buf ports to sub out_buf membanks
+    for bank_idx in range(0, num_out_banks*2):
+        temp_text = temp_text + " connect_bd_intf_net [get_bd_intf_pins out_buf/M" + '{:02d}'.format(bank_idx) + "_AXI] -boundary_type upper [get_bd_intf_pins out_data_mb_"+str(bank_idx)+"/S"+'{:02d}'.format(0)+"_AXI]\n"
+    temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_OUT_DATA] -boundary_type upper [get_bd_intf_pins out_buf/S00_AXI]\n"
 
-    # #connecting acc ip to out buf
-    # for port_idx in range(0,num_out_ports):
-    # 	temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins conv_mpool_acc_syn_0/out_buf_0_" + str(port_idx) +"_PORTA] [get_bd_intf_pins blk_mem_gen_mb_out_" + str(port_idx) + "/BRAM_PORTB" + "]\n"
-
-    # #connecting controllers to out buf
-    # for port_idx in range(0,num_out_ports):
-    # 	temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_mb_out_"+str(port_idx)+"/BRAM_PORTA] [get_bd_intf_pins blk_mem_gen_mb_out_" + str(port_idx) + "/BRAM_PORTA" + "]\n"
-
-    # #connecting out controllers to out interconnect
-    # for port_idx in range(0, num_out_ports):
-    # 	temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_mb_out_"+str(port_idx)+"/S_AXI] -boundary_type upper [get_bd_intf_pins axi_interconnect_mb_out/M"+'{:02d}'.format(port_idx)+"_AXI]\n"
-
-    # connecting membank controllers to membank interconnect
-    # for bank_idx in range(0, num_weight_banks):
-    # 	for port_idx in range(0, num_w_ports):
-    # 		temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_mb_"+str(bank_idx)+"_"+str(port_idx)+"/S_AXI] -boundary_type upper [get_bd_intf_pins axi_interconnect_mb_"+str(bank_idx)+"/M"+'{:02d}'.format(port_idx)+"_AXI]\n"
 
     # connecting acc ip to bias buf
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins conv_core_0/b_buf_0_PORTA] [get_bd_intf_pins bias_buf/BRAM_PORTA]\n"
@@ -507,6 +525,7 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # connecting param interconnect to param and bias
     temp_text = temp_text + "  connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_param/M00_AXI] [get_bd_intf_pins axi_bram_ctrl_conv/S_AXI]\n"
     temp_text = temp_text + "  connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_param/M01_AXI] [get_bd_intf_pins axi_bram_ctrl_pool/S_AXI]\n"
+    temp_text = temp_text + "  connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_param/M02_AXI] [get_bd_intf_pins axi_bram_ctrl_bias/S_AXI]\n"
 
     # connecting param controllers to bram
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_bias/BRAM_PORTA] [get_bd_intf_pins bias_buf/BRAM_PORTB]\n"
@@ -514,7 +533,7 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_pins axi_bram_ctrl_pool/BRAM_PORTA] [get_bd_intf_pins pool_param/BRAM_PORTB]\n"
 
     # connecting membanks to external ports
-    temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_BIAS_AXI] -boundary_type upper [get_bd_intf_pins axi_bram_ctrl_bias/S_AXI]\n"
+    # temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_BIAS_AXI] -boundary_type upper [get_bd_intf_pins axi_bram_ctrl_bias/S_AXI]\n"
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_PARAM_AXI] -boundary_type upper [get_bd_intf_pins axi_interconnect_param/S00_AXI]\n"
     temp_text = temp_text + "  connect_bd_intf_net [get_bd_intf_ports S_IN_DATA] -boundary_type upper [get_bd_intf_pins in_buf/S00_AXI]\n"
 
@@ -525,53 +544,44 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     # ------------------------------------------CLOCK CONNECTION -----------------------------------------------------#
     temp_text = ""
     # clock general
-    temp_text = (temp_text + "  connect_bd_net -net ACLK_1 [get_bd_ports ACLK]\\" + "\n"
-    # interconnect param
-    "[get_bd_pin axi_interconnect_param/ACLK]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/S00_ACLK]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/M00_ACLK]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/M01_ACLK]\\" + "\n"
+    temp_text = (temp_text + "  connect_bd_net -net ACLK_1 [get_bd_ports ACLK]\\" + "\n")
     # bram controllers
-    "[get_bd_pin axi_bram_ctrl_bias/s_axi_aclk]\\" + "\n"
-    "[get_bd_pin axi_bram_ctrl_conv/s_axi_aclk]\\" + "\n"
-    "[get_bd_pin axi_bram_ctrl_pool/s_axi_aclk]\\" + "\n"
+    temp_text = temp_text + getInspin("axi_bram_ctrl_bias", "s_axi_aclk", 0, 0)
+    temp_text = temp_text + getInspin("axi_bram_ctrl_conv", "s_axi_aclk", 0, 0)
+    temp_text = temp_text + getInspin("axi_bram_ctrl_pool", "s_axi_aclk", 0, 0)
     # conv_acc_syn
-    "[get_bd_pins conv_core_0/ap_clk]\\" + "\n"
-    # in_buf top level axi interconnection clocks
-    "[get_bd_pin in_buf/ACLK]\\" + "\n"
-    "[get_bd_pin in_buf/S00_ACLK]\\" + "\n")
-
-    temp_text = temp_text + getInspin("in_buf/M", "ACLK", num_in_banks*2)
+    temp_text = temp_text + getInspin("conv_core_0", "ap_clk", 0, 0)
+    # interconnect param
+    temp_text = temp_text + getInspin("axi_interconnect_param", "ACLK", 1, 3)
+    temp_text = temp_text + getInspin("in_buf", "ACLK", 1, num_in_banks*2)
     temp_text = temp_text + getMbpins("in_data_mb", "in_data_bc", "ACLK", "aclk", num_in_banks*2, num_in_ports)
-
+    temp_text = temp_text + getInspin("w_buf", "ACLK", 1, num_w_banks)
+    temp_text = temp_text + getMbpins("w_data_mb", "w_data_bc", "ACLK", "aclk", num_w_banks, num_w_ports)
+    temp_text = temp_text + getInspin("out_buf", "ACLK", 1, num_in_banks*2)
+    temp_text = temp_text + getMbpins("out_data_mb", "out_data_bc", "ACLK", "aclk", num_out_banks*2, num_out_ports)
     temp_text = temp_text + "\n"
     temp_text = temp_text + "\n"
-
     temp_text = temp_text + "\n"
     #-------------------------------------------------RESET CONNECTION------------------------------------------------#
     # reset general
     # temp_text = ""
-    temp_text = (temp_text + "  connect_bd_net -net ARESETN_1 [get_bd_ports ARESETN]\\" + "\n"
-    # param axi interconnect reset 
-    "[get_bd_pin axi_interconnect_param/ARESETN]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/S00_ARESETN]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/M00_ARESETN]\\" + "\n"
-    "[get_bd_pin axi_interconnect_param/M01_ARESETN]\\" + "\n"
-    # bram controllers 
-    "[get_bd_pin axi_bram_ctrl_bias/s_axi_aresetn]\\" + "\n"
-    "[get_bd_pin axi_bram_ctrl_conv/s_axi_aresetn]\\" + "\n"
-    "[get_bd_pin axi_bram_ctrl_pool/s_axi_aresetn]\\" + "\n"
+    temp_text = (temp_text + "  connect_bd_net -net ARESETN_1 [get_bd_ports ARESETN]\\" + "\n")
+    # bram controllers
+    temp_text = temp_text + getInspin("axi_bram_ctrl_bias", "s_axi_aresetn", 0, 0)
+    temp_text = temp_text + getInspin("axi_bram_ctrl_conv", "s_axi_aresetn", 0, 0)
+    temp_text = temp_text + getInspin("axi_bram_ctrl_pool", "s_axi_aresetn", 0, 0)
     # conv_acc_syn
-    "[get_bd_pins conv_core_0/ap_rst_n]\\" + "\n"
-    # in_buf top level axi interconnection reset
-    "[get_bd_pin in_buf/ARESETN]\\" + "\n"
-    "[get_bd_pin in_buf/S00_ARESETN]\\" + "\n")
-
-    temp_text = temp_text + getInspin("in_buf/M", "ARESETN", num_in_banks * 2)
+    temp_text = temp_text + getInspin("conv_core_0", "ap_rst_n", 0, 0)
+    # param axi interconnect reset
+    temp_text = temp_text + getInspin("axi_interconnect_param", "ARESETN", 1, 3)
+    temp_text = temp_text + getInspin("in_buf", "ARESETN", 1, num_in_banks * 2)
     temp_text = temp_text + getMbpins("in_data_mb", "in_data_bc", "ARESETN", "aresetn", num_in_banks*2, num_in_ports)
+    temp_text = temp_text + getInspin("w_buf", "ARESETN", 1, num_w_banks)
+    temp_text = temp_text + getMbpins("w_data_mb", "w_data_bc", "ARESETN", "aresetn", num_w_banks, num_w_ports)
+    temp_text = temp_text + getInspin("out_buf", "ARESETN", 1, num_out_banks * 2)
+    temp_text = temp_text + getMbpins("out_data_mb", "out_data_bc", "ARESETN", "aresetn", num_out_banks * 2, num_out_ports)
     temp_text = temp_text + "\n"
     temp_text = temp_text + "\n"
-
 
     tcl_index = out_text.find(port_connections_str) + len(port_connections_str)
     out_text = out_text[:tcl_index] + temp_text + out_text[tcl_index:]
@@ -584,18 +594,13 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {S_CTRL_BUS_AXI/SEG_conv_core_0_Reg}]\n"
     temp_text = temp_text + " set_property offset 0x00000000 [get_bd_addr_segs {S_CTRL_BUS_AXI/SEG_conv_core_0_Reg}]\n"
 
-    # S_AXI_CDMA
-    # temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_cdma_0/S_AXI_LITE/Reg }]\n"
+    # allocate in_buf mem banks address
+    temp_text = temp_text + addressAlloc("S_IN_DATA", "in_data_bc", num_in_banks*2, num_in_ports, in_buf_start_addr, range_addr)
+    # allocate w_buf mem banks address
+    temp_text = temp_text + addressAlloc("S_W_DATA", "w_data_bc", num_w_banks, num_w_ports, w_buf_start_addr, range_addr)
+    # allocate out_buf mem banks address
+    temp_text = temp_text + addressAlloc("S_OUT_DATA", "out_data_bc", num_out_banks*2, num_out_ports, out_buf_start_addr, range_addr)
 
-    # big address mapping block
-    curr_loc = start_addr
-    # in buf membanks address allocation
-    for bank_idx in range(0, num_in_banks*2):
-        for port_idx in range(0, num_in_ports):
-            temp_text = temp_text + "assign_bd_address [get_bd_addr_segs {in_data_bc_"+str(bank_idx)+"_"+str(port_idx)+"/S_AXI/Mem0}]\n"
-            temp_text = temp_text + " set_property range 0x" + '{:08x}'.format(range_addr) + " [get_bd_addr_segs {S_IN_DATA/SEG_in_data_bc_" + str(bank_idx) + "_" + str(port_idx) + "_Mem0}]\n"
-            temp_text = temp_text + " set_property offset 0x" + '{:08x}'.format(curr_loc) + " [get_bd_addr_segs {S_IN_DATA/SEG_in_data_bc_" +str(bank_idx)+ "_" + str(port_idx) + "_Mem0}]\n"
-    	    curr_loc = curr_loc + range_addr
     # #controllers
     # for bank_idx in range(0, num_weight_banks):
     # 	for port_idx in range(0, num_w_ports):
@@ -609,12 +614,14 @@ def generateConvAcc(design_name, vivado_project_path, num_in_banks, num_in_ports
     temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_bram_ctrl_conv/S_AXI/Mem0 }]\n"
     temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_conv_Mem0 }]\n"
     temp_text = temp_text + " set_property offset 0x00010000 [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_conv_Mem0 }]\n"
+
     temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property offset 0x00020000 [get_bd_addr_segs {axi_bram_ctrl_pool/S_AXI/Mem0 }]\n"
+    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_pool_Mem0 }]\n"
+    temp_text = temp_text + " set_property offset 0x00020000 [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_pool_Mem0 }]\n"
+
     temp_text = temp_text + "  assign_bd_address [get_bd_addr_segs {axi_bram_ctrl_bias/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {axi_bram_ctrl_bias/S_AXI/Mem0 }]\n"
-    temp_text = temp_text + " set_property offset 0x00030000 [get_bd_addr_segs {axi_bram_ctrl_bias/S_AXI/Mem0 }]\n"
+    temp_text = temp_text + " set_property range 4K [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_bias_Mem0 }]\n"
+    temp_text = temp_text + " set_property offset 0x00030000 [get_bd_addr_segs {S_PARAM_AXI/SEG_axi_bram_ctrl_bias_Mem0 }]\n"
 
     tcl_index = out_text.find(address_mapping_str) + len(address_mapping_str)
     out_text = out_text[:tcl_index] + temp_text + out_text[tcl_index:]
@@ -651,14 +658,16 @@ def main():
     data_width = 32
     num_weight_banks = 8
     mem_size = 4096
-    start_addr = 0x04000000
+    in_buf_start_addr = 0x04000000
     range_addr = 0x00001000
+    w_buf_start_addr = 0x06000000
+    out_buf_start_addr = 0x0A000000
 
     # generate weight membank
     # generateMembank(membank_name, vivado_project_path, num_ports, address_width, data_width, mem_size,range_addr, start_addr)
     generateConvAcc(conv_acc_name, vivado_project_path, num_in_banks, num_in_ports, num_w_banks, num_w_ports,
-                    num_out_banks, num_out_ports, address_width, data_width, mem_size, range_addr, start_addr,
-                    num_weight_banks)
+                    num_out_banks, num_out_ports, address_width, data_width, mem_size, range_addr, in_buf_start_addr,
+                    num_weight_banks, w_buf_start_addr, out_buf_start_addr)
 
 
 if __name__ == "__main__":
