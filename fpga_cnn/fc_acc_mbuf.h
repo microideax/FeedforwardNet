@@ -1,5 +1,5 @@
-#ifndef _CONV_ACC_H_
-#define _CONV_ACC_H_
+#ifndef _FC_ACC_CONV_H_
+#define _FC_ACC_CONV_H_
 
 #include <iostream>
 #include <fstream>
@@ -12,20 +12,14 @@
 using namespace std;
 
 template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max, int IBUF_t, int WBUF_t, int OBUF_t>
-class conv_acc
+class fc_acc_conv
 {
 
   private:
     int conv_layer_number;
-    struct param_pass {
-        int n;
-        int m;
-        int r;
-        int c;
-    };
 
   public:
-    conv_acc() : conv_layer_number(0) { conv_layer_number = 0; };
+    fc_acc_conv() : conv_layer_number(0) { conv_layer_number = 0; };
 
     ////------------------------------C++ debugging functions---------------------------------------////
     // Reset output buffer
@@ -108,58 +102,6 @@ class conv_acc
         }
     }
 
-    void dummy_in_load(T buf[], T *in_data_1, int in_offset)
-    {
-        for (int i = 0; i < Tn; i++)
-        {
-#pragma HLS PIPELINE
-            buf[i] = *(in_data_1 + in_offset + i);
-        }
-    }
-    void dummy_w_load(T buf[][IBUF], T *w_data_1, int in_offset)
-    {
-        for (int i = 0; i < Tm; i++)
-        {
-            for (int j = 0; j < IBUF; j++)
-            {
-#pragma HLS PIPELINE
-                buf[i][j] = *(w_data_1 + in_offset + i * IBUF + j);
-            }
-        }
-    }
-    void dummy_conv_engine(T in_buf[], T w_buf[][IBUF], G o_buf[][Tr], int K)
-    {
-        for (int k1 = 0; k1 < K; k1++)
-        {
-            for (int k2 = 0; k2 < K; k2++)
-                for (int i = 0; i < Tr; i++)
-                {
-#pragma HLS PIPELINE
-                    for (int j = 0; j < Tn; j++)
-                    {
-                        //#pragma HLS UNROLL
-                        for (int k = 0; k < Tm; k++)
-                        {
-                            //#pragma HLS UNROLL
-                            o_buf[k][i] = o_buf[k][i] + w_buf[j][i] * in_buf[j];
-                        }
-                    }
-                }
-        }
-    }
-    void dummy_out_res(G o_buf[][Tr], G *out_data, int offset)
-    {
-        for (int i = 0; i < Tm; i++)
-        {
-            for (int j = 0; j < Tr; j++)
-            {
-#pragma HLS PIPELINE
-                *(out_data + i * Tr + j) = o_buf[i][j];
-            }
-        }
-    }
-//    }
-
 // Load weights to weight buffer
 #if _LAYER_MODE_
     void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M)
@@ -185,36 +127,37 @@ class conv_acc
     }
 // Convolution computation kernel
 #if _LAYER_MODE_
-    void conv_engine(T in_buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int N, int r, int c, int K, int R_OUT, int C_OUT, int w_offset, int i_offset)
+    void fc_engine(T in_buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max], W w_buf[][Tm][K_max][K_max], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int N, int M, int K, int R_OUT, int C_OUT, int w_offset, int i_offset)
     {
 #else _ACC_MODE_
-    void conv_engine(T in_buf[][IBUF_t][IBUF_t], W w_buf[][Tm][WBUF_t][WBUF_t], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int K, int R_OUT, int C_OUT, int w_offset, int i_offset)
+    void fc_engine(T in_buf[][IBUF_t][IBUF_t], W w_buf[][Tm][WBUF_t][WBUF_t], W b_buf[], G out_buf[][Tr][Tc], int S, int n, int r, int c, int N, int M, int K, int R_OUT, int C_OUT, int w_offset, int i_offset)
     {
 #endif
-    if (n >= 0 && n - Tn < N) {
-        for (int i = 0; i < K; i++) {
-            for (int j = 0; j < K; j++) {
-                for (int tr = 0; tr < Tr; tr++) {
-                    for (int tc = 0; tc < Tc; tc++) {
+        if (n>=0 && n - Tn < N) {
+            for (int i = 0; i < K; i++) {
+                for (int j = 0; j < K; j++) {
+                    for (int tr = 0; tr < Tr; tr++) {
+                        for (int tc = 0; tc < Tc; tc++) {
 #pragma HLS PIPELINE
-                        for (int tm = 0; tm < Tm; tm++) {
+                            for (int tm = 0; tm < Tm; tm++) {
 #pragma HLS UNROLL
-                            for (int tn = 0; tn < Tn; tn++) {
+                                for (int tn = 0; tn < Tn; tn++) {
 #pragma HLS UNROLL
-                                if (i == 0 && j == 0 && tn == 0 && n == 0)
-                                    out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j] *
-                                                                      in_buf[tn][S * (tr) + i + i_offset][S * (tc) + j];
-                                else
-                                    out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j] *
-                                                                                in_buf[tn][S * (tr) + i + i_offset][
-                                                                                        S * (tc) + j];
+                                    if (i == 0 && j == 0 && tn == 0 && n == 0)
+                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j] *
+                                                                          in_buf[tn][S * (tr) + i + i_offset][S * (tc) +
+                                                                                                              j];
+                                    else
+                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j] *
+                                                                                    in_buf[tn][S * (tr) + i + i_offset][
+                                                                                            S * (tc) + j];
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
     }
 
     // Ouput out_buf data to output interface
@@ -254,7 +197,7 @@ class conv_acc
     }
 ///////////////////////------------------conv accelerator----------------//////////////////////////
 #if _LAYER_MODE_ // layer function with manual double buffer -- failed
-    void conv_layer_acc_dbuf(
+    void fc_layer_acc_dbuf(
         int N,            //input feature number
         int K,            //input kernel size
         int M,            // output feature number
@@ -381,12 +324,12 @@ class conv_acc
                                 cout << "computing input buffer 1...." << endl;
                                 if (resbufPtr == 1)
                                 {
-                                    conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n + Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                    fc_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_1, S, n + Tn, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                                     out_buf_1_empty = 0;
                                 }
                                 else
                                 {
-                                    conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n + Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                    fc_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n + Tn, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                                     out_buf_0_empty = 0;
                                 }
                                 in_buf_1_empty = 1;
@@ -402,12 +345,12 @@ class conv_acc
                                 cout << "computing input buffer 0...." << endl;
                                 if (resbufPtr == 1)
                                 {
-                                    conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_1, S, n, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                    fc_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_1, S, n, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                                     out_buf_1_empty = 0;
                                 }
                                 else
                                 {
-                                    conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                    fc_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                                     out_buf_0_empty = 0;
                                 }
                                 in_buf_0_empty = 1;
@@ -492,9 +435,8 @@ class conv_acc
     };
 #endif
 
-
 #if _LAYER_MODE_ // layer function with manual double buffer -- worked
-    void conv_layer_acc_mbuf(
+    void fc_layer_acc_mbuf(
         int N,            //input feature number
         int K,            //input kernel size
         int M,            // output feature number
@@ -516,7 +458,6 @@ class conv_acc
     { // out[M][R][C]
 
         /***************local data buffer groups******************************/
-
         T in_buf_0[Tn][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max];
         W w_buf_0[Tn][Tm][K_max][K_max];
         W b_buf_0[Tm];
@@ -527,12 +468,7 @@ class conv_acc
         W b_buf_1[Tm];
         G out_buf_1[Tm][Tr][Tc];
 
-        bool in_load_0 = 0;
-        bool in_load_1 = 0;
-        bool com_0 = 0;
-        bool com_1 = 0;
-        bool out_0 = 0;
-        bool out_1 = 0;
+        bool buf_ptr = 0;
 
 #if _HLS_MODE_
 
@@ -562,41 +498,35 @@ class conv_acc
 #endif
 #endif
 
-
-//--------------------------Initial data load ---------------------------------------------//
         for (int r = 0; r < R_OUT; r += Tr)
         {
             for (int c = 0; c < C_OUT; c += Tc)
             {
                 for (int m = 0; m < M; m += Tm)
                 {
-                    for (int n = 0; n < N + Tn; n += Tn)
-                    {
-                        // ping-pong buffer region
-                        if (com_0 == 0)
-                        {
-//--------------------------Load input B W D in ping-pong manner-------------------------//
-                            b_buf_load(b_buf_0, layer_bias, bias_offset, m);
-                            w_buf_load(w_buf_0, layer_weights, weight_offset, n, m, K, N, M);
+                    for (int n = 0; n < N + Tn; n += Tn) {
+                        if (buf_ptr == 0) {
+                            //--------------------------Load input B W D in ping-pong manner-------------------------//
                             in_buf_load(in_buf_0, in_data_1, in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
-//------------------------------compute buffered data -----------------------------------//
-                            conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                            w_buf_load(w_buf_0, layer_weights, weight_offset, n, m, K, N, M);
+                            b_buf_load(b_buf_0, layer_bias, bias_offset, m);
+                            //------------------------------compute buffered data -----------------------------------//
+                            fc_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n - Tn, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                         } else {
-//--------------------------Load input B W D in ping-pong manner-------------------------//
-                            b_buf_load(b_buf_1, layer_bias, bias_offset, m);
-                            w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);
+                            //--------------------------Load input B W D in ping-pong manner-------------------------//
                             in_buf_load(in_buf_1, in_data_1, in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
-//------------------------------compute buffered data -----------------------------------//
-                            conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                            w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);
+                            b_buf_load(b_buf_1, layer_bias, bias_offset, m);
+                            //------------------------------compute buffered data -----------------------------------//
+                            fc_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n - Tn, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                         }
-                        com_0 = !com_0;
+                        buf_ptr = !buf_ptr;
                     }
-//---------------------------transfer output data----------------------------------------//
+                    //---------------------------transfer output data----------------------------------------//
                     output_res(out_buf_0, out_data_1, out_offset, N, m, r, c, N, M, R_OUT, C_OUT, act);
                 }
             }
         }
-
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -636,7 +566,7 @@ class conv_acc
         data_type_w out_buf_tmp[Tm][Tr][Tc];
 #pragma HLS ARRAY_PARTITION variable = out_buf_tmp complete dim = 1
 
-        conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_tmp, param[0], param[1], param[2], param[3], param[4], param[5], param[6], param[7], param[8]);
+        fc_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_tmp, param[0], param[1], param[2], param[3], param[4], param[5], param[6], param[7], param[8]);
 
         for (int j = 0; j < Tr; j++)
         {
