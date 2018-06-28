@@ -5,6 +5,10 @@ import math
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
 
+    DSP = 6840/3
+    # datatype = fixed
+    factor = 1
+
     pair_1 = []
     lat_1  = 0
     util_1 = 0
@@ -15,19 +19,27 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     lat_3  = 0
     util_3 = 0
 
-    DSP = 6840/3
-    # datatype = fixed
-    factor = 1
+    pair_list = []
+    lat_list = []
+    util_list = []
 
-    pair_1, lat_1, util_1 = constrained_dse(sub_conv_N[0], sub_conv_M[0], sub_conv_r[0], sub_conv_R[0], sub_conv_K[0],
-                                    sub_conv_S[0], sub_flag[0], int(DSP/factor), int(37), factor)
-    pair_2, lat_2, util_2 = constrained_dse(sub_conv_N[1], sub_conv_M[1], sub_conv_r[1], sub_conv_R[1], sub_conv_K[1],
-                                    sub_conv_S[1], sub_flag[1], int(DSP/factor*0.8), int(37), factor)
-    pair_3, lat_3, util_3 = constrained_dse(sub_conv_N[2], sub_conv_M[2], sub_conv_r[2], sub_conv_R[2], sub_conv_K[2],
-                                    sub_conv_S[2], sub_flag[2], int(DSP/factor), int(37), factor)
+    for i in range(0, len(sub_conv_N)):
+        pair_list.append([])
+        pair, cycle, util = constrained_dse(sub_conv_N[0], sub_conv_M[0], sub_conv_r[0], sub_conv_R[0], sub_conv_K[0],
+                                            sub_conv_S[0], sub_flag[0], int(DSP / factor), int(37), factor)
+        pair_list.append(pair)
+        lat_list.append(cycle)
+        util_list.append(util)
 
-    return pair_1, lat_1, pair_2, lat_2, pair_3, lat_3, util_1, util_2, util_3
+    # pair_1, lat_1, util_1 = constrained_dse(sub_conv_N[0], sub_conv_M[0], sub_conv_r[0], sub_conv_R[0], sub_conv_K[0],
+    #                                 sub_conv_S[0], sub_flag[0], int(DSP/factor), int(37), factor)
+    # pair_2, lat_2, util_2 = constrained_dse(sub_conv_N[1], sub_conv_M[1], sub_conv_r[1], sub_conv_R[1], sub_conv_K[1],
+    #                                 sub_conv_S[1], sub_flag[1], int(DSP/factor*0.8), int(37), factor)
+    # pair_3, lat_3, util_3 = constrained_dse(sub_conv_N[2], sub_conv_M[2], sub_conv_r[2], sub_conv_R[2], sub_conv_K[2],
+    #                                 sub_conv_S[2], sub_flag[2], int(DSP/factor), int(37), factor)
 
+    # return pair_1, lat_1, pair_2, lat_2, pair_3, lat_3, util_1, util_2, util_3
+    return pair_list, lat_list, util_list
 
 def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
 
