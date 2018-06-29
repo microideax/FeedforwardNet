@@ -1,11 +1,13 @@
 import helping_functions
 import sys
 import math
+from model_partition import partition_to_k
+from model_split     import model_split_by_list
 
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
 
-    DSP = 6840/3
+    DSP = 6840/15
     # datatype = fixed
     factor = 1
 
@@ -27,10 +29,12 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     print len(sub_conv_N)
     print sub_conv_N
 
+    dsp_per_acc = DSP/len(sub_conv_N)
+
     for i in range(0, len(sub_conv_N)):
         # pair_list.append([])
         pair, cycle, util = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i], sub_conv_K[i],
-                                            sub_conv_S[i], sub_flag[i], int(DSP / factor), int(37), factor)
+                                            sub_conv_S[i], sub_flag[i], int(dsp_per_acc), int(37), factor)
         pair_list.append(pair)
         lat_list.append(cycle)
         util_list.append(util)
@@ -75,6 +79,36 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
     return opt_pair, min_local_cycle, dsp_util
 
 
+def global_search(layer_list, acc_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat):
+    sub_conv_N = []
+    sub_conv_M = []
+    sub_conv_r = []
+    sub_conv_R = []
+    sub_conv_K = []
+    sub_conv_S = []
+    sub_flag   = []
+    sub_pair_list = []
+    sub_lat_list = []
+    sub_util_list = []
+    for idx, item in enumerate(partition_to_k(layer_list, acc_num, False), 1):
+        sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
+            = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
+        sub_pair_list, sub_lat_list, sub_util_list = \
+            local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+        # print sub_pair_list, sub_lat_list, sub_util_list
+
+        if max(sub_lat_list) < overall_lat:
+            overall_lat = max(sub_lat_list)
+            if len(pair_list) < 5:
+                pair_list.append(sub_pair_list)
+                pair_list.append([overall_lat])
+            else:
+                max_among_mins = pair_list.index(max(overall_lat))
+                pair_list.remove(pair_list[max_among_mins])
+                pair_list.append(sub_pair_list)
+                pair_list.append([overall_lat])
+    return pair_list
+
 # sub-net performance model function
 def conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const):
     tmp = 0
@@ -88,7 +122,7 @@ def conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const):
             tmp += conv_layer_perf(N[j], M[j], R[j], K[j], Tn, Tm, P_const)
     return tmp
 
-
+# TODO: complete with new layer performance model
 # convolutional layer performance
 def conv_layer_perf(n, m, r, k, Tn, Tm, P_const):
     tmp = 0
@@ -103,12 +137,12 @@ def pool_layer_perf(m, r, k, Tm, P_const):
     tmp = (math.ceil(m/float(Tm))) * r * r * k * k + P_const
     return tmp
 
+# TODO: complete wit new layer performance model
 # fc layer performance
 def fc_layer_perf(n, m, r, k, Tn, Tm, P_const):
     tmp = 0
     tmp += (math.ceil(n/float(Tn)))*(math.ceil(m/float(Tm)))*r*r*k*k + P_const
     return tmp
-
 
 # network dsp utilization
 def net_dsp_util(N, M, Tm, Tn, DSP, lat):
