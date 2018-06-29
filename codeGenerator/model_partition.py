@@ -1,3 +1,5 @@
+# Author Jiong He on 28 June 2018 at ADSC
+
 #!/usr/bin/env python
 
 from itertools import permutations

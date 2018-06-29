@@ -23,10 +23,14 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     lat_list = []
     util_list = []
 
+    print "lists in sub_conv_N"
+    print len(sub_conv_N)
+    print sub_conv_N
+
     for i in range(0, len(sub_conv_N)):
-        pair_list.append([])
-        pair, cycle, util = constrained_dse(sub_conv_N[0], sub_conv_M[0], sub_conv_r[0], sub_conv_R[0], sub_conv_K[0],
-                                            sub_conv_S[0], sub_flag[0], int(DSP / factor), int(37), factor)
+        # pair_list.append([])
+        pair, cycle, util = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i], sub_conv_K[i],
+                                            sub_conv_S[i], sub_flag[i], int(DSP / factor), int(37), factor)
         pair_list.append(pair)
         lat_list.append(cycle)
         util_list.append(util)

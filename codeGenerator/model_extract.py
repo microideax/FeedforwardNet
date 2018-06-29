@@ -100,13 +100,13 @@ def model_extract(include_fc):
                 flag[count] = True
             count += 1
 
-    print "conv_N: ", conv_N
-    print "conv_M: ", conv_M
-    print "conv_r: ", conv_r
-    print "conv_R: ", conv_R
-    print "conv_K: ", conv_K
-    print "conv_S: ", conv_S
-    print "flag", flag
+    # print "conv_N: ", conv_N
+    # print "conv_M: ", conv_M
+    # print "conv_r: ", conv_r
+    # print "conv_R: ", conv_R
+    # print "conv_K: ", conv_K
+    # print "conv_S: ", conv_S
+    # print "flag", flag
 
     return conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag
 
