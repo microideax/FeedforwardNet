@@ -25,19 +25,19 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     lat_list = []
     util_list = []
 
-    print "lists in sub_conv_N"
-    print len(sub_conv_N)
-    print sub_conv_N
+    # print "lists in sub_conv_N"
+    # print len(sub_conv_N)
+    # print sub_conv_N
 
     dsp_per_acc = DSP/len(sub_conv_N)
 
     for i in range(0, len(sub_conv_N)):
         # pair_list.append([])
-        pair, cycle, util = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i], sub_conv_K[i],
+        pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i], sub_conv_K[i],
                                             sub_conv_S[i], sub_flag[i], int(dsp_per_acc), int(37), factor)
         pair_list.append(pair)
         lat_list.append(cycle)
-        util_list.append(util)
+        util_list.append(cycle_per_layer)
 
     # pair_1, lat_1, util_1 = constrained_dse(sub_conv_N[0], sub_conv_M[0], sub_conv_r[0], sub_conv_R[0], sub_conv_K[0],
     #                                 sub_conv_S[0], sub_flag[0], int(DSP/factor), int(37), factor)
@@ -61,13 +61,13 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
             local_cycles = conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const)
             if local_cycles < min_local_cycle and local_cycles != 0:
                 min_local_cycle = local_cycles
-                opt_pair = [Tm, Tn]
-
+                opt_pair = [Tm, Tn, min_local_cycle]
+    # print "opt_pair = ", opt_pair
     for j in range(0, int(len(N))):
-        tmp = conv_layer_perf(N[j], M[j], R[j], K[j], Tn, Tm, P_const)
+        tmp = conv_layer_perf(N[j], M[j], R[j], K[j], opt_pair[0], opt_pair[1], P_const)
         cycle_per_layer.append(tmp)
 
-    dsp_util = net_dsp_util(N, M, opt_pair[0], opt_pair[1], DSP, cycle_per_layer)
+    # dsp_util = net_dsp_util(N, M, opt_pair[0], opt_pair[1], DSP, cycle_per_layer)
 
     Acc_num = 1
     # while dsp_util < float(0.5):
@@ -76,10 +76,24 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
     #     Acc_num *= 2
     opt_pair.append(Acc_num)
 
-    return opt_pair, min_local_cycle, dsp_util
+    return opt_pair, min_local_cycle, cycle_per_layer
 
 
-def global_search(layer_list, acc_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat):
+def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat):
+    """
+    :param layer_list: a list containing each layer information in the form of a tuple (layer index, layer name).
+    :param acc_num:
+    :param conv_N:
+    :param conv_M:
+    :param conv_r:
+    :param conv_R:
+    :param conv_K:
+    :param conv_S:
+    :param flag:
+    :param pair_list:
+    :param overall_lat:
+    :return:
+    """
     sub_conv_N = []
     sub_conv_M = []
     sub_conv_r = []
@@ -90,7 +104,14 @@ def global_search(layer_list, acc_num, conv_N, conv_M, conv_r, conv_R, conv_K, c
     sub_pair_list = []
     sub_lat_list = []
     sub_util_list = []
-    for idx, item in enumerate(partition_to_k(layer_list, acc_num, False), 1):
+    item_list = []
+
+    search_counter = 0
+
+    print "started global search"
+
+    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, False), 1):
+        search_counter = search_counter + 1
         sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
             = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
         sub_pair_list, sub_lat_list, sub_util_list = \
@@ -99,15 +120,20 @@ def global_search(layer_list, acc_num, conv_N, conv_M, conv_r, conv_R, conv_K, c
 
         if max(sub_lat_list) < overall_lat:
             overall_lat = max(sub_lat_list)
-            if len(pair_list) < 5:
+            if len(pair_list) < 10:
+                item_list.append(item)
                 pair_list.append(sub_pair_list)
                 pair_list.append([overall_lat])
-            else:
-                max_among_mins = pair_list.index(max(overall_lat))
-                pair_list.remove(pair_list[max_among_mins])
-                pair_list.append(sub_pair_list)
-                pair_list.append([overall_lat])
-    return pair_list
+                pair_list.append(sub_util_list)
+            # else:
+            #     max_among_mins = pair_list.index(max(overall_lat))
+            #     pair_list.remove(pair_list[max_among_mins])
+            #     pair_list.append(sub_pair_list)
+            #     pair_list.append([overall_lat])
+            #     pair_list.append(sub_util_list)
+
+    print "Final explored points = ", search_counter
+    return pair_list, item_list
 
 # sub-net performance model function
 def conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const):

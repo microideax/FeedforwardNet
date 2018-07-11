@@ -14,6 +14,7 @@ from cluster       import clusters_layers
 from model_partition import partition
 from model_partition import partition_to_k
 from model_partition import return_partition
+from local_search import global_search
 
 
 def multiAcc_dse():
@@ -52,8 +53,9 @@ def multiAcc_dse():
 
     OPs = 0
     sub_pair_list = []
+    item_list = []
     pair_list = []
-    overall_lat = 605514
+    overall_lat = 60551400
     layer_list = []
 
 
@@ -72,30 +74,37 @@ def multiAcc_dse():
     for i in range(0, len(conv_N)):
         layer_list.append(i)
     # kmeans=clusters_layers(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 4)
-    item = return_partition(layer_list, 4, False)
 
-    '''step 3: split the layers based on label clustering results'''
-    print("layer number is: ", int(len(conv_N)))
-    sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
-        = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
-    print sub_conv_N
-    print "model clustering test done!!!"
+    acc_cluster_num = 3
+    item_list, pair_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat)
 
-    '''step 4: do local search for all sub-models and find optimial <Tm, Tn> pair, lat, and util'''
-    sub_pair_list, sub_lat_list, sub_util_list = \
-        local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
-    print sub_pair_list, sub_lat_list, sub_util_list
+    print pair_list
+    print item_list
 
-    if max(sub_lat_list) < overall_lat:
-        overall_lat = max(sub_lat_list)
-        if len(pair_list) < 10:
-            pair_list.append(sub_pair_list)
-            pair_list.append([overall_lat])
-        else:
-            max_among_mins = pair_list.index(max(overall_lat))
-            pair_list.remove(pair_list[max_among_mins])
-            pair_list.append(sub_pair_list)
-            pair_list.append([overall_lat])
+    # item = return_partition(layer_list, 4, False)
+    #
+    # '''step 3: split the layers based on label clustering results'''
+    # print("layer number is: ", int(len(conv_N)))
+    # sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
+    #     = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
+    # print sub_conv_N
+    # print "model clustering test done!!!"
+    #
+    # '''step 4: do local search for all sub-models and find optimial <Tm, Tn> pair, lat, and util'''
+    # sub_pair_list, sub_lat_list, sub_util_list = \
+    #     local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+    # print sub_pair_list, sub_lat_list, sub_util_list
+    #
+    # if max(sub_lat_list) < overall_lat:
+    #     overall_lat = max(sub_lat_list)
+    #     if len(pair_list) < 10:
+    #         pair_list.append(sub_pair_list)
+    #         pair_list.append([overall_lat])
+    #     else:
+    #         max_among_mins = pair_list.index(max(overall_lat))
+    #         pair_list.remove(pair_list[max_among_mins])
+    #         pair_list.append(sub_pair_list)
+    #         pair_list.append([overall_lat])
 
     # print(pair_1, "%.2f" % util_1, pair_2, "%.2f" % util_2, pair_3, "%.2f" % util_3, lat_1, lat_2, lat_3)
     # for i in range(1, int(len(conv_N)-1)):
