@@ -6,6 +6,95 @@ from model_split import model_split_by_list
 import pprint
 
 
+# TODO: complete with new layer performance model
+# TODO: add S and K into argv list
+# convolutional layer performance
+def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
+    tmp = 0
+    Tr = 8
+    Tc = 8
+    tmp = (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * (math.ceil(r / float(Tr))) * (
+        math.ceil(r / float(Tc))) * Tr * Tc * k * k + P_const
+    # print(r, (math.ceil(r/float(Tr))))
+    # tmp = (math.ceil(n/float(Tn)))*(math.ceil(m/float(Tm)))*r*r*k*k + P_const
+
+    # revised layer performance
+    R_iter = math.ceil(r / float(Tr))
+    M_iter = math.ceil(m / float(Tm))
+    N_iter = math.ceil(n / float(Tn))
+    lat_read = Tn * (Tr-1)*s + k
+    lat_com = Tr * Tc * k * k
+    lat_out = Tm*Tr*Tc
+    tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
+
+    return tmp
+
+def pool_layer_perf(m, r, k, Tm, P_const):
+    tmp = (math.ceil(m / float(Tm))) * r * r * k * k + P_const
+    return tmp
+
+
+# TODO: complete wit new layer performance model
+# fc layer performance
+def fc_layer_perf(n, m, r, k, Tn, Tm, P_const):
+    tmp = 0
+    tmp += (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * r * r * k * k + P_const
+    return tmp
+
+# sub-net performance model function
+def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
+    tmp = 0
+    # Tr = 16
+    # Tc = 16
+    for j in range(0, int(len(N))):
+        if flag[j] == True:
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+        else:
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+    return tmp
+
+# Optimal Tm, Tn pair selection with given amount of DSP
+def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
+    opt_pair = []
+    min_local_cycle = 2000000000000
+
+    for Tm in range(1, max(M) + 1):
+        Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
+        for Tn in range(1, Tn_max + 1):
+            cycle_per_layer = []
+            local_cycles = conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const)
+            if local_cycles < min_local_cycle and local_cycles != 0:
+                min_local_cycle = local_cycles
+                opt_pair = [Tm, Tn, local_cycles]
+                # print "min config net params = ", N, M, R, K, flag, Tn, Tm, P_const, local_cycles
+    # print "opt_pair = ", opt_pair
+
+    # collected the detailed performance for each layer in a sub-net
+    for j in range(0, int(len(N))):
+        tmp = 0
+        # print "use opt_pair = ", opt_pair[0], opt_pair[1]
+        tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const)
+        cycle_per_layer.append(tmp)
+        # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, tmp
+
+    # cycle_per_layer.append(conv_net_perf(N, M, R, K, flag, opt_pair[1], opt_pair[0], P_const))
+    # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, cycle_per_layer
+
+    # print "collected cycle per layer = ", cycle_per_layer
+    # dsp_util = net_dsp_util(N, M, opt_pair[0], opt_pair[1], DSP, cycle_per_layer)
+
+    Acc_num = 1
+    # while dsp_util < float(0.5):
+    #     dsp_util *= 2
+    #     min_local_cycle /=2
+    #     Acc_num *= 2
+    opt_pair.append(Acc_num)
+
+    return opt_pair, min_local_cycle, cycle_per_layer
+
+
+
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     DSP = 6840 / 15
     # datatype = fixed
@@ -85,45 +174,6 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     return pair_list, lat_list, util_list
 
 
-def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
-    opt_pair = []
-    min_local_cycle = 2000000000000
-
-    for Tm in range(1, max(M) + 1):
-        Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
-        for Tn in range(1, Tn_max + 1):
-            cycle_per_layer = []
-            local_cycles = conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const)
-            if local_cycles < min_local_cycle and local_cycles != 0:
-                min_local_cycle = local_cycles
-                opt_pair = [Tm, Tn, local_cycles]
-                # print "min config net params = ", N, M, R, K, flag, Tn, Tm, P_const, local_cycles
-    # print "opt_pair = ", opt_pair
-
-    # collected the detailed performance for each layer in a sub-net
-    for j in range(0, int(len(N))):
-        tmp = 0
-        # print "use opt_pair = ", opt_pair[0], opt_pair[1]
-        tmp = conv_layer_perf(N[j], M[j], R[j], K[j], opt_pair[1], opt_pair[0], P_const)
-        cycle_per_layer.append(tmp)
-        # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, tmp
-
-    # cycle_per_layer.append(conv_net_perf(N, M, R, K, flag, opt_pair[1], opt_pair[0], P_const))
-    # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, cycle_per_layer
-
-    # print "collected cycle per layer = ", cycle_per_layer
-    # dsp_util = net_dsp_util(N, M, opt_pair[0], opt_pair[1], DSP, cycle_per_layer)
-
-    Acc_num = 1
-    # while dsp_util < float(0.5):
-    #     dsp_util *= 2
-    #     min_local_cycle /=2
-    #     Acc_num *= 2
-    opt_pair.append(Acc_num)
-
-    return opt_pair, min_local_cycle, cycle_per_layer
-
-
 def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list,
                   overall_lat):
     """
@@ -180,46 +230,6 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
 
     print "Final explored points = ", search_counter
     return pair_list, item_list
-
-
-# sub-net performance model function
-def conv_net_perf(N, M, R, K, flag, Tn, Tm, P_const):
-    tmp = 0
-    # Tr = 16
-    # Tc = 16
-    for j in range(0, int(len(N))):
-        if flag[j] == True:
-            tmp += conv_layer_perf(N[j], M[j], R[j], K[j], Tn, Tm, P_const)
-            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
-        else:
-            tmp += conv_layer_perf(N[j], M[j], R[j], K[j], Tn, Tm, P_const)
-    return tmp
-
-
-# TODO: complete with new layer performance model
-# convolutional layer performance
-def conv_layer_perf(n, m, r, k, Tn, Tm, P_const):
-    tmp = 0
-    Tr = 8
-    Tc = 8
-    tmp = (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * (math.ceil(r / float(Tr))) * (
-        math.ceil(r / float(Tc))) * Tr * Tc * k * k + P_const
-    # print(r, (math.ceil(r/float(Tr))))
-    # tmp = (math.ceil(n/float(Tn)))*(math.ceil(m/float(Tm)))*r*r*k*k + P_const
-    return tmp
-
-
-def pool_layer_perf(m, r, k, Tm, P_const):
-    tmp = (math.ceil(m / float(Tm))) * r * r * k * k + P_const
-    return tmp
-
-
-# TODO: complete wit new layer performance model
-# fc layer performance
-def fc_layer_perf(n, m, r, k, Tn, Tm, P_const):
-    tmp = 0
-    tmp += (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * r * r * k * k + P_const
-    return tmp
 
 
 # network dsp utilization
