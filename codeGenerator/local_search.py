@@ -13,8 +13,8 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
     tmp = 0
     Tr = 8
     Tc = 8
-    tmp = (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * (math.ceil(r / float(Tr))) * (
-        math.ceil(r / float(Tc))) * Tr * Tc * k * k + P_const
+    # tmp = (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * (math.ceil(r / float(Tr))) * (
+    #     math.ceil(r / float(Tc))) * Tr * Tc * k * k + P_const
     # print(r, (math.ceil(r/float(Tr))))
     # tmp = (math.ceil(n/float(Tn)))*(math.ceil(m/float(Tm)))*r*r*k*k + P_const
 
@@ -57,38 +57,24 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
 # Optimal Tm, Tn pair selection with given amount of DSP
 def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
     opt_pair = []
+    cycle_per_layer = []
     min_local_cycle = 2000000000000
 
     for Tm in range(1, max(M) + 1):
         Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
         for Tn in range(1, Tn_max + 1):
-            cycle_per_layer = []
             local_cycles = conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const)
             if local_cycles < min_local_cycle and local_cycles != 0:
                 min_local_cycle = local_cycles
                 opt_pair = [Tm, Tn, local_cycles]
-                # print "min config net params = ", N, M, R, K, flag, Tn, Tm, P_const, local_cycles
-    # print "opt_pair = ", opt_pair
 
     # collected the detailed performance for each layer in a sub-net
     for j in range(0, int(len(N))):
         tmp = 0
-        # print "use opt_pair = ", opt_pair[0], opt_pair[1]
         tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const)
         cycle_per_layer.append(tmp)
-        # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, tmp
-
-    # cycle_per_layer.append(conv_net_perf(N, M, R, K, flag, opt_pair[1], opt_pair[0], P_const))
-    # print "layer perfed tmp = ", N, M, R, K, opt_pair, P_const, cycle_per_layer
-
-    # print "collected cycle per layer = ", cycle_per_layer
-    # dsp_util = net_dsp_util(N, M, opt_pair[0], opt_pair[1], DSP, cycle_per_layer)
 
     Acc_num = 1
-    # while dsp_util < float(0.5):
-    #     dsp_util *= 2
-    #     min_local_cycle /=2
-    #     Acc_num *= 2
     opt_pair.append(Acc_num)
 
     return opt_pair, min_local_cycle, cycle_per_layer
@@ -118,7 +104,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     # print len(sub_conv_N)
     # print sub_conv_N
 
-    step = int(10)
+    step = int(5)
     ratio = 0.05
     search_counter = 0
 
@@ -157,7 +143,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
 
         if (ratio_tmp < ratio or search_counter == 40):
             search_stop = 1
-            print "search done", search_counter
+            print "search done", search_counter, "current ratio: ", ratio_tmp
         else:
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
@@ -206,7 +192,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
 
     print "started global search"
 
-    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, False), 1):
+    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, True), 1):
         search_counter = search_counter + 1
         sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
             = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)

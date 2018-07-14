@@ -15,7 +15,7 @@ from model_partition import partition
 from model_partition import partition_to_k
 from model_partition import return_partition
 from local_search import global_search
-import pprint
+import time
 
 
 def multiAcc_dse():
@@ -76,9 +76,10 @@ def multiAcc_dse():
         layer_list.append(i)
     # kmeans=clusters_layers(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 4)
 
-    acc_cluster_num = 3
+    start = time.clock()
+    acc_cluster_num = 4
     pair_list, item_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat)
-
+    print time.clock() - start, "s"
     print item_list
     print pair_list
 

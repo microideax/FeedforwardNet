@@ -22,6 +22,7 @@ def partition(layerlist):
                 yield each_partition[:groupIdx] + [[first] + group] + each_partition[groupIdx + 1:]
             # second choice: insert the first as an individual subset
             yield [[first]] + each_partition
+            yield [[first]] + each_partition
 
 
 def partition_to_k(layerlist, k, order=False):
@@ -41,17 +42,19 @@ def partition_to_k(layerlist, k, order=False):
                 for enum_item in permutations(each_partition_candidate):
                     yield enum_item
 
+
 def return_partition(layerlist, k, order):
-    for item in partition_to_k(layerlist, k, False):
+    for item in partition_to_k(layerlist, k, order):
         # print item
         return item
 
-if __name__ == "__main__":
+
+# if __name__ == "__main__":
     # layer_list_1 = [(0, 'c'), (1, 'p'), (2, 'c'), (3, 'c'), (4, 'p'), (5, 'c')]
-    layer_list_2 = [(0, 'c'), (1, 'p'), (2, 'c'), (3, 'c'), (4, 'c')]
-    layer_list_3 = [1, 2, 3, 4]
+    # layer_list_2 = [(0, 'c'), (1, 'p'), (2, 'c'), (3, 'c'), (4, 'c')]
+    # layer_list_3 = [1, 2, 3, 4]
     # for idx, item in enumerate(partition_to_k(layer_list_3, 3, False), 1):
     #     print idx, item
-    print return_partition(layer_list_3, 3, False)
-    print len(return_partition(layer_list_3, 3, False))
+    # print return_partition(layer_list_3, 3, False)
+    # print len(return_partition(layer_list_3, 3, False))
 

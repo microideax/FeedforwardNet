@@ -58,14 +58,15 @@
       <file leaf-file-name="conv_acc_innerpp.h" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2752">
-              <caret line="490" column="63" selection-start-line="490" selection-start-column="63" selection-end-line="490" selection-end-column="63" />
+            <state relative-caret-position="412">
+              <caret line="125" column="68" selection-start-line="125" selection-start-column="68" selection-end-line="125" selection-end-column="68" />
               <folding>
                 <element signature="e#196#322#0" expanded="true" />
                 <element signature="e#461#888#0" expanded="false" />
                 <element signature="e#893#1328#0" expanded="false" />
                 <element signature="e#1333#1479#0" expanded="false" />
                 <element signature="e#1484#1798#0" expanded="false" />
+                <element signature="e#18573#24040#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -383,12 +384,12 @@
       <workItem from="1529290065417" duration="883000" />
       <workItem from="1529291094669" duration="74649000" />
       <workItem from="1529904777252" duration="33570000" />
-      <workItem from="1531398815655" duration="736000" />
+      <workItem from="1531398815655" duration="1927000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="345338000" />
+    <option name="totallyTimeSpent" value="346529000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -838,14 +839,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2752">
-          <caret line="490" column="63" selection-start-line="490" selection-start-column="63" selection-end-line="490" selection-end-column="63" />
+        <state relative-caret-position="412">
+          <caret line="125" column="68" selection-start-line="125" selection-start-column="68" selection-end-line="125" selection-end-column="68" />
           <folding>
             <element signature="e#196#322#0" expanded="true" />
             <element signature="e#461#888#0" expanded="false" />
             <element signature="e#893#1328#0" expanded="false" />
             <element signature="e#1333#1479#0" expanded="false" />
             <element signature="e#1484#1798#0" expanded="false" />
+            <element signature="e#18573#24040#0" expanded="true" />
           </folding>
         </state>
       </provider>
