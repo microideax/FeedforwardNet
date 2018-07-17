@@ -6,17 +6,11 @@ from model_split import model_split_by_list
 import pprint
 
 
-# TODO: complete with new layer performance model
-# TODO: add S and K into argv list
 # convolutional layer performance
 def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
     tmp = 0
     Tr = 8
     Tc = 8
-    # tmp = (math.ceil(n / float(Tn))) * (math.ceil(m / float(Tm))) * (math.ceil(r / float(Tr))) * (
-    #     math.ceil(r / float(Tc))) * Tr * Tc * k * k + P_const
-    # print(r, (math.ceil(r/float(Tr))))
-    # tmp = (math.ceil(n/float(Tn)))*(math.ceil(m/float(Tm)))*r*r*k*k + P_const
 
     # revised layer performance
     R_iter = math.ceil(r / float(Tr))
@@ -104,9 +98,10 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     # print len(sub_conv_N)
     # print sub_conv_N
 
-    step = int(5)
+    step = int(10)
     ratio = 0.05
     search_counter = 0
+    Resolution = 100
 
     # initializing the accelerator number for per acc
     for i in range(0, len(sub_conv_N)):
@@ -119,7 +114,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     print "testing point before starting search"
 
     search_stop = 0
-    while (search_stop == 0 and search_counter < 40):
+    while (search_stop == 0 and search_counter < Resolution + 1):
         # print "sub space number = ", len(sub_conv_N)
         # print "dsp_per_acc = ", dsp_per_acc
         for i in range(0, len(sub_conv_N)):
@@ -141,12 +136,13 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
         ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
         # print lat_list, ratio_tmp
 
-        if (ratio_tmp < ratio or search_counter == 40):
+        if (ratio_tmp < ratio or search_counter == Resolution):
             search_stop = 1
             print "search done", search_counter, "current ratio: ", ratio_tmp
         else:
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
+            # step = min(pair_list[0], pair_list[1])
             if dsp_per_acc[max_idx] > step:
         #         # print '1', max_idx, min_idx
                 dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step

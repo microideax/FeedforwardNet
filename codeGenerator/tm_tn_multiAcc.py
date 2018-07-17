@@ -10,7 +10,7 @@ from model_split   import gop_calculate
 from model_split   import max_layer_dataout
 from model_split   import model_split_by_label
 from model_split   import model_split_by_list
-from cluster       import clusters_layers
+from cluster       import clusters_layers_kmeans
 from model_partition import partition
 from model_partition import partition_to_k
 from model_partition import return_partition
@@ -74,7 +74,8 @@ def multiAcc_dse():
     '''step 2: randomly cluster, param k=4, layer label results are in iterm'''
     for i in range(0, len(conv_N)):
         layer_list.append(i)
-    # kmeans=clusters_layers(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 4)
+    # kmeans=clusters_layers_kmeans(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 2)
+    # print kmeans
 
     start = time.clock()
     acc_cluster_num = 4
