@@ -201,7 +201,8 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
     sub_pair_list = []
     sub_lat_list = []
     sub_util_list = []
-    sub_gop_list = []
+
+    gop_list = []
     item_list = []
 
     search_counter = 0
@@ -209,6 +210,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
     print "started global search"
 
     for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, True), 1):
+        sub_gop_list = []
         search_counter = search_counter + 1
         sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
             = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
@@ -217,14 +219,15 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
         # print sub_pair_list, sub_lat_list, sub_util_list
 
         for i in range(0, len(sub_conv_N)):
-            sub_gop_list[i] = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
+            sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
 
         if max(sub_lat_list) < overall_lat:
             overall_lat = max(sub_lat_list)
-            if len(pair_list) < 3:
+            if len(pair_list) < 4:
                 item_list.append(item)
                 pair_list.append(sub_pair_list)
                 pair_list.append([overall_lat])
+                gop_list.append(sub_gop_list)
                 # pair_list.append(sub_util_list)
             # else:
             #     max_among_mins = pair_list.index(max(overall_lat))
@@ -234,7 +237,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
             #     pair_list.append(sub_util_list)
 
     print "Final explored points = ", search_counter
-    return pair_list, item_list
+    return pair_list, item_list, gop_list
 
 def single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list,
                   overall_lat):
