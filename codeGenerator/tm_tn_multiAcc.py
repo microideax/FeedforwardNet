@@ -3,23 +3,23 @@ import sys
 import math
 
 from model_extract import model_extract
-from model_split   import model_split_ordered
-from model_split   import model_split_unordered
-from local_search  import local_search
-from model_split   import gop_calculate
-from model_split   import max_layer_dataout
-from model_split   import model_split_by_label
-from model_split   import model_split_by_list
-from cluster       import clusters_layers_kmeans
+from model_split import model_split_ordered
+from model_split import model_split_unordered
+from local_search import local_search
+from model_split import gop_calculate
+from model_split import max_layer_dataout
+from model_split import model_split_by_label
+from model_split import model_split_by_list
+from cluster import clusters_layers_kmeans
 from model_partition import partition
 from model_partition import partition_to_k
 from model_partition import return_partition
 from local_search import global_search
+from local_search import single_item_search
 import time
 
 
 def multiAcc_dse():
-
     # define the network parameter containers
     conv_N = []
     conv_M = []
@@ -27,7 +27,7 @@ def multiAcc_dse():
     conv_R = []
     conv_K = []
     conv_S = []
-    flag   = []
+    flag = []
 
     sub_conv_N = []
     sub_conv_M = []
@@ -35,7 +35,7 @@ def multiAcc_dse():
     sub_conv_R = []
     sub_conv_K = []
     sub_conv_S = []
-    sub_flag   = []
+    sub_flag = []
 
     pair_1 = []
     pair_2 = []
@@ -58,7 +58,7 @@ def multiAcc_dse():
     pair_list = []
     overall_lat = 60551400
     layer_list = []
-
+    gop_list = []
 
     """
     step 1: extract model from the original txt file with parameter no_include_fc / include_fc
@@ -78,12 +78,20 @@ def multiAcc_dse():
     # print kmeans
 
     start = time.clock()
-    acc_cluster_num = 4
+    acc_cluster_num = 3
     pair_list, item_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat)
+    # pair_list, item_list = single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K,
+    #                                           conv_S, flag, pair_list, overall_lat)
     print time.clock() - start, "s"
-    print item_list
-    print pair_list
 
+
+
+
+
+
+    print item_list
+    print gop_list
+    print pair_list
 
     # item = return_partition(layer_list, 4, False)
     #
@@ -116,30 +124,29 @@ def multiAcc_dse():
     # for i in range(1, 10):
     #     for j in range(1, 10):
     #         sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_split_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i, j)
-            # sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_split_unordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
-            # sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_split_by_label(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, kmeans.labels_)
-            # print(sub_conv_N)
-            # pair_1, lat_1, pair_2, lat_2, pair_3, lat_3, util_1, util_2, util_3 = local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
-            #
-            # print(i, j, pair_1, "%.2f" % util_1, pair_2, "%.2f" % util_2, pair_3, "%.2f" % util_3, lat_1, lat_2, lat_3)
-            #
-            # if max(lat_1, lat_2, lat_3) < overall_lat:
-            #     overall_lat = max(lat_1, lat_2, lat_3)
-            #     # if len(pair_list) < 50:
-            #     pair_list.append([i, j])
-            #     pair_list.append(pair_1)
-            #     pair_list.append(pair_2)
-            #     pair_list.append(pair_3)
-            #     pair_list.append([overall_lat])
-            #     # else:
-            #     #     max_among_mins  = pair_list.index(max(overall_lat))
-            #     #     pair_list.remove(pair_list[max_among_mins])
-            #     #     pair_list.append(pair_1)
-            #     #     pair_list.append(pair_2)
-            #     #     pair_list.append(pair_3)
-            #     #     pair_list.append(overall_lat)
+    # sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_split_unordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
+    # sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_split_by_label(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, kmeans.labels_)
+    # print(sub_conv_N)
+    # pair_1, lat_1, pair_2, lat_2, pair_3, lat_3, util_1, util_2, util_3 = local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+    #
+    # print(i, j, pair_1, "%.2f" % util_1, pair_2, "%.2f" % util_2, pair_3, "%.2f" % util_3, lat_1, lat_2, lat_3)
+    #
+    # if max(lat_1, lat_2, lat_3) < overall_lat:
+    #     overall_lat = max(lat_1, lat_2, lat_3)
+    #     # if len(pair_list) < 50:
+    #     pair_list.append([i, j])
+    #     pair_list.append(pair_1)
+    #     pair_list.append(pair_2)
+    #     pair_list.append(pair_3)
+    #     pair_list.append([overall_lat])
+    #     # else:
+    #     #     max_among_mins  = pair_list.index(max(overall_lat))
+    #     #     pair_list.remove(pair_list[max_among_mins])
+    #     #     pair_list.append(pair_1)
+    #     #     pair_list.append(pair_2)
+    #     #     pair_list.append(pair_3)
+    #     #     pair_list.append(overall_lat)
     # print(pair_list)
-
 
     # #step 3:
     # find_min_in_pairs()
