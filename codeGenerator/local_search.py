@@ -5,7 +5,9 @@ from model_partition import partition_to_k
 from model_split import model_split_by_list
 from model_split import gop_calculate
 import pprint
-
+import threading
+import Queue
+import time
 
 # convolutional layer performance
 def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
@@ -165,8 +167,69 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     return pair_list, lat_list, util_list
 
 
-def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list,
-                  overall_lat):
+result_Q = Queue.Queue()
+THREAD_NUM = 8
+
+
+class SearchThread(threading.Thread):
+    def __int__(self, layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat, threadIdx):
+        threading.Thread.__init__(self)
+        self.layer_list = layer_list
+        self.acc_cluster_num = acc_cluster_num
+        self.conv_N = conv_N
+        self.conv_M = conv_M
+        self.conv_r = conv_r
+        self.conv_R = conv_R
+        self.conv_K = conv_K
+        self.conv_S = conv_S
+        self.flag = flag
+        self.overall_lat = overall_lat
+        self.threadIdx = threadIdx
+
+    def run(self):
+        gop_list = []
+        item_list = []
+        util_list = []
+        pair_list = []
+
+        search_counter = 0
+
+        print "Thread " + self.threadIdx + " starts global search."
+
+        for idx, item in enumerate(partition_to_k(self.layer_list, self.acc_cluster_num, False), 1):
+            if item[0][0] % THREAD_NUM == self.threadIdx:
+                sub_gop_list = []
+                search_counter = search_counter + 1
+                sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
+                    = model_split_by_list(self.conv_N, self.conv_M, self.conv_r, self.conv_R, self.conv_K, self.conv_S, self.flag, item)
+                sub_pair_list, sub_lat_list, sub_util_list = \
+                    local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+
+                for i in range(0, len(sub_conv_N)):
+                    sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
+
+                if max(sub_lat_list) < overall_lat:
+                    overall_lat = max(sub_lat_list)
+                    if len(pair_list) < 4:
+                        item_list.append(item)
+                        pair_list.append(sub_pair_list)
+                        pair_list.append([overall_lat])
+                        gop_list.append(sub_gop_list)
+                        util_list.append(sub_util_list)
+                        # pair_list.append(sub_util_list)
+                    # else:
+                    #     max_among_mins = pair_list.index(max(overall_lat))
+                    #     pair_list.remove(pair_list[max_among_mins])
+                    #     pair_list.append(sub_pair_list)
+                    #     pair_list.append([overall_lat])
+                    #     pair_list.append(sub_util_list)
+
+                print "For set starting with " + item[0][0] + ", the final explored points = ", search_counter
+
+        result_Q.put((pair_list, item_list, gop_list, util_list, self.threadIdx))
+
+
+def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat):
     """
     :param layer_list: a list containing each layer information in the form of a tuple (layer index, layer name).
     :param acc_cluster_num:
@@ -195,41 +258,25 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
     gop_list = []
     item_list = []
     util_list = []
+    pair_list = []
 
-    search_counter = 0
+    threads = []
+    for i in range(THREAD_NUM):
+        t = SearchThread(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat, i)
+        threads.append(t)
+        t.start()
 
-    print "started global search"
+    for thread_item in threads:
+        thread_item.join()
 
-    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, False), 1):
-        # print "layer_list->", layer_list
-        # print item
-        sub_gop_list = []
-        search_counter = search_counter + 1
-        sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
-            = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
-        sub_pair_list, sub_lat_list, sub_util_list = \
-            local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
-
-        for i in range(0, len(sub_conv_N)):
-            sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
-
-        if max(sub_lat_list) < overall_lat:
-            overall_lat = max(sub_lat_list)
-            if len(pair_list) < 4:
-                item_list.append(item)
-                pair_list.append(sub_pair_list)
-                pair_list.append([overall_lat])
-                gop_list.append(sub_gop_list)
-                util_list.append(sub_util_list)
-                # pair_list.append(sub_util_list)
-            # else:
-            #     max_among_mins = pair_list.index(max(overall_lat))
-            #     pair_list.remove(pair_list[max_among_mins])
-            #     pair_list.append(sub_pair_list)
-            #     pair_list.append([overall_lat])
-            #     pair_list.append(sub_util_list)
-
-        print "Final explored points = ", search_counter
+    results = list()
+    while not result_Q.empty():
+        results.append(result_Q.get())
+    for item in results:
+        pair_list.append(item[0])
+        item_list.append(item[1])
+        gop_list.append(item[2])
+        util_list.append(item[3])
 
     return pair_list, item_list, gop_list, util_list
 
