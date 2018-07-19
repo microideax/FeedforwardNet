@@ -13,7 +13,6 @@ from model_split import model_split_by_list
 from cluster import clusters_layers_kmeans
 from model_partition import partition
 from model_partition import partition_to_k
-from model_partition import return_partition
 from local_search import global_search
 from local_search import single_item_search
 import time

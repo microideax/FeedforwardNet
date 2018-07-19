@@ -88,7 +88,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     :param sub_flag: saa
     :return: the most optimal configuration for current sub-nets for an optimal system latency
     """
-    DSP = 6840 / 3
+    DSP = 6840 / 15
     # datatype = fixed
     factor = 1
 
@@ -160,7 +160,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
 
         search_counter = search_counter + 1
         if search_stop == 1:
-            print "search stopped at =", search_counter, "current ratio: ", ratio_tmp
+            print "search stopped at =", search_counter - 1, "current ratio: ", ratio_tmp
 
     return pair_list, lat_list, util_list
 
@@ -200,35 +200,36 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
 
     print "started global search"
 
-    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, True), 1):
-        if item[0][0] == 0:
-            sub_gop_list = []
-            search_counter = search_counter + 1
-            sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
-                = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
-            sub_pair_list, sub_lat_list, sub_util_list = \
-                local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+    for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, False), 1):
+        # print "layer_list->", layer_list
+        # print item
+        sub_gop_list = []
+        search_counter = search_counter + 1
+        sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
+            = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
+        sub_pair_list, sub_lat_list, sub_util_list = \
+            local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
 
-            for i in range(0, len(sub_conv_N)):
-                sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
+        for i in range(0, len(sub_conv_N)):
+            sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
 
-            if max(sub_lat_list) < overall_lat:
-                overall_lat = max(sub_lat_list)
-                if len(pair_list) < 4:
-                    item_list.append(item)
-                    pair_list.append(sub_pair_list)
-                    pair_list.append([overall_lat])
-                    gop_list.append(sub_gop_list)
-                    util_list.append(sub_util_list)
-                    # pair_list.append(sub_util_list)
-                # else:
-                #     max_among_mins = pair_list.index(max(overall_lat))
-                #     pair_list.remove(pair_list[max_among_mins])
-                #     pair_list.append(sub_pair_list)
-                #     pair_list.append([overall_lat])
-                #     pair_list.append(sub_util_list)
+        if max(sub_lat_list) < overall_lat:
+            overall_lat = max(sub_lat_list)
+            if len(pair_list) < 4:
+                item_list.append(item)
+                pair_list.append(sub_pair_list)
+                pair_list.append([overall_lat])
+                gop_list.append(sub_gop_list)
+                util_list.append(sub_util_list)
+                # pair_list.append(sub_util_list)
+            # else:
+            #     max_among_mins = pair_list.index(max(overall_lat))
+            #     pair_list.remove(pair_list[max_among_mins])
+            #     pair_list.append(sub_pair_list)
+            #     pair_list.append([overall_lat])
+            #     pair_list.append(sub_util_list)
 
-            print "Final explored points = ", search_counter
+        print "Final explored points = ", search_counter
 
     return pair_list, item_list, gop_list, util_list
 
