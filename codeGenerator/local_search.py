@@ -88,7 +88,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     :param sub_flag: saa
     :return: the most optimal configuration for current sub-nets for an optimal system latency
     """
-    DSP = 6840 / 15
+    DSP = 6840 / 3
     # datatype = fixed
     factor = 1
 
@@ -118,9 +118,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     ratio = 0.05
     search_counter = 0
     Resolution = 100
-
-    # initializing the accelerator number for per acc
-
+    """initializing the dsp number for per acc based on the ops requirement"""
     for i in range(0, len(sub_conv_N)):
         gop_per_subnet.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
         gop_total += gop_per_subnet[i]
@@ -131,17 +129,10 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
             dsp_occupied += dsp_per_acc[i]
         else:
             dsp_per_acc.append(math.ceil(DSP - dsp_occupied))
-    # print sub_conv_N
-    # print gop_per_subnet
-    # print dsp_per_acc
-
-    # print "testing point before starting search"
 
     """ Iteratively find the system level optimal configuration for the all the sub-nets"""
     search_stop = 0
-    while (search_stop == 0 and search_counter < Resolution + 1):
-        # print "sub space number = ", len(sub_conv_N)
-        # print "dsp_per_acc = ", dsp_per_acc
+    while search_stop == 0 and search_counter < Resolution + 1:
         for i in range(0, len(sub_conv_N)):
             pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
                                                            sub_conv_K[i],
@@ -149,7 +140,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
                                                            factor)
             pair_list.append(pair)
             lat_list.append(cycle)
-            util_list.append(cycle_per_layer)
+            util_list.append(pair[0]*pair[1]/float(DSP))
             if len(pair_list) > len(sub_conv_N):
                 for remove_cnt in range(0, len(sub_conv_N)):
                     pair_list.remove(pair_list[0])
@@ -157,9 +148,8 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
                     util_list.remove(util_list[0])
 
         ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
-        # print lat_list, ratio_tmp
 
-        if (ratio_tmp < ratio or search_counter == Resolution):
+        if ratio_tmp < ratio or search_counter == Resolution:
             search_stop = 1
         else:
             max_idx = lat_list.index(min(lat_list))
@@ -179,7 +169,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
                   overall_lat):
     """
     :param layer_list: a list containing each layer information in the form of a tuple (layer index, layer name).
-    :param acc_num:
+    :param acc_cluster_num:
     :param conv_N:
     :param conv_M:
     :param conv_r:
@@ -204,21 +194,20 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
 
     gop_list = []
     item_list = []
+    util_list = []
 
     search_counter = 0
 
     print "started global search"
 
     for idx, item in enumerate(partition_to_k(layer_list, acc_cluster_num, True), 1):
-        print item
-        if item[0] == [0]:
+        if item[0][0] == 0:
             sub_gop_list = []
             search_counter = search_counter + 1
             sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
                 = model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, item)
             sub_pair_list, sub_lat_list, sub_util_list = \
                 local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
-            # print sub_pair_list, sub_lat_list, sub_util_list
 
             for i in range(0, len(sub_conv_N)):
                 sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
@@ -230,6 +219,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
                     pair_list.append(sub_pair_list)
                     pair_list.append([overall_lat])
                     gop_list.append(sub_gop_list)
+                    util_list.append(sub_util_list)
                     # pair_list.append(sub_util_list)
                 # else:
                 #     max_among_mins = pair_list.index(max(overall_lat))
@@ -240,7 +230,7 @@ def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, c
 
             print "Final explored points = ", search_counter
 
-    return pair_list, item_list, gop_list
+    return pair_list, item_list, gop_list, util_list
 
 def single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list,
                   overall_lat):
