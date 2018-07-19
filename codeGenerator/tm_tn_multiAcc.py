@@ -77,8 +77,8 @@ def multiAcc_dse():
     # print kmeans
 
     start = time.clock()
-    acc_cluster_num = 3
-    pair_list, item_list, gop_list, util_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list, overall_lat)
+    acc_cluster_num = 2
+    pair_list, item_list, gop_list, util_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat)
     # pair_list, item_list = single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K,
     #                                           conv_S, flag, pair_list, overall_lat)
     print time.clock() - start, "s"
