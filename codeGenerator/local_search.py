@@ -120,6 +120,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     ratio = 0.05
     search_counter = 0
     Resolution = 100
+
     """initializing the dsp number for per acc based on the ops requirement"""
     for i in range(0, len(sub_conv_N)):
         gop_per_subnet.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
@@ -150,25 +151,32 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
                     util_list.remove(util_list[0])
 
         ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
-
+        if search_counter == 1:
+            ratio_init = ratio_tmp
         if ratio_tmp < ratio or search_counter == Resolution:
             search_stop = 1
         else:
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
             if dsp_per_acc[max_idx] > step:
-                dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
-                dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
+                if ratio_tmp - ratio > 0.1:
+                    scale = int(10)
+                else:
+                    scale = int(1)
+                dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - scale*step
+                dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + scale*step
 
         search_counter = search_counter + 1
         if search_stop == 1:
             print "search stopped at =", search_counter - 1, "current ratio: ", ratio_tmp
+            if search_counter == 101:
+                print "the initial ratio ->", ratio_init
 
     return pair_list, lat_list, util_list
 
 
 result_Q = multiprocessing.Queue()
-PROCESS_NUM = 16
+PROCESS_NUM = 8
 
 
 class SearchProcess(multiprocessing.Process):
