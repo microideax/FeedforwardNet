@@ -120,6 +120,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     ratio = 0.05
     search_counter = 0
     Resolution = 100
+    ratio_init = 0
 
     """initializing the dsp number for per acc based on the ops requirement"""
     for i in range(0, len(sub_conv_N)):
@@ -151,22 +152,28 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
                     util_list.remove(util_list[0])
 
         ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
-        if search_counter == 1:
+        # print ratio_tmp
+        if search_counter == 0:
             ratio_init = ratio_tmp
-        if ratio_tmp < ratio or search_counter == Resolution:
+            # or search_counter == Resolution:
+        if ratio_tmp < ratio:
             search_stop = 1
         else:
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
             if dsp_per_acc[max_idx] > step:
-                dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
-                dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
+                if ratio_tmp - ratio > float(0.1):
+                    dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - 5*step
+                    dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + 5*step
+                else:
+                    dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
+                    dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
 
         search_counter = search_counter + 1
-        if search_stop == 1:
-            print "search stopped at =", search_counter - 1, "current ratio: ", ratio_tmp
-            if search_counter == 101:
-                print "the initial ratio ->", ratio_init
+    # if search_stop == 1:
+        # and search_counter == 101
+    print "local search stopped at =", search_counter - 1, "current ratio: ", ratio_tmp
+    print "initial ratio ->", ratio_init
 
     return pair_list, lat_list, util_list
 
@@ -231,7 +238,7 @@ class SearchProcess(multiprocessing.Process):
                     #     process_pair_list.append([overall_lat])
                     #     process_pair_list.append(sub_util_list)
 
-            print "For set ID: " + str(idx) + ", the final explored points = ", search_counter
+            # print "For set ID: " + str(idx) + ", the final explored points = ", search_counter
 
         if len(process_pair_list) != 0:
             self.result_Q.put((process_pair_list, process_item_list, process_gop_list, process_util_list))
