@@ -85,10 +85,16 @@ def multiAcc_dse():
     print "Overall time cost:", overall_end - overall_start, "s"
 
     print item_list
-    print gop_list
+    # print gop_list
     print pair_list
-    for i in range(0, len(util_list)):
-        print util_list[i], sum(util_list[i])
+    print util_list
+    # for i in range(0, len(util_list)):
+    #     print util_list[i], sum(util_list[i])
+    print "------------------------Final optimal configuration-------------------------------"
+    print "Network clustered results =", item_list[util_list.index(min(util_list))]
+    print "<Tm, Tn> = ", pair_list[util_list.index(min(util_list))]
+    print "Estimated overall latency = ", min(util_list)
+    print "----------------------------------------------------------------------------------"
 
     # item = return_partition(layer_list, 4, False)
     #

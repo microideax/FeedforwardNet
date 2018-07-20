@@ -183,7 +183,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
 
 
 result_Q = multiprocessing.Queue()
-PROCESS_NUM = 1
+PROCESS_NUM = 4
 
 
 class SearchProcess(multiprocessing.Process):
@@ -231,9 +231,10 @@ class SearchProcess(multiprocessing.Process):
                     if len(process_pair_list) < 6:
                         process_item_list.append(item)
                         process_pair_list.append(sub_pair_list)
-                        process_pair_list.append([overall_lat])
+                        # process_pair_list.append([overall_lat])
+                        process_util_list.append([overall_lat])
                         process_gop_list.append(sub_gop_list)
-                        process_util_list.append(sub_util_list)
+                        # process_util_list.append(sub_util_list)
                         # process_pair_list.append(sub_util_list)
                     # else:
                     #     max_among_mins = process_pair_list.index(max(overall_lat))
