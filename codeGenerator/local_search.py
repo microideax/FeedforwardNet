@@ -31,7 +31,7 @@ def pool_layer_perf(m, r, k, Tm, P_const):
     return tmp
 
 
-# TODO: complete wit new layer performance model
+# TODO: complete with new layer performance model
 # fc layer performance
 def fc_layer_perf(n, m, r, k, Tn, Tm, P_const):
     tmp = 0
@@ -159,12 +159,8 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
             if dsp_per_acc[max_idx] > step:
-                if ratio_tmp - ratio > 0.1:
-                    scale = int(10)
-                else:
-                    scale = int(1)
-                dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - scale*step
-                dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + scale*step
+                dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
+                dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
 
         search_counter = search_counter + 1
         if search_stop == 1:
