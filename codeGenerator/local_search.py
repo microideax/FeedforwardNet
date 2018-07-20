@@ -161,11 +161,15 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
         else:
             max_idx = lat_list.index(min(lat_list))
             min_idx = lat_list.index(max(lat_list))
-            if dsp_per_acc[max_idx] > step:
-                if ratio_tmp - ratio > float(0.1):
+            if ratio_tmp - ratio > float(0.1):
+                if (dsp_per_acc[max_idx] - 5*step > 0):
                     dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - 5*step
                     dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + 5*step
                 else:
+                    dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
+                    dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
+            else:
+                if (dsp_per_acc[max_idx] - step > 0):
                     dsp_per_acc[max_idx] = dsp_per_acc[max_idx] - step
                     dsp_per_acc[min_idx] = dsp_per_acc[min_idx] + step
 
@@ -179,7 +183,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
 
 
 result_Q = multiprocessing.Queue()
-PROCESS_NUM = 8
+PROCESS_NUM = 1
 
 
 class SearchProcess(multiprocessing.Process):
