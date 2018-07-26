@@ -3,15 +3,14 @@ import math
 import random
 
 
-def model_split_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i, j):
-
+def model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i, j):
     sub_conv_N = []
     sub_conv_M = []
     sub_conv_r = []
     sub_conv_R = []
     sub_conv_K = []
     sub_conv_S = []
-    sub_flag   = []
+    sub_flag = []
 
     sub_conv_N.append(conv_N[0: int(i)])
     sub_conv_N.append(conv_N[int(i): int(j)])
@@ -45,14 +44,13 @@ def model_split_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i,
 
 
 def model_split_unordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag):
-
     sub_conv_N = [[], [], []]
     sub_conv_M = [[], [], []]
     sub_conv_r = [[], [], []]
     sub_conv_R = [[], [], []]
     sub_conv_K = [[], [], []]
     sub_conv_S = [[], [], []]
-    sub_flag   = [[], [], []]
+    sub_flag = [[], [], []]
 
     cluster_num = []
 
@@ -64,7 +62,7 @@ def model_split_unordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag):
         sub_conv_R = [[], [], []]
         sub_conv_K = [[], [], []]
         sub_conv_S = [[], [], []]
-        sub_flag   = [[], [], []]
+        sub_flag = [[], [], []]
         for i in range(0, int(len(conv_N))):
             cluster_num.append(random.randrange(0, 3, 1))
         for i in range(0, int(len(conv_N))):
@@ -79,17 +77,17 @@ def model_split_unordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag):
         print(cluster_num)
     return sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag
 
-def model_split_by_label(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, lablelist):
 
+def model_split_by_label(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, lablelist):
     sub_conv_N = []
     sub_conv_M = []
     sub_conv_r = []
     sub_conv_R = []
     sub_conv_K = []
     sub_conv_S = []
-    sub_flag   = []
+    sub_flag = []
 
-    for i in range(0, max(lablelist)+1):
+    for i in range(0, max(lablelist) + 1):
         sub_conv_N.append([])
         sub_conv_M.append([])
         sub_conv_r.append([])
@@ -110,15 +108,15 @@ def model_split_by_label(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, l
 
     return sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag
 
-def model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, par_list):
 
+def model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, par_list):
     sub_conv_N = []
     sub_conv_M = []
     sub_conv_r = []
     sub_conv_R = []
     sub_conv_K = []
     sub_conv_S = []
-    sub_flag   = []
+    sub_flag = []
 
     cluster_num = len(par_list)
 
@@ -146,24 +144,23 @@ def model_split_by_list(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pa
 
 
 def gop_calculate(conv_N, conv_M, conv_R, conv_K):
-
     op_layer = 0
     conv_layer_num = int(len(conv_N))
 
     for i in range(0, conv_layer_num):
-        tmp = conv_M[i]*conv_N[i]*conv_R[i]*conv_R[i]*conv_K[i]*conv_K[i]
+        tmp = conv_M[i] * conv_N[i] * conv_R[i] * conv_R[i] * conv_K[i] * conv_K[i]
         op_layer += tmp
 
     gop_all = op_layer
     # print "gop_calculate():", conv_N, conv_M, conv_R, conv_K, gop_all
     return gop_all
 
-def max_layer_dataout(conv_N, conv_M, conv_R, conv_K):
 
+def max_layer_dataout(conv_N, conv_M, conv_R, conv_K):
     max_dataout = 0
     conv_layer_num = int(len(conv_N))
     for i in range(0, conv_layer_num):
-        layer_out = conv_M[i]*conv_R[i]*conv_R[i]
+        layer_out = conv_M[i] * conv_R[i] * conv_R[i]
         if max_dataout < layer_out:
             max_dataout = layer_out
 

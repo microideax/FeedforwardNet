@@ -1,9 +1,8 @@
 import helping_functions
 import sys
 import math
-
 from model_extract import model_extract
-from model_split import model_split_ordered
+from model_split import model_partition_ordered
 from model_split import model_split_unordered
 from local_search import local_search
 from model_split import gop_calculate
@@ -13,10 +12,16 @@ from model_split import model_split_by_list
 from cluster import clusters_layers_kmeans
 from model_partition import partition
 from model_partition import partition_to_k
-from local_search import global_search
+from global_search import global_search
 from local_search import single_item_search
+from local_search import model_partition_by_gop
+from model_split import model_partition_ordered
+from local_search import per_die_config_dse
 import time
 
+
+def print_line(stage_name):
+    print "-" * int(math.ceil((int(80) - len(stage_name))/2)), stage_name, "-" * int(math.ceil((int(80) - len(stage_name))/2))
 
 def multiAcc_dse():
     # define the network parameter containers
@@ -66,34 +71,48 @@ def multiAcc_dse():
     OPs = gop_calculate(conv_N, conv_M, conv_R, conv_K)
     max_layerout = max_layer_dataout(conv_N, conv_M, conv_R, conv_K)
 
-    print("Model extracted")
-    print("Overall Operation required: ", OPs)
-    print("max layer output data: ", max_layerout)
+    print_line("Model extract")
+    print "1: ", "Model extracted"
+    print "1: ", "Overall Operation required: ", OPs
+    print "1: ", "Max layer output data: ", max_layerout
+    print_line("Model split finish")
 
-    '''step 2: randomly cluster, param k=4, layer label results are in iterm'''
+    """
+    step 2: randomly cluster, param k=4, layer label results are in iterm
+    """
+    print_line("Model partition")
     for i in range(0, len(conv_N)):
         layer_list.append(i)
     # kmeans=clusters_layers_kmeans(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 2)
     # print kmeans
+    partition_location, diff_ratio = model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
+    sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
+        =model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, partition_location[0]+1, partition_location[1]+1)
+    print "Best partition output: ", partition_location, diff_ratio
+    print sub_conv_N
+    sub_pair_list = []
+    sub_lat_list = []
+    sub_util_list = []
 
+    print_line("Best Configuration Search")
     overall_start = time.time()
-    acc_cluster_num = 3
-    pair_list, item_list, gop_list, util_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat)
-    # pair_list, item_list = single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K,
-    #                                           conv_S, flag, pair_list, overall_lat)
+    # acc_cluster_num = 3
+    # pair_list, item_list, gop_list, util_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat)
+    pair_list, gop_list, util_list = per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K,
+                                                              sub_conv_S, sub_flag)
     overall_end = time.time()
     print "Overall time cost:", overall_end - overall_start, "s"
 
-    print item_list
-    # print gop_list
-    print pair_list
-    print util_list
+    # print item_list
+    print "gop_list: ",  gop_list
+    print "pair_list: ", pair_list
+    print "util_list: ", util_list
     # for i in range(0, len(util_list)):
     #     print util_list[i], sum(util_list[i])
     print "------------------------Final optimal configuration-------------------------------"
-    print "Network clustered results =", item_list[util_list.index(min(util_list))]
-    print "<Tm, Tn> = ", pair_list[util_list.index(min(util_list))]
-    print "Estimated overall latency = ", min(util_list)
+    # print "Network clustered results =", item_list[util_list.index(min(util_list))]
+    # print "<Tm, Tn> = ", pair_list[util_list.index(min(util_list))]
+    # print "Estimated overall latency = ", min(util_list)
     print "----------------------------------------------------------------------------------"
 
     # item = return_partition(layer_list, 4, False)

@@ -2,8 +2,9 @@ import helping_functions
 import sys
 import math
 from model_partition import partition_to_k
-from model_split import model_split_by_list
+# from model_split import model_split_by_list
 from model_split import gop_calculate
+from model_split import model_partition_ordered
 import pprint
 import threading
 import multiprocessing
@@ -51,6 +52,49 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
             tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
     return tmp
 
+def conv_net_perf_theo(N, M, R, K):
+    tmp = 0
+    for i in range(0, int(len(N))):
+        tmp += int(N[i])*int(M[i])*int(R[i])*int(R[i])*int(K[i])*int(K[i])
+    return tmp
+
+
+def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag):
+    sub_conv_N = []
+    sub_conv_M = []
+    sub_conv_r = []
+    sub_conv_R = []
+    sub_conv_K = []
+    sub_conv_S = []
+    sub_flag = []
+    balance_ratio = 0
+    min_ration = 0.5
+    min_pair = [0,0]
+    sub_gops = [[],[],[]]
+    model_len = int(len(conv_N))
+    for i in range(0, model_len - 2):
+        for j in range(i+1, model_len - 1):
+            sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_partition_ordered(
+                conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i+1, j+1)
+            # print sub_conv_N
+            for k in range(0, 3):
+                sub_gops[k] = gop_calculate(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
+                # sub_gops[k] = conv_net_perf_theo(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
+            balance_ratio = (max(sub_gops) - min(sub_gops))/float(min(sub_gops))
+
+            print "2: ", i, j, sub_gops, balance_ratio, sub_conv_N, sub_conv_M
+
+# TODO: find out a way to deal with the results with same balance_ratio
+            if i == 0 and j == 1:
+                min_ration = balance_ratio
+            else:
+                if balance_ratio < min_ration:
+                    min_ration = balance_ratio
+                    min_pair = [i, j]
+                    # print "min_ratio: ", min_ration
+    return min_pair, min_ration
+
+
 # Optimal Tm, Tn pair selection with given amount of DSP
 def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
     opt_pair = []
@@ -76,11 +120,46 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
 
     return opt_pair, min_local_cycle, cycle_per_layer
 
+def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
+    DSP = 6840 / 15
+    pair_list = []
+    lat_list = []
+    util_list = []
+    factor = 1
+    opt_ratio = 0
+
+    for i in range(0, len(sub_conv_N)):
+        pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
+                                                       sub_conv_K[i],
+                                                       sub_conv_S[i], sub_flag[i], int(2200/5), int(37),
+                                                       factor)
+        pair_list.append(pair)
+        lat_list.append(cycle)
+        util_list.append(pair[0] * pair[1] / float(DSP))
+        if len(pair_list) > len(sub_conv_N):
+            for remove_cnt in range(0, len(sub_conv_N)):
+                pair_list.remove(pair_list[0])
+                lat_list.remove(lat_list[0])
+                util_list.remove(util_list[0])
+    #
+    # ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
+    # print "initial diff_ratio: ", ratio_tmp
+    #
+    # max_lat_index = lat_list.index(max(lat_list))
+    # # find the max latency sub_net
+    # for j in range(0, len(sub_conv_N[max_lat_index])):
+    #     if len(sub_conv_N[max_lat_index]) >=4:
+    #         max_acc_num = 4
+    #     else:
+    #         max_acc_num = len(sub_conv_N[max_lat_index])
+    #     for acc_num in range(0, max_acc_num):
+    #         #TODO: keep partitioning the sub_net and search the best number of acc and corresponding configuration
+
+    return pair_list, lat_list, util_list
 
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     """
-
     :param sub_conv_N: the input sub_conv_N is already splitted into several sub-nets
     :param sub_conv_M: same as above
     :param sub_conv_r: saa
@@ -90,7 +169,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     :param sub_flag: saa
     :return: the most optimal configuration for current sub-nets for an optimal system latency
     """
-    DSP = 6840 / 15
+    DSP = 6840 / 3
     # datatype = fixed
     factor = 1
 
@@ -119,13 +198,14 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
     step = int(1)
     ratio = 0.05
     search_counter = 0
-    Resolution = 100
+    Resolution = 10
     ratio_init = 0
 
     """initializing the dsp number for per acc based on the ops requirement"""
     for i in range(0, len(sub_conv_N)):
         gop_per_subnet.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
         gop_total += gop_per_subnet[i]
+    print "gop_per_subnet in local_search: ", gop_per_subnet
 
     for i in range(0, len(sub_conv_N)):
         if i < len(sub_conv_N) - 1:
@@ -140,7 +220,7 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
         for i in range(0, len(sub_conv_N)):
             pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
                                                            sub_conv_K[i],
-                                                           sub_conv_S[i], sub_flag[i], int(dsp_per_acc[i]), int(37),
+                                                           sub_conv_S[i], sub_flag[i], int(2200), int(37),
                                                            factor)
             pair_list.append(pair)
             lat_list.append(cycle)
@@ -181,129 +261,6 @@ def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub
 
     return pair_list, lat_list, util_list
 
-
-result_Q = multiprocessing.Queue()
-PROCESS_NUM = 4
-
-
-class SearchProcess(multiprocessing.Process):
-    def __init__(self, param_v, processIdx, result_Q):
-        multiprocessing.Process.__init__(self)
-        self.layer_list = param_v[0]
-        self.acc_cluster_num = param_v[1]
-        self.conv_N = param_v[2]
-        self.conv_M = param_v[3]
-        self.conv_r = param_v[4]
-        self.conv_R = param_v[5]
-        self.conv_K = param_v[6]
-        self.conv_S = param_v[7]
-        self.flag = param_v[8]
-        self.overall_lat = param_v[9]
-        self.processIdx = processIdx
-        self.result_Q = result_Q
-
-    def run(self):
-
-        start = time.time()
-        process_gop_list = []
-        process_item_list = []
-        process_util_list = []
-        process_pair_list = []
-
-        search_counter = 0
-
-        print "Process " + str(self.processIdx) + " starts global search."
-
-        for idx, item in enumerate(partition_to_k(self.layer_list, self.acc_cluster_num, False), 0):
-            if idx % PROCESS_NUM == self.processIdx:
-                sub_gop_list = []
-                search_counter = search_counter + 1
-                sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
-                    = model_split_by_list(self.conv_N, self.conv_M, self.conv_r, self.conv_R, self.conv_K, self.conv_S, self.flag, item)
-                sub_pair_list, sub_lat_list, sub_util_list = \
-                    local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
-
-                for i in range(0, len(sub_conv_N)):
-                    sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i]))
-
-                if max(sub_lat_list) < self.overall_lat:
-                    overall_lat = max(sub_lat_list)
-                    if len(process_pair_list) < 6:
-                        process_item_list.append(item)
-                        process_pair_list.append(sub_pair_list)
-                        # process_pair_list.append([overall_lat])
-                        process_util_list.append([overall_lat])
-                        process_gop_list.append(sub_gop_list)
-                        # process_util_list.append(sub_util_list)
-                        # process_pair_list.append(sub_util_list)
-                    # else:
-                    #     max_among_mins = process_pair_list.index(max(overall_lat))
-                    #     process_pair_list.remove(process_pair_list[max_among_mins])
-                    #     process_pair_list.append(sub_pair_list)
-                    #     process_pair_list.append([overall_lat])
-                    #     process_pair_list.append(sub_util_list)
-
-            # print "For set ID: " + str(idx) + ", the final explored points = ", search_counter
-
-        if len(process_pair_list) != 0:
-            self.result_Q.put((process_pair_list, process_item_list, process_gop_list, process_util_list))
-
-        end = time.time()
-        print "Thread ", self.processIdx, " :", (end - start)
-
-
-def global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat):
-    """
-    :param layer_list: a list containing each layer information in the form of a tuple (layer index, layer name).
-    :param acc_cluster_num:
-    :param conv_N:
-    :param conv_M:
-    :param conv_r:
-    :param conv_R:
-    :param conv_K:
-    :param conv_S:
-    :param flag:
-    :param pair_list:
-    :param overall_lat:
-    :return:
-    """
-    sub_conv_N = []
-    sub_conv_M = []
-    sub_conv_r = []
-    sub_conv_R = []
-    sub_conv_K = []
-    sub_conv_S = []
-    sub_flag = []
-    sub_pair_list = []
-    sub_lat_list = []
-    sub_util_list = []
-
-    gop_list = []
-    item_list = []
-    util_list = []
-    pair_list = []
-
-    processes = []
-    for i in range(PROCESS_NUM):
-        p = SearchProcess((layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat), i, result_Q)
-        processes.append(p)
-
-    for p in processes:
-        p.start()
-
-    for p in processes:
-        p.join()
-
-    results = list()
-    while not result_Q.empty():
-        results.append(result_Q.get())
-    for item in results:
-        pair_list = pair_list + item[0]
-        item_list = item_list + item[1]
-        gop_list = gop_list + item[2]
-        util_list = util_list + item[3]
-
-    return pair_list, item_list, gop_list, util_list
 
 
 def single_item_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, pair_list,
