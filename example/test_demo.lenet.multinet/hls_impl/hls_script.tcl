@@ -2,9 +2,9 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project net_0
+open_project net_2
 
-set_top inference_net_0
+set_top inference_net_2
 
 #add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
