@@ -120,6 +120,30 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
 
     return opt_pair, min_local_cycle, cycle_per_layer
 
+def constrained_dse_layer(N, M, r, R, K, S, flag, DSP, P_const, factor):
+    opt_pair = []
+    cycle_per_layer = []
+    min_local_cycle = 2000000000000
+
+    for Tm in range(1, M + 1):
+        Tn_max = min(N, int(int(DSP / Tm)), Tm)
+        for Tn in range(1, Tn_max + 1):
+            local_cycles = conv_layer_perf(N, M, R, S, K, Tn, Tm, P_const=37)
+            if local_cycles < min_local_cycle and local_cycles != 0:
+                min_local_cycle = local_cycles
+                opt_pair = [Tm, Tn, local_cycles]
+
+    # collected the detailed performance for each layer in a sub-net
+    # for j in range(0, int(len(N))):
+    #     tmp = 0
+    #     tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const)
+    cycle_per_layer.append(local_cycles)
+
+    Acc_num = 1
+    opt_pair.append(Acc_num)
+
+    return opt_pair, min_local_cycle, cycle_per_layer
+
 def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     DSP = 6840 / 15
     pair_list = []
@@ -131,7 +155,7 @@ def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_
     for i in range(0, len(sub_conv_N)):
         pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
                                                        sub_conv_K[i],
-                                                       sub_conv_S[i], sub_flag[i], int(2200/5), int(37),
+                                                       sub_conv_S[i], sub_flag[i], int(2200), int(37),
                                                        factor)
         pair_list.append(pair)
         lat_list.append(cycle)
@@ -157,6 +181,60 @@ def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_
 
     return pair_list, lat_list, util_list
 
+def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
+    DSP = 6840 / 3
+    dsp_list = []
+    pair_list = []
+    lat_list = []
+    util_list = []
+    factor = 1
+    opt_ratio = 0
+
+    for i in range(0, len(sub_conv_N)):
+        dsp_list.append([])
+        sub_net_gop = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
+        for j in range(0, len(sub_conv_N[i])):
+            # allocate_dsp by layer gops
+            dsp_list[i].append(DSP * (sub_conv_N[i][j]*sub_conv_M[i][j]*sub_conv_R[i][j]*sub_conv_R[i][j]*sub_conv_K[i][j]*sub_conv_K[i][j]) / sub_net_gop)
+            # do contrained dse for layer
+            pair, cycle, cycle_per_layer = constrained_dse_layer(sub_conv_N[i][j], sub_conv_M[i][j], sub_conv_r[i][j], sub_conv_R[i][j],
+                                                           sub_conv_K[i][j],
+                                                           sub_conv_S[i][j], sub_flag[i][j], int(dsp_list[i][j]), int(37),
+                                                           factor)
+            pair_list.append(pair)
+            lat_list.append(cycle)
+            util_list.append(pair[0] * pair[1] / float(int(dsp_list[i][j])))
+    print "dsp_list value: ", dsp_list, pair_list
+    print "util_list value: ", util_list
+
+            # note done best configuration
+
+    for i in range(0, len(sub_conv_N)):
+        pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
+                                                       sub_conv_K[i],
+                                                       sub_conv_S[i], sub_flag[i], int(DSP), int(37),
+                                                       factor)
+
+        if len(pair_list) > len(sub_conv_N):
+            for remove_cnt in range(0, len(sub_conv_N)):
+                pair_list.remove(pair_list[0])
+                lat_list.remove(lat_list[0])
+                util_list.remove(util_list[0])
+    #
+    # ratio_tmp = ((max(lat_list) - min(lat_list)) / float(min(lat_list)))
+    # print "initial diff_ratio: ", ratio_tmp
+    #
+    # max_lat_index = lat_list.index(max(lat_list))
+    # # find the max latency sub_net
+    # for j in range(0, len(sub_conv_N[max_lat_index])):
+    #     if len(sub_conv_N[max_lat_index]) >=4:
+    #         max_acc_num = 4
+    #     else:
+    #         max_acc_num = len(sub_conv_N[max_lat_index])
+    #     for acc_num in range(0, max_acc_num):
+    #         #TODO: keep partitioning the sub_net and search the best number of acc and corresponding configuration
+
+    return pair_list, lat_list, util_list
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     """
