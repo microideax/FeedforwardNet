@@ -15,16 +15,17 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
     tmp = 0
     Tr = 8
     Tc = 8
-
+    # / float(8)
     # revised layer performance
     R_iter = math.ceil(r / float(Tr))
     M_iter = math.ceil(m / float(Tm))
     N_iter = math.ceil(n / float(Tn))
-    lat_read = Tn * (Tr-1)*s + k
+    lat_read = math.ceil((Tn * (Tr-1)*s + k)/float(8))
     lat_com = Tr * Tc * k * k
-    lat_out = Tm*Tr*Tc
+    lat_out = math.ceil((Tm * Tr*Tc)/float(8))
     tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
-
+    # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
+    #
     return tmp
 
 def pool_layer_perf(m, r, k, Tm, P_const):
@@ -155,7 +156,7 @@ def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_
     for i in range(0, len(sub_conv_N)):
         pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
                                                        sub_conv_K[i],
-                                                       sub_conv_S[i], sub_flag[i], int(2200), int(37),
+                                                       sub_conv_S[i], sub_flag[i], int(2200*2), int(37),
                                                        factor)
         pair_list.append(pair)
         lat_list.append(cycle)

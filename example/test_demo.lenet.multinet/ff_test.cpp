@@ -41,8 +41,8 @@ int main() {
    unsigned int fc_weight_size = (4000*2) * sizeof(data_type_w);
    unsigned int fc_bias_size = (10*2) * sizeof(data_type_w);
    unsigned int fc_3_out_size = (10*2) * sizeof(data_type_o);
-   unsigned int out_size_0_1 = (4704*2) * sizeof(data_type_o);
-   unsigned int out_size_1_1 = (4704*2) * sizeof(data_type_o);
+   unsigned int out_size_0_1 = (1024) * sizeof(data_type_o);
+   unsigned int out_size_1_1 = (1024) * sizeof(data_type_o);
 
    // assign memory space to different ports
    data_type_w *conv_weight_mem_port = (data_type_w*)malloc(conv_weight_size);
@@ -119,6 +119,76 @@ int main() {
    else {
       printf("temp_out_1_1 memory location= 0x%x \n", temp_out_1_1);
    }
+
+
+    ////////////////////////////////////////////////////////////////////
+    data_type_o *data_o_0 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_0 == NULL) {
+        printf("False memory allocation of data_o_0\n");
+    }
+    else {
+        printf("data_o_0 memory location= 0x%x \n", data_o_0);
+    }
+    data_type_o *data_o_1 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_1 == NULL) {
+        printf("False memory allocation of data_o_1\n");
+    }
+    else {
+        printf("data_o_1 memory location= 0x%x \n", data_o_1);
+    }
+    data_type_o *data_o_2 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_2 == NULL) {
+        printf("False memory allocation of data_o_2\n");
+    }
+    else {
+        printf("data_o_2 memory location= 0x%x \n", data_o_2);
+    }
+    data_type_o *data_o_3 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_3 == NULL) {
+        printf("False memory allocation of data_o_3\n");
+    }
+    else {
+        printf("data_o_3 memory location= 0x%x \n", data_o_3);
+    }
+    data_type_o *data_o_4 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_4 == NULL) {
+        printf("False memory allocation of data_o_4\n");
+    }
+    else {
+        printf("data_o_4 memory location= 0x%x \n", data_o_4);
+    }
+    data_type_o *data_o_5 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_5 == NULL) {
+        printf("False memory allocation of data_o_5\n");
+    }
+    else {
+        printf("data_o_5 memory location= 0x%x \n", data_o_5);
+    }
+    data_type_o *data_o_6 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_6 == NULL) {
+        printf("False memory allocation of data_o_6\n");
+    }
+    else {
+        printf("temp_out_0_2 memory location= 0x%x \n", data_o_6);
+    }
+    data_type_o *data_o_7 = (data_type_o *)malloc(out_size_0_1);
+    if (data_o_7 == NULL) {
+        printf("False memory allocation of data_o_7\n");
+    }
+    else {
+        printf("temp_out_0_2 memory location= 0x%x \n", data_o_7);
+    }
+
+
+    data_type_o *inf_1_o_0 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_1 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_2 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_3 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_4 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_5 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_6 = (data_type_o *)malloc(256);
+    data_type_o *inf_1_o_7 = (data_type_o *)malloc(256);
+
 #if _KERNEL_DEBUG_
    cout << "FC mem init\n";
    memset(fc_3_out_mem_int, 0, fc_3_out_size);
@@ -304,24 +374,55 @@ fc_1_bias2D,
 #endif
 
    //Inference network process
-   inference_net_0(
-       conv_weight_mem_port,
-       conv_bias_mem_port,
-       temp_out_0_1,
-       temp_out_0_2);
-
-    inference_net_1(
-       conv_weight_mem_port,
-       conv_bias_mem_port,
-       temp_out_0_2,
-       temp_out_0_3);
-
+    inf_net_0(
+        conv_weight_mem_port,
+        conv_weight_mem_port,
+        conv_bias_mem_port,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        temp_out_0_1,
+        data_o_0,
+        data_o_1,
+        data_o_2,
+        data_o_3,
+        data_o_4,
+        data_o_5,
+        data_o_6,
+        data_o_7);
+/*
+    inf_net_1(
+        conv_weight_mem_port,
+        conv_weight_mem_port,
+        conv_bias_mem_port,
+        data_o_0,
+        data_o_1,
+        data_o_2,
+        data_o_3,
+        data_o_4,
+        data_o_5,
+        data_o_6,
+        data_o_7,
+        inf_1_o_0,
+        inf_1_o_1,
+        inf_1_o_2,
+        inf_1_o_3,
+        inf_1_o_4,
+        inf_1_o_5,
+        inf_1_o_6,
+        inf_1_o_7);
+*/
+     /*
     inference_net_2(
         fc_weight_mem_port,
         fc_bias_mem_port,
         temp_out_0_3,
         temp_out_0_4);
-
+    */
     finish = clock();
    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
    cout <<"predicted time is: " << totaltime << " s" << endl;

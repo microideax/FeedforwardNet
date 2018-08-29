@@ -5,9 +5,12 @@
 #include "ap_fixed.h"
 
 //define data type
-typedef ap_fixed<32,16> data_type;
-typedef ap_fixed<32,16> data_type_w;
-typedef ap_fixed<32,16> data_type_o;
+typedef float data_type;
+typedef float data_type_w;
+typedef float data_type_o;
+
+// counter datatype used in the entire design
+typedef ap_uint<16> data_type_c;
 //typedef ap_fixed<16,0> param_type;
 
 // C++ compilation debug mode
