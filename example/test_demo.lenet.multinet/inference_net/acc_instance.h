@@ -25,9 +25,8 @@ void conv_layer_acc_1(
         const int S,
         const int P,
         bool act,
-        data_type_w layer_weights_0[6550],
-        data_type_w layer_weights_1[6550],
-        data_type_w layer_bias[36],
+        data_type_w layer_weights_0[2550],
+        data_type_w layer_bias[22],
         const int weight_offset,
         const int bias_offset,
         const int in_offset,
@@ -49,8 +48,8 @@ void conv_layer_acc_1(
         data_type_o out_data_6[1024],
         data_type_o out_data_7[1024]) {
 
-    convAcc1.conv_layer_acc(N, K, M, R_IN, C_IN, C_OUT, R_OUT, S, P, act,
-                                 layer_weights_0, layer_weights_1,
+    convAcc1.conv_layer_acc_mbuf(N, K, M, R_IN, C_IN, C_OUT, R_OUT, S, P, act,
+                                 layer_weights_0,
                                  layer_bias, weight_offset,
                                  bias_offset, in_offset, out_offset,
                                  i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
@@ -95,7 +94,7 @@ void max_pool_layer_new(
 */
 
 
-conv_acc<data_type, data_type_w, data_type_o, 8, 8, 16, 16, 5, 5, 32, 32, 32> convAcc2;
+conv_acc<data_type, data_type_w, data_type_o, 8, 8, 32, 32, 5, 5, 32, 32, 32> convAcc2;
 void conv_layer_acc_2(
         const int N,
         const int K,
@@ -107,9 +106,8 @@ void conv_layer_acc_2(
         const int S,
         const int P,
         bool act,
-        data_type_w layer_weights_0[6550],
-        data_type_w layer_weights_1[6550],
-        data_type_w layer_bias[36],
+        data_type_w layer_weights_0[2550],
+        data_type_w layer_bias[22],
         const int weight_offset,
         const int bias_offset,
         const int in_offset,
@@ -131,7 +129,8 @@ void conv_layer_acc_2(
         data_type_o out_data_6[256],
         data_type_o out_data_7[256]) {
 
-    convAcc2.conv_layer_acc_mbuf(N, K, M, R_IN, C_IN, C_OUT, R_OUT, S, P, act, layer_weights_0, layer_weights_0,
+    convAcc2.conv_layer_acc_mbuf(N, K, M, R_IN, C_IN, C_OUT, R_OUT, S, P, act,
+                                 layer_weights_0,
                                  layer_bias, weight_offset,
                                  bias_offset, in_offset, out_offset,
                                  i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,

@@ -28,7 +28,7 @@ typedef ap_uint<16> data_type_c;
 //#define _ACC_MODE_ 1
 //#endif
 
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 #ifdef _BATCH_MODE_

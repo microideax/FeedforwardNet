@@ -36,10 +36,10 @@ int main() {
    cout<< "Calculating memory space ... ... ... ..." << endl;
 
    // data size calculation
-   unsigned int conv_weight_size = (2550*2) * sizeof(data_type_w);
-   unsigned int conv_bias_size = (22*2) * sizeof(data_type_w);
-   unsigned int fc_weight_size = (4000*2) * sizeof(data_type_w);
-   unsigned int fc_bias_size = (10*2) * sizeof(data_type_w);
+   unsigned int conv_weight_size = (2550) * sizeof(data_type_w);
+   unsigned int conv_bias_size = (22) * sizeof(data_type_w);
+   unsigned int fc_weight_size = (4000) * sizeof(data_type_w);
+   unsigned int fc_bias_size = (10) * sizeof(data_type_w);
    unsigned int fc_3_out_size = (10*2) * sizeof(data_type_o);
    unsigned int out_size_0_1 = (1024) * sizeof(data_type_o);
    unsigned int out_size_1_1 = (1024) * sizeof(data_type_o);
@@ -372,10 +372,12 @@ fc_1_bias2D,
    double totaltime, inf_time;
    start = clock();
 #endif
-
+for (int i = 0; i < 100; i++){
+    cout << *(conv_weight_mem_port + 150 + i) << " ";
+}
+    cout << endl;
    //Inference network process
     inf_net_0(
-        conv_weight_mem_port,
         conv_weight_mem_port,
         conv_bias_mem_port,
         temp_out_0_1,
@@ -394,9 +396,11 @@ fc_1_bias2D,
         data_o_5,
         data_o_6,
         data_o_7);
-/*
+    for (int i = 0; i < 100; i++){
+        cout << *(conv_weight_mem_port+ 150 + i) << " ";
+    }
+    cout << endl;
     inf_net_1(
-        conv_weight_mem_port,
         conv_weight_mem_port,
         conv_bias_mem_port,
         data_o_0,
@@ -415,7 +419,7 @@ fc_1_bias2D,
         inf_1_o_5,
         inf_1_o_6,
         inf_1_o_7);
-*/
+
      /*
     inference_net_2(
         fc_weight_mem_port,

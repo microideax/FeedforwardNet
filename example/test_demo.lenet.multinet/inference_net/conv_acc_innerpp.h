@@ -137,12 +137,12 @@ public:
     }
 
 // Load weights to weight buffer
-    void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights_0, W *layer_weights_1, int weight_offset, int n, int m,
+    void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights_0, int weight_offset, int n, int m,
                     int K, int N, int M) {
-        for (int j = 0; j < Tn && j < N - n; j++) {
-            for (int i = 0; i < Tm && i < M - m; i++) {
-                for (int k1 = 0; k1 < K; k1++) {
-                    for (int k2 = 0; k2 < K; k2++) {
+    for (int k1 = 0; k1 < K; k1++) {
+        for (int k2 = 0; k2 < K; k2++) {
+            for (int j = 0; j < Tn && j < N - n; j++) {
+                for (int i = 0; i < Tm && i < M - m; i++) {
 #pragma HLS PIPELINE
                         buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
                                           (n) * K * K + k1 * K + k2);
@@ -194,6 +194,7 @@ public:
                     int out_offset, int n, int m, int r, int c, int N, int M,
                     int R_OUT, int C_OUT, bool act) {
         if (n >= N - Tn) {
+//        if (n >= N) {
             for (int j = r; j < r + Tr && j < R_OUT; j++) {
 //            for (int j = 0; j < Tr && j < R_OUT; j++) {
                 for (int k = c; k < c + Tc && k < C_OUT; k++) {
@@ -495,7 +496,6 @@ public:
             int P,            // padding size
             bool act,         // activation function bit (1-- with act, 0--without act)
             W *layer_weights_0, //w[M][N][K][K]
-            W *layer_weights_1,
             W *layer_bias,    // b[M]
             int weight_offset,
             int bias_offset,
@@ -562,6 +562,9 @@ public:
             out_buf_reset(out_buf_0);
             b_buf_reset(b_buf_0);
             w_buf_reset(K, w_buf_0);
+            out_buf_reset(out_buf_1);
+            b_buf_reset(b_buf_0);
+            w_buf_reset(K, w_buf_1);
 #endif
 #endif
 
@@ -580,10 +583,23 @@ public:
                             {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_0, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_0, layer_weights_0, layer_weights_1, weight_offset, n, m, K, N, M);
+                                w_buf_load(w_buf_0, layer_weights_0, weight_offset, n, m, K, N, M);
                                 in_buf_load(in_buf_0,
                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                 in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+    //------------------------------compute buffered data -----------------------------------//
+                                conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                            } else {
+    //--------------------------Load input B W D in ping-pong manner-------------------------//
+                                b_buf_load(b_buf_1, layer_bias, bias_offset, m);
+                                w_buf_load(w_buf_1, layer_weights_0, weight_offset, n, m, K, N, M);
+                                in_buf_load(in_buf_1,
+                                i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+    //------------------------------compute buffered data -----------------------------------//
+                                conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                            }
+                            com_0 = !com_0;
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
             ofstream in_buf;
@@ -592,7 +608,11 @@ public:
             for (int i = 0; i < Tn && i < N; i++){
                 for (int j = 0; j < ((Tr - 1) * S + K); j++){
                     for (int k = 0; k < ((Tc - 1) * S + K); k++){
-                        in_buf << in_buf_0[i][j][k] << " ";
+                        if (com_0 == 1) {
+                            in_buf << in_buf_0[i][j][k] << " ";
+                        } else {
+                            in_buf << in_buf_1[i][j][k] << " ";
+                        }
                     }
                     in_buf << endl;
                 }
@@ -600,21 +620,30 @@ public:
             }
             in_buf << endl;
             in_buf.close();
-#endif
-#endif
-    //------------------------------compute buffered data -----------------------------------//
-                                conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+
+            ofstream in_weight;
+            in_weight.open("in_weight_data.txt", ios::app);
+            in_weight << "in_weight data: " << endl;
+            for (int i = 0; i < Tn && i < N; i++){
+                for (int h = 0; h < Tm && h < M; h++) {
+                    for (int j = 0; j < K; j++){
+                        for (int k = 0; k < K; k++){
+                            if (com_0 == 1) {
+                                in_weight << w_buf_0[i][h][j][k] << " ";
                             } else {
-    //--------------------------Load input B W D in ping-pong manner-------------------------//
-                                b_buf_load(b_buf_1, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_1, layer_weights_0, layer_weights_1, weight_offset, n, m, K, N, M);
-                                in_buf_load(in_buf_1,
-                                i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
-    //------------------------------compute buffered data -----------------------------------//
-                                conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                in_weight << w_buf_1[i][h][j][k] << " ";
                             }
-                            com_0 = !com_0;
+                        }
+                        in_weight << endl;
+                    }
+                    in_weight << endl;
+                }
+                in_weight << endl;
+            }
+            in_weight << endl;
+            in_weight.close();
+#endif
+#endif
                         }
     //---------------------------transfer output data----------------------------------------//
                         output_res(out_buf_0,
@@ -646,85 +675,112 @@ public:
             }
             conv_out << endl;
     */
-
-            for (int j = 0; j < R_OUT; j++)
-            {
-                for (int k = 0; k < C_OUT; k++)
-                {
-                    conv_out << *(out_data_0 + j*R_OUT + k) << " ";
-                }
-                conv_out << endl;
-            }
-                conv_out << endl;
+    conv_out << "Channel M on port: " << M << endl;
+    for (int i = 0; i < M; i+=8) {
+//            if (M%8 == 1) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_1 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_0 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
-                conv_out << endl;
+//            }
+            conv_out << endl;
+//            if (M%8 == 2) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_2 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_1 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
-                            conv_out << endl;
+//            }
+            conv_out << endl;
 
+//            if (M%8 == 3) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_3 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_2 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
-                conv_out << endl;
+//            }
+            conv_out << endl;
 
+//            if (M%8 == 4) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_4 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_3 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
+//            }
                 conv_out << endl;
 
+//            if (M%8 == 5) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_5 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_4 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
+//            }
                 conv_out << endl;
 
+//            if (M%8 == 6) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
+//            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_6 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_5 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
+//            }
                 conv_out << endl;
-
+//            if (M%8 == 7) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
+//            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
                     {
-                        conv_out << *(out_data_7 + j*R_OUT + k) << " ";
+                        conv_out << *(out_data_6 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
                 }
+//            }
                 conv_out << endl;
-
+//            if (M%8 == 8) {
+//            conv_out << "Channel M at port: " << M%8 << endl;
+//            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
+                for (int j = 0; j < R_OUT; j++)
+                {
+                    for (int k = 0; k < C_OUT; k++)
+                    {
+                        conv_out << *(out_data_7 + (i/8)*R_OUT*C_OUT + j*R_OUT + k) << " ";
+                    }
+                    conv_out << endl;
+                }
+//            }
+                conv_out << endl;
+    }
             conv_out.close();
 #endif
 #endif
@@ -743,7 +799,7 @@ public:
             int P,            // padding size
             bool act,         // activation function bit (1-- with act, 0--without act)
             W *layer_weights_0, //w[M][N][K][K]
-            W *layer_weights_1,
+//            W *layer_weights_1,
             W *layer_bias,    // b[M]
             int weight_offset,
             int bias_offset,
@@ -809,7 +865,7 @@ public:
 #pragma HLS DATAFLOW
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                             b_buf_load(b_buf_0, layer_bias, bias_offset, m);
-                            w_buf_load(w_buf_0, layer_weights_0, layer_weights_1, weight_offset, n, m, K, N, M);
+                            w_buf_load(w_buf_0, layer_weights_0, weight_offset, n, m, K, N, M);
                             in_buf_load(in_buf_0,
                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                 in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
@@ -873,25 +929,26 @@ public:
                 }
                 conv_out << endl;
             }
-                conv_out << endl;
-                for (int j = 0; j < R_OUT; j++)
-                {
+            conv_out << endl;
+
+            for (int j = 0; j < R_OUT; j++)
+            {
                     for (int k = 0; k < C_OUT; k++)
                     {
                         conv_out << *(out_data_1 + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
-                }
-                conv_out << endl;
-                for (int j = 0; j < R_OUT; j++)
-                {
+            }
+            conv_out << endl;
+            for (int j = 0; j < R_OUT; j++)
+            {
                     for (int k = 0; k < C_OUT; k++)
                     {
                         conv_out << *(out_data_2 + j*R_OUT + k) << " ";
                     }
                     conv_out << endl;
-                }
-                            conv_out << endl;
+            }
+            conv_out << endl;
 
                 for (int j = 0; j < R_OUT; j++)
                 {
@@ -913,6 +970,8 @@ public:
                 }
                 conv_out << endl;
 
+            if (M%8 >= 6) {
+            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
@@ -921,8 +980,10 @@ public:
                     }
                     conv_out << endl;
                 }
+            }
                 conv_out << endl;
-
+            if (M%8 >= 7) {
+            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
@@ -931,8 +992,10 @@ public:
                     }
                     conv_out << endl;
                 }
+            }
                 conv_out << endl;
-
+            if (M%8 >= 8) {
+            conv_out << "Output channel M at mem_bank: " << M%8 << endl;
                 for (int j = 0; j < R_OUT; j++)
                 {
                     for (int k = 0; k < C_OUT; k++)
@@ -941,6 +1004,7 @@ public:
                     }
                     conv_out << endl;
                 }
+            }
                 conv_out << endl;
 
             conv_out.close();
