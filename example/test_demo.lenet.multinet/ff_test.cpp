@@ -372,34 +372,16 @@ fc_1_bias2D,
    double totaltime, inf_time;
    start = clock();
 #endif
-for (int i = 0; i < 100; i++){
-    cout << *(conv_weight_mem_port + 150 + i) << " ";
-}
-    cout << endl;
+
+
    //Inference network process
     inf_net_0(
         conv_weight_mem_port,
         conv_bias_mem_port,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        temp_out_0_1,
-        data_o_0,
-        data_o_1,
-        data_o_2,
-        data_o_3,
-        data_o_4,
-        data_o_5,
-        data_o_6,
-        data_o_7);
-    for (int i = 0; i < 100; i++){
-        cout << *(conv_weight_mem_port+ 150 + i) << " ";
-    }
-    cout << endl;
+        temp_out_0_1, temp_out_0_1, temp_out_0_1, temp_out_0_1,
+        temp_out_0_1, temp_out_0_1, temp_out_0_1, temp_out_0_1,
+        data_o_0, data_o_1, data_o_2, data_o_3, data_o_4, data_o_5, data_o_6, data_o_7);
+
     inf_net_1(
         conv_weight_mem_port,
         conv_bias_mem_port,
@@ -420,13 +402,20 @@ for (int i = 0; i < 100; i++){
         inf_1_o_6,
         inf_1_o_7);
 
-     /*
-    inference_net_2(
+
+    inf_net_2(
         fc_weight_mem_port,
         fc_bias_mem_port,
-        temp_out_0_3,
+        inf_1_o_0,
+        inf_1_o_1,
+        inf_1_o_2,
+        inf_1_o_3,
+        inf_1_o_4,
+        inf_1_o_5,
+        inf_1_o_6,
+        inf_1_o_7,
         temp_out_0_4);
-    */
+
     finish = clock();
    totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
    cout <<"predicted time is: " << totaltime << " s" << endl;

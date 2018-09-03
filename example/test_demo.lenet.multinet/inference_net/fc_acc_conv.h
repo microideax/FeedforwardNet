@@ -97,7 +97,70 @@ class fc_acc_conv
             }
         }
     }
-
+    void in_buf_load(T buf[][K_max][K_max],
+                     T *i_data_0,
+                     T *i_data_1,
+                     T *i_data_2,
+                     T *i_data_3,
+                     T *i_data_4,
+                     T *i_data_5,
+                     T *i_data_6,
+                     T *i_data_7,
+                     int in_offset,
+                     int n, int r, int c, int S, int K, int P, int R_IN, int C_IN, int N)
+    {
+        for (int j = r * S - P; j < r * S + K - P && j < R_IN; j++)
+        {
+            for (int k = c * S - P; k < c * S + K - P && k < C_IN; k++)
+            {
+#pragma HLS PIPELINE
+                for (int i = 0; i < Tn; i += 8)
+                {
+#pragma HLS UNROLL
+                    if ((n + Tn > N && (i + 0)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 0][j - r * S + P][k - c * S + P] = *(i_data_0 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 1)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 1][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 1][j - r * S + P][k - c * S + P] = *(i_data_1 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 2)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 2][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 2][j - r * S + P][k - c * S + P] = *(i_data_2 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 3)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 3][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 3][j - r * S + P][k - c * S + P] = *(i_data_3 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 4)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 4][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 4][j - r * S + P][k - c * S + P] = *(i_data_4 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 5)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 5][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 5][j - r * S + P][k - c * S + P] = *(i_data_5 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 6)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 6][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 6][j - r * S + P][k - c * S + P] = *(i_data_6 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                    if ((n + Tn > N && (i + 7)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 7][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset + (i + n) / 8 * R_IN * C_IN + j * C_IN + k);
+                    }
+                }
+            }
+        }
+    }
 // Load weights to weight buffer
     void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights, int weight_offset, int n, int m, int K, int N, int M)
     {
@@ -464,7 +527,14 @@ class fc_acc_conv
         int bias_offset,
         int in_offset,
         int out_offset,
-        T *in_data_1, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
+        T *i_data_0, // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
+        T *i_data_1,
+        T *i_data_2,
+        T *i_data_3,
+        T *i_data_4,
+        T *i_data_5,
+        T *i_data_6,
+        T *i_data_7,
         G *out_data_1)
     { // out[M][R][C]
 
@@ -518,14 +588,16 @@ class fc_acc_conv
                     for (int n = 0; n < N + Tn; n += Tn) {
                         if (buf_ptr == 0) {
                             //--------------------------Load input B W D in ping-pong manner-------------------------//
-                            in_buf_load(in_buf_0, in_data_1, in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+                            in_buf_load(in_buf_0, i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                        in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
                             w_buf_load(w_buf_0, layer_weights, weight_offset, n, m, K, N, M);
                             b_buf_load(b_buf_0, layer_bias, bias_offset, m);
                             //------------------------------compute buffered data -----------------------------------//
                             fc_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n - Tn, r, c, N, M, K, R_OUT, C_OUT, 0, 0);
                         } else {
                             //--------------------------Load input B W D in ping-pong manner-------------------------//
-                            in_buf_load(in_buf_1, in_data_1, in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+                            in_buf_load(in_buf_1, i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                        in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
                             w_buf_load(w_buf_1, layer_weights, weight_offset, n, m, K, N, M);
                             b_buf_load(b_buf_1, layer_bias, bias_offset, m);
                             //------------------------------compute buffered data -----------------------------------//
@@ -541,23 +613,23 @@ class fc_acc_conv
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
-        cout << "Finished conv_acc_single buffer test ...." << endl;
-        ofstream conv_out;
-        conv_out.open("conv_out_data_sbuf.txt", ios::app);
-        conv_out << "conv output: " << endl;
+        cout << "Finished fc layer acc ...." << endl;
+        ofstream fc_out;
+        fc_out.open("fc_out_data.txt", ios::app);
+        fc_out << "fc output: " << endl;
         for (int i = 0; i < M / 1; i++)
         {
             for (int j = 0; j < R_OUT; j++)
             {
                 for (int k = 0; k < C_OUT; k++)
                 {
-                    conv_out << *(out_data_1 + out_offset + i * R_OUT * C_OUT + j * C_OUT + k) << " ";
+                    fc_out << *(out_data_1 + out_offset + i * R_OUT * C_OUT + j * C_OUT + k) << " ";
                 }
-                conv_out << endl;
+                fc_out << endl;
             }
-            conv_out << endl;
+            fc_out << endl;
         }
-        conv_out.close();
+        fc_out.close();
 #endif
 #endif
     };

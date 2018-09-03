@@ -2,9 +2,9 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project net_0_multiport_withmax_serial
+open_project inf_net_1_sim
 
-set_top inf_net_0
+set_top inf_net_1
 
 #add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
@@ -43,15 +43,15 @@ open_solution -reset "inference_IP"
 #set_part {xc7z020clg484-1}  
 # UltraScale+ 
 set_part {xcvu9p-flgb2104-2-i}
-create_clock -period 10 -name default
+create_clock -period 5 -name default
 config_interface -m_axi_addr64 -m_axi_offset off -register_io off
 
 csim_design -clean -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt}
 
 csynth_design
 
-#export_design -flow syn -rtl verilog -format ip_catalog
+export_design -flow syn -rtl verilog -format ip_catalog
 
-cosim_design -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
+#cosim_design -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 exit

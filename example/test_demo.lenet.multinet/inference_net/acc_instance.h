@@ -12,7 +12,7 @@
 
 using namespace std;
 
-conv_acc<data_type, data_type_w, data_type_o, 8, 8, 32, 32, 5, 5, 32, 32, 32> convAcc1;
+conv_acc<data_type, data_type_w, data_type_o, 8, 4, 32, 32, 5, 5, 32, 32, 32> convAcc1;
 
 void conv_layer_acc_1(
         const int N,
@@ -94,7 +94,7 @@ void max_pool_layer_new(
 */
 
 
-conv_acc<data_type, data_type_w, data_type_o, 8, 8, 32, 32, 5, 5, 32, 32, 32> convAcc2;
+conv_acc<data_type, data_type_w, data_type_o, 16, 16, 16, 16, 5, 5, 32, 32, 32> convAcc2;
 void conv_layer_acc_2(
         const int N,
         const int K,
@@ -134,7 +134,8 @@ void conv_layer_acc_2(
                                  layer_bias, weight_offset,
                                  bias_offset, in_offset, out_offset,
                                  i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                 out_data_0, out_data_1, out_data_2, out_data_3, out_data_4, out_data_5, out_data_6, out_data_7);
+                                 out_data_0, out_data_1, out_data_2, out_data_3,
+                                 out_data_4, out_data_5, out_data_6, out_data_7);
 
 };
 
@@ -194,11 +195,21 @@ void fc_layer_new(
         int fc_b_offset,
         int fc_i_offset,
         int fc_o_offset,
-        data_type fc_i_data[4074], // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
+        data_type i_data_0[4074], // in_data[N][(R-1)*S + K][(C-1)*S + K] --> [N][(R-1)*S + K - 2*P][(C-1)*S + K - 2*P]
+        data_type i_data_1[4074],
+        data_type i_data_2[4074],
+        data_type i_data_3[4074],
+        data_type i_data_4[4074],
+        data_type i_data_5[4074],
+        data_type i_data_6[4074],
+        data_type i_data_7[4074],
         data_type_o fc_o_data[4074]) {
 
-    fcAccConv1.fc_layer_acc_mbuf(N, K, M, R_IN, C_IN, R_OUT, C_OUT, S, P, act, fc_layer_weights, fc_layer_bias,
-                                 fc_w_offset, fc_b_offset, fc_i_offset, fc_o_offset, fc_i_data, fc_o_data);
+    fcAccConv1.fc_layer_acc_mbuf(N, K, M, R_IN, C_IN, R_OUT, C_OUT, S, P, act,
+                                 fc_layer_weights, fc_layer_bias,
+                                 fc_w_offset, fc_b_offset, fc_i_offset, fc_o_offset,
+                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                 fc_o_data);
 }
 
 #endif

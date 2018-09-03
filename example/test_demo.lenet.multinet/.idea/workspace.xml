@@ -33,32 +33,10 @@
       <file leaf-file-name="config.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/inference_net/config.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+            <state relative-caret-position="396">
+              <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
               <folding>
                 <element signature="e#673#697#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="acc_instance.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/inference_net/acc_instance.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1026">
-              <caret line="14" column="8" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="8" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="conv_acc_innerpp.h" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="571" column="84" selection-start-line="571" selection-start-column="84" selection-end-line="571" selection-end-column="84" />
-              <folding>
-                <element signature="e#44349#45150#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -67,22 +45,47 @@
       <file leaf-file-name="construct_net.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/inference_net/construct_net.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="486">
-              <caret line="99" column="19" selection-start-line="99" selection-start-column="3" selection-end-line="99" selection-end-column="19" />
+            <state relative-caret-position="-1784">
+              <caret line="90" column="42" selection-start-line="90" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="conv_acc_innerpp.h" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="417">
+              <caret line="88" column="32" selection-start-line="88" selection-start-column="32" selection-end-line="88" selection-end-column="32" />
               <folding>
-                <element signature="e#792#2279#0" expanded="true" />
-                <marker date="1535622405080" expanded="false" signature="8774:8889" ph="..." />
-                <marker date="1535622405080" expanded="false" signature="9186:9288" ph="..." />
+                <element signature="e#136#156#0" expanded="true" />
+                <element signature="e#196#322#0" expanded="true" />
+                <element signature="e#3127#7158#0" expanded="false" />
+                <element signature="e#13383#25054#0" expanded="true" />
+                <element signature="e#25143#45550#0" expanded="true" />
+                <element signature="e#45638#46439#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="net_weights.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/net_inputs/net_weights.txt">
+      <file leaf-file-name="acc_instance.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/inference_net/acc_instance.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="5" column="9" selection-start-line="5" selection-start-column="2" selection-end-line="5" selection-end-column="9" />
+            <state relative-caret-position="738">
+              <caret line="96" column="52" selection-start-line="96" selection-start-column="52" selection-end-line="96" selection-end-column="52" />
+              <folding>
+                <element signature="e#1889#3008#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="max_pool_acc_innerpp.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/inference_net/max_pool_acc_innerpp.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="254">
+              <caret line="219" column="54" selection-start-line="219" selection-start-column="54" selection-end-line="219" selection-end-column="54" />
               <folding />
             </state>
           </provider>
@@ -91,19 +94,12 @@
       <file leaf-file-name="ff_test.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ff_test.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="383">
-              <caret line="395" column="17" selection-start-line="395" selection-start-column="17" selection-end-line="395" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="max_pool_acc_innerpp.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/inference_net/max_pool_acc_innerpp.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="219" column="54" selection-start-line="219" selection-start-column="54" selection-end-line="219" selection-end-column="54" />
-              <folding />
+            <state relative-caret-position="318">
+              <caret line="368" column="18" selection-start-line="368" selection-start-column="18" selection-end-line="368" selection-end-column="18" />
+              <folding>
+                <marker date="1535702125856" expanded="false" signature="6830:6884" ph="..." />
+                <marker date="1535702125856" expanded="false" signature="6966:7016" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -114,14 +110,14 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/inference_net/fc_acc_innerpp.h" />
-        <option value="$PROJECT_DIR$/inference_net/fc_acc_conv.h" />
         <option value="$PROJECT_DIR$/hls_impl/hls_script.tcl" />
         <option value="$PROJECT_DIR$/inference_net/max_pool_acc_innerpp.h" />
-        <option value="$PROJECT_DIR$/inference_net/config.h" />
         <option value="$PROJECT_DIR$/net_inputs/net_weights.txt" />
-        <option value="$PROJECT_DIR$/inference_net/acc_instance.h" />
-        <option value="$PROJECT_DIR$/inference_net/construct_net.h" />
+        <option value="$PROJECT_DIR$/inference_net/fc_acc_conv.h" />
         <option value="$PROJECT_DIR$/ff_test.cpp" />
+        <option value="$PROJECT_DIR$/inference_net/construct_net.h" />
+        <option value="$PROJECT_DIR$/inference_net/config.h" />
+        <option value="$PROJECT_DIR$/inference_net/acc_instance.h" />
         <option value="$PROJECT_DIR$/inference_net/conv_acc_innerpp.h" />
       </list>
     </option>
@@ -193,6 +189,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="net_inputs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test_demo.lenet.multinet" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test_demo.lenet.multinet" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="inference_net" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -456,11 +466,13 @@
       <workItem from="1535339582316" duration="23000" />
       <workItem from="1535354955145" duration="35603000" />
       <workItem from="1535599447291" duration="11895000" />
+      <workItem from="1535684556676" duration="9156000" />
+      <workItem from="1535950029776" duration="16294000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="465942000" />
+    <option name="totallyTimeSpent" value="491392000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -475,14 +487,14 @@
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16804865" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15035932" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.49806523" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27291667" sideWeight="0.49585405" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946378" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916668" sideWeight="0.5041459" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39800996" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39303482" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -553,7 +565,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="10" column="51" selection-start-line="10" selection-start-column="51" selection-end-line="10" selection-end-column="51" />
-          <folding />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -620,7 +634,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1728">
           <caret line="96" column="20" selection-start-line="96" selection-start-column="20" selection-end-line="96" selection-end-column="20" />
-          <folding />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -680,7 +696,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1782">
           <caret line="99" column="31" selection-start-line="99" selection-start-column="31" selection-end-line="99" selection-end-column="31" />
-          <folding />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -733,7 +751,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="720">
           <caret line="40" column="42" selection-start-line="40" selection-start-column="42" selection-end-line="40" selection-end-column="42" />
-          <folding />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -786,7 +806,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1008">
           <caret line="56" column="51" selection-start-line="56" selection-start-column="51" selection-end-line="56" selection-end-column="51" />
-          <folding />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -826,13 +848,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/inference_net/fc_acc_conv.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="29" column="39" selection-start-line="29" selection-start-column="39" selection-end-line="29" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hls_impl/hls_script.tcl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="486">
@@ -840,66 +855,78 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/inference_net/config.h">
+    <entry file="file://$PROJECT_DIR$/net_inputs/net_weights.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
-          <folding>
-            <element signature="e#673#697#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="90">
+          <caret line="5" column="9" selection-start-line="5" selection-start-column="2" selection-end-line="5" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/inference_net/fc_acc_conv.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="631" column="23" selection-start-line="631" selection-start-column="23" selection-end-line="631" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ff_test.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="383">
-          <caret line="395" column="17" selection-start-line="395" selection-start-column="17" selection-end-line="395" selection-end-column="17" />
-          <folding />
+        <state relative-caret-position="318">
+          <caret line="368" column="18" selection-start-line="368" selection-start-column="18" selection-end-line="368" selection-end-column="18" />
+          <folding>
+            <marker date="1535702125856" expanded="false" signature="6830:6884" ph="..." />
+            <marker date="1535702125856" expanded="false" signature="6966:7016" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/inference_net/acc_instance.h">
+    <entry file="file://$PROJECT_DIR$/inference_net/max_pool_acc_innerpp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1026">
-          <caret line="14" column="8" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="8" />
+        <state relative-caret-position="254">
+          <caret line="219" column="54" selection-start-line="219" selection-start-column="54" selection-end-line="219" selection-end-column="54" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/inference_net/construct_net.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="99" column="19" selection-start-line="99" selection-start-column="3" selection-end-line="99" selection-end-column="19" />
+        <state relative-caret-position="-1784">
+          <caret line="90" column="42" selection-start-line="90" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/inference_net/config.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
           <folding>
-            <element signature="e#792#2279#0" expanded="true" />
-            <marker date="1535622405080" expanded="false" signature="8774:8889" ph="..." />
-            <marker date="1535622405080" expanded="false" signature="9186:9288" ph="..." />
+            <element signature="e#673#697#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/net_inputs/net_weights.txt">
+    <entry file="file://$PROJECT_DIR$/inference_net/acc_instance.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="5" column="9" selection-start-line="5" selection-start-column="2" selection-end-line="5" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/inference_net/max_pool_acc_innerpp.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="219" column="54" selection-start-line="219" selection-start-column="54" selection-end-line="219" selection-end-column="54" />
-          <folding />
+        <state relative-caret-position="738">
+          <caret line="96" column="52" selection-start-line="96" selection-start-column="52" selection-end-line="96" selection-end-column="52" />
+          <folding>
+            <element signature="e#1889#3008#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="571" column="84" selection-start-line="571" selection-start-column="84" selection-end-line="571" selection-end-column="84" />
+        <state relative-caret-position="417">
+          <caret line="88" column="32" selection-start-line="88" selection-start-column="32" selection-end-line="88" selection-end-column="32" />
           <folding>
-            <element signature="e#44349#45150#0" expanded="true" />
+            <element signature="e#136#156#0" expanded="true" />
+            <element signature="e#196#322#0" expanded="true" />
+            <element signature="e#3127#7158#0" expanded="false" />
+            <element signature="e#13383#25054#0" expanded="true" />
+            <element signature="e#25143#45550#0" expanded="true" />
+            <element signature="e#45638#46439#0" expanded="true" />
           </folding>
         </state>
       </provider>

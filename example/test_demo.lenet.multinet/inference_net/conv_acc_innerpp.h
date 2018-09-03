@@ -11,8 +11,9 @@
 
 using namespace std;
 
-template<typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max, int IBUF_t, int WBUF_t, int OBUF_t>
-class conv_acc {
+template <typename T, typename W, typename G, int Tm, int Tn, int Tr, int Tc, int S_max, int K_max, int IBUF_t, int WBUF_t, int OBUF_t>
+class conv_acc
+{
 
 private:
     int conv_layer_number;
@@ -71,14 +72,31 @@ public:
                 T *i_data_6,
                 T *i_data_7,
                 int in_offset, int n, int r, int c, int S, int K, int P, int R_IN, int C_IN, int N) {
+
+        T* in_port[8] = {i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7};
+
         for (int j = r * S - P; j < (r + Tr - 1) * S + K - P && j < R_IN; j++) {
             for (int k = c * S - P; k < (c + Tc - 1) * S + K - P && j < C_IN; k++) {
-                for (int i = 0; i < Tn && i < N; i += 8) {
 #pragma HLS PIPELINE
+                for (int i = 0; i < Tn && i < N; i += 8) {
+#pragma HLS UNROLL
+
+                    for (int p = 0; p < 8 && p < Tn; p++)
+                    {
+#pragma HLS UNROLL
+                        if ((n + Tn > N && (i + 0)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                            buf[i + p][j - r * S + P][k - c * S + P] = T(0);
+                        } else {
+                            buf[i + p][j - r * S + P][k - c * S + P] = *(in_port[(i%8)] + in_offset +
+                                                                         (i + n) / 8 * R_IN * C_IN +
+                                                                         j * C_IN + k);
+                        }
+                    }
+/*
                     if ((n + Tn > N && (i + 0)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
                     } else {
-                        buf[i + 0][j - r * S + P][k - c * S + P] = *(i_data_0 + in_offset +
+                        buf[i + 0][j - r * S + P][k - c * S + P] = *(in_port[0] + in_offset +
                                                                      (i + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
@@ -130,7 +148,7 @@ public:
                         buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
                                                                      (i + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                    }
+                    } */
                 }
             }
         }
@@ -145,7 +163,7 @@ public:
                 for (int i = 0; i < Tm && i < M - m; i++) {
 #pragma HLS PIPELINE
                         buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
-                                          (n) * K * K + k1 * K + k2);
+                                          (j+n) * K * K + k1 * K + k2);
 //                        buf[1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
 //                                          (n) * K * K + k1 * K + k2);
                     }
@@ -163,7 +181,7 @@ public:
             for (int i = 0; i < K; i++) {
                 for (int j = 0; j < K; j++) {
                     for (int tr = 0; tr < Tr && tr < R_OUT - r; tr++) {
-                        for (int tc = 0; tc < Tc && tc < C_OUT - c; tc++) {
+                        for (int tc = 0; tc < Tc; tc++) {
 #pragma HLS PIPELINE
                             for (int tm = 0; tm < Tm; tm++) {
 #pragma HLS UNROLL
@@ -193,6 +211,9 @@ public:
                     G *out_data_4, G *out_data_5, G *out_data_6, G *out_data_7,
                     int out_offset, int n, int m, int r, int c, int N, int M,
                     int R_OUT, int C_OUT, bool act) {
+
+        G* out_port[8] = {out_data_0, out_data_1, out_data_2, out_data_3,
+                          out_data_4, out_data_5, out_data_6, out_data_7};
         if (n >= N - Tn) {
 //        if (n >= N) {
             for (int j = r; j < r + Tr && j < R_OUT; j++) {
@@ -540,6 +561,12 @@ public:
 
 #if _HLS_MODE_
     //#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
+#pragma HLS resource variable=in_buf_0 core=XPM_MEMORY uram
+#pragma HLS resource variable=w_buf_0 core=XPM_MEMORY uram
+#pragma HLS resource variable=out_buf_0 core=XPM_MEMORY uram
+#pragma HLS resource variable=in_buf_1 core=XPM_MEMORY uram
+#pragma HLS resource variable=w_buf_1 core=XPM_MEMORY uram
+#pragma HLS resource variable=out_buf_1 core=XPM_MEMORY uram
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 1
 #pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 1

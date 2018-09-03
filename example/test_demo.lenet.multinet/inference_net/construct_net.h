@@ -88,14 +88,14 @@ void   inf_net_0(
     data_type_o tmp_0_7[1024];
 
 //#pragma HLS resource variable=net_0_tmp core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_0 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_1 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_2 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_3 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_4 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_5 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_6 core=XPM_MEMORY uram
-#pragma HLS resource variable=tmp_7 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_0 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_1 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_2 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_3 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_4 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_5 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_6 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_0_7 core=XPM_MEMORY uram
 
    conv_layer_acc_1(1, 5, 6, 28, 28, 28, 28, 1, 2, 1,
                     conv_weight_port_0, conv_bias_port,
@@ -143,14 +143,14 @@ void   inf_net_1(
 //#pragma HLS INTERFACE m_axi port=conv_weight_port_1 depth=2550
 #pragma HLS INTERFACE m_axi port=conv_bias_port depth=22
 
-#pragma HLS INTERFACE m_axi port=i_data_0 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_1 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_2 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_3 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_4 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_5 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_6 depth=256
-#pragma HLS INTERFACE m_axi port=i_data_7 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_0 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_1 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_2 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_3 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_4 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_5 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_6 depth=256
+#pragma HLS INTERFACE m_axi port=data_in_7 depth=256
 
 #pragma HLS INTERFACE bram port=data_out_0
 #pragma HLS RESOURCE variable=data_out_0 core=RAM_1P_BRAM
@@ -187,14 +187,14 @@ void   inf_net_1(
     data_type_o tmp_1_5[256];
     data_type_o tmp_1_6[256];
     data_type_o tmp_1_7[256];
-#pragma HLS resource core=XPM_MEMORY variable=tmp_0
-#pragma HLS resource core=XPM_MEMORY variable=tmp_1
-#pragma HLS resource core=XPM_MEMORY variable=tmp_2
-#pragma HLS resource core=XPM_MEMORY variable=tmp_3
-#pragma HLS resource core=XPM_MEMORY variable=tmp_4
-#pragma HLS resource core=XPM_MEMORY variable=tmp_5
-#pragma HLS resource core=XPM_MEMORY variable=tmp_6
-#pragma HLS resource core=XPM_MEMORY variable=tmp_7
+#pragma HLS resource variable=tmp_1_0 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_1 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_2 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_3 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_4 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_5 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_6 core=XPM_MEMORY uram
+#pragma HLS resource variable=tmp_1_7 core=XPM_MEMORY uram
 
     conv_layer_acc_2(6, 5, 16, 14, 14, 10, 10, 1, 0, 1,
                      conv_weight_port_0, conv_bias_port,
@@ -215,11 +215,20 @@ void   inf_net_1(
 #endif
 }
 
-/*
-void   inference_net_2(
+
+void   inf_net_2(
         data_type_w fc_weight_port[4000],
         data_type_w fc_bias_port[10],
-        data_type_o temp_out_0_3[4704],
+
+        data_type_o data_in_0[64],
+        data_type_o data_in_1[64],
+        data_type_o data_in_2[64],
+        data_type_o data_in_3[64],
+        data_type_o data_in_4[64],
+        data_type_o data_in_5[64],
+        data_type_o data_in_6[64],
+        data_type_o data_in_7[64],
+
         data_type_o temp_out_0_4[4704]){
 
 #if _HLS_MODE_
@@ -230,8 +239,15 @@ void   inference_net_2(
 #pragma HLS INTERFACE bram port=fc_bias_port
 #pragma HLS RESOURCE variable=fc_bias_port core=RAM_1P_BRAM
 
-#pragma HLS INTERFACE bram port=temp_out_0_3
-#pragma HLS RESOURCE variable=temp_out_0_3 core=RAM_1P_BRAM
+#pragma HLS INTERFACE m_axi port=data_in_0 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_1 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_2 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_3 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_4 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_5 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_6 depth=64
+#pragma HLS INTERFACE m_axi port=data_in_7 depth=64
+
 #pragma HLS INTERFACE bram port=temp_out_0_4
 #pragma HLS RESOURCE variable=temp_out_0_4 core=RAM_1P_BRAM
 
@@ -250,7 +266,10 @@ void   inference_net_2(
 
 //    data_type_o temp_out_2_tmp[4704];
 
-    fc_layer_new(16, 5, 10, 5, 5, 1, 1, 5, 0, 1, fc_weight_port, fc_bias_port, shift_weight_fc1, shift_bias_fc1, 0, 0,  temp_out_0_3,  temp_out_0_4);
+    fc_layer_new(16, 5, 10, 5, 5, 1, 1, 5, 0, 1,
+                 fc_weight_port, fc_bias_port, shift_weight_fc1, shift_bias_fc1, 0, 0,
+                 data_in_0, data_in_1, data_in_2, data_in_3, data_in_4, data_in_5, data_in_6, data_in_7,
+                 temp_out_0_4);
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_
@@ -258,5 +277,5 @@ void   inference_net_2(
 #endif
 #endif
 }
-*/
+
 #endif //_CONSTRUCT_NET_H_
