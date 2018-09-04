@@ -97,6 +97,8 @@ void   inf_net_0(
 #pragma HLS resource variable=tmp_0_6 core=XPM_MEMORY uram
 #pragma HLS resource variable=tmp_0_7 core=XPM_MEMORY uram
 
+#pragma HLS dataflow
+
    conv_layer_acc_1(1, 5, 6, 28, 28, 28, 28, 1, 2, 1,
                     conv_weight_port_0, conv_bias_port,
                     shift_weight_conv1_1, shift_bias_conv1_1, 0, 0,

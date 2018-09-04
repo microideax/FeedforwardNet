@@ -220,12 +220,37 @@ public:
 //            for (int j = 0; j < Tr && j < R_OUT; j++) {
                 for (int k = c; k < c + Tc && k < C_OUT; k++) {
 //                for (int k = 0; k < Tc && k < R_OUT; k++) {
+		    for (int p = 0; p < 8; p++) {
+//#pragma HLS UNROLL
                     for (int i = 0; i < Tm && i < M - m; i += 8) {
-#pragma HLS PIPELINE
-                        for (int p = 0; p < 8; p++) {
+//#pragma HLS PIPELINE
+                       // for (int p = 0; p < 8; p+=8) {
+//#pragma HLS UNROLL
                             if ((i + p) < M - m) {
                                 *(out_port[(i+m+p)%8] + out_offset + ((i+m+p)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
                             }
+/*
+                            if ((i + 1) < M - m) {
+                                *(out_port[(i+m+1)%8] + out_offset + ((i+m+1)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 2) < M - m) {
+                                *(out_port[(i+m+2)%8] + out_offset + ((i+m+2)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 3) < M - m) {
+                                *(out_port[(i+m+3)%8] + out_offset + ((i+m+3)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 4) < M - m) {
+                                *(out_port[(i+m+4)%8] + out_offset + ((i+m+4)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 5) < M - m) {
+                                *(out_port[(i+m+5)%8] + out_offset + ((i+m+5)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 6) < M - m) {
+                                *(out_port[(i+m+6)%8] + out_offset + ((i+m+6)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                            if ((i + 7) < M - m) {
+                                *(out_port[(i+m+7)%8] + out_offset + ((i+m+7)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }*/
                         }
 /*
                         if (act) {
@@ -895,7 +920,7 @@ public:
                     {
                         for (int n = 0; n < N; n += Tn)
                         {
-#pragma HLS DATAFLOW
+//#pragma HLS DATAFLOW
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                             b_buf_load(b_buf_0, layer_bias, bias_offset, m);
                             w_buf_load(w_buf_0, layer_weights_0, weight_offset, n, m, K, N, M);
