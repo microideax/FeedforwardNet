@@ -12,7 +12,7 @@
 
 using namespace std;
 
-conv_acc<data_type, data_type_w, data_type_o, 8, 4, 32, 32, 5, 5, 32, 32, 32> convAcc1;
+conv_acc<data_type, data_type_w, data_type_o, 8, 8, 32, 32, 5, 5, 32, 32, 32> convAcc1;
 
 void conv_layer_acc_1(
         const int N,

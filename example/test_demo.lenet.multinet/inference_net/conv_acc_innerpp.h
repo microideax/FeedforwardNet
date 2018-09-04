@@ -80,15 +80,14 @@ public:
 #pragma HLS PIPELINE
                 for (int i = 0; i < Tn && i < N; i += 8) {
 #pragma HLS UNROLL
-
-                    for (int p = 0; p < 8 && p < Tn; p++)
+                    for (int p = 0; p < 8 && i + p < Tn; p++)
                     {
 #pragma HLS UNROLL
-                        if ((n + Tn > N && (i + 0)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        if ((n + Tn > N && (i + p) >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                             buf[i + p][j - r * S + P][k - c * S + P] = T(0);
                         } else {
-                            buf[i + p][j - r * S + P][k - c * S + P] = *(in_port[(i%8)] + in_offset +
-                                                                         (i + n) / 8 * R_IN * C_IN +
+                            buf[i + p][j - r * S + P][k - c * S + P] = *(in_port[(i+n+p)%8] + in_offset +
+                                                                         (i + n + p) / 8 * R_IN * C_IN +
                                                                          j * C_IN + k);
                         }
                     }
@@ -148,7 +147,7 @@ public:
                         buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
                                                                      (i + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                    } */
+                    }*/
                 }
             }
         }
@@ -214,6 +213,7 @@ public:
 
         G* out_port[8] = {out_data_0, out_data_1, out_data_2, out_data_3,
                           out_data_4, out_data_5, out_data_6, out_data_7};
+
         if (n >= N - Tn) {
 //        if (n >= N) {
             for (int j = r; j < r + Tr && j < R_OUT; j++) {
@@ -222,6 +222,12 @@ public:
 //                for (int k = 0; k < Tc && k < R_OUT; k++) {
                     for (int i = 0; i < Tm && i < M - m; i += 8) {
 #pragma HLS PIPELINE
+                        for (int p = 0; p < 8; p++) {
+                            if ((i + p) < M - m) {
+                                *(out_port[(i+m+p)%8] + out_offset + ((i+m+p)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                            }
+                        }
+/*
                         if (act) {
 //                                if (i + 0 < M - m)
 //                                    *(out_data_1 + out_offset + ((i + m) / 1) * R_OUT * C_OUT + j * C_OUT + k) = relu(
@@ -250,7 +256,7 @@ public:
                             if (i + 7 < M - m)
                                 *(out_data_7 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 7)][j - r][k - c]);
-                        }
+                        }*/
 //                            else {
 //                                if (i + 0 < M - m)
 //                                    *(out_data_1 + out_offset + ((0 + m) / 1) * R_OUT * C_OUT + j * C_OUT +
