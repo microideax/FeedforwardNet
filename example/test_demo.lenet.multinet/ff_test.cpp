@@ -377,12 +377,18 @@ fc_1_bias2D,
    //Inference network process
     inf_net_0(
         conv_weight_mem_port,
+        conv_weight_mem_port,
+        conv_weight_mem_port,
+        conv_weight_mem_port,
         conv_bias_mem_port,
         temp_out_0_1, temp_out_0_1, temp_out_0_1, temp_out_0_1,
         temp_out_0_1, temp_out_0_1, temp_out_0_1, temp_out_0_1,
         data_o_0, data_o_1, data_o_2, data_o_3, data_o_4, data_o_5, data_o_6, data_o_7);
 
     inf_net_1(
+        conv_weight_mem_port,
+        conv_weight_mem_port,
+        conv_weight_mem_port,
         conv_weight_mem_port,
         conv_bias_mem_port,
         data_o_0,

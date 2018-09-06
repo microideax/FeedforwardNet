@@ -73,98 +73,139 @@ public:
                 T *i_data_7,
                 int in_offset, int n, int r, int c, int S, int K, int P, int R_IN, int C_IN, int N) {
 
-        T* in_port[8] = {i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7};
+//        T* in_port[8] = {i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7};
 
-        for (int j = r * S - P; j < (r + Tr - 1) * S + K - P && j < R_IN; j++) {
-            for (int k = c * S - P; k < (c + Tc - 1) * S + K - P && j < C_IN; k++) {
+
+//#pragma HLS UNROLL
+//            for (int p = 0; p < 8 && i + p < Tn; p++) {
+//#pragma HLS UNROLL
+            for (int j = r * S - P; j < (r + Tr - 1) * S + K - P && j < R_IN; j++) {
+                for (int k = c * S - P; k < (c + Tc - 1) * S + K - P && j < C_IN; k++) {
 #pragma HLS PIPELINE
-                for (int i = 0; i < Tn && i < N; i += 8) {
-#pragma HLS UNROLL
-                    for (int p = 0; p < 8 && i + p < Tn; p++)
-                    {
-#pragma HLS UNROLL
-                        if ((n + Tn > N && (i + p) >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
-                            buf[i + p][j - r * S + P][k - c * S + P] = T(0);
-                        } else {
-                            buf[i + p][j - r * S + P][k - c * S + P] = *(in_port[(i+n+p)%8] + in_offset +
-                                                                         (i + n + p) / 8 * R_IN * C_IN +
-                                                                         j * C_IN + k);
-                        }
-                    }
-/*
-                    if ((n + Tn > N && (i + 0)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
-                        buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
+                    for (int i = 0; i < Tn && i < N; i += 8) {
+                    /*
+                    if ((n + Tn > N && (i + p) >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + p][j - r * S + P][k - c * S + P] = T(0);
                     } else {
-                        buf[i + 0][j - r * S + P][k - c * S + P] = *(in_port[0] + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                        buf[i + p][j - r * S + P][k - c * S + P] = *(in_port[(i+n+p)%8] + in_offset +
+                                                                     (i + n + p) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                    }
+                    }*/
+//                    }
+
+                    if ((n + Tn > N && (i + 0) % 8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
+                        buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 1][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 2][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 3][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 4][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 5][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 6][j - r * S + P][k - c * S + P] = T(0);
+                        buf[i + 7][j - r * S + P][k - c * S + P] = T(0);
+                    } else {
+                        buf[i + 0][j - r * S + P][k - c * S + P] = *(i_data_0 + in_offset +
+                                                                     (i + 0 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 1][j - r * S + P][k - c * S + P] = *(i_data_1 + in_offset +
+                                                                     (i + 1 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 2][j - r * S + P][k - c * S + P] = *(i_data_2 + in_offset +
+                                                                     (i + 2 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 3][j - r * S + P][k - c * S + P] = *(i_data_3 + in_offset +
+                                                                     (i + 3 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 4][j - r * S + P][k - c * S + P] = *(i_data_4 + in_offset +
+                                                                     (i + 4 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 5][j - r * S + P][k - c * S + P] = *(i_data_5 + in_offset +
+                                                                     (i + 5 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 6][j - r * S + P][k - c * S + P] = *(i_data_6 + in_offset +
+                                                                     (i + 6 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+                        buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
+                                                                     (i + 7 + n) / 8 * R_IN * C_IN +
+                                                                     j * C_IN + k);
+//                    }
+                        /*
                     if ((n + Tn > N && (i + 1)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 1][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 1][j - r * S + P][k - c * S + P] = *(i_data_1 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 1 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 2)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 2][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 2][j - r * S + P][k - c * S + P] = *(i_data_2 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 2 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 3)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 3][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 3][j - r * S + P][k - c * S + P] = *(i_data_3 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 3 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 4)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 4][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 4][j - r * S + P][k - c * S + P] = *(i_data_4 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 4 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 5)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 5][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 5][j - r * S + P][k - c * S + P] = *(i_data_5 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 5 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 6)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 6][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 6][j - r * S + P][k - c * S + P] = *(i_data_6 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 6 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }
                     if ((n + Tn > N && (i + 7)%8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
                         buf[i + 7][j - r * S + P][k - c * S + P] = T(0);
                     } else {
                         buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
-                                                                     (i + n) / 8 * R_IN * C_IN +
+                                                                     (i + 7 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
                     }*/
+                    }
                 }
             }
         }
     }
 
 // Load weights to weight buffer
-    void w_buf_load(W buf[][Tm][K_max][K_max], W *layer_weights_0, int weight_offset, int n, int m,
-                    int K, int N, int M) {
-    for (int k1 = 0; k1 < K; k1++) {
-        for (int k2 = 0; k2 < K; k2++) {
-            for (int j = 0; j < Tn && j < N - n; j++) {
-                for (int i = 0; i < Tm && i < M - m; i++) {
+    void w_buf_load(W buf[][Tm][K_max][K_max],
+                    W *layer_weights_0,
+                    W *layer_weights_1,
+                    W *layer_weights_2,
+                    W *layer_weights_3,
+                    int weight_offset, int n, int m, int K, int N, int M) {
+        for (int i = 0; i < Tm && i < M - m; i++) {
+            for (int j = 0; j < Tn && j < N - n; j+=4) {
+                for (int k1 = 0; k1 < K; k1++) {
+                    for (int k2 = 0; k2 < K; k2++) {
 #pragma HLS PIPELINE
-                        buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
-                                          (j+n) * K * K + k1 * K + k2);
-//                        buf[1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
-//                                          (n) * K * K + k1 * K + k2);
+//                        buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+//                                          (j+n) * K * K + k1 * K + k2);
+                    buf[j+0][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+                                          (j+0+n) * K * K + k1 * K + k2);
+                    buf[j+1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
+                                          (j+1+n) * K * K + k1 * K + k2);
+                    buf[j+2][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
+                                          (j+2+n) * K * K + k1 * K + k2);
+                    buf[j+3][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
+                                          (j+3+n) * K * K + k1 * K + k2);
                     }
                 }
             }
@@ -215,73 +256,50 @@ public:
                           out_data_4, out_data_5, out_data_6, out_data_7};
 
         if (n >= N - Tn) {
-//        if (n >= N) {
-            for (int j = r; j < r + Tr && j < R_OUT; j++) {
-//            for (int j = 0; j < Tr && j < R_OUT; j++) {
-                for (int k = c; k < c + Tc && k < C_OUT; k++) {
-//                for (int k = 0; k < Tc && k < R_OUT; k++) {
-		    for (int p = 0; p < 8; p++) {
-//#pragma HLS UNROLL
-                    for (int i = 0; i < Tm && i < M - m; i += 8) {
-//#pragma HLS PIPELINE
-                       // for (int p = 0; p < 8; p+=8) {
-//#pragma HLS UNROLL
+            for (int i = 0; i < Tm && i < M - m; i += 8) {
+//            for (int p = 0; p < 8; p++) {
+#pragma HLS UNROLL
+                for (int j = r; j < r + Tr && j < R_OUT; j++) {
+                    for (int k = c; k < c + Tc && k < C_OUT; k++) {
+//                        for (int k = c; k < c + Tc; k++) {
+#pragma HLS PIPELINE
+/*
                             if ((i + p) < M - m) {
-                                *(out_port[(i+m+p)%8] + out_offset + ((i+m+p)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
+                                *(out_port[(i+p+m)%8] + out_offset + ((i+m+p)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
                             }
-/*
-                            if ((i + 1) < M - m) {
-                                *(out_port[(i+m+1)%8] + out_offset + ((i+m+1)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 2) < M - m) {
-                                *(out_port[(i+m+2)%8] + out_offset + ((i+m+2)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 3) < M - m) {
-                                *(out_port[(i+m+3)%8] + out_offset + ((i+m+3)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 4) < M - m) {
-                                *(out_port[(i+m+4)%8] + out_offset + ((i+m+4)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 5) < M - m) {
-                                *(out_port[(i+m+5)%8] + out_offset + ((i+m+5)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 6) < M - m) {
-                                *(out_port[(i+m+6)%8] + out_offset + ((i+m+6)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }
-                            if ((i + 7) < M - m) {
-                                *(out_port[(i+m+7)%8] + out_offset + ((i+m+7)/8)*R_OUT*C_OUT + j * C_OUT + k) = relu(out_buf[i + p][j - r][k - c]);
-                            }*/
                         }
-/*
-                        if (act) {
+*/
+
+//                        if (act) {
 //                                if (i + 0 < M - m)
 //                                    *(out_data_1 + out_offset + ((i + m) / 1) * R_OUT * C_OUT + j * C_OUT + k) = relu(
 //                                            out_buf[i + 0][j - r][k - c]);
                             if (i + 0 < M - m)
-                                *(out_data_0 + ((i + m) / 8) * R_OUT * C_OUT + j * C_OUT + k) = relu(
+                                *(out_data_0 + ((i + 0 + m) / 8) * R_OUT * C_OUT + j * C_OUT + k) = relu(
                                         out_buf[(i + 0)][j - r][k - c]);
                             if (i + 1 < M - m)
-                                *(out_data_1 + ((i + m) / 8) * R_OUT * C_OUT + j * C_OUT + k) = relu(
+                                *(out_data_1 + ((i + 1 + m) / 8) * R_OUT * C_OUT + j * C_OUT + k) = relu(
                                         out_buf[(i + 1)][j - r][k - c]);
                             if (i + 2 < M - m)
-                                *(out_data_2 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_2 + ((i + 2 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 2)][j - r][k - c]);
                             if (i + 3 < M - m)
-                                *(out_data_3 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_3 + ((i + 3 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 3)][j - r][k - c]);
                             if (i + 4 < M - m)
-                                *(out_data_4 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_4 + ((i + 4 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 4)][j - r][k - c]);
                             if (i + 5 < M - m)
-                                *(out_data_5 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_5 + ((i + 5 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 5)][j - r][k - c]);
                             if (i + 6 < M - m)
-                                *(out_data_6 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_6 + ((i + 6 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 6)][j - r][k - c]);
                             if (i + 7 < M - m)
-                                *(out_data_7 + ((i + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
+                                *(out_data_7 + ((i + 7 + m) / 8) * R_OUT * C_OUT + j * R_OUT + k) = relu(
                                         out_buf[(i + 7)][j - r][k - c]);
-                        }*/
+//                        }
+/**/
 //                            else {
 //                                if (i + 0 < M - m)
 //                                    *(out_data_1 + out_offset + ((0 + m) / 1) * R_OUT * C_OUT + j * C_OUT +
@@ -548,6 +566,9 @@ public:
             int P,            // padding size
             bool act,         // activation function bit (1-- with act, 0--without act)
             W *layer_weights_0, //w[M][N][K][K]
+            W *layer_weights_1,
+            W *layer_weights_2,
+            W *layer_weights_3,
             W *layer_bias,    // b[M]
             int weight_offset,
             int bias_offset,
@@ -641,7 +662,9 @@ public:
                             {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_0, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_0, layer_weights_0, weight_offset, n, m, K, N, M);
+                                w_buf_load(w_buf_0,
+                                            layer_weights_0, layer_weights_1, layer_weights_2, layer_weights_3,
+                                            weight_offset, n, m, K, N, M);
                                 in_buf_load(in_buf_0,
                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                 in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
@@ -650,7 +673,9 @@ public:
                             } else {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_1, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_1, layer_weights_0, weight_offset, n, m, K, N, M);
+                                w_buf_load(w_buf_1,
+                                           layer_weights_0, layer_weights_1, layer_weights_2, layer_weights_3,
+                                           weight_offset, n, m, K, N, M);
                                 in_buf_load(in_buf_1,
                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                 in_offset, n, r, c, S, K, P, R_IN, C_IN, N);

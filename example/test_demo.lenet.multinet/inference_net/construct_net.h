@@ -12,6 +12,10 @@ using namespace std;
 void   inf_net_0(
 
    data_type_w conv_weight_port_0[2550],
+   data_type_w conv_weight_port_1[2550],
+   data_type_w conv_weight_port_2[2550],
+   data_type_w conv_weight_port_3[2550],
+
    data_type_w conv_bias_port[22],
 
    data_type_o data_in_0[1024],
@@ -37,6 +41,9 @@ void   inf_net_0(
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
 
 #pragma HLS INTERFACE m_axi port=conv_weight_port_0 depth=2550
+#pragma HLS INTERFACE m_axi port=conv_weight_port_1 depth=2550
+#pragma HLS INTERFACE m_axi port=conv_weight_port_2 depth=2550
+#pragma HLS INTERFACE m_axi port=conv_weight_port_3 depth=2550
 //#pragma HLS INTERFACE m_axi port=conv_weight_port_1 depth=2550
 #pragma HLS INTERFACE m_axi port=conv_bias_port depth=22
 
@@ -48,7 +55,7 @@ void   inf_net_0(
 #pragma HLS INTERFACE m_axi port=data_in_5 depth=1024
 #pragma HLS INTERFACE m_axi port=data_in_6 depth=1024
 #pragma HLS INTERFACE m_axi port=data_in_7 depth=1024
-
+/*
 #pragma HLS INTERFACE bram port=data_out_0
 #pragma HLS RESOURCE variable=data_out_0 core=RAM_1P_BRAM
 #pragma HLS INTERFACE bram port=data_out_1
@@ -65,6 +72,15 @@ void   inf_net_0(
 #pragma HLS RESOURCE variable=data_out_6 core=RAM_1P_BRAM
 #pragma HLS INTERFACE bram port=data_out_7
 #pragma HLS RESOURCE variable=data_out_7 core=RAM_1P_BRAM
+*/
+#pragma HLS INTERFACE m_axi port=data_out_0 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_1 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_2 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_3 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_4 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_5 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_6 depth=256
+#pragma HLS INTERFACE m_axi port=data_out_7 depth=256
 #endif
 
 #if _C_DEBUG_MODE_
@@ -97,10 +113,11 @@ void   inf_net_0(
 #pragma HLS resource variable=tmp_0_6 core=XPM_MEMORY uram
 #pragma HLS resource variable=tmp_0_7 core=XPM_MEMORY uram
 
-#pragma HLS dataflow
+//#pragma HLS dataflow
 
    conv_layer_acc_1(1, 5, 6, 28, 28, 28, 28, 1, 2, 1,
-                    conv_weight_port_0, conv_bias_port,
+                    conv_weight_port_0, conv_weight_port_1, conv_weight_port_2, conv_weight_port_3,
+                    conv_bias_port,
                     shift_weight_conv1_1, shift_bias_conv1_1, 0, 0,
                     data_in_0, data_in_1, data_in_2, data_in_3, data_in_4, data_in_5, data_in_6, data_in_7, //input data
                     tmp_0_0, tmp_0_1, tmp_0_2, tmp_0_3, tmp_0_4, tmp_0_5, tmp_0_6, tmp_0_7); // in accelerator cache
@@ -118,6 +135,9 @@ void   inf_net_0(
 
 void   inf_net_1(
         data_type_w conv_weight_port_0[2550],
+        data_type_w conv_weight_port_1[2550],
+        data_type_w conv_weight_port_2[2550],
+        data_type_w conv_weight_port_3[2550],
         data_type_w conv_bias_port[22],
 
         data_type_o data_in_0[256],
@@ -141,8 +161,12 @@ void   inf_net_1(
 #if _HLS_MODE_
 
 #pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
-#pragma HLS INTERFACE m_axi port=conv_weight_port_0 depth=2550
-//#pragma HLS INTERFACE m_axi port=conv_weight_port_1 depth=2550
+//#pragma HLS INTERFACE m_axi port=conv_weight_port_0 depth=2550
+#pragma HLS INTERFACE bram port=conv_weight_port_0
+#pragma HLS INTERFACE bram port=conv_weight_port_1
+#pragma HLS INTERFACE bram port=conv_weight_port_2
+#pragma HLS INTERFACE bram port=conv_weight_port_3
+
 #pragma HLS INTERFACE m_axi port=conv_bias_port depth=22
 
 #pragma HLS INTERFACE m_axi port=data_in_0 depth=256
@@ -199,7 +223,8 @@ void   inf_net_1(
 #pragma HLS resource variable=tmp_1_7 core=XPM_MEMORY uram
 
     conv_layer_acc_2(6, 5, 16, 14, 14, 10, 10, 1, 0, 1,
-                     conv_weight_port_0, conv_bias_port,
+                     conv_weight_port_0, conv_weight_port_1, conv_weight_port_2, conv_weight_port_3,
+                     conv_bias_port,
                      shift_weight_conv2_1, shift_bias_conv2_1, 0, 0,
                      data_in_0, data_in_1, data_in_2, data_in_3,
                      data_in_4, data_in_5, data_in_6, data_in_7,
