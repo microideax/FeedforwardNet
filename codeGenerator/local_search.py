@@ -259,13 +259,18 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_R_new = []
                 sub_conv_K_new = []
 
-                start_index_new = 0
-                for t in range(0, j):
-                    sub_conv_N_new.append(sub_conv_N[i][start_index_new:k[t]])
-                    sub_conv_M_new.append(sub_conv_M[i][start_index_new:k[t]])
-                    sub_conv_R_new.append(sub_conv_R[i][start_index_new:k[t]])
-                    sub_conv_K_new.append(sub_conv_K[i][start_index_new:k[t]])
-                    start_index_new += k[t]
+                sub_conv_N_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
+                sub_conv_M_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
+                sub_conv_R_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
+                sub_conv_K_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
+
+                # start_index_new = 0
+                # for t in range(0, j):
+                #     sub_conv_N_new.append(sub_conv_N[i][start_index_new:k[t]])
+                #     sub_conv_M_new.append(sub_conv_M[i][start_index_new:k[t]])
+                #     sub_conv_R_new.append(sub_conv_R[i][start_index_new:k[t]])
+                #     sub_conv_K_new.append(sub_conv_K[i][start_index_new:k[t]])
+                #     start_index_new += k[t]
 
                 dsp_list.append([])
                 sub_net_gop = gop_calculate(sub_conv_N_new[i], sub_conv_M_new[i], sub_conv_R_new[i], sub_conv_K_new[i])
