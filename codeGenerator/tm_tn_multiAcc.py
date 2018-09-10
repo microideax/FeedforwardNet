@@ -105,7 +105,7 @@ def multiAcc_dse():
     # pair_list, gop_list, util_list = per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K,
                                                               # sub_conv_S, sub_flag)
 
-    pair_list = per_die_config_dse_multiAcc_flex(sub_conv_N,sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+    pair_list = per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
 
     overall_end = time.time()
     print "Overall time cost:", overall_end - overall_start, "s"

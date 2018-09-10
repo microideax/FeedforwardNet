@@ -116,8 +116,8 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
         tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const)
         cycle_per_layer.append(tmp)
 
-    Acc_num = 1
-    opt_pair.append(Acc_num)
+    # Acc_num = 1
+    # opt_pair.append(Acc_num)
 
     return opt_pair, min_local_cycle, cycle_per_layer
 
@@ -241,17 +241,18 @@ def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, 
 
 # by John: find the optimal number of accelerators in each sub-net
 def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
-    start_index = 0
+
     min_cycle = sys.maxint
     opt_res = []
     print "2, per die config dse multi Acc flex"
     for i in range(0, len(sub_conv_N)):
         sub_conv_net_gop = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
         cycle_list = []
-        for j in range(1, 3 + 1): #accelerator number
+        for j in range(1, min(len(sub_conv_N[i]), 3) + 1): #accelerator number
             # cycle should be compared here, to find optimal accelerator number and config
             lat_list = []
-            for k in split_sub_net(start_index, start_index + len(sub_conv_N[i]), j):
+            start_index = 0
+            for k in split_sub_net(0, len(sub_conv_N[i]), j):
                 DSP = 6840 / 3
                 dsp_list = []
                 pair_list = []
@@ -267,16 +268,58 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_R_new = []
                 sub_conv_K_new = []
                 sub_conv_S_new = []
-                print "2", j, k
+                print "2", j, k, sub_conv_N[i], sub_conv_N_new
 
-                zip_index = zip([0] + k, k +[None])
-                for idx in range(0, len(zip_index)):
-                    sub_conv_N_new.append(sub_conv_N[zip_index[idx][0]:zip_index[idx][1]])
-                    sub_conv_M_new.append(sub_conv_M[zip_index[idx][0]:zip_index[idx][1]])
-                    sub_conv_r_new.append(sub_conv_r[zip_index[idx][0]:zip_index[idx][1]])
-                    sub_conv_R_new.append(sub_conv_R[zip_index[idx][0]:zip_index[idx][1]])
-                    sub_conv_K_new.append(sub_conv_K[zip_index[idx][0]:zip_index[idx][1]])
-                    sub_conv_S_new.append(sub_conv_S[zip_index[idx][0]:zip_index[idx][1]])
+                if k == -1:
+                    sub_conv_N_new = sub_conv_N[i]
+                    sub_conv_M_new = sub_conv_M[i]
+                    sub_conv_r_new = sub_conv_r[i]
+                    sub_conv_R_new = sub_conv_R[i]
+                    sub_conv_K_new = sub_conv_K[i]
+                    sub_conv_S_new = sub_conv_S[i]
+                else:
+                    if len(k) == 1:
+                        sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_N_new.append(sub_conv_N[i][k[0]:])
+                        sub_conv_M_new.append(sub_conv_M[i][0:k[0]])
+                        sub_conv_M_new.append(sub_conv_M[i][k[0]:])
+                        sub_conv_r_new.append(sub_conv_r[i][0:k[0]])
+                        sub_conv_r_new.append(sub_conv_r[i][k[0]:])
+                        sub_conv_R_new.append(sub_conv_R[i][0:k[0]])
+                        sub_conv_R_new.append(sub_conv_R[i][k[0]:])
+                        sub_conv_K_new.append(sub_conv_K[i][0:k[0]])
+                        sub_conv_K_new.append(sub_conv_K[i][k[0]:])
+                        sub_conv_S_new.append(sub_conv_S[i][0:k[0]])
+                        sub_conv_S_new.append(sub_conv_S[i][k[0]:])
+                    else:
+                        sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_N_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_N_new.append(sub_conv_N[i][k[1]:])
+                        sub_conv_M_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_M_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_M_new.append(sub_conv_N[i][k[1]:])
+                        sub_conv_r_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_r_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_r_new.append(sub_conv_N[i][k[1]:])
+                        sub_conv_R_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_R_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_R_new.append(sub_conv_N[i][k[1]:])
+                        sub_conv_K_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_K_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_K_new.append(sub_conv_N[i][k[1]:])
+                        sub_conv_S_new.append(sub_conv_N[i][0:k[0]])
+                        sub_conv_S_new.append(sub_conv_N[i][k[0]:k[1]])
+                        sub_conv_S_new.append(sub_conv_N[i][k[1]:])
+
+
+                # zip_index = zip([0] + k, k + [None])
+                # for idx in range(0, len(zip_index)):
+                #     sub_conv_N_new.append(sub_conv_N[zip_index[idx][0]:zip_index[idx][1]])
+                #     sub_conv_M_new.append(sub_conv_M[zip_index[idx][0]:zip_index[idx][1]])
+                #     sub_conv_r_new.append(sub_conv_r[zip_index[idx][0]:zip_index[idx][1]])
+                #     sub_conv_R_new.append(sub_conv_R[zip_index[idx][0]:zip_index[idx][1]])
+                #     sub_conv_K_new.append(sub_conv_K[zip_index[idx][0]:zip_index[idx][1]])
+                #     sub_conv_S_new.append(sub_conv_S[zip_index[idx][0]:zip_index[idx][1]])
 
                 # sub_conv_N_new.append(list(sub_conv_N[i:j]) for i, j in zip([0] + k, k + [None]))
                 # sub_conv_M_new.append(list(sub_conv_M[i:j]) for i, j in zip([0] + k, k + [None]))
@@ -285,13 +328,16 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 # sub_conv_K_new.append(sub_conv_K[i:j] for i, j in zip([0] + k, k + [None]))
                 # sub_conv_S_new.append(sub_conv_S[i:j] for i, j in zip([0] + k, k + [None]))
 
-                dsp_list.append([])
+                print "sub_conv_N_new", sub_conv_N_new
+                print "2: local search:", sub_conv_N_new
+
                 for m in range(0, len(sub_conv_N_new)):
+                    print "lenth of sub_conv_N_new[0]", len(sub_conv_N_new)
                     sub_net_gop_list.append(gop_calculate(sub_conv_N_new[m], sub_conv_M_new[m], sub_conv_R_new[m], sub_conv_K_new[m]))
                     # allocate_dsp by layer gops
                     dsp_list.append(math.ceil(DSP * (sub_net_gop_list[m])/sub_conv_net_gop))
                     # search best <Tm,Tn> configurations
-                    pair, cycle, cycle_per_layer = constrained_dse_layer(sub_conv_N_new[m], sub_conv_M_new[m],
+                    pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N_new[m], sub_conv_M_new[m],
                                                                      sub_conv_r_new[m], sub_conv_R_new[m],
                                                                      sub_conv_K_new[m],
                                                                      sub_conv_S_new[m], sub_flag[m],
@@ -299,22 +345,29 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                                                                      factor)
                     local_cycle_list.append(cycle)
                 cycle_list.append([j, pair, k, max(local_cycle_list)])
+                print "2, cycle_list", cycle_list
         # find the minimum cycles
-        opt_res.append(cycle_list.index(min(cycle_list[:][3:])))
-        start_index += len(sub_conv_N[i])
+        cycle_list_min = [x[3:] for x in cycle_list]
+        opt_res.append(cycle_list[cycle_list_min.index(min(cycle_list_min))])
+
     return opt_res
 
 
 def split_sub_net(start_index, end_index, k):
-    if k == 2:
-       for i in range(start_index, end_index):
-           yield [i]
-    if k== 3:
-        for i in range(start_index, end_index - 1):
-            for j in range(i + 1, end_index):
-                yield [i, j]
-    if k == 1:
-        yield [end_index]
+    no_layer = end_index - start_index
+    if k <= no_layer:
+        if k == 1:
+            yield [-1]
+        if k == 2:
+           for i in range(start_index + 1, end_index):
+               yield [i]
+        if k == 3:
+            for i in range(start_index + 1, end_index - 1):
+                for j in range(i + 1, end_index):
+                    yield [i, j]
+    else:
+        yield None
+
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     """
