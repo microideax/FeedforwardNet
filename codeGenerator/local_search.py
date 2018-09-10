@@ -9,6 +9,7 @@ import pprint
 import threading
 import multiprocessing
 import time
+from compiler.ast import flatten
 
 # convolutional layer performance
 def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
@@ -242,21 +243,28 @@ def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, 
 # by John: find the optimal number of accelerators in each sub-net
 def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
 
-    min_cycle = sys.maxint
+
     opt_res = []
-    print "2, per die config dse multi Acc flex"
+
+    # i: iterate over each sub-net
     for i in range(0, len(sub_conv_N)):
+        print "-" * 100
+        min_cycle = sys.maxint
+        min_idx = -1
+
         sub_conv_net_gop = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
         cycle_list = []
-        for j in range(1, min(len(sub_conv_N[i]), 3) + 1): #accelerator number
+
+        # when the number of accelerators is j
+        for j in range(1, 3 + 1): #accelerator number
             # cycle should be compared here, to find optimal accelerator number and config
             lat_list = []
             start_index = 0
-            for k in split_sub_net(0, len(sub_conv_N[i]), j):
+
+            # k: one split with j accelerators
+            for k in split_sub_net(start_index, len(sub_conv_N[i]), j):
                 DSP = 6840 / 3
                 dsp_list = []
-                pair_list = []
-                util_list = []
                 local_cycle_list = []
                 sub_net_gop_list = []
                 factor = 1
@@ -268,71 +276,84 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_R_new = []
                 sub_conv_K_new = []
                 sub_conv_S_new = []
-                print "2", j, k, sub_conv_N[i], sub_conv_N_new
 
-                if k == -1:
-                    sub_conv_N_new = sub_conv_N[i]
-                    sub_conv_M_new = sub_conv_M[i]
-                    sub_conv_r_new = sub_conv_r[i]
-                    sub_conv_R_new = sub_conv_R[i]
-                    sub_conv_K_new = sub_conv_K[i]
-                    sub_conv_S_new = sub_conv_S[i]
+                # # -2: illegal setting, pass
+                # if k[0] == -2:
+                #     continue
+                #
+                # # -1: only one accelerator
+                # if k[0] == -1:
+                #     sub_conv_N_new = sub_conv_N[i]
+                #     sub_conv_M_new = sub_conv_M[i]
+                #     sub_conv_r_new = sub_conv_r[i]
+                #     sub_conv_R_new = sub_conv_R[i]
+                #     sub_conv_K_new = sub_conv_K[i]
+                #     sub_conv_S_new = sub_conv_S[i]
+                #
+                # # else: 2 or 3 accelerators
+                # else:
+                #     if len(k) == 1:
+                #         sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_N_new.append(sub_conv_N[i][k[0]:])
+                #         sub_conv_M_new.append(sub_conv_M[i][0:k[0]])
+                #         sub_conv_M_new.append(sub_conv_M[i][k[0]:])
+                #         sub_conv_r_new.append(sub_conv_r[i][0:k[0]])
+                #         sub_conv_r_new.append(sub_conv_r[i][k[0]:])
+                #         sub_conv_R_new.append(sub_conv_R[i][0:k[0]])
+                #         sub_conv_R_new.append(sub_conv_R[i][k[0]:])
+                #         sub_conv_K_new.append(sub_conv_K[i][0:k[0]])
+                #         sub_conv_K_new.append(sub_conv_K[i][k[0]:])
+                #         sub_conv_S_new.append(sub_conv_S[i][0:k[0]])
+                #         sub_conv_S_new.append(sub_conv_S[i][k[0]:])
+                #     else:
+                #         sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_N_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_N_new.append(sub_conv_N[i][k[1]:])
+                #         sub_conv_M_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_M_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_M_new.append(sub_conv_N[i][k[1]:])
+                #         sub_conv_r_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_r_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_r_new.append(sub_conv_N[i][k[1]:])
+                #         sub_conv_R_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_R_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_R_new.append(sub_conv_N[i][k[1]:])
+                #         sub_conv_K_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_K_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_K_new.append(sub_conv_N[i][k[1]:])
+                #         sub_conv_S_new.append(sub_conv_N[i][0:k[0]])
+                #         sub_conv_S_new.append(sub_conv_N[i][k[0]:k[1]])
+                #         sub_conv_S_new.append(sub_conv_N[i][k[1]:])
+
+                # -2: illegal setting, pass
+                if k[0] == -2:
+                    continue
+
+                # -1: only one accelerator
+                if k[0] == -1:
+                    sub_conv_N_new.append(sub_conv_N[i])
+                    sub_conv_M_new.append(sub_conv_M[i])
+                    sub_conv_r_new.append(sub_conv_r[i])
+                    sub_conv_R_new.append(sub_conv_R[i])
+                    sub_conv_K_new.append(sub_conv_K[i])
+                    sub_conv_S_new.append(sub_conv_S[i])
+
+                # else: 2 or 3 accelerators
                 else:
-                    if len(k) == 1:
-                        sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_N_new.append(sub_conv_N[i][k[0]:])
-                        sub_conv_M_new.append(sub_conv_M[i][0:k[0]])
-                        sub_conv_M_new.append(sub_conv_M[i][k[0]:])
-                        sub_conv_r_new.append(sub_conv_r[i][0:k[0]])
-                        sub_conv_r_new.append(sub_conv_r[i][k[0]:])
-                        sub_conv_R_new.append(sub_conv_R[i][0:k[0]])
-                        sub_conv_R_new.append(sub_conv_R[i][k[0]:])
-                        sub_conv_K_new.append(sub_conv_K[i][0:k[0]])
-                        sub_conv_K_new.append(sub_conv_K[i][k[0]:])
-                        sub_conv_S_new.append(sub_conv_S[i][0:k[0]])
-                        sub_conv_S_new.append(sub_conv_S[i][k[0]:])
-                    else:
-                        sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_N_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_N_new.append(sub_conv_N[i][k[1]:])
-                        sub_conv_M_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_M_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_M_new.append(sub_conv_N[i][k[1]:])
-                        sub_conv_r_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_r_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_r_new.append(sub_conv_N[i][k[1]:])
-                        sub_conv_R_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_R_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_R_new.append(sub_conv_N[i][k[1]:])
-                        sub_conv_K_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_K_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_K_new.append(sub_conv_N[i][k[1]:])
-                        sub_conv_S_new.append(sub_conv_N[i][0:k[0]])
-                        sub_conv_S_new.append(sub_conv_N[i][k[0]:k[1]])
-                        sub_conv_S_new.append(sub_conv_N[i][k[1]:])
+                    zi = zip([0] + k, k + [None])
+                    for idx in range(0, len(zi)):
+                        sub_conv_M_new.append(flatten(sub_conv_M[i])[zi[idx][0]:zi[idx][1]])
+                        sub_conv_N_new.append(flatten(sub_conv_N[i])[zi[idx][0]:zi[idx][1]])
+                        sub_conv_r_new.append(flatten(sub_conv_r[i])[zi[idx][0]:zi[idx][1]])
+                        sub_conv_R_new.append(flatten(sub_conv_R[i])[zi[idx][0]:zi[idx][1]])
+                        sub_conv_K_new.append(flatten(sub_conv_K[i])[zi[idx][0]:zi[idx][1]])
+                        sub_conv_S_new.append(flatten(sub_conv_S[i])[zi[idx][0]:zi[idx][1]])
 
 
-                # zip_index = zip([0] + k, k + [None])
-                # for idx in range(0, len(zip_index)):
-                #     sub_conv_N_new.append(sub_conv_N[zip_index[idx][0]:zip_index[idx][1]])
-                #     sub_conv_M_new.append(sub_conv_M[zip_index[idx][0]:zip_index[idx][1]])
-                #     sub_conv_r_new.append(sub_conv_r[zip_index[idx][0]:zip_index[idx][1]])
-                #     sub_conv_R_new.append(sub_conv_R[zip_index[idx][0]:zip_index[idx][1]])
-                #     sub_conv_K_new.append(sub_conv_K[zip_index[idx][0]:zip_index[idx][1]])
-                #     sub_conv_S_new.append(sub_conv_S[zip_index[idx][0]:zip_index[idx][1]])
+                print "sub_conv_N_new: ", sub_conv_N_new
 
-                # sub_conv_N_new.append(list(sub_conv_N[i:j]) for i, j in zip([0] + k, k + [None]))
-                # sub_conv_M_new.append(list(sub_conv_M[i:j]) for i, j in zip([0] + k, k + [None]))
-                # sub_conv_r_new.append(sub_conv_r[i:j] for i, j in zip([0] + k, k + [None]))
-                # sub_conv_R_new.append(sub_conv_R[i:j] for i, j in zip([0] + k, k + [None]))
-                # sub_conv_K_new.append(sub_conv_K[i:j] for i, j in zip([0] + k, k + [None]))
-                # sub_conv_S_new.append(sub_conv_S[i:j] for i, j in zip([0] + k, k + [None]))
-
-                print "sub_conv_N_new", sub_conv_N_new
-                print "2: local search:", sub_conv_N_new
-
+                # m: the mth sub-sub-net in the sub-net
                 for m in range(0, len(sub_conv_N_new)):
-                    print "lenth of sub_conv_N_new[0]", len(sub_conv_N_new)
                     sub_net_gop_list.append(gop_calculate(sub_conv_N_new[m], sub_conv_M_new[m], sub_conv_R_new[m], sub_conv_K_new[m]))
                     # allocate_dsp by layer gops
                     dsp_list.append(math.ceil(DSP * (sub_net_gop_list[m])/sub_conv_net_gop))
@@ -344,17 +365,24 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                                                                      int(dsp_list[m]), int(37),
                                                                      factor)
                     local_cycle_list.append(cycle)
-                cycle_list.append([j, pair, k, max(local_cycle_list)])
-                print "2, cycle_list", cycle_list
-        # find the minimum cycles
-        cycle_list_min = [x[3:] for x in cycle_list]
-        opt_res.append(cycle_list[cycle_list_min.index(min(cycle_list_min))])
 
+                cycle_list.append([j, k, max(local_cycle_list)])
+                print "cycle_list: ", cycle_list
+
+        # find the minimum cycles for each sub-net
+        for n in range(0, len(cycle_list)):
+            if cycle_list[n][2] < min_cycle:
+                min_cycle = cycle_list[n][2]
+                min_idx = n
+        opt_res.append(cycle_list[min_idx])
     return opt_res
 
 
+# k: number of accelerators, 1, 2, 3 only
 def split_sub_net(start_index, end_index, k):
     no_layer = end_index - start_index
+
+    # if the layers are more than accelerators
     if k <= no_layer:
         if k == 1:
             yield [-1]
@@ -362,11 +390,13 @@ def split_sub_net(start_index, end_index, k):
            for i in range(start_index + 1, end_index):
                yield [i]
         if k == 3:
-            for i in range(start_index + 1, end_index - 1):
-                for j in range(i + 1, end_index):
+            for i in range(start_index + 1, end_index):
+                for j in range(i + 1, end_index + 1):
                     yield [i, j]
+
+    # if the layers are less than accelerators
     else:
-        yield None
+        yield [-2]
 
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):

@@ -21,7 +21,6 @@ from local_search import per_die_config_dse_multiAcc
 from local_search import per_die_config_dse_multiAcc_flex
 import time
 
-
 def print_line(stage_name):
     print "-" * int(math.ceil((int(80) - len(stage_name))/2)), stage_name, "-" * int(math.ceil((int(80) - len(stage_name))/2))
 
@@ -109,7 +108,7 @@ def multiAcc_dse():
 
     overall_end = time.time()
     print "Overall time cost:", overall_end - overall_start, "s"
-    print "1", pair_list
+    print "Best Configuration Search Results: ", pair_list
 
     # print item_list
     #print "gop_list: ",  gop_list
