@@ -243,72 +243,57 @@ def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, 
 def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     start_index = 0
     min_cycle = sys.maxint
+    opt_res = []
+    print "2, per die config dse multi Acc flex"
     for i in range(0, len(sub_conv_N)):
-        for j in range(1, 3 + 1):
+        sub_conv_net_gop = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
+        cycle_list = []
+        for j in range(1, 3 + 1): #accelerator number
+            # cycle should be compared here, to find optimal accelerator number and config
+            lat_list = []
             for k in split_sub_net(start_index, start_index + len(sub_conv_N[i]), j):
                 DSP = 6840 / 3
                 dsp_list = []
                 pair_list = []
-                lat_list = []
                 util_list = []
+                local_cycle_list = []
+                sub_net_gop_list = []
                 factor = 1
 
                 # re-caculate sub_conv_N, sub_conv_M, sub_conv_R, sub_conv_K
                 sub_conv_N_new = []
                 sub_conv_M_new = []
+                sub_conv_r_new = []
                 sub_conv_R_new = []
                 sub_conv_K_new = []
+                sub_conv_S_new = []
+                print "2", j, k
 
-                sub_conv_N_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
-                sub_conv_M_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
-                sub_conv_R_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
-                sub_conv_K_new.append(sub_conv_N[i:j] for i, j in zip([0] + k, k + [None]))
-
-                # start_index_new = 0
-                # for t in range(0, j):
-                #     sub_conv_N_new.append(sub_conv_N[i][start_index_new:k[t]])
-                #     sub_conv_M_new.append(sub_conv_M[i][start_index_new:k[t]])
-                #     sub_conv_R_new.append(sub_conv_R[i][start_index_new:k[t]])
-                #     sub_conv_K_new.append(sub_conv_K[i][start_index_new:k[t]])
-                #     start_index_new += k[t]
+                sub_conv_N_new.append(sub_conv_N[i:j] for i, j in zip([0,] + k, k + [None]))
+                sub_conv_M_new.append(sub_conv_M[i:j] for i, j in zip([0,] + k, k + [None]))
+                sub_conv_r_new.append(sub_conv_r[i:j] for i, j in zip([0,] + k, k + [None]))
+                sub_conv_R_new.append(sub_conv_R[i:j] for i, j in zip([0,] + k, k + [None]))
+                sub_conv_K_new.append(sub_conv_K[i:j] for i, j in zip([0,] + k, k + [None]))
+                sub_conv_S_new.append(sub_conv_S[i:j] for i, j in zip([0,] + k, k + [None]))
 
                 dsp_list.append([])
-                sub_net_gop = gop_calculate(sub_conv_N_new[i], sub_conv_M_new[i], sub_conv_R_new[i], sub_conv_K_new[i])
-
-                # allocate_dsp by layer gops
-                dsp_list[i].append(DSP * (
-                            sub_conv_N_new[i][j] * sub_conv_M_new[i][j] * sub_conv_R_new[i][j] * sub_conv_R_new[i][j] *
-                            sub_conv_K_new[i][j] * sub_conv_K_new[i][j]) / sub_net_gop)
-                # do constrained dse for layer
-                pair, cycle, cycle_per_layer = constrained_dse_layer(sub_conv_N[i][j], sub_conv_M[i][j],
-                                                                     sub_conv_r[i][j], sub_conv_R[i][j],
-                                                                     sub_conv_K[i][j],
-                                                                     sub_conv_S[i][j], sub_flag[i][j],
-                                                                     int(dsp_list[i][j]), int(37),
+                for m in range(0, len(sub_conv_N_new)):
+                    sub_net_gop_list.append(gop_calculate(sub_conv_N_new[m], sub_conv_M_new[m], sub_conv_R_new[m], sub_conv_K_new[m]))
+                    # allocate_dsp by layer gops
+                    dsp_list.append(math.ceil(DSP * (sub_net_gop_list[m])/sub_conv_net_gop))
+                    # search best <Tm,Tn> configurations
+                    pair, cycle, cycle_per_layer = constrained_dse_layer(sub_conv_N_new[m], sub_conv_M_new[m],
+                                                                     sub_conv_r_new[m], sub_conv_R_new[m],
+                                                                     sub_conv_K_new[m],
+                                                                     sub_conv_S_new[m], sub_flag[m],
+                                                                     int(dsp_list[m]), int(37),
                                                                      factor)
-                # find the minimum cycles
-                if cycle < min_cycle:
-                    return None
-                    # record and return
-                    # pair_list.append(pair)
-                    # lat_list.append(cycle)
-                    # util_list.append(pair[0] * pair[1] / float(int(dsp_list[i][j])))
-
+                    local_cycle_list.append(cycle)
+                cycle_list.append([j, pair, k, max(local_cycle_list)])
+        # find the minimum cycles
+        opt_res.append(cycle_list.index(min(cycle_list[:][3:])))
         start_index += len(sub_conv_N[i])
-
-    for i in range(0, len(sub_conv_N)):
-        pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_R[i],
-                                                       sub_conv_K[i],
-                                                       sub_conv_S[i], sub_flag[i], int(DSP), int(37),
-                                                       factor)
-
-        if len(pair_list) > len(sub_conv_N):
-            for remove_cnt in range(0, len(sub_conv_N)):
-                pair_list.remove(pair_list[0])
-                lat_list.remove(lat_list[0])
-                util_list.remove(util_list[0])
-
-    return pair_list, lat_list, util_list
+    return opt_res
 
 
 def split_sub_net(start_index, end_index, k):
@@ -319,6 +304,8 @@ def split_sub_net(start_index, end_index, k):
         for i in range(start_index, end_index - 1):
             for j in range(i + 1, end_index):
                 yield [i, j]
+    if k == 1:
+        yield end_index
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     """

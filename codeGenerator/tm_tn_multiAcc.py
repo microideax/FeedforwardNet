@@ -18,6 +18,7 @@ from local_search import model_partition_by_gop
 from model_split import model_partition_ordered
 from local_search import per_die_config_dse
 from local_search import per_die_config_dse_multiAcc
+from local_search import per_die_config_dse_multiAcc_flex
 import time
 
 
@@ -101,15 +102,19 @@ def multiAcc_dse():
     overall_start = time.time()
     # acc_cluster_num = 3
     # pair_list, item_list, gop_list, util_list = global_search(layer_list, acc_cluster_num, conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, overall_lat)
-    pair_list, gop_list, util_list = per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K,
-                                                              sub_conv_S, sub_flag)
+    # pair_list, gop_list, util_list = per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K,
+                                                              # sub_conv_S, sub_flag)
+
+    pair_list = per_die_config_dse_multiAcc_flex(sub_conv_N,sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
+
     overall_end = time.time()
     print "Overall time cost:", overall_end - overall_start, "s"
+    print "1", pair_list
 
     # print item_list
-    print "gop_list: ",  gop_list
-    print "pair_list: ", pair_list
-    print "util_list: ", util_list
+    #print "gop_list: ",  gop_list
+    #print "pair_list: ", pair_list
+    #print "util_list: ", util_list
     # for i in range(0, len(util_list)):
     #     print util_list[i], sum(util_list[i])
     print "------------------------Final optimal configuration-------------------------------"
