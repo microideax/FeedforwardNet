@@ -269,12 +269,21 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_S_new = []
                 print "2", j, k
 
-                sub_conv_N_new.append(sub_conv_N[i:j] for i, j in zip([0,] + k, k + [None]))
-                sub_conv_M_new.append(sub_conv_M[i:j] for i, j in zip([0,] + k, k + [None]))
-                sub_conv_r_new.append(sub_conv_r[i:j] for i, j in zip([0,] + k, k + [None]))
-                sub_conv_R_new.append(sub_conv_R[i:j] for i, j in zip([0,] + k, k + [None]))
-                sub_conv_K_new.append(sub_conv_K[i:j] for i, j in zip([0,] + k, k + [None]))
-                sub_conv_S_new.append(sub_conv_S[i:j] for i, j in zip([0,] + k, k + [None]))
+                zip_index = zip([0] + k, k +[None])
+                for idx in range(0, len(zip_index)):
+                    sub_conv_N_new.append(sub_conv_N[zip_index[idx][0]:zip_index[idx][1]])
+                    sub_conv_M_new.append(sub_conv_M[zip_index[idx][0]:zip_index[idx][1]])
+                    sub_conv_r_new.append(sub_conv_r[zip_index[idx][0]:zip_index[idx][1]])
+                    sub_conv_R_new.append(sub_conv_R[zip_index[idx][0]:zip_index[idx][1]])
+                    sub_conv_K_new.append(sub_conv_K[zip_index[idx][0]:zip_index[idx][1]])
+                    sub_conv_S_new.append(sub_conv_S[zip_index[idx][0]:zip_index[idx][1]])
+
+                # sub_conv_N_new.append(list(sub_conv_N[i:j]) for i, j in zip([0] + k, k + [None]))
+                # sub_conv_M_new.append(list(sub_conv_M[i:j]) for i, j in zip([0] + k, k + [None]))
+                # sub_conv_r_new.append(sub_conv_r[i:j] for i, j in zip([0] + k, k + [None]))
+                # sub_conv_R_new.append(sub_conv_R[i:j] for i, j in zip([0] + k, k + [None]))
+                # sub_conv_K_new.append(sub_conv_K[i:j] for i, j in zip([0] + k, k + [None]))
+                # sub_conv_S_new.append(sub_conv_S[i:j] for i, j in zip([0] + k, k + [None]))
 
                 dsp_list.append([])
                 for m in range(0, len(sub_conv_N_new)):
@@ -299,13 +308,13 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 def split_sub_net(start_index, end_index, k):
     if k == 2:
        for i in range(start_index, end_index):
-           yield i
+           yield [i]
     if k== 3:
         for i in range(start_index, end_index - 1):
             for j in range(i + 1, end_index):
                 yield [i, j]
     if k == 1:
-        yield end_index
+        yield [end_index]
 
 def local_search(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
     """
