@@ -369,7 +369,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 cycle_list.append([j, k, max(local_cycle_list)])
                 print "cycle_list: ", cycle_list
 
-        # find the minimum cycles for each sub-net
+        # find the minimum cycles and the corresponding index for each sub-net
         for n in range(0, len(cycle_list)):
             if cycle_list[n][2] < min_cycle:
                 min_cycle = cycle_list[n][2]
