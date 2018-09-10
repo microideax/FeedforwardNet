@@ -15,6 +15,10 @@ void   inf_net_0(
    data_type_w conv_weight_port_1[2550],
    data_type_w conv_weight_port_2[2550],
    data_type_w conv_weight_port_3[2550],
+   data_type_w conv_weight_port_4[2550],
+   data_type_w conv_weight_port_5[2550],
+   data_type_w conv_weight_port_6[2550],
+   data_type_w conv_weight_port_7[2550],
 
    data_type_w conv_bias_port[22],
 
@@ -117,6 +121,7 @@ void   inf_net_0(
 
    conv_layer_acc_1(1, 5, 6, 28, 28, 28, 28, 1, 2, 1,
                     conv_weight_port_0, conv_weight_port_1, conv_weight_port_2, conv_weight_port_3,
+                    conv_weight_port_4, conv_weight_port_5, conv_weight_port_6, conv_weight_port_7,
                     conv_bias_port,
                     shift_weight_conv1_1, shift_bias_conv1_1, 0, 0,
                     data_in_0, data_in_1, data_in_2, data_in_3, data_in_4, data_in_5, data_in_6, data_in_7, //input data
@@ -138,6 +143,10 @@ void   inf_net_1(
         data_type_w conv_weight_port_1[2550],
         data_type_w conv_weight_port_2[2550],
         data_type_w conv_weight_port_3[2550],
+        data_type_w conv_weight_port_4[2550],
+        data_type_w conv_weight_port_5[2550],
+        data_type_w conv_weight_port_6[2550],
+        data_type_w conv_weight_port_7[2550],
         data_type_w conv_bias_port[22],
 
         data_type_o data_in_0[256],
@@ -166,6 +175,10 @@ void   inf_net_1(
 #pragma HLS INTERFACE bram port=conv_weight_port_1
 #pragma HLS INTERFACE bram port=conv_weight_port_2
 #pragma HLS INTERFACE bram port=conv_weight_port_3
+#pragma HLS INTERFACE bram port=conv_weight_port_4
+#pragma HLS INTERFACE bram port=conv_weight_port_5
+#pragma HLS INTERFACE bram port=conv_weight_port_6
+#pragma HLS INTERFACE bram port=conv_weight_port_7
 
 #pragma HLS INTERFACE m_axi port=conv_bias_port depth=22
 
@@ -224,6 +237,7 @@ void   inf_net_1(
 
     conv_layer_acc_2(6, 5, 16, 14, 14, 10, 10, 1, 0, 1,
                      conv_weight_port_0, conv_weight_port_1, conv_weight_port_2, conv_weight_port_3,
+                     conv_weight_port_4, conv_weight_port_5, conv_weight_port_6, conv_weight_port_7,
                      conv_bias_port,
                      shift_weight_conv2_1, shift_bias_conv2_1, 0, 0,
                      data_in_0, data_in_1, data_in_2, data_in_3,

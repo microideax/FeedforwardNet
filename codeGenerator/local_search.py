@@ -146,7 +146,7 @@ def constrained_dse_layer(N, M, r, R, K, S, flag, DSP, P_const, factor):
     return opt_pair, min_local_cycle, cycle_per_layer
 
 def per_die_config_dse(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
-    DSP = 6840 / 15
+    DSP = 6840 / 3
     pair_list = []
     lat_list = []
     util_list = []

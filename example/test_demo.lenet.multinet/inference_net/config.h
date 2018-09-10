@@ -36,11 +36,11 @@ typedef ap_uint<16> data_type_c;
 #else
 #define _KERNEL_DEBUG_ 1
 #endif
-#ifdef _HLS_MODE_
-#define _C_DEBUG_MODE_ 0
-#else
+#ifndef _HLS_MODE_
 #define _C_DEBUG_MODE_ 1
 #endif
+
+#define _8CH_ 1
 
 
 //*****************************************************************//

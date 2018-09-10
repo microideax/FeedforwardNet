@@ -62,7 +62,7 @@ public:
     }
 
     void
-    in_buf_load(T buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max],
+    in_buf_load_8ch(T buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max],
                 T *i_data_0,
                 T *i_data_1,
                 T *i_data_2,
@@ -185,14 +185,14 @@ public:
     }
 
 // Load weights to weight buffer
-    void w_buf_load(W buf[][Tm][K_max][K_max],
+    void w_buf_load_4ch(W buf[][Tm][K_max][K_max],
                     W *layer_weights_0,
                     W *layer_weights_1,
                     W *layer_weights_2,
                     W *layer_weights_3,
                     int weight_offset, int n, int m, int K, int N, int M) {
-        for (int i = 0; i < Tm && i < M - m; i++) {
-            for (int j = 0; j < Tn && j < N - n; j+=4) {
+        for (int j = 0; j < Tn && j < N - n; j+=4) {
+            for (int i = 0; i < Tm && i < M - m; i++) {
                 for (int k1 = 0; k1 < K; k1++) {
                     for (int k2 = 0; k2 < K; k2++) {
 #pragma HLS PIPELINE
@@ -206,6 +206,45 @@ public:
                                           (j+2+n) * K * K + k1 * K + k2);
                     buf[j+3][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
                                           (j+3+n) * K * K + k1 * K + k2);
+                    }
+                }
+            }
+        }
+
+    }
+    void w_buf_load_8ch(W buf[][Tm][K_max][K_max],
+                        W *layer_weights_0,
+                        W *layer_weights_1,
+                        W *layer_weights_2,
+                        W *layer_weights_3,
+                        W *layer_weights_4,
+                        W *layer_weights_5,
+                        W *layer_weights_6,
+                        W *layer_weights_7,
+                        int weight_offset, int n, int m, int K, int N, int M) {
+        for (int j = 0; j < Tn && j < N - n; j+=8) {
+            for (int i = 0; i < Tm && i < M - m; i++) {
+                for (int k1 = 0; k1 < K; k1++) {
+                    for (int k2 = 0; k2 < K; k2++) {
+#pragma HLS PIPELINE
+//                        buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+//                                          (j+n) * K * K + k1 * K + k2);
+                        buf[j+0][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+                                                (j+0+n) * K * K + k1 * K + k2);
+                        buf[j+1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
+                                                (j+1+n) * K * K + k1 * K + k2);
+                        buf[j+2][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
+                                                (j+2+n) * K * K + k1 * K + k2);
+                        buf[j+3][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
+                                                (j+3+n) * K * K + k1 * K + k2);
+                        buf[j+4][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+                                                (j+4+n) * K * K + k1 * K + k2);
+                        buf[j+5][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
+                                                (j+5+n) * K * K + k1 * K + k2);
+                        buf[j+6][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
+                                                (j+6+n) * K * K + k1 * K + k2);
+                        buf[j+7][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
+                                                (j+7+n) * K * K + k1 * K + k2);
                     }
                 }
             }
@@ -246,7 +285,7 @@ public:
     }
 
     // Ouput out_buf data to output interface
-    void output_res(G out_buf[][Tr][Tc],
+    void output_res_8ch(G out_buf[][Tr][Tc],
                     G *out_data_0, G *out_data_1, G *out_data_2, G *out_data_3,
                     G *out_data_4, G *out_data_5, G *out_data_6, G *out_data_7,
                     int out_offset, int n, int m, int r, int c, int N, int M,
@@ -569,6 +608,10 @@ public:
             W *layer_weights_1,
             W *layer_weights_2,
             W *layer_weights_3,
+            W *layer_weights_4, //w[M][N][K][K]
+            W *layer_weights_5,
+            W *layer_weights_6,
+            W *layer_weights_7,
             W *layer_bias,    // b[M]
             int weight_offset,
             int bias_offset,
@@ -662,23 +705,25 @@ public:
                             {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_0, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_0,
+                                w_buf_load_8ch(w_buf_0,
                                             layer_weights_0, layer_weights_1, layer_weights_2, layer_weights_3,
+                                            layer_weights_4, layer_weights_5, layer_weights_6, layer_weights_7,
                                             weight_offset, n, m, K, N, M);
-                                in_buf_load(in_buf_0,
-                                i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+                                in_buf_load_8ch(in_buf_0,
+                                            i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                            in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
                                 conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             } else {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_1, layer_bias, bias_offset, m);
-                                w_buf_load(w_buf_1,
+                                w_buf_load_8ch(w_buf_1,
                                            layer_weights_0, layer_weights_1, layer_weights_2, layer_weights_3,
+                                           layer_weights_4, layer_weights_5, layer_weights_6, layer_weights_7,
                                            weight_offset, n, m, K, N, M);
-                                in_buf_load(in_buf_1,
-                                i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
+                                in_buf_load_8ch(in_buf_1,
+                                            i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
+                                            in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
                                 conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             }
@@ -729,7 +774,7 @@ public:
 #endif
                         }
     //---------------------------transfer output data----------------------------------------//
-                        output_res(out_buf_0,
+                        output_res_8ch(out_buf_0,
                                     out_data_0, out_data_1, out_data_2, out_data_3,
                                     out_data_4, out_data_5, out_data_6, out_data_7,
                                     out_offset, N, m, r, c, N, M, R_OUT, C_OUT, act);
