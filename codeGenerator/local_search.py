@@ -47,11 +47,11 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
     # Tr = 16
     # Tc = 16
     for j in range(0, int(len(N))):
-        if flag[j] == True:
-            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
-            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
-        else:
-            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+        # if flag[j] == True:
+        #     tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+        #     # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+        # else:
+        tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
     return tmp
 
 def conv_net_perf_theo(N, M, R, K):
@@ -243,29 +243,32 @@ def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, 
 # by John: find the optimal number of accelerators in each sub-net
 def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
 
+    print "sub_conv_N (original): ", sub_conv_N
 
     opt_res = []
 
     # i: iterate over each sub-net
     for i in range(0, len(sub_conv_N)):
-        print "-" * 100
+        print "sub_conv_N[" + str(i) + "]: ", sub_conv_N[i]
         min_cycle = sys.maxint
         min_idx = -1
 
         sub_conv_net_gop = gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_R[i], sub_conv_K[i])
         cycle_list = []
+        pair_list = []
 
         # when the number of accelerators is j
-        for j in range(1, 3 + 1): #accelerator number
+        for j in range(1, 3 + 1):
             # cycle should be compared here, to find optimal accelerator number and config
             lat_list = []
             start_index = 0
 
-            # k: one split with j accelerators
-            for k in split_sub_net(start_index, len(sub_conv_N[i]), j):
+            # k: the index to split the sub_conv_N
+            for k in split_sub_net(0, len(sub_conv_N[i]), j):
                 DSP = 6840 / 3
                 dsp_list = []
                 local_cycle_list = []
+                local_pair_list = []
                 sub_net_gop_list = []
                 factor = 1
 
@@ -277,56 +280,9 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_K_new = []
                 sub_conv_S_new = []
 
-                # # -2: illegal setting, pass
-                # if k[0] == -2:
-                #     continue
-                #
-                # # -1: only one accelerator
-                # if k[0] == -1:
-                #     sub_conv_N_new = sub_conv_N[i]
-                #     sub_conv_M_new = sub_conv_M[i]
-                #     sub_conv_r_new = sub_conv_r[i]
-                #     sub_conv_R_new = sub_conv_R[i]
-                #     sub_conv_K_new = sub_conv_K[i]
-                #     sub_conv_S_new = sub_conv_S[i]
-                #
-                # # else: 2 or 3 accelerators
-                # else:
-                #     if len(k) == 1:
-                #         sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_N_new.append(sub_conv_N[i][k[0]:])
-                #         sub_conv_M_new.append(sub_conv_M[i][0:k[0]])
-                #         sub_conv_M_new.append(sub_conv_M[i][k[0]:])
-                #         sub_conv_r_new.append(sub_conv_r[i][0:k[0]])
-                #         sub_conv_r_new.append(sub_conv_r[i][k[0]:])
-                #         sub_conv_R_new.append(sub_conv_R[i][0:k[0]])
-                #         sub_conv_R_new.append(sub_conv_R[i][k[0]:])
-                #         sub_conv_K_new.append(sub_conv_K[i][0:k[0]])
-                #         sub_conv_K_new.append(sub_conv_K[i][k[0]:])
-                #         sub_conv_S_new.append(sub_conv_S[i][0:k[0]])
-                #         sub_conv_S_new.append(sub_conv_S[i][k[0]:])
-                #     else:
-                #         sub_conv_N_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_N_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_N_new.append(sub_conv_N[i][k[1]:])
-                #         sub_conv_M_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_M_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_M_new.append(sub_conv_N[i][k[1]:])
-                #         sub_conv_r_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_r_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_r_new.append(sub_conv_N[i][k[1]:])
-                #         sub_conv_R_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_R_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_R_new.append(sub_conv_N[i][k[1]:])
-                #         sub_conv_K_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_K_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_K_new.append(sub_conv_N[i][k[1]:])
-                #         sub_conv_S_new.append(sub_conv_N[i][0:k[0]])
-                #         sub_conv_S_new.append(sub_conv_N[i][k[0]:k[1]])
-                #         sub_conv_S_new.append(sub_conv_N[i][k[1]:])
-
                 # -2: illegal setting, pass
                 if k[0] == -2:
+                    print "illegal partitioning of sub-net, passing!"
                     continue
 
                 # -1: only one accelerator
@@ -349,11 +305,12 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                         sub_conv_K_new.append(flatten(sub_conv_K[i])[zi[idx][0]:zi[idx][1]])
                         sub_conv_S_new.append(flatten(sub_conv_S[i])[zi[idx][0]:zi[idx][1]])
 
-
-                print "sub_conv_N_new: ", sub_conv_N_new
+                print "split index k = ", k, "accelerator j = ", j, "sub_conv_N_new: ", sub_conv_N_new
 
                 # m: the mth sub-sub-net in the sub-net
+                temp_pair_list = []
                 for m in range(0, len(sub_conv_N_new)):
+                    print "sub_conv_N_new[" + str(m) + "]: ", sub_conv_N_new[m]
                     sub_net_gop_list.append(gop_calculate(sub_conv_N_new[m], sub_conv_M_new[m], sub_conv_R_new[m], sub_conv_K_new[m]))
                     # allocate_dsp by layer gops
                     dsp_list.append(math.ceil(DSP * (sub_net_gop_list[m])/sub_conv_net_gop))
@@ -365,16 +322,19 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                                                                      int(dsp_list[m]), int(37),
                                                                      factor)
                     local_cycle_list.append(cycle)
+                    temp_pair_list.append(pair)
+
+                    # local_pair_list.append(pair)
 
                 cycle_list.append([j, k, max(local_cycle_list)])
-                print "cycle_list: ", cycle_list
+                pair_list.append(temp_pair_list)
 
         # find the minimum cycles and the corresponding index for each sub-net
         for n in range(0, len(cycle_list)):
             if cycle_list[n][2] < min_cycle:
                 min_cycle = cycle_list[n][2]
                 min_idx = n
-        opt_res.append(cycle_list[min_idx])
+        opt_res.append([cycle_list[min_idx], pair_list[min_idx]])
     return opt_res
 
 
@@ -391,7 +351,7 @@ def split_sub_net(start_index, end_index, k):
                yield [i]
         if k == 3:
             for i in range(start_index + 1, end_index):
-                for j in range(i + 1, end_index + 1):
+                for j in range(i + 1, end_index):
                     yield [i, j]
 
     # if the layers are less than accelerators
