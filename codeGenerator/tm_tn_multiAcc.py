@@ -87,12 +87,15 @@ def multiAcc_dse():
     # kmeans=clusters_layers_kmeans(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 2)
     # print kmeans
     partition_location, diff_ratio = model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
-    print "test point 1", partition_location, diff_ratio
+    print "1", partition_location, diff_ratio
 
     sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
         =model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, partition_location[0]+1, partition_location[1]+1)
     print "Best partition output: ", partition_location, diff_ratio
-    print sub_conv_N
+    print "1", sub_conv_N
+    print "1: length of sub_conv_N", len(sub_conv_N[0]), len(sub_conv_N[1]), len(sub_conv_N[2])
+    print "1", sub_flag
+    print "1: length of sub_flag", len(sub_flag[0]), len(sub_flag[1]), len(sub_flag[2])
     sub_pair_list = []
     sub_lat_list = []
     sub_util_list = []
@@ -108,7 +111,9 @@ def multiAcc_dse():
 
     overall_end = time.time()
     print "Overall time cost:", overall_end - overall_start, "s"
-    print "Best Configuration Search Results: ", pair_list
+    print "Best Configuration Search Results: "
+    for i in range(0, len(pair_list)):
+        print pair_list[i]
 
     # print item_list
     #print "gop_list: ",  gop_list

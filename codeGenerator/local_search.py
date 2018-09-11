@@ -47,11 +47,11 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
     # Tr = 16
     # Tc = 16
     for j in range(0, int(len(N))):
-        # if flag[j] == True:
-        #     tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
-        #     # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
-        # else:
-        tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+        if flag[j] == True:
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+        else:
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
     return tmp
 
 def conv_net_perf_theo(N, M, R, K):
@@ -84,7 +84,7 @@ def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
                 # sub_gops[k] = conv_net_perf_theo(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
             balance_ratio = (max(sub_gops) - min(sub_gops))/float(min(sub_gops))
 
-            print "2: ", i, j, sub_gops, balance_ratio, sub_conv_N, sub_conv_M
+            # print "2: ", i, j, sub_gops, balance_ratio, sub_conv_N, sub_conv_M
 
 # TODO: find out a way to deal with the results with same balance_ratio
             if i == 0 and j == 1:
@@ -244,6 +244,7 @@ def per_die_config_dse_multiAcc(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, 
 def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag):
 
     print "sub_conv_N (original): ", sub_conv_N
+    print "sub_flag (original): ", sub_flag
 
     opt_res = []
 
@@ -265,7 +266,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3
+                DSP = 6840 / 3 * 2
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []
@@ -279,6 +280,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                 sub_conv_R_new = []
                 sub_conv_K_new = []
                 sub_conv_S_new = []
+                sub_flag_new   = []
 
                 # -2: illegal setting, pass
                 if k[0] == -2:
@@ -293,6 +295,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                     sub_conv_R_new.append(sub_conv_R[i])
                     sub_conv_K_new.append(sub_conv_K[i])
                     sub_conv_S_new.append(sub_conv_S[i])
+                    sub_flag_new.append(sub_flag[i])
 
                 # else: 2 or 3 accelerators
                 else:
@@ -304,6 +307,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                         sub_conv_R_new.append(flatten(sub_conv_R[i])[zi[idx][0]:zi[idx][1]])
                         sub_conv_K_new.append(flatten(sub_conv_K[i])[zi[idx][0]:zi[idx][1]])
                         sub_conv_S_new.append(flatten(sub_conv_S[i])[zi[idx][0]:zi[idx][1]])
+                        sub_flag_new.append(flatten(sub_flag[i])[zi[idx][0]:zi[idx][1]])
 
                 print "split index k = ", k, "accelerator j = ", j, "sub_conv_N_new: ", sub_conv_N_new
 
@@ -318,7 +322,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                     pair, cycle, cycle_per_layer = constrained_dse(sub_conv_N_new[m], sub_conv_M_new[m],
                                                                      sub_conv_r_new[m], sub_conv_R_new[m],
                                                                      sub_conv_K_new[m],
-                                                                     sub_conv_S_new[m], sub_flag[m],
+                                                                     sub_conv_S_new[m], sub_flag_new[m],
                                                                      int(dsp_list[m]), int(37),
                                                                      factor)
                     local_cycle_list.append(cycle)
