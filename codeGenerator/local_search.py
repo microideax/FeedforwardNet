@@ -12,10 +12,10 @@ import time
 from compiler.ast import flatten
 
 # convolutional layer performance
-def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const):
+def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     tmp = 0
-    Tr = 8
-    Tc = 8
+    # Tr = 8
+    # Tc = 8
     # / float(8)
     # revised layer performance
     R_iter = math.ceil(r / float(Tr))
@@ -44,16 +44,16 @@ def fc_layer_perf(n, m, r, k, Tn, Tm, P_const):
     return tmp
 
 # sub-net performance model function
-def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const):
+def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const, Tr, Tc):
     tmp = 0
     # Tr = 16
     # Tc = 16
     for j in range(0, int(len(N))):
         if flag[j] == True:
-            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
-            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
+            tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
         else:
-            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const)
+            tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
     return tmp
 
 def conv_net_perf_theo(N, M, R, S, K, flag, Tn, Tm, P_const):
@@ -105,18 +105,19 @@ def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
     cycle_per_layer = []
     min_local_cycle = 2000000000000
 
-    for Tm in range(1, max(M) + 1):
-        Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
-        for Tn in range(1, Tn_max + 1):
-            local_cycles = conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const)
-            if local_cycles < min_local_cycle and local_cycles != 0:
-                min_local_cycle = local_cycles
-                opt_pair = [Tm, Tn, local_cycles]
+    for Tr in range(4, 33):
+        for Tm in range(1, max(M) + 1):
+            Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
+            for Tn in range(1, Tn_max + 1):
+                local_cycles = conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const, Tr, Tr)
+                if local_cycles < min_local_cycle and local_cycles != 0:
+                    min_local_cycle = local_cycles
+                    opt_pair = [Tm, Tn, Tr, local_cycles]
 
     # collected the detailed performance for each layer in a sub-net
     for j in range(0, int(len(N))):
         tmp = 0
-        tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const)
+        tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const, opt_pair[2], opt_pair[2])
         cycle_per_layer.append(tmp)
 
     # Acc_num = 1
@@ -152,7 +153,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3
+                DSP = 6840 / 3 *2
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []
