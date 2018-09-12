@@ -152,7 +152,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3 
+                DSP = 6840 / 3
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []

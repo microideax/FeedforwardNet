@@ -57,8 +57,8 @@
       <file leaf-file-name="conv_acc_innerpp.h" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="516">
-              <caret line="725" column="51" selection-start-line="725" selection-start-column="51" selection-end-line="725" selection-end-column="51" />
+            <state relative-caret-position="246">
+              <caret line="710" column="17" selection-start-line="710" selection-start-column="17" selection-end-line="710" selection-end-column="17" />
               <folding>
                 <element signature="e#1679#9741#0" expanded="false" />
                 <element signature="e#6118#9671#0" expanded="false" />
@@ -470,12 +470,12 @@
       <workItem from="1536031802812" duration="12163000" />
       <workItem from="1536128101661" duration="12724000" />
       <workItem from="1536198601343" duration="25731000" />
-      <workItem from="1536649859527" duration="696000" />
+      <workItem from="1536649859527" duration="1294000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="542778000" />
+    <option name="totallyTimeSpent" value="543376000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -920,8 +920,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/inference_net/conv_acc_innerpp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="516">
-          <caret line="725" column="51" selection-start-line="725" selection-start-column="51" selection-end-line="725" selection-end-column="51" />
+        <state relative-caret-position="246">
+          <caret line="710" column="17" selection-start-line="710" selection-start-column="17" selection-end-line="710" selection-end-column="17" />
           <folding>
             <element signature="e#1679#9741#0" expanded="false" />
             <element signature="e#6118#9671#0" expanded="false" />
