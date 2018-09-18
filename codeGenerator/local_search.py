@@ -14,9 +14,7 @@ from compiler.ast import flatten
 # convolutional layer performance
 def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     tmp = 0
-    # Tr = 8
-    # Tc = 8
-    # / float(8)
+
     # revised layer performance
     R_iter = math.ceil(r / float(Tr))
     M_iter = math.ceil(m / float(Tm))
@@ -29,6 +27,9 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
     # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
     tmp = R_iter * R_iter * M_iter * ((N_iter + 1) * max(lat_read, lat_com) + lat_out)
+
+    #TODO: use a condition to decide is the layer is the first one in the model
+
     return tmp
 
 def pool_layer_perf(m, r, k, Tm, P_const):
@@ -153,7 +154,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3 *2
+                DSP = 6840 / 3 * 2
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []

@@ -59,7 +59,7 @@ void   inf_net_0(
 #pragma HLS INTERFACE m_axi port=data_in_5 depth=1024
 #pragma HLS INTERFACE m_axi port=data_in_6 depth=1024
 #pragma HLS INTERFACE m_axi port=data_in_7 depth=1024
-/*
+
 #pragma HLS INTERFACE bram port=data_out_0
 #pragma HLS RESOURCE variable=data_out_0 core=RAM_1P_BRAM
 #pragma HLS INTERFACE bram port=data_out_1
@@ -76,7 +76,8 @@ void   inf_net_0(
 #pragma HLS RESOURCE variable=data_out_6 core=RAM_1P_BRAM
 #pragma HLS INTERFACE bram port=data_out_7
 #pragma HLS RESOURCE variable=data_out_7 core=RAM_1P_BRAM
-*/
+// tk=2, 64240; no tk, 24976
+/*
 #pragma HLS INTERFACE m_axi port=data_out_0 depth=256
 #pragma HLS INTERFACE m_axi port=data_out_1 depth=256
 #pragma HLS INTERFACE m_axi port=data_out_2 depth=256
@@ -85,7 +86,9 @@ void   inf_net_0(
 #pragma HLS INTERFACE m_axi port=data_out_5 depth=256
 #pragma HLS INTERFACE m_axi port=data_out_6 depth=256
 #pragma HLS INTERFACE m_axi port=data_out_7 depth=256
-#endif
+latency = 64546
+ */
+ #endif
 
 #if _C_DEBUG_MODE_
 #if _KERNEL_DEBUG_

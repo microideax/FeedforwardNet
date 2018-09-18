@@ -252,7 +252,7 @@ public:
 
     }
 
-// Convolution computation kernel
+// Convolution computation kernel Tm, Tn based
     void conv_engine(T in_buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max], W w_buf[][Tm][K_max][K_max],
                      W b_buf[], G out_buf[][Tr][Tc], int S, int n, int N, int r, int c, int K, int R_OUT, int C_OUT,
                      int w_offset, int i_offset) {
@@ -266,15 +266,12 @@ public:
 #pragma HLS UNROLL
                                 for (int tn = 0; tn < Tn; tn++) {
 #pragma HLS UNROLL
-                                    if (i == 0 && j == 0 && tn == 0 && n == 0)
-                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j] *
-                                                                          in_buf[tn][S * (tr) + i + i_offset][
-                                                                                  S * (tc) + j];
-                                    else
-                                        out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j] *
-                                                                                    in_buf[tn][S * (tr) + i +
-                                                                                               i_offset][
-                                                                                            S * (tc) + j];
+                                        if (i == 0 && j == 0 && tn == 0 && n == 0)
+                                            out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j] *
+                                                                  in_buf[tn][S * (tr) + i + i_offset][S * (tc) + j];
+                                        else
+                                            out_buf[tm][tr][tc] = out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j] *
+                                                                  in_buf[tn][S * (tr) + i + i_offset][S * (tc) + j];
                                 }
                             }
                         }
@@ -282,6 +279,52 @@ public:
                 }
             }
         }
+    }
+
+// Convolution computation kernel
+    void conv_engine_flex(T in_buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max], W w_buf[][Tm][K_max][K_max],
+                     W b_buf[], G out_buf[][Tr][Tc], int S, int n, int N, int r, int c, int K, int R_OUT, int C_OUT,
+                     int w_offset, int i_offset) {
+
+        if (n >= 0 && n - Tn < N) {
+            for (int i = 0; i < K; i++) {
+                for (int j = 0; j < K; j+=2) {
+                    for (int tr = 0; tr < Tr && tr < R_OUT - r; tr++) {
+                        for (int tc = 0; tc < Tc; tc++) {
+#pragma HLS PIPELINE
+                            for (int tm = 0; tm < Tm; tm++) {
+#pragma HLS UNROLL
+                                for (int tn = 0; tn < Tn; tn++) {
+#pragma HLS UNROLL
+                                        for (int tj = 0; tj < 2; tj++) {
+#pragma HLS UNROLL
+                                            if (i == 0 && j == 0 && tn == 0 && n == 0)
+                                                out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i + w_offset][j + tj] *
+                                                                                  in_buf[tn][S * (tr) + i + i_offset][
+                                                                                          S * (tc) + j + tj];
+                                            else
+                                                out_buf[tm][tr][tc] =
+                                                        out_buf[tm][tr][tc] + w_buf[tn][tm][i + w_offset][j + tj] *
+                                                                              in_buf[tn][S * (tr) + i +
+                                                                                         i_offset][S * (tc) +
+                                                                                                   j + tj];
+                                        }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void conv_iq(hls::stream<T> &data_i,
+                 hls::stream<W> &data_w,
+                hls::stream<G> &data_o,
+                 int S, int n, int N, int r, int c, int K, int R_OUT, int C_OUT,
+                 int w_offset, int i_offset){
+
+
     }
 
     // Ouput out_buf data to output interface
@@ -664,14 +707,19 @@ public:
 #pragma HLS resource variable=out_buf_1 core=XPM_MEMORY uram
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 1
+//#pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 3
 #pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 1
 #pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 2
+//#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 4
 #pragma HLS ARRAY_PARTITION variable = b_buf_0 complete dim = 1
 #pragma HLS ARRAY_PARTITION variable = out_buf_0 complete dim = 1
+//#pragma HLS ARRAY_PARTITION variable = out_buf_0 factor=2 dim = 2  //II=4 depth=61 // II=2 Depth=65
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_1 complete dim = 1
+//#pragma HLS ARRAY_PARTITION variable = in_buf_1 complete dim = 3
 #pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 1
 #pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 2
+//#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 4
 #pragma HLS ARRAY_PARTITION variable = b_buf_1 complete dim = 1
 #pragma HLS ARRAY_PARTITION variable = out_buf_1 complete dim = 1
 

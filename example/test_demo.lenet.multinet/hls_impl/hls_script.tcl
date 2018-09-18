@@ -2,9 +2,9 @@
 ## Please DO NOT edit it.
 ## Copyright (C) 2015 Xilinx Inc. All rights reserved.
 ############################################################
-open_project inf_net_2_impl
+open_project inf_net_0_sim
 
-set_top inf_net_2
+set_top inf_net_0
 
 #add_files ../inference_net/activation_functions.h
 add_files ../inference_net/config.h
@@ -50,8 +50,8 @@ config_interface -m_axi_addr64 -m_axi_offset off -register_io off
 
 csynth_design
 
-export_design -flow syn -rtl verilog -format ip_catalog
+#export_design -flow syn -rtl verilog -format ip_catalog
 
-#cosim_design -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
+cosim_design -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt} -trace_level none -rtl verilog -tool xsim
 
 exit

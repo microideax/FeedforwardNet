@@ -15,6 +15,7 @@ def model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag
     sub_conv_K = []
     sub_conv_S = []
     sub_flag = []
+    sub_group = []
 
     sub_conv_N.append(conv_N[0: int(i)])
     sub_conv_N.append(conv_N[int(i): int(j)])
