@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "hls_stream.h"
 #include "activation_functions.h"
 
 #if _C_DEBUG_MODE_
@@ -318,13 +319,36 @@ public:
         }
     }
 
-    void conv_iq(hls::stream<T> &data_i,
-                 hls::stream<W> &data_w,
-                hls::stream<G> &data_o,
+    void conv_iq(T in_buf[][(Tr - 1) * S_max + K_max][(Tc - 1) * S_max + K_max], W w_buf[][Tm][K_max][K_max],
+                     W b_buf[], G out_buf[][Tr][Tc],
                  int S, int n, int N, int r, int c, int K, int R_OUT, int C_OUT,
                  int w_offset, int i_offset){
 
-
+        if (n >= 0 && n - Tn < N) {
+            for (int tr = 0; tr < Tr; tr++) {
+                for (int tc = 0; tc < Tc; tc++) {
+//#pragma HLS PIPELINE
+                    for (int tn = 0; tn < Tn; tn++) {
+#pragma HLS UNROLL
+                        for (int tm = 0; tm < Tm; tm++) {
+#pragma HLS UNROLL
+                            for (int i = 0; i < K_max; i++) {
+                                for (int j = 0; j < K_max; j++) {
+#pragma HLS PIPELINE
+                                     if (i == 0 && j == 0 && tn == 0 && n == 0)
+                                        out_buf[tm][tr][tc] = b_buf[tm] + w_buf[tn][tm][i][j] *
+                                               in_buf[tn][S_max * (tr) + i][S_max * (tc) + j];
+                                    else
+                                        out_buf[tm][tr][tc] =
+                                               out_buf[tm][tr][tc] + w_buf[tn][tm][i][j] *
+                                               in_buf[tn][S_max * (tr) + i][S_max * (tc) + j];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Ouput out_buf data to output interface
@@ -698,29 +722,27 @@ public:
             bool out_1 = 0;
 
 #if _HLS_MODE_
-    //#pragma HLS INTERFACE s_axilite port=return bundle=CRTL_BUS
+
 #pragma HLS resource variable=in_buf_0 core=XPM_MEMORY uram
-#pragma HLS resource variable=w_buf_0 core=XPM_MEMORY uram
+//#pragma HLS resource variable=w_buf_0 core=XPM_MEMORY uram
 #pragma HLS resource variable=out_buf_0 core=XPM_MEMORY uram
 #pragma HLS resource variable=in_buf_1 core=XPM_MEMORY uram
-#pragma HLS resource variable=w_buf_1 core=XPM_MEMORY uram
+//#pragma HLS resource variable=w_buf_1 core=XPM_MEMORY uram
 #pragma HLS resource variable=out_buf_1 core=XPM_MEMORY uram
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 1
-//#pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 3
-#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 1
-#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 2
+#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete
+//#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 2
 //#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 4
-#pragma HLS ARRAY_PARTITION variable = b_buf_0 complete dim = 1
+#pragma HLS ARRAY_PARTITION variable = b_buf_0 complete
 #pragma HLS ARRAY_PARTITION variable = out_buf_0 complete dim = 1
-//#pragma HLS ARRAY_PARTITION variable = out_buf_0 factor=2 dim = 2  //II=4 depth=61 // II=2 Depth=65
+//II=4 depth=61 // II=2 Depth=65
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_1 complete dim = 1
-//#pragma HLS ARRAY_PARTITION variable = in_buf_1 complete dim = 3
-#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 1
-#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 2
+#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete
+//#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 2
 //#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 4
-#pragma HLS ARRAY_PARTITION variable = b_buf_1 complete dim = 1
+#pragma HLS ARRAY_PARTITION variable = b_buf_1 complete
 #pragma HLS ARRAY_PARTITION variable = out_buf_1 complete dim = 1
 
 #endif

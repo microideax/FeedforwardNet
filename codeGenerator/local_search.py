@@ -19,18 +19,42 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     R_iter = math.ceil(r / float(Tr))
     M_iter = math.ceil(m / float(Tm))
     N_iter = math.ceil(n / float(Tn))
-    lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k)
+    lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
     # lat_read = 0
-    lat_com = Tr * Tc * k * k
-    # lat_out = math.ceil(Tm/float(8)) * Tr*Tc
-    lat_out = 0
+    if n == 3:
+        lat_com = Tr * Tc * math.ceil(k*2)
+    else:
+        lat_com = Tr * Tc * k * k
+
+    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr/2) * math.ceil(Tc/2)
+    # lat_out = 0
     # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
     # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
     tmp = R_iter * R_iter * M_iter * ((N_iter + 1) * max(lat_read, lat_com) + lat_out)
 
-    #TODO: use a condition to decide is the layer is the first one in the model
+    return tmp
+
+def conv_layer_perf_x(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc, ln):
+    tmp = 0
+
+    # revised layer performance
+    R_iter = math.ceil(r / float(Tr))
+    M_iter = math.ceil(m / float(Tm))
+    N_iter = math.ceil(n / float(Tn))
+    lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
+    # lat_read = 0
+    if ln ==1:
+        lat_com = Tr * Tc * math.ceil(k * k /2)
+    else:
+        lat_com = Tr * Tc * k * k
+    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
+    # lat_out = 0
+    # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
+    # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
+    tmp = R_iter * R_iter * M_iter * ((N_iter + 1) * max(lat_read, lat_com) + lat_out)
 
     return tmp
+
 
 def pool_layer_perf(m, r, k, Tm, P_const):
     tmp = (math.ceil(m / float(Tm))) * r * r * k * k + P_const

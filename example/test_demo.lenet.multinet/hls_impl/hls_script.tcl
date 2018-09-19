@@ -46,7 +46,7 @@ set_part {xcvu9p-flgb2104-2-i}
 create_clock -period 5 -name default
 config_interface -m_axi_addr64 -m_axi_offset off -register_io off
 
-#csim_design -clean -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt}
+csim_design -clean -argv {net_weights.txt, 3.bmp, val.txt, net_mean.txt}
 
 csynth_design
 
