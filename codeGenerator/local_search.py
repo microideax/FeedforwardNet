@@ -22,15 +22,15 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
     # lat_read = 0
     if n == 3:
-        lat_com = Tr * Tc * math.ceil(k*2)
+        lat_com = Tr * Tc * math.ceil(k*k/2)
     else:
         lat_com = Tr * Tc * k * k
 
-    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr/2) * math.ceil(Tc/2)
+    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
     # lat_out = 0
     # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
     # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
-    tmp = R_iter * R_iter * M_iter * ((N_iter + 1) * max(lat_read, lat_com) + lat_out)
+    tmp = R_iter * R_iter * M_iter * (lat_read + (N_iter) * max(lat_read, lat_com) + lat_out)
 
     return tmp
 
@@ -76,7 +76,7 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const, Tr, Tc):
     for j in range(0, int(len(N))):
         if flag[j] == True:
             tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
-            tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
         else:
             tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
     return tmp
@@ -178,7 +178,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3 * 2
+                DSP = 6840 / 3
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []

@@ -731,16 +731,16 @@ public:
 #pragma HLS resource variable=out_buf_1 core=XPM_MEMORY uram
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_0 complete dim = 1
-#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete
-//#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 2
+#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 1
+#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 2
 //#pragma HLS ARRAY_PARTITION variable = w_buf_0 complete dim = 4
 #pragma HLS ARRAY_PARTITION variable = b_buf_0 complete
 #pragma HLS ARRAY_PARTITION variable = out_buf_0 complete dim = 1
 //II=4 depth=61 // II=2 Depth=65
 
 #pragma HLS ARRAY_PARTITION variable = in_buf_1 complete dim = 1
-#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete
-//#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 2
+#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 1
+#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 2
 //#pragma HLS ARRAY_PARTITION variable = w_buf_1 complete dim = 4
 #pragma HLS ARRAY_PARTITION variable = b_buf_1 complete
 #pragma HLS ARRAY_PARTITION variable = out_buf_1 complete dim = 1
@@ -783,7 +783,7 @@ public:
                                             i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                             in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
-                                conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                conv_iq(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             } else {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_1, layer_bias, bias_offset, m);
@@ -795,7 +795,7 @@ public:
                                             i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                             in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
-                                conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                conv_iq(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             }
                             com_0 = !com_0;
 #if _C_DEBUG_MODE_
