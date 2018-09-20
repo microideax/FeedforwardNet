@@ -22,7 +22,7 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
     # lat_read = 0
     if n == 3:
-        lat_com = Tr * Tc * math.ceil(k*k/2)
+        lat_com = Tr * Tc * math.ceil(k*k)
     else:
         lat_com = Tr * Tc * k * k
 
