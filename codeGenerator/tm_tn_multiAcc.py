@@ -19,6 +19,7 @@ from model_split import model_partition_ordered
 from local_search import per_die_config_dse
 from local_search import per_die_config_dse_multiAcc
 from local_search import per_die_config_dse_multiAcc_flex
+from local_search import conv_net_perf
 import time
 
 def print_line(stage_name):
@@ -68,15 +69,15 @@ def multiAcc_dse():
     """
     step 1: extract model from the original txt file with parameter no_include_fc / include_fc
     """
-    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag = model_extract('no_include_fc')
+    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag = model_extract('include_fc')
     OPs = gop_calculate(conv_N, conv_M, conv_R, conv_K)
     max_layerout = max_layer_dataout(conv_N, conv_M, conv_R, conv_K)
 
     print_line("Model extract")
     print "1: ", "Model extracted"
     print "1: ", "Overall Operation required: ", OPs
-    print "1: ", "Max layer output data: ", max_layerout
-    print_line("Model split finish")
+    # print "1: ", "Max layer output data: ", max_layerout
+    # print_line("Model split finish")
 
     """
     step 2: randomly cluster, param k=4, layer label results are in item
@@ -87,15 +88,24 @@ def multiAcc_dse():
     # kmeans=clusters_layers_kmeans(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 2)
     # print kmeans
     partition_location, diff_ratio = model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
-    print "1", partition_location, diff_ratio
+    print "2: layers extracted", conv_N
+    print "2: partition location", partition_location
+    print "2: diff_ratio: ", diff_ratio
 
     sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
         =model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, partition_location[0]+1, partition_location[1]+1)
-    print "Best partition output: ", partition_location, diff_ratio
-    print "1", sub_conv_N
-    print "1: length of sub_conv_N", len(sub_conv_N[0]), len(sub_conv_N[1]), len(sub_conv_N[2])
-    print "1", sub_flag
-    print "1: length of sub_flag", len(sub_flag[0]), len(sub_flag[1]), len(sub_flag[2])
+    # print "2: Best partition output: ", partition_location, diff_ratio
+    print "2:", sub_conv_N
+
+    sub_gop_list = []
+    for i in range(0, len(sub_conv_N)):
+        sub_gop_list.append(gop_calculate(sub_conv_N[i], sub_conv_M[i], sub_conv_r[i], sub_conv_K[i]))
+
+
+    print "2: gop of sub_nets", sub_gop_list
+    print "2: length of sub_conv_N", len(sub_conv_N[0]), len(sub_conv_N[1]), len(sub_conv_N[2])
+    print "2", sub_flag
+    print "2: length of sub_flag", len(sub_flag[0]), len(sub_flag[1]), len(sub_flag[2])
     sub_pair_list = []
     sub_lat_list = []
     sub_util_list = []
@@ -110,7 +120,7 @@ def multiAcc_dse():
     pair_list = per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag)
 
     overall_end = time.time()
-    print "Overall time cost:", overall_end - overall_start, "s"
+
     print "Best Configuration Search Results: "
     for i in range(0, len(pair_list)):
         print pair_list[i]
@@ -125,6 +135,7 @@ def multiAcc_dse():
     # print "Network clustered results =", item_list[util_list.index(min(util_list))]
     # print "<Tm, Tn> = ", pair_list[util_list.index(min(util_list))]
     # print "Estimated overall latency = ", min(util_list)
+    print "Overall time cost:", overall_end - overall_start, "s"
     print "----------------------------------------------------------------------------------"
 
     # item = return_partition(layer_list, 4, False)
@@ -186,6 +197,9 @@ def multiAcc_dse():
     # find_min_in_pairs()
     # min_among_mins = pair_list.index(min(overall_lat))
     # print(pair_list[min_among_mins])
+
+    print "---------------------------- test part -------------------------------------------"
+    print conv_net_perf(sub_conv_N[2], sub_conv_M[2], sub_conv_R[2], sub_conv_S[2], sub_conv_K[2], sub_flag[2], 8, 274, 37, 4, 4)
 
 
 if __name__ == "__main__":

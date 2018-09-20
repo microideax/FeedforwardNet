@@ -76,7 +76,7 @@ def conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const, Tr, Tc):
     for j in range(0, int(len(N))):
         if flag[j] == True:
             tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
-            # tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
+            tmp += pool_layer_perf(M[j], R[j], K[j], Tm, P_const)
         else:
             tmp += conv_layer_perf(N[j], M[j], R[j], S[j], K[j], Tn, Tm, P_const, Tr, Tc)
     return tmp
@@ -110,6 +110,7 @@ def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
                 sub_gops[k] = gop_calculate(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
                 # sub_gops[k] = conv_net_perf_theo(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
             balance_ratio = (max(sub_gops) - min(sub_gops))/float(min(sub_gops))
+            print sub_gops
 
             # print "2: ", i, j, sub_gops, balance_ratio, sub_conv_N, sub_conv_M
 
@@ -162,7 +163,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
 
     # i: iterate over each sub-net
     for i in range(0, len(sub_conv_N)):
-        print "sub_conv_N[" + str(i) + "]: ", sub_conv_N[i]
+        # print "sub_conv_N[" + str(i) + "]: ", sub_conv_N[i]
         min_cycle = sys.maxint
         min_idx = -1
 
@@ -221,12 +222,12 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                         sub_conv_S_new.append(flatten(sub_conv_S[i])[zi[idx][0]:zi[idx][1]])
                         sub_flag_new.append(flatten(sub_flag[i])[zi[idx][0]:zi[idx][1]])
 
-                print "split index k = ", k, "accelerator j = ", j, "sub_conv_N_new: ", sub_conv_N_new
+                # print "split index k = ", k, "accelerator j = ", j, "sub_conv_N_new: ", sub_conv_N_new
 
                 # m: the mth sub-sub-net in the sub-net
                 temp_pair_list = []
                 for m in range(0, len(sub_conv_N_new)):
-                    print "sub_conv_N_new[" + str(m) + "]: ", sub_conv_N_new[m]
+                    # print "sub_conv_N_new[" + str(m) + "]: ", sub_conv_N_new[m]
                     sub_net_gop_list.append(gop_calculate(sub_conv_N_new[m], sub_conv_M_new[m], sub_conv_R_new[m], sub_conv_K_new[m]))
                     # allocate_dsp by layer gops
                     dsp_list.append(math.ceil(DSP * (sub_net_gop_list[m])/sub_conv_net_gop))

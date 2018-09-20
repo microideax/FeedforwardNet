@@ -71,7 +71,6 @@ class fc_acc_conv
         }
     }
 
-// Load input data TODO: change the data load into linebuffer mode, to avoid redundant data load
     void in_buf_load(T buf[][K_max][K_max], T *in_data_1, int in_offset,
                      int n, int r, int c, int S, int K, int P, int R_IN, int C_IN, int N)
     {
@@ -201,7 +200,7 @@ class fc_acc_conv
             }
 
             for (int i = 0; i < K; i++) {
-                for (int j = 0; j < K_max; j++) {
+                for (int j = 0; j < K; j++) {
 #pragma HLS PIPELINE
                     for (int tm = 0; tm < Tm; tm++) {
 #pragma HLS UNROLL
