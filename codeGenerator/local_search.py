@@ -110,7 +110,7 @@ def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
                 sub_gops[k] = gop_calculate(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
                 # sub_gops[k] = conv_net_perf_theo(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
             balance_ratio = (max(sub_gops) - min(sub_gops))/float(min(sub_gops))
-            print sub_gops
+            # print sub_gops
 
             # print "2: ", i, j, sub_gops, balance_ratio, sub_conv_N, sub_conv_M
 
