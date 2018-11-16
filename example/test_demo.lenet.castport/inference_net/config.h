@@ -3,13 +3,18 @@
 #define _CONFIG_H_
 
 #include "ap_fixed.h"
+#include "ap_int.h"
 
+
+extern int layer_count = 0;
 //define data type
-typedef ap_fixed<16,8> data_type;
-typedef ap_fixed<16,8> data_type_w;
-typedef ap_fixed<16,8> data_type_o;
+typedef ap_fixed<16,10> data_type;
+typedef ap_fixed<16,10> data_type_w;
+typedef ap_fixed<16,10> data_type_o;
 
 typedef unsigned int uint;
+
+typedef ap_uint<32> Tparam;
 // counter datatype used in the entire design
 typedef ap_int<512> data_type_itf;
 //typedef ap_fixed<16,0> param_type;
@@ -17,6 +22,10 @@ typedef ap_int<512> data_type_itf;
 #define READ_LEN_i uint(sizeof(ap_int<512>)/sizeof(data_type))
 #define READ_LEN_w uint(sizeof(ap_int<512>)/sizeof(data_type_w))
 #define READ_LEN_o uint(sizeof(ap_int<512>)/sizeof(data_type_o))
+
+#define DATA_LEN uint(sizeof(data_type))
+#define DATA_O_LEN int(sizeof(data_type_itf)/sizeof(data_type_o))
+#define DATA_O int(sizeof(data_type_o))
 
 // C++ compilation debug mode
 #define _LAYER_MODE_ 1
@@ -33,7 +42,7 @@ typedef ap_int<512> data_type_itf;
 //#define _ACC_MODE_ 1
 //#endif
 
-#define _HLS_MODE_  1
+//#define _HLS_MODE_  1
 
 //#define _BATCH_MODE_ 1
 #ifdef _BATCH_MODE_
@@ -47,34 +56,6 @@ typedef ap_int<512> data_type_itf;
 
 #define _8CH_ 1
 
-
-//*****************************************************************//
-// System buffer configuration
-//const int IBUF_t = 32;
-//const int WBUF_t = 32;
-//const int OBUF_t = 32;
-// conv accelerator configuration
-//const int Tm = 16;
-//const int Tn = 16;
-//const int Tr = 8;
-//const int Tc = 8;
-//const int Pool_Tr = Tr/2 + Tr%2;
-//const int Pool_Tc = Tc/2 + Tc%2;
-//const int S_max = 5;
-//const int K_max = 5;
-//pooling accelerator configuration
-//const int pTm = 4;
-//const int pTn = 4;
-//const int pTr = 8;
-//const int pTc = 8;
-//const int pS_max = 2;
-//const int pK_max = 2;
-//inner productoin configuration
-//const int iTm = 4;
-//const int iTn = 4;
-//const int iS_max = 5;
-//const int iK_max = 5;
-//****************************************************************//
 
 //network configuration PARAMETERS
 int weight_bias_record = 0;
@@ -93,24 +74,6 @@ int nn_in_data_size_fc[1] = {5};
 int nn_in_number_fc[1] = {16};
 int nn_out_number_fc[1] = {10};
 int nn_channel_size_fc[1] = {5};
-
-struct pool_param_reg {
-    int n;
-    int r;
-    int c;
-    int S;
-    int K;
-    int P;
-    int R;
-    int C;
-    int N;
-    int R_IN;
-    int C_IN;
-    int TR;
-    int TC;
-    bool i_flag;
-    bool o_flag;
-} pool_regs;
 
 
 #endif

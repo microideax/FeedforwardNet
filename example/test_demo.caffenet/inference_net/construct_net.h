@@ -535,6 +535,8 @@ max_pool_layer_acc_3(13, 13, 256, 3, 6, 6, 2, 0, 1,
       int shift_weight_fc3 = 54525952/8;
       int shift_bias_fc3 = 8192;
 
+#pragma HLS allocation instances=fc_layer_acc_0 limit=1 function
+
  fc_layer_acc_0(256, 6, 4096, 6, 6, 1, 1, 6, 0, 1,
                      fc_layer_weights_0, fc_layer_weights_1, fc_layer_weights_2, fc_layer_weights_3,
                      fc_layer_weights_4, fc_layer_weights_5, fc_layer_weights_6, fc_layer_weights_7,

@@ -284,7 +284,7 @@ void conv_layer_acc_2(
                                out_data_0, out_data_1, out_data_2, out_data_3, out_data_4, out_data_5, out_data_6, out_data_7);
 };
 
-conv_acc_3<data_type_itf, data_type, data_type_w, data_type_o, 192, 7, 13, 13, 1, 3, 32, 32, 32> conv_3;
+conv_acc_3<data_type_itf, data_type, data_type_w, data_type_o, 96, 7, 13, 13, 1, 3, 32, 32, 32> conv_3;
 // use this accelerator to process conv_layer_1_1
 void conv_layer_acc_3(
         const int N,

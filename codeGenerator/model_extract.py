@@ -59,6 +59,13 @@ def model_extract(include_fc):
     # print init_conv_M
     # print conv_only_M
 
+    nn_conv_group_values = []
+    if isinstance(init_conv_G, list):
+        for group_value in init_conv_G:
+            nn_conv_group_values.append(group_value)
+        else:
+            nn_conv_group_values.append(1)
+
     if(include_fc == 'include_fc'):
         init_conv_N = init_conv_N + nn_in_number_conv_values1
         init_conv_M = init_conv_M + nn_out_number_conv_values1
@@ -72,6 +79,8 @@ def model_extract(include_fc):
     conv_K = [int(string) for string in init_conv_K]
     conv_S = [int(string) for string in init_conv_S]
     conv_P = [int(string) for string in init_conv_P]
+    conv_G = [int(string) for string in init_conv_G]
+
     if not init_fc_Rin:
         conv_P = conv_P + [0]
     else:
@@ -108,7 +117,7 @@ def model_extract(include_fc):
     # print "conv_S: ", conv_S
     # print "flag", flag
 
-    return conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag
+    return conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag
 
 # if __name__ == "__main__":
 #     conv_N, conv_M, conv_r, conv_R, conv_K, conv_S = model_extract()

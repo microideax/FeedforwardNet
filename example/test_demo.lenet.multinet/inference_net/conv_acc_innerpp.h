@@ -74,12 +74,6 @@ public:
                 T *i_data_7,
                 int in_offset, int n, int r, int c, int S, int K, int P, int R_IN, int C_IN, int N) {
 
-//        T* in_port[8] = {i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7};
-
-
-//#pragma HLS UNROLL
-//            for (int p = 0; p < 8 && i + p < Tn; p++) {
-//#pragma HLS UNROLL
             for (int j = r * S - P; j < (r + Tr - 1) * S + K - P && j < R_IN; j++) {
                 for (int k = c * S - P; k < (c + Tc - 1) * S + K - P && j < C_IN; k++) {
 #pragma HLS PIPELINE
@@ -95,37 +89,53 @@ public:
 //                    }
 
                     if ((n + Tn > N && (i + 0) % 8 >= N - n) || j < 0 || j >= R_IN || k < 0 || k >= C_IN) {
-                        buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 1][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 2][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 3][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 4][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 5][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 6][j - r * S + P][k - c * S + P] = T(0);
-                        buf[i + 7][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+0 < Tn)
+                            buf[i + 0][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+1 < Tn)
+                            buf[i + 1][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+2 < Tn)
+                            buf[i + 2][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+3 < Tn)
+                            buf[i + 3][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+4 < Tn)
+                            buf[i + 4][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+5 < Tn)
+                            buf[i + 5][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+6 < Tn)
+                            buf[i + 6][j - r * S + P][k - c * S + P] = T(0);
+                        if(i+7 < Tn)
+                            buf[i + 7][j - r * S + P][k - c * S + P] = T(0);
                     } else {
-                        buf[i + 0][j - r * S + P][k - c * S + P] = *(i_data_0 + in_offset +
+                        if(i+0 < Tn)
+                            buf[i + 0][j - r * S + P][k - c * S + P] = *(i_data_0 + in_offset +
                                                                      (i + 0 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 1][j - r * S + P][k - c * S + P] = *(i_data_1 + in_offset +
+                        if(i+1 < Tn)
+                            buf[i + 1][j - r * S + P][k - c * S + P] = *(i_data_1 + in_offset +
                                                                      (i + 1 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 2][j - r * S + P][k - c * S + P] = *(i_data_2 + in_offset +
+                        if(i+2 < Tn)
+                            buf[i + 2][j - r * S + P][k - c * S + P] = *(i_data_2 + in_offset +
                                                                      (i + 2 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 3][j - r * S + P][k - c * S + P] = *(i_data_3 + in_offset +
+                        if(i+3 < Tn)
+                            buf[i + 3][j - r * S + P][k - c * S + P] = *(i_data_3 + in_offset +
                                                                      (i + 3 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 4][j - r * S + P][k - c * S + P] = *(i_data_4 + in_offset +
+                        if(i+4 < Tn)
+                            buf[i + 4][j - r * S + P][k - c * S + P] = *(i_data_4 + in_offset +
                                                                      (i + 4 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 5][j - r * S + P][k - c * S + P] = *(i_data_5 + in_offset +
+                        if(i+5 < Tn)
+                            buf[i + 5][j - r * S + P][k - c * S + P] = *(i_data_5 + in_offset +
                                                                      (i + 5 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 6][j - r * S + P][k - c * S + P] = *(i_data_6 + in_offset +
+                        if(i+6 < Tn)
+                            buf[i + 6][j - r * S + P][k - c * S + P] = *(i_data_6 + in_offset +
                                                                      (i + 6 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
-                        buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
+                        if(i+7 < Tn)
+                            buf[i + 7][j - r * S + P][k - c * S + P] = *(i_data_7 + in_offset +
                                                                      (i + 7 + n) / 8 * R_IN * C_IN +
                                                                      j * C_IN + k);
 //                    }
@@ -230,21 +240,29 @@ public:
 #pragma HLS PIPELINE
 //                        buf[j][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
 //                                          (j+n) * K * K + k1 * K + k2);
-                        buf[j+0][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+                        if(i+0 < Tn)
+                            buf[j+0][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
                                                 (j+0+n) * K * K + k1 * K + k2);
-                        buf[j+1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
+                        if(i+1 < Tn)
+                            buf[j+1][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
                                                 (j+1+n) * K * K + k1 * K + k2);
-                        buf[j+2][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
+                        if(i+2 < Tn)
+                            buf[j+2][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
                                                 (j+2+n) * K * K + k1 * K + k2);
-                        buf[j+3][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
+                        if(i+3 < Tn)
+                            buf[j+3][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
                                                 (j+3+n) * K * K + k1 * K + k2);
-                        buf[j+4][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
+                        if(i+4 < Tn)
+                            buf[j+4][i][k1][k2] = *(layer_weights_0 + weight_offset + (i + m) * N * K * K +
                                                 (j+4+n) * K * K + k1 * K + k2);
-                        buf[j+5][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
+                        if(i+5 < Tn)
+                            buf[j+5][i][k1][k2] = *(layer_weights_1 + weight_offset + (i + m) * N * K * K +
                                                 (j+5+n) * K * K + k1 * K + k2);
-                        buf[j+6][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
+                        if(i+6 < Tn)
+                            buf[j+6][i][k1][k2] = *(layer_weights_2 + weight_offset + (i + m) * N * K * K +
                                                 (j+6+n) * K * K + k1 * K + k2);
-                        buf[j+7][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
+                        if(i+7 < Tn)
+                            buf[j+7][i][k1][k2] = *(layer_weights_3 + weight_offset + (i + m) * N * K * K +
                                                 (j+7+n) * K * K + k1 * K + k2);
                     }
                 }
@@ -783,7 +801,7 @@ public:
                                             i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                             in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
-                                conv_iq(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                conv_engine(in_buf_1, w_buf_1, b_buf_1, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             } else {
     //--------------------------Load input B W D in ping-pong manner-------------------------//
                                 b_buf_load(b_buf_1, layer_bias, bias_offset, m);
@@ -795,7 +813,7 @@ public:
                                             i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                             in_offset, n, r, c, S, K, P, R_IN, C_IN, N);
     //------------------------------compute buffered data -----------------------------------//
-                                conv_iq(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
+                                conv_engine(in_buf_0, w_buf_0, b_buf_0, out_buf_0, S, n-Tn, N, r, c, K, R_OUT, C_OUT, 0, 0);
                             }
                             com_0 = !com_0;
 #if _C_DEBUG_MODE_

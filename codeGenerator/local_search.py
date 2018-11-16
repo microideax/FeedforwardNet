@@ -19,15 +19,18 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     R_iter = math.ceil(r / float(Tr))
     M_iter = math.ceil(m / float(Tm))
     N_iter = math.ceil(n / float(Tn))
-    lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
-    # lat_read = 0
+    # lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
+    lat_read = 0
+    # lat_w_read = math.ceil(min(Tn, n)/float(8)) * Tm * k * k
+
     if n == 3:
         lat_com = Tr * Tc * math.ceil(k*k)
+        # lat_com = 0
     else:
         lat_com = Tr * Tc * k * k
 
-    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
-    # lat_out = 0
+    # lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
+    lat_out = 0
     # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
     # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
     tmp = R_iter * R_iter * M_iter * (lat_read + (N_iter) * max(lat_read, lat_com) + lat_out)
@@ -57,7 +60,7 @@ def conv_layer_perf_x(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc, ln):
 
 
 def pool_layer_perf(m, r, k, Tm, P_const):
-    tmp = (math.ceil(m / float(Tm))) * r * r * k * k + P_const
+    tmp = (math.ceil(m / float(Tm))) * r * r * 3 * 3 + P_const
     return tmp
 
 
@@ -88,7 +91,7 @@ def conv_net_perf_theo(N, M, R, S, K, flag, Tn, Tm, P_const):
     return tmp
 
 
-def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag):
+def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag):
     sub_conv_N = []
     sub_conv_M = []
     sub_conv_r = []
@@ -104,7 +107,7 @@ def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
     for i in range(0, model_len - 2):
         for j in range(i+1, model_len - 1):
             sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag = model_partition_ordered(
-                conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, i+1, j+1)
+                conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag, i+1, j+1)
             # print sub_conv_N
             for k in range(0, 3):
                 sub_gops[k] = gop_calculate(sub_conv_N[k], sub_conv_M[k], sub_conv_R[k], sub_conv_K[k])
@@ -126,25 +129,40 @@ def model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
 
 
 # Optimal Tm, Tn pair selection with given amount of DSP
-def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor):
+def constrained_dse(N, M, r, R, K, S, flag, DSP, P_const, factor, acc_per_die):
     opt_pair = []
     cycle_per_layer = []
     min_local_cycle = 2000000000000
+    BRAM_bank_total = 1440*0.8 #for each die
+    buffer_bank = 0
+    off_chip_bank = 0
+    # for layer in range(0, len(N)):
+    #     buffer_bank += int(2*M[layer]*math.ceil(R[layer]*R[layer]/float(1024)))
+    # acc_bank = int((BRAM_bank_total - buffer_bank)/acc_per_die)
+    # print "acc_bank, buffer_bank, M, R: ", acc_bank, buffer_bank, M[-1], R[-1]
+    # if acc_bank < 0:
+    #     Tr_boundary = BRAM_bank_total
+    #     print "Illigal acc_bank number, memory is not enough for tmp_bank!!!"
+    # else:
+    Tr_boundary = int(BRAM_bank_total/acc_per_die)
 
-    for Tr in range(4, 33):
+    for Tr in range(1, 33):
         for Tm in range(1, max(M) + 1):
             Tn_max = min(max(N), int(int(DSP / Tm)), Tm)
             for Tn in range(1, Tn_max + 1):
+                # print "Search in Tr range 1 - ", int(math.floor(math.sqrt(Tr_boundary/float(Tm))))
                 local_cycles = conv_net_perf(N, M, R, S, K, flag, Tn, Tm, P_const, Tr, Tr)
-                if local_cycles < min_local_cycle and local_cycles != 0:
+                if local_cycles < min_local_cycle and local_cycles != 0 and (int((Tn+Tm)*math.ceil(Tr*Tr/1024)) < int(BRAM_bank_total/acc_per_die)):
                     min_local_cycle = local_cycles
                     opt_pair = [Tm, Tn, Tr, local_cycles]
 
     # collected the detailed performance for each layer in a sub-net
-    for j in range(0, int(len(N))):
-        tmp = 0
-        tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const, opt_pair[2], opt_pair[2])
-        cycle_per_layer.append(tmp)
+    # for j in range(0, int(len(N))):
+    #     tmp = 0
+    #     tmp = conv_layer_perf(N[j], M[j], R[j], S[j], K[j], opt_pair[1], opt_pair[0], P_const, opt_pair[2], opt_pair[2])
+    #     cycle_per_layer.append(tmp)
+
+    cycle_per_layer.append(0)
 
     # Acc_num = 1
     # opt_pair.append(Acc_num)
@@ -172,14 +190,15 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
         pair_list = []
 
         # when the number of accelerators is j
-        for j in range(1, 3 + 1):
+        # for j in range(1, 3 + 1):
+        for j in range(1, 3+1):
             # cycle should be compared here, to find optimal accelerator number and config
             lat_list = []
             start_index = 0
 
             # k: the index to split the sub_conv_N
             for k in split_sub_net(0, len(sub_conv_N[i]), j):
-                DSP = 6840 / 3
+                DSP = int(6840/3*0.8)
                 dsp_list = []
                 local_cycle_list = []
                 local_pair_list = []
@@ -237,7 +256,7 @@ def per_die_config_dse_multiAcc_flex(sub_conv_N, sub_conv_M, sub_conv_r, sub_con
                                                                      sub_conv_K_new[m],
                                                                      sub_conv_S_new[m], sub_flag_new[m],
                                                                      int(dsp_list[m]), int(37),
-                                                                     factor)
+                                                                     factor, j)
                     local_cycle_list.append(cycle)
                     temp_pair_list.append(pair)
 

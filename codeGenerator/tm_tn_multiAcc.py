@@ -69,7 +69,7 @@ def multiAcc_dse():
     """
     step 1: extract model from the original txt file with parameter no_include_fc / include_fc
     """
-    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag = model_extract('no_include_fc')
+    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag = model_extract('no_include_fc')
     OPs = gop_calculate(conv_N, conv_M, conv_R, conv_K)
     max_layerout = max_layer_dataout(conv_N, conv_M, conv_R, conv_K)
 
@@ -87,13 +87,13 @@ def multiAcc_dse():
         layer_list.append(i)
     # kmeans=clusters_layers_kmeans(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, 2)
     # print kmeans
-    partition_location, diff_ratio = model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag)
+    partition_location, diff_ratio = model_partition_by_gop(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag)
     print "2: layers extracted", conv_N
     print "2: partition location", partition_location
     print "2: diff_ratio: ", diff_ratio
 
     sub_conv_N, sub_conv_M, sub_conv_r, sub_conv_R, sub_conv_K, sub_conv_S, sub_flag \
-        =model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, flag, partition_location[0]+1, partition_location[1]+1)
+        =model_partition_ordered(conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag, partition_location[0]+1, partition_location[1]+1)
     # print "2: Best partition output: ", partition_location, diff_ratio
     print "2:", sub_conv_N
 

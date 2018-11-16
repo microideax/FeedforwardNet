@@ -12,96 +12,60 @@
 
 using namespace std;
 
-conv_acc<data_type, data_type_w, data_type_o, 8, 4, 28, 28, 5, 5, 32, 32, 32> convAcc1;
+conv_acc<data_type_itf, Tparam, data_type, data_type_w, data_type_o, 32, 8, 32, 32, 5, 5, 32, 32, 32> convAcc1;
 
 void conv_layer_acc_1(
-        const int N,
-        const int K,
-        const int M,
-        const int R_IN,
-        const int C_IN,
-        const int C_OUT,
-        const int R_OUT,
-        const int S,
-        const int P,
-        bool act,
-        data_type_w layer_weights_0[2550],
-        data_type_w layer_weights_1[2550],
-        data_type_w layer_weights_2[2550],
-        data_type_w layer_weights_3[2550],
-        data_type_w layer_weights_4[2550],
-        data_type_w layer_weights_5[2550],
-        data_type_w layer_weights_6[2550],
-        data_type_w layer_weights_7[2550],
-        data_type_w layer_bias[22],
-        const int weight_offset,
-        const int bias_offset,
-        const int in_offset,
-        const int out_offset,
-        data_type i_data_0[1024],
-        data_type i_data_1[1024],
-        data_type i_data_2[1024],
-        data_type i_data_3[1024],
-        data_type i_data_4[1024],
-        data_type i_data_5[1024],
-        data_type i_data_6[1024],
-        data_type i_data_7[1024],
-        data_type_o out_data_0[1024],
-        data_type_o out_data_1[1024],
-        data_type_o out_data_2[1024],
-        data_type_o out_data_3[1024],
-        data_type_o out_data_4[1024],
-        data_type_o out_data_5[1024],
-        data_type_o out_data_6[1024],
-        data_type_o out_data_7[1024]) {
+        Tparam N,
+        Tparam K,
+        Tparam M,
+        Tparam R_IN,
+        Tparam C_IN,
+        Tparam C_OUT,
+        Tparam R_OUT,
+        Tparam S,
+        Tparam P,
+        Tparam act,
+        Tparam weight_offset,
+        Tparam bias_offset,
+        Tparam in_offset,
+        Tparam out_offset,
+        ap_fixed<32,26>* layer_bias,
+        data_type_itf* i_weight,
+        data_type_itf* i_data,
+        data_type_itf* out_data
+) {
 
     convAcc1.conv_layer_acc_mbuf(N, K, M, R_IN, C_IN, C_OUT, R_OUT, S, P, act,
-                                 layer_weights_0, layer_weights_1, layer_weights_2, layer_weights_3,
-                                 layer_weights_4, layer_weights_5, layer_weights_6, layer_weights_7,
-                                 layer_bias, weight_offset,
-                                 bias_offset, in_offset, out_offset,
-                                 i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                 out_data_0, out_data_1, out_data_2, out_data_3, out_data_4, out_data_5, out_data_6, out_data_7);
+                                 weight_offset, bias_offset, in_offset, out_offset,
+                                 layer_bias,
+                                 i_weight,
+                                 i_data,
+                                 out_data);
 
 };
-/*
-max_pool_acc<data_type, data_type_w, data_type_o, 16, 16, 16, 2, 2> maxPoolAcc1;
+
+
+max_pool_acc<data_type_itf, data_type, data_type_w, data_type_o, 32, 16, 16, 2, 2> maxPoolAcc1;
 
 void max_pool_layer_new(
-        int R_in,
-        int C_in,
-        int N,
-        int K,
-        int R,
-        int C,
-        int S,
-        int P,
-        bool act,
-        data_type i_data_0[1024],
-        data_type i_data_1[1024],
-        data_type i_data_2[1024],
-        data_type i_data_3[1024],
-        data_type i_data_4[1024],
-        data_type i_data_5[1024],
-        data_type i_data_6[1024],
-        data_type i_data_7[1024],
-        data_type_o o_data_0[256],
-        data_type_o o_data_1[256],
-        data_type_o o_data_2[256],
-        data_type_o o_data_3[256],
-        data_type_o o_data_4[256],
-        data_type_o o_data_5[256],
-        data_type_o o_data_6[256],
-        data_type_o o_data_7[256]) {
+        Tparam R_in,
+        Tparam C_in,
+        Tparam N,
+        Tparam K,
+        Tparam R,
+        Tparam C,
+        Tparam S,
+        Tparam P,
+        Tparam act,
+        Tparam i_offset,
+        Tparam o_offset,
+        data_type_itf* i_data,
+        data_type_itf* o_data) {
 
-    maxPoolAcc1.max_pool_layer_mbuf(R_in, C_in, N, K, R, C, S, P, act,
-                                    i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
-                                    o_data_0, o_data_1, o_data_2, o_data_3, o_data_4, o_data_5, o_data_6, o_data_7);
-
+    maxPoolAcc1.max_pool_layer_mbuf(R_in, C_in, N, K, R, C, S, P, act, i_offset, o_offset, i_data, o_data);
 };
-*/
 
-
+/*
 conv_acc<data_type, data_type_w, data_type_o, 16, 8, 16, 16, 5, 5, 32, 32, 32> convAcc2;
 void conv_layer_acc_2(
         const int N,
@@ -227,5 +191,5 @@ void fc_layer_new(
                                  i_data_0, i_data_1, i_data_2, i_data_3, i_data_4, i_data_5, i_data_6, i_data_7,
                                  fc_o_data);
 }
-
+*/
 #endif
