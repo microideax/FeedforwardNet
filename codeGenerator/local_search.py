@@ -19,18 +19,18 @@ def conv_layer_perf(n, m, r, s, k, Tn, Tm, P_const, Tr, Tc):
     R_iter = math.ceil(r / float(Tr))
     M_iter = math.ceil(m / float(Tm))
     N_iter = math.ceil(n / float(Tn))
-    # lat_read = math.ceil((min(Tn, n)/float(8))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
-    lat_read = 0
-    # lat_w_read = math.ceil(min(Tn, n)/float(8)) * Tm * k * k
+    lat_read = math.ceil((min(Tn, n)/float(32))) * ((Tr-1)*s + k) * ((Tr-1)*s + k)
+    # lat_read = 0
+    lat_w_read = math.ceil(min(Tn, n)/float(32)) * Tm * k * k
 
-    if n == 3:
-        lat_com = Tr * Tc * math.ceil(k*k)
+    # if n == 3:
+    #     lat_com = Tr * Tc * math.ceil(k*k)
         # lat_com = 0
-    else:
-        lat_com = Tr * Tc * k * k
+    # else:
+    lat_com = Tr * Tc * k * k
 
-    # lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
-    lat_out = 0
+    lat_out = math.ceil(Tm/float(8)) * math.ceil(Tr) * math.ceil(Tc)
+    # lat_out = 0
     # tmp = R_iter * R_iter * M_iter * (lat_read + N_iter*lat_com + lat_out)
     # tmp = R_iter * R_iter * M_iter * N_iter * lat_com
     tmp = R_iter * R_iter * M_iter * (lat_read + (N_iter) * max(lat_read, lat_com) + lat_out)

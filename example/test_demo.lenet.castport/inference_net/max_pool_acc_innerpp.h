@@ -99,7 +99,8 @@ public:
             Itf* i_data,
             int in_offset,
             int n, int r, int c, int S, int K, int P,
-            int R, int C, int N, int R_IN, int C_IN, int TR, int TC) {
+            int R, int C, int N, int R_IN, int C_IN, int TR, int TC) 
+    {
         Itf data_tmp = 0;
         // valid data portion
         for (int j = r * S - P; j < r * S + TR - P; j++) {
@@ -116,7 +117,7 @@ public:
                         data_tmp = *(i_data + in_offset + (i + n)/32 * (R_IN - 2 * P) * (C_IN - 2 * P) + j * (R_IN - 2 * P) + k);
                         for (int wr = 0; wr < pTn; wr++) {
 #pragma HLS UNROLL
-                            buf[i + wr][j - r * S + P][k - c * S + P].range(15,0) = data_tmp.range((n + wr + 1) * 16 - 1, (n+wr) * 16);
+                            buf[wr][j - r * S + P][k - c * S + P].range(15,0) = data_tmp.range((wr + 1) * 16 - 1, (wr) * 16);
                         }
                     }
                 }

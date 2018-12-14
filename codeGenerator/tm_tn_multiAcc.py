@@ -23,6 +23,7 @@ from local_search import conv_net_perf
 import time
 
 def print_line(stage_name):
+    print "\n"
     print "-" * int(math.ceil((int(80) - len(stage_name))/2)), stage_name, "-" * int(math.ceil((int(80) - len(stage_name))/2))
 
 def multiAcc_dse():
@@ -69,7 +70,7 @@ def multiAcc_dse():
     """
     step 1: extract model from the original txt file with parameter no_include_fc / include_fc
     """
-    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag = model_extract('no_include_fc')
+    conv_N, conv_M, conv_r, conv_R, conv_K, conv_S, conv_G, flag = model_extract('include_fc')
     OPs = gop_calculate(conv_N, conv_M, conv_R, conv_K)
     max_layerout = max_layer_dataout(conv_N, conv_M, conv_R, conv_K)
 
@@ -121,6 +122,7 @@ def multiAcc_dse():
 
     overall_end = time.time()
 
+    print_line("DSEoutpout")
     print "Best Configuration Search Results: "
     for i in range(0, len(pair_list)):
         print pair_list[i]
