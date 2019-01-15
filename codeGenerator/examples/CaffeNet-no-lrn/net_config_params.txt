@@ -15,4 +15,4 @@ nn_in_number_pooling: 96 256 256
 nn_in_data_size_fc: 6 1 1 
 nn_in_number_fc: 256 4096 4096 
 nn_out_number_fc: 4096 4096 1000 
-nn_channel_size_fc: 6 1 1 
+nn_channel_size_fc: 6 1 1

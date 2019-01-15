@@ -18,28 +18,6 @@
 
 using namespace std;
 
-/*
-conv_acc<data_type, data_type_w, data_type_o, 132, 10, 28, 28, 7, 11> convAcc2;
-void conv_layer_new(
-   int N,
-   int K,
-   int M,
-   int R,
-   int C,
-   int S,
-   int P,
-   bool act,
-   data_type *in_data,
-   data_type_w *layer_weights,
-   data_type_w *layer_bias,
-   data_type_o *out_data,
-   int weight_offset,
-   int bias_offset,
-   int in_offset,
-   int out_offset) {
-   convAcc2.conv_layer_acc(N, K, M, R, C, S, P, act, in_data, layer_weights, layer_bias, out_data, weight_offset, bias_offset, in_offset, out_offset);
-} */
-
 
 //----------------------------------------inf_net_0 accelerator definitions ---------------------------//
 conv_acc_0<data_type_itf, data_type, data_type_w, data_type_o, 96, 3, 28, 28, 4, 11, 32, 32, 32> conv_0;
